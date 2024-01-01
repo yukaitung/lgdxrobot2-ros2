@@ -4,7 +4,7 @@ import launch_ros
 import os
 
 def generate_launch_description():
-    pkg_share = launch_ros.substitutions.FindPackageShare(package='lgdxrobot2-description').find('lgdxrobot2-description')
+    pkg_share = launch_ros.substitutions.FindPackageShare(package='lgdxrobot2_description').find('lgdxrobot2_description')
     default_model_path = os.path.join(pkg_share, 'src/description/lgdxrobot2_description.urdf')
     default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf_config.rviz')
 

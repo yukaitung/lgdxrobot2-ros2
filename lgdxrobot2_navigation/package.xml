@@ -1,14 +1,13 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>lgdxrobot2</name>
+  <name>lgdxrobot2_navigation</name>
   <version>0.0.0</version>
-  <description>ROS 2 packages for LGDXRobot2.</description>
+  <description>LGDXRobot2 setting for ROS navigation.</description>
   <maintainer email="sam@bristolgram.uk">Kai Tung Yu</maintainer>
   <license>TODO: License declaration</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <exec_depend>lgdxrobot2_description</exec_depend>
-  <exec_depend>lgdxrobot2_navigation</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
   <export>
     <build_type>ament_cmake</build_type>
   </export>
