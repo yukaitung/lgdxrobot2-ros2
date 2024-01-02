@@ -8,7 +8,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 
 install(
-  DIRECTORY src launch param
+  DIRECTORY src launch param rviz
   DESTINATION share/${PROJECT_NAME}
 )
 
