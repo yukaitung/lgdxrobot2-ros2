@@ -25,19 +25,21 @@ class SerialPort
       return a << 24 | b << 16 | c << 8 | d;
     }
 
-    // Buffer
-    static const int kSerialBufferSize = 512;
-    char serialBuffer[kSerialBufferSize] = {0};
-    char framebuffer[kSerialBufferSize] = {0};
-    int frameBufferCount = 0;
-    int frameBufferTargetSize = 0;
+    // Read Buffer
+    static const int kReadBufferSize = 512;
+    char readBuffer[kReadBufferSize] = {0};
+    char localReadBuffer[kReadBufferSize] = {0}; // Read buffer for longer storage
+    int localReadBufferCount = 0;
+    int localReadBufferTargetSize = 0;
+
+    // Write Buffer
 
     // Read from MCU
     void read();
     void readHandler(boost::system::error_code error, std::size_t size);
-    void saveSerialBuffer(int size);
-    void clearSerialBuffer();
-    void processSerialData(char* const data);
+    void saveReadBuffer(int size);
+    void clearReadBuffer();
+    void processReadData(char* const data);
   
   public:
     SerialPort(std::string portName);

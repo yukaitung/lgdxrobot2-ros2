@@ -2,7 +2,7 @@
 
 void SerialPort::read()
 {
-  serial.async_read_some(boost::asio::buffer(serialBuffer, kSerialBufferSize), std::bind(&SerialPort::readHandler, this, std::placeholders::_1, std::placeholders::_2));
+  serial.async_read_some(boost::asio::buffer(readBuffer, kReadBufferSize), std::bind(&SerialPort::readHandler, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
@@ -12,36 +12,36 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
     if(size >= 2) 
     {
       // Find the header and frame size
-      if(serialBuffer[0] == char(170)) // 170 = 0xABAB
+      if(readBuffer[0] == char(170)) // 170 = 0xABAB
       {
-        frameBufferTargetSize = int(serialBuffer[1]);
-        if(int(size) == frameBufferTargetSize)
+        localReadBufferTargetSize = int(readBuffer[1]);
+        if(int(size) == localReadBufferTargetSize)
         {
           // Process the data if received data = target size, 
-          processSerialData(serialBuffer);
+          processReadData(readBuffer);
         }
-        else if(int(size) < frameBufferTargetSize)
+        else if(int(size) < localReadBufferTargetSize)
         {
-          // If the received data is too few, copy them into framebuffer
-          saveSerialBuffer(size);
+          // If the received data is too few, copy them into localReadBuffer
+          saveReadBuffer(size);
         }
         // If the received data is too many, discard the data
       }
     }
     
-    if(frameBufferCount > 0)
+    if(localReadBufferCount > 0)
     {
-      // When using framebuffer, save more data
-      saveSerialBuffer(size);
-      if(frameBufferCount == frameBufferTargetSize)
+      // When using localReadBuffer, save more data
+      saveReadBuffer(size);
+      if(localReadBufferCount == localReadBufferTargetSize)
       {
-        processSerialData(framebuffer);
-        clearSerialBuffer();
+        processReadData(localReadBuffer);
+        clearReadBuffer();
       }
-      if(frameBufferCount > frameBufferTargetSize)
+      if(localReadBufferCount > localReadBufferTargetSize)
       {
         // Discard the data if too much
-        clearSerialBuffer();
+        clearReadBuffer();
       }
     }
     
@@ -50,23 +50,23 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
   }
 }
 
-void SerialPort::saveSerialBuffer(int size)
+void SerialPort::saveReadBuffer(int size)
 {
   for(int i = 0; i < size; i++)
   {
-    if(i > kSerialBufferSize)
+    if(i >= kReadBufferSize)
       return;
-    framebuffer[frameBufferCount + i] = serialBuffer[i];
+    localReadBuffer[localReadBufferCount + i] = readBuffer[i];
   }
-  frameBufferCount += size;
+  localReadBufferCount += size;
 }
 
-void SerialPort::clearSerialBuffer()
+void SerialPort::clearReadBuffer()
 {
-  frameBufferCount = 0;
+  localReadBufferCount = 0;
 }
 
-void SerialPort::processSerialData(char* const data)
+void SerialPort::processReadData(char* const data)
 {
   int index = 2;
   for(int i = 0; i < mcuData.wheelCount; i++) 
