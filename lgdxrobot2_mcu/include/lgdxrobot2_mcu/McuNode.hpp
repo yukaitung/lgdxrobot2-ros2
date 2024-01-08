@@ -9,11 +9,15 @@
 class McuNode : public rclcpp::Node
 {
   private:
+    // Object
     std::shared_ptr<SerialPort> serial;
     rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joySubscription;
 
+    float maximumVelocity = 0.1; // m/s
+    int lastSecondButton[2] = {0};
+
     void serialPortReadDone(const McuData &data);
-    void joyCallback(const sensor_msgs::msg::Joy &msg) const;
+    void joyCallback(const sensor_msgs::msg::Joy &msg);
     
   public:
     McuNode(std::shared_ptr<SerialPort> s);
