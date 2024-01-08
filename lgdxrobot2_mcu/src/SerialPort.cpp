@@ -121,6 +121,16 @@ void SerialPort::processReadData(char* const data)
   }
 }
 
+void SerialPort::write(std::vector<char> &data)
+{
+ serial.async_write_some(boost::asio::buffer(data), std::bind(&SerialPort::readHandler, this, std::placeholders::_1, std::placeholders::_2));
+}
+
+void SerialPort::writeHandler(boost::system::error_code error, std::size_t size)
+{
+
+}
+
 SerialPort::SerialPort(std::string portName) : ioservice(), serial(ioservice)
 {
   serial.open(portName);
@@ -138,4 +148,37 @@ SerialPort::~SerialPort()
 void SerialPort::setReadCallback(std::function<void(McuData const&)> f)
 {
   readCallback = f;
+}
+
+void SerialPort::setInverseKinematics(float x, float y, float w)
+{
+  uint32_t ux = floatToUint32(x);
+  uint32_t uy = floatToUint32(y);
+  uint32_t uw = floatToUint32(w);
+  std::vector<char> ba(13);
+  ba[0] = 'M';
+  ba[1] = (ux & 4278190080) >> 24;
+  ba[2] = (ux & 16711680) >> 16;
+  ba[3] = (ux & 65280) >> 8;
+  ba[4] = ux & 255;
+  ba[5] = (uy & 4278190080) >> 24;
+  ba[6] = (uy & 16711680) >> 16;
+  ba[7] = (uy & 65280) >> 8;
+  ba[8] = uy & 255;
+  ba[9] = (uw & 4278190080) >> 24;
+  ba[10] = (uw & 16711680) >> 16;
+  ba[11] = (uw & 65280) >> 8;
+  ba[12] = uw & 255;
+  write(ba);
+}
+
+void SerialPort::setEstop(int enable)
+{
+  std::vector<char> ba(5);
+  ba[0] = 'E';
+  ba[1] = (enable & 4278190080) >> 24;
+  ba[2] = (enable & 16711680) >> 16;
+  ba[3] = (enable & 65280) >> 8;
+  ba[4] = enable & 255;
+  write(ba);
 }
