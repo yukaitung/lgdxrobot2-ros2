@@ -3,14 +3,17 @@
 
 #include "rclcpp/rclcpp.hpp"
 
+#include "SerialPort.hpp"
+
 class McuNode : public rclcpp::Node
 {
   private:
-    int a = 0;
+    std::shared_ptr<SerialPort> serial;
 
-  public:
-    McuNode();
+    void serialPortReadDone(const McuData& data);
     
+  public:
+    McuNode(std::shared_ptr<SerialPort> s);
 };
 
 #endif // MCUNODE_HPP

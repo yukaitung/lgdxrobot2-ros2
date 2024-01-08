@@ -1,19 +1,4 @@
-#include <iostream>
 #include "SerialPort.hpp"
-
-SerialPort::SerialPort(std::string portName) : ioservice(), serial(ioservice)
-{
-  serial.open(portName);
-  std::thread thread{[this](){ ioservice.run(); }};
-  ioThread.swap(thread);
-  read();
-}
-
-SerialPort::~SerialPort()
-{
-  ioservice.stop();
-  ioThread.join();
-}
 
 void SerialPort::read()
 {
@@ -84,49 +69,73 @@ void SerialPort::clearSerialBuffer()
 void SerialPort::processSerialData(char* const data)
 {
   int index = 2;
-  for(int i = 0; i < 4; i++) {
-      uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
-      float a = uint32ToFloat(temp);
-      std::cout << "Target Wheels Velocity " << i + 1 << " " << a << std::endl;
-      index += 4;
+  for(int i = 0; i < mcuData.wheelCount; i++) 
+  {
+    uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    mcuData.targetWheelVelocity[i] = uint32ToFloat(temp);
+    index += 4;
   }
-  for(int i = 0; i < 4; i++) {
-      uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
-      float a = uint32ToFloat(temp);
-      std::cout << "Measured Wheels Velocity " << i + 1 << " " << a << std::endl;
-      index += 4;
+  for(int i = 0; i < mcuData.wheelCount; i++) 
+  {
+    uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    mcuData.measuredWheelVelocity[i] = uint32ToFloat(temp);
+    index += 4;
   }
-  for(int i = 0; i < 4; i++) {
-      uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
-      float a  = uint32ToFloat(temp);
-      std::cout << "P Constant " << i + 1 << " " << a << std::endl;
-      index += 4;
+  for(int i = 0; i < mcuData.wheelCount; i++) 
+  {
+    uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    mcuData.pConstant[i]  = uint32ToFloat(temp);
+    index += 4;
   }
-  for(int i = 0; i < 4; i++) {
-      uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
-      float a  = uint32ToFloat(temp);
-      std::cout << "I Constant " << i + 1 << " " << a << std::endl;
-      index += 4;
+  for(int i = 0; i < mcuData.wheelCount; i++) 
+  {
+    uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    mcuData.iConstant[i]  = uint32ToFloat(temp);
+    index += 4;
   }
-  for(int i = 0; i < 4; i++) {
-      uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
-      float a  = uint32ToFloat(temp);
-      std::cout << "D Constant " << i + 1 << " " << a << std::endl;
-      index += 4;
+  for(int i = 0; i < mcuData.wheelCount; i++) 
+  {
+    uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    mcuData.dConstant[i]  = uint32ToFloat(temp);
+    index += 4;
   }
-  for(int i = 0; i < 4; i++) {
-      int a  = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
-      std::cout << "PWM  " << i + 1 << " " << a << std::endl;
-      index += 4;
+  for(int i = 0; i < mcuData.wheelCount; i++)
+  {
+    mcuData.pwm[i] = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    index += 4;
   }
-  for(int i = 0; i < 2; i++) {
-      int a  = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
-      std::cout << "Battery  " << i + 1 << " " << a*0.004 << std::endl;
-      index += 4;
+  for(int i = 0; i < 2; i++) 
+  {
+    mcuData.battery[i] = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    mcuData.battery[i] *= 0.004;
+    index += 4;
   }
-  for(int i = 0; i < 2; i++) {
-      int a = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
-      std::cout << "Hardware E-Stop Enabled " << i + 1 << " " << a << std::endl;
-      index += 4;
+  for(int i = 0; i < 2; i++) 
+  {
+    mcuData.estop[i] = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    index += 4;
   }
+  if(readCallback)
+  {
+    readCallback(mcuData);
+  }
+}
+
+SerialPort::SerialPort(std::string portName) : ioservice(), serial(ioservice)
+{
+  serial.open(portName);
+  std::thread thread{[this](){ ioservice.run(); }};
+  ioThread.swap(thread);
+  read();
+}
+
+SerialPort::~SerialPort()
+{
+  ioservice.stop();
+  ioThread.join();
+}
+
+void SerialPort::setReadCallback(std::function<void(McuData const&)> f)
+{
+  readCallback = f;
 }

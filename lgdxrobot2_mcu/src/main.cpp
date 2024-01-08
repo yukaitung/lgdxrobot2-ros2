@@ -1,12 +1,13 @@
-#include <iostream>
+#include <memory>
 
+#include "McuNode.hpp"
 #include "SerialPort.hpp"
 
 int main(int argc, char **argv)
 {
-    //rclcpp::init(argc, argv);
-    //rclcpp::shutdown();
-    SerialPort serial("/dev/ttyACM0");
-    while(1){}
+    auto serial = std::make_shared<SerialPort>("/dev/ttyACM0");
+    rclcpp::init(argc, argv);
+    rclcpp::spin(std::make_shared<McuNode>(serial));
+    rclcpp::shutdown();
     return 0;
 }
