@@ -13,7 +13,13 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(Boost REQUIRED)
 
-add_executable(mcu_node src/mcu_node.cpp)
+include_directories(include/lgdxrobot2_mcu)
+
+add_executable(mcu_node 
+  src/main.cpp 
+  src/McuNode.cpp 
+  src/SerialPort.cpp
+)
 ament_target_dependencies(mcu_node rclcpp std_msgs sensor_msgs)
 target_link_libraries(mcu_node Boost::headers)
 
