@@ -37,8 +37,6 @@ class SerialPort
     // Read from MCU
     void read();
     void readHandler(boost::system::error_code error, std::size_t size);
-    void saveReadBuffer(int size);
-    void clearReadBuffer();
     void processReadData(char* const data);
 
     // Write to MCU

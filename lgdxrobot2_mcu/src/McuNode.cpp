@@ -1,8 +1,8 @@
 #include "McuNode.hpp"
 
+
 void McuNode::serialPortReadDone(const McuData& data)
 {
-  //RCLCPP_INFO(this->get_logger(), "w1t: %f, w2t: %f, w3t: %f, w4t: %f", data.targetWheelVelocity[0], data.targetWheelVelocity[1], data.targetWheelVelocity[2], data.targetWheelVelocity[3]);
 }
 
 McuNode::McuNode(std::shared_ptr<SerialPort> s) : Node("mcu_node"), serial(s)
@@ -34,7 +34,11 @@ void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
   }
   lastSecondButton[1] = msg.buttons[7];
   float x = msg.axes[1] * maximumVelocity;
+  if(x == 0)
+    x = msg.axes[7] * maximumVelocity;
   float y = msg.axes[0] * maximumVelocity;
-  float w = (-((msg.axes[4] - 1) / 2) + ((msg.axes[5] - 1) / 2)) * maximumVelocity;
+  if(y == 0)
+    y = msg.axes[6] * maximumVelocity;
+  float w = (((msg.axes[4] - 1) / 2) - ((msg.axes[5] - 1) / 2)) * maximumVelocity;
   serial->setInverseKinematics(x, y, w);
 }

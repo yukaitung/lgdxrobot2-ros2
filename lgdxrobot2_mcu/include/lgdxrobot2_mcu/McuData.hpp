@@ -8,7 +8,6 @@ struct McuData{
   float pConstant[4] = {0};
   float iConstant[4] = {0};
   float dConstant[4] = {0};
-  int pwm[4] = {0};
   float battery[2] = {0};
   int estop[2] = {0};
 };

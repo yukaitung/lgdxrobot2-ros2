@@ -9,66 +9,28 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
 {
   if(!error)
   {
-    if(size >= 2) 
+    if(size >= 5) 
     {
       // Find the header and frame size
-      if(readBuffer[0] == char(170)) // 170 = 0xABAB
+      if(readBuffer[0] == char(170)) // 170 = 0xAA
       {
-        localReadBufferTargetSize = int(readBuffer[1]);
+        localReadBufferTargetSize = combineBytes((uint8_t) readBuffer[1], (uint8_t) readBuffer[2], (uint8_t) readBuffer[3], (uint8_t) readBuffer[4]);
         if(int(size) == localReadBufferTargetSize)
         {
           // Process the data if received data = target size, 
           processReadData(readBuffer);
         }
-        else if(int(size) < localReadBufferTargetSize)
-        {
-          // If the received data is too few, copy them into localReadBuffer
-          saveReadBuffer(size);
-        }
-        // If the received data is too many, discard the data
       }
     }
-    
-    if(localReadBufferCount > 0)
-    {
-      // When using localReadBuffer, save more data
-      saveReadBuffer(size);
-      if(localReadBufferCount == localReadBufferTargetSize)
-      {
-        processReadData(localReadBuffer);
-        clearReadBuffer();
-      }
-      if(localReadBufferCount > localReadBufferTargetSize)
-      {
-        // Discard the data if too much
-        clearReadBuffer();
-      }
-    }
-    
+
     // Read upcoming data
     read();
   }
 }
 
-void SerialPort::saveReadBuffer(int size)
-{
-  for(int i = 0; i < size; i++)
-  {
-    if(i >= kReadBufferSize)
-      return;
-    localReadBuffer[localReadBufferCount + i] = readBuffer[i];
-  }
-  localReadBufferCount += size;
-}
-
-void SerialPort::clearReadBuffer()
-{
-  localReadBufferCount = 0;
-}
-
 void SerialPort::processReadData(char* const data)
 {
-  int index = 2;
+  int index = 5;
   for(int i = 0; i < mcuData.wheelCount; i++) 
   {
     uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
@@ -97,11 +59,6 @@ void SerialPort::processReadData(char* const data)
   {
     uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
     mcuData.dConstant[i]  = uint32ToFloat(temp);
-    index += 4;
-  }
-  for(int i = 0; i < mcuData.wheelCount; i++)
-  {
-    mcuData.pwm[i] = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
     index += 4;
   }
   for(int i = 0; i < 2; i++) 
