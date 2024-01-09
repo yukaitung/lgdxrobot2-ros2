@@ -10,7 +10,7 @@ class McuNode : public rclcpp::Node
 {
   private:
     // Object
-    std::shared_ptr<SerialPort> serial;
+    SerialPort serial;
     rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joySubscription;
 
     // Joy
@@ -18,11 +18,12 @@ class McuNode : public rclcpp::Node
     int lastVelocityChangeButton[2] = {0}; // 0: LB, 1: RB
     int lastEstopButton[2] = {0}; // 0: A, 1: B
 
-    void serialPortReadDone(const McuData &data);
+    void serialDebugCallback(const std::string &msg, int level);
+    void serialReadCallback(const McuData &data);
     void joyCallback(const sensor_msgs::msg::Joy &msg);
     
   public:
-    McuNode(std::shared_ptr<SerialPort> s);
+    McuNode();
 };
 
 #endif // MCUNODE_HPP

@@ -1,4 +1,43 @@
+#include <filesystem>
+#include <chrono>
+#include <iostream>
+
 #include "SerialPort.hpp"
+
+void SerialPort::autoSearch()
+{
+  int wait = 3;
+  bool found = false;
+  std::string port;
+  while(!found)
+  {
+    std::filesystem::path path {"/dev"};
+    for(auto const &file : std::filesystem::directory_iterator(path))
+    {
+      if(file.path().string().find("ttyACM") != std::string::npos)
+      {
+        port = file.path().string();
+        std::string msg = std::string("Serial device ") + port + std::string(" found.");
+        debug(msg, 1);
+        found = true;
+        break;
+      }  
+    }
+    if(!found)
+    {
+      std::string msg = std::string("No serial device found, wait for ") + std::to_string(wait) + std::string(" seconds.");
+      debug(msg, 1);
+      std::this_thread::sleep_for(std::chrono::seconds(wait));
+    }
+  }
+  connect(port);
+}
+
+void SerialPort::reconnect()
+{
+  serial.close();
+  autoSearch();
+}
 
 void SerialPort::read()
 {
@@ -25,6 +64,12 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
 
     // Read upcoming data
     read();
+  }
+  else 
+  {
+    std::string msg = std::string("Serial read throws an error: ") + std::string(error.message());
+    debug(msg, 3);
+    reconnect();
   }
 }
 
@@ -85,26 +130,42 @@ void SerialPort::write(std::vector<char> &data)
 
 void SerialPort::writeHandler(boost::system::error_code error, std::size_t size)
 {
-
+  if(error) 
+  {
+    std::string msg = std::string("Serial write throws an error: ") + std::string(error.message());
+    debug(msg, 3);
+    reconnect();
+  }
 }
 
-SerialPort::SerialPort(std::string portName) : ioservice(), serial(ioservice)
+void SerialPort::debug(const std::string &msg, int level)
 {
-  serial.open(portName);
-  std::thread thread{[this](){ ioservice.run(); }};
-  ioThread.swap(thread);
-  read();
+  if(debugCallback)
+    debugCallback(msg, level);
+}
+
+SerialPort::SerialPort(std::function<void(const McuData &)> read, std::function<void(const std::string&, int)> debug) : ioservice(), serial(ioservice), readCallback(read), debugCallback(debug)
+{
+  autoSearch();
 }
 
 SerialPort::~SerialPort()
 {
+  serial.close();
   ioservice.stop();
   ioThread.join();
 }
 
-void SerialPort::setReadCallback(std::function<void(McuData const&)> f)
+void SerialPort::connect(std::string &port)
 {
-  readCallback = f;
+  serial.open(port);
+  if(!firstConnection) 
+  {
+    std::thread thread{[this](){ ioservice.run(); }};
+    ioThread.swap(thread);
+    firstConnection = true;
+  }
+  read();
 }
 
 void SerialPort::setInverseKinematics(float x, float y, float w)

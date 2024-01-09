@@ -1,14 +1,20 @@
 #include "McuNode.hpp"
 
-
-void McuNode::serialPortReadDone(const McuData& data)
+void McuNode::serialDebugCallback(const std::string &msg, int level)
 {
+  switch(level)
+  {
+    case RCLCPP_LOG_MIN_SEVERITY_INFO:
+      RCLCPP_INFO(this->get_logger(), "%s", msg.c_str());
+      break;
+    case RCLCPP_LOG_MIN_SEVERITY_ERROR:
+      RCLCPP_ERROR(this->get_logger(), "%s", msg.c_str());
+      break;
+  }
 }
 
-McuNode::McuNode(std::shared_ptr<SerialPort> s) : Node("mcu_node"), serial(s)
+void McuNode::serialReadCallback(const McuData& data)
 {
-  serial->setReadCallback(std::bind(&McuNode::serialPortReadDone, this, std::placeholders::_1));
-  joySubscription = this->create_subscription<sensor_msgs::msg::Joy>("joy", 10, std::bind(&McuNode::joyCallback, this, std::placeholders::_1));
 }
 
 void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
@@ -17,14 +23,14 @@ void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
   if(lastEstopButton[0] == 0 && msg.buttons[0] == 1)
   {
     // A = disable software E-Stop
-    serial->setEstop(false);
+    serial.setEstop(false);
     RCLCPP_INFO(this->get_logger(), "Software E-Stop Enabled");
   }
   lastEstopButton[0] = msg.buttons[0];
   if(lastEstopButton[1] == 0 && msg.buttons[1] == 1)
   {
     // B = enable software E-Stop
-    serial->setEstop(true);
+    serial.setEstop(true);
     RCLCPP_INFO(this->get_logger(), "Software E-Stop Disabled");
   }
   lastEstopButton[1] = msg.buttons[1];
@@ -61,5 +67,10 @@ void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
   }
   // LT = w left, RT = w right
   float w = (((msg.axes[4] - 1) / 2) - ((msg.axes[5] - 1) / 2)) * maximumVelocity;
-  serial->setInverseKinematics(x, y, w);
+  serial.setInverseKinematics(x, y, w);
+}
+
+McuNode::McuNode() : Node("mcu_node"), serial(std::bind(&McuNode::serialReadCallback, this, std::placeholders::_1), std::bind(&McuNode::serialDebugCallback, this, std::placeholders::_1, std::placeholders::_2))
+{
+  joySubscription = this->create_subscription<sensor_msgs::msg::Joy>("joy", 10, std::bind(&McuNode::joyCallback, this, std::placeholders::_1));
 }

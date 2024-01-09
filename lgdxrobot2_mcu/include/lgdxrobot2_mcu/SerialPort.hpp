@@ -18,7 +18,17 @@ class SerialPort
     boost::asio::serial_port serial;
     std::thread ioThread;
     McuData mcuData;
-    std::function<void(McuData const&)> readCallback = nullptr;
+    std::function<void(const McuData &)> readCallback = nullptr;
+    std::function<void(const std::string &, int)> debugCallback = nullptr;
+
+    // Read Buffer
+    static const int kReadBufferSize = 512;
+    char readBuffer[kReadBufferSize] = {0};
+    char localReadBuffer[kReadBufferSize] = {0}; // Read buffer for longer storage
+    int localReadBufferCount = 0;
+    int localReadBufferTargetSize = 0;
+
+    bool firstConnection = false;
 
     // Util
     uint32_t floatToUint32(float n){ return (uint32_t)(*(uint32_t*)&n); }
@@ -27,12 +37,9 @@ class SerialPort
       return a << 24 | b << 16 | c << 8 | d;
     }
 
-    // Read Buffer
-    static const int kReadBufferSize = 512;
-    char readBuffer[kReadBufferSize] = {0};
-    char localReadBuffer[kReadBufferSize] = {0}; // Read buffer for longer storage
-    int localReadBufferCount = 0;
-    int localReadBufferTargetSize = 0;
+    // Connection
+    void autoSearch();
+    void reconnect();
 
     // Read from MCU
     void read();
@@ -42,12 +49,14 @@ class SerialPort
     // Write to MCU
     void write(std::vector<char> &data);
     void writeHandler(boost::system::error_code error, std::size_t size);
+
+    void debug(const std::string &msg, int level);
   
   public:
-    SerialPort(std::string portName);
+    SerialPort(std::function<void(const McuData &)> read, std::function<void(const std::string&, int)> debug);
     ~SerialPort();
 
-    void setReadCallback(std::function<void(McuData const&)> f);
+    void connect(std::string &port);
     void setInverseKinematics(float x, float y, float w);
     void setEstop(int enable);
 };
