@@ -24,8 +24,6 @@ class SerialPort
     // Read Buffer
     static const int kReadBufferSize = 512;
     char readBuffer[kReadBufferSize] = {0};
-    char localReadBuffer[kReadBufferSize] = {0}; // Read buffer for longer storage
-    int localReadBufferCount = 0;
     int localReadBufferTargetSize = 0;
 
     bool firstConnection = false;
@@ -44,7 +42,7 @@ class SerialPort
     // Read from MCU
     void read();
     void readHandler(boost::system::error_code error, std::size_t size);
-    void processReadData(char* const data);
+    void processReadData();
 
     // Write to MCU
     void write(std::vector<char> &data);

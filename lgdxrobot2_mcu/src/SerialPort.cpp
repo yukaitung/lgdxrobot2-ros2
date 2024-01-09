@@ -57,7 +57,7 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
         if(int(size) == localReadBufferTargetSize)
         {
           // Process the data if received data = target size, 
-          processReadData(readBuffer);
+          processReadData();
         }
       }
     }
@@ -73,48 +73,48 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
   }
 }
 
-void SerialPort::processReadData(char* const data)
+void SerialPort::processReadData()
 {
   int index = 5;
   for(int i = 0; i < mcuData.wheelCount; i++) 
   {
-    uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
     mcuData.targetWheelVelocity[i] = uint32ToFloat(temp);
     index += 4;
   }
   for(int i = 0; i < mcuData.wheelCount; i++) 
   {
-    uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
     mcuData.measuredWheelVelocity[i] = uint32ToFloat(temp);
     index += 4;
   }
   for(int i = 0; i < mcuData.wheelCount; i++) 
   {
-    uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
     mcuData.pConstant[i]  = uint32ToFloat(temp);
     index += 4;
   }
   for(int i = 0; i < mcuData.wheelCount; i++) 
   {
-    uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
     mcuData.iConstant[i]  = uint32ToFloat(temp);
     index += 4;
   }
   for(int i = 0; i < mcuData.wheelCount; i++) 
   {
-    uint32_t temp = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
     mcuData.dConstant[i]  = uint32ToFloat(temp);
     index += 4;
   }
   for(int i = 0; i < 2; i++) 
   {
-    mcuData.battery[i] = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    mcuData.battery[i] = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
     mcuData.battery[i] *= 0.004;
     index += 4;
   }
   for(int i = 0; i < 2; i++) 
   {
-    mcuData.estop[i] = combineBytes((uint8_t) data[index], (uint8_t) data[index + 1], (uint8_t) data[index + 2], (uint8_t) data[index + 3]);
+    mcuData.estop[i] = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
     index += 4;
   }
   if(readCallback)
