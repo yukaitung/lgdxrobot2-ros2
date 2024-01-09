@@ -13,8 +13,10 @@ class McuNode : public rclcpp::Node
     std::shared_ptr<SerialPort> serial;
     rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joySubscription;
 
+    // Joy
     float maximumVelocity = 0.1; // m/s
-    int lastSecondButton[2] = {0};
+    int lastVelocityChangeButton[2] = {0}; // 0: LB, 1: RB
+    int lastEstopButton[2] = {0}; // 0: A, 1: B
 
     void serialPortReadDone(const McuData &data);
     void joyCallback(const sensor_msgs::msg::Joy &msg);

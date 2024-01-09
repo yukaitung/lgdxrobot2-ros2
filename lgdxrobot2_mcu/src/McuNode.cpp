@@ -13,32 +13,53 @@ McuNode::McuNode(std::shared_ptr<SerialPort> s) : Node("mcu_node"), serial(s)
 
 void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
 {
-  // Change max velocity, left, decrease
-  if(lastSecondButton[0] == 0 && msg.buttons[6] == 1)
+  // E-Stop
+  if(lastEstopButton[0] == 0 && msg.buttons[0] == 1)
   {
+    // A = disable software E-Stop
+    serial->setEstop(false);
+    RCLCPP_INFO(this->get_logger(), "Software E-Stop Enabled");
+  }
+  lastEstopButton[0] = msg.buttons[0];
+  if(lastEstopButton[1] == 0 && msg.buttons[1] == 1)
+  {
+    // B = enable software E-Stop
+    serial->setEstop(true);
+    RCLCPP_INFO(this->get_logger(), "Software E-Stop Disabled");
+  }
+  lastEstopButton[1] = msg.buttons[1];
+  // Velocity Change
+  if(lastVelocityChangeButton[0] == 0 && msg.buttons[6] == 1)
+  {
+    // LB = decrease max velocity
     if(maximumVelocity >= 0.2) 
     {
       maximumVelocity -= 0.1;
       RCLCPP_INFO(this->get_logger(), "Maximum velocity decreased to %.1f m/s", maximumVelocity);
     }
   }
-  lastSecondButton[0] = msg.buttons[6];
-  // Change max velocity, right, increase
-  if(lastSecondButton[1] == 0 && msg.buttons[7] == 1)
+  lastVelocityChangeButton[0] = msg.buttons[6];
+  if(lastVelocityChangeButton[1] == 0 && msg.buttons[7] == 1)
   {
+    // RB = increase max velocity
     if(maximumVelocity < 1.0)
     {
       maximumVelocity += 0.1;
       RCLCPP_INFO(this->get_logger(), "Maximum velocity increased to %.1f m/s", maximumVelocity);
     } 
   }
-  lastSecondButton[1] = msg.buttons[7];
+  lastVelocityChangeButton[1] = msg.buttons[7];
+  // Control IK
+  // Left Stick = XY
   float x = msg.axes[1] * maximumVelocity;
-  if(x == 0)
-    x = msg.axes[7] * maximumVelocity;
   float y = msg.axes[0] * maximumVelocity;
-  if(y == 0)
+  if(msg.axes[1] == 0 && msg.axes[0] == 0)
+  {
+    // Use D-pad = XY if Left Stick no input
+    x = msg.axes[7] * maximumVelocity;
     y = msg.axes[6] * maximumVelocity;
+  }
+  // LT = w left, RT = w right
   float w = (((msg.axes[4] - 1) / 2) - ((msg.axes[5] - 1) / 2)) * maximumVelocity;
   serial->setInverseKinematics(x, y, w);
 }
