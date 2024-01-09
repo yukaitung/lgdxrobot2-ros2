@@ -1,6 +1,5 @@
 #include <filesystem>
 #include <chrono>
-#include <iostream>
 
 #include "SerialPort.hpp"
 
@@ -125,10 +124,10 @@ void SerialPort::processReadData()
 
 void SerialPort::write(std::vector<char> &data)
 {
- serial.async_write_some(boost::asio::buffer(data), std::bind(&SerialPort::readHandler, this, std::placeholders::_1, std::placeholders::_2));
+ serial.async_write_some(boost::asio::buffer(data), std::bind(&SerialPort::readHandler, this, std::placeholders::_1, 0));
 }
 
-void SerialPort::writeHandler(boost::system::error_code error, std::size_t size)
+void SerialPort::writeHandler(boost::system::error_code error)
 {
   if(error) 
   {
@@ -151,9 +150,9 @@ SerialPort::SerialPort(std::function<void(const McuData &)> read, std::function<
 
 SerialPort::~SerialPort()
 {
-  serial.close();
   ioservice.stop();
   ioThread.join();
+  serial.close();
 }
 
 void SerialPort::connect(std::string &port)

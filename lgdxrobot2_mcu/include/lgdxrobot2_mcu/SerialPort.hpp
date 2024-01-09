@@ -46,7 +46,7 @@ class SerialPort
 
     // Write to MCU
     void write(std::vector<char> &data);
-    void writeHandler(boost::system::error_code error, std::size_t size);
+    void writeHandler(boost::system::error_code error);
 
     void debug(const std::string &msg, int level);
   

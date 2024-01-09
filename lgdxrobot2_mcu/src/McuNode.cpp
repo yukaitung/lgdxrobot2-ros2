@@ -15,7 +15,6 @@ void McuNode::serialDebugCallback(const std::string &msg, int level)
 
 void McuNode::serialReadCallback(const McuData& data)
 {
-  RCLCPP_INFO(this->get_logger(), "%f", data.measuredWheelVelocity[0]);
 }
 
 void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
