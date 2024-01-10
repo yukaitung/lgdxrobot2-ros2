@@ -24,14 +24,14 @@ void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
   {
     // A = disable software E-Stop
     serial.setEstop(false);
-    RCLCPP_INFO(this->get_logger(), "Software E-Stop Enabled");
+    RCLCPP_INFO(this->get_logger(), "Software E-Stop Disabled");
   }
   lastEstopButton[0] = msg.buttons[0];
   if(lastEstopButton[1] == 0 && msg.buttons[1] == 1)
   {
     // B = enable software E-Stop
     serial.setEstop(true);
-    RCLCPP_INFO(this->get_logger(), "Software E-Stop Disabled");
+    RCLCPP_INFO(this->get_logger(), "Software E-Stop Enabled");
   }
   lastEstopButton[1] = msg.buttons[1];
   // Velocity Change

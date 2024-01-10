@@ -35,14 +35,14 @@ void SerialPort::autoSearch()
     if(file.path().string().find("ttyACM") != std::string::npos)
     {
       port = file.path().string();
-      std::string msg = std::string("Serial device ") + port + std::string(" found.");
+      std::string msg = std::string("Serial device ") + port + std::string(" found");
       debug(msg, 1);
       connect(port);
       return;
     }  
   }
 
-  std::string msg = std::string("No serial device found, try again in ") + std::to_string(kWaitSecond) + std::string(" seconds.");
+  std::string msg = std::string("No serial device found, try again in ") + std::to_string(kWaitSecond) + std::string(" seconds");
   debug(msg, 1);
   timer.expires_after(std::chrono::seconds(kWaitSecond));
   timer.async_wait(std::bind(&SerialPort::autoSearch, this));
@@ -190,9 +190,11 @@ SerialPort::~SerialPort()
 {
   timerService.stop();
   timer.cancel();
-  timerThread.join();
+  if(timerThread.joinable())
+    timerThread.join();
   serialService.stop();
-  ioThread.join();
+  if(ioThread.joinable())
+    ioThread.join();
   serial.close();
 }
 

@@ -23,9 +23,7 @@ add_executable(mcu_node
 ament_target_dependencies(mcu_node rclcpp std_msgs sensor_msgs)
 target_link_libraries(mcu_node Boost::headers)
 
-install(TARGETS
-  mcu_node
-  DESTINATION lib/${PROJECT_NAME}
-)
+install(TARGETS mcu_node DESTINATION lib/${PROJECT_NAME})
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 ament_package()

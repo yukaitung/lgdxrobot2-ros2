@@ -3,7 +3,7 @@
 <package format="3">
   <name>lgdxrobot2_mcu</name>
   <version>0.0.0</version>
-  <description>LGDXRobot2 driver for MCU part.</description>
+  <description>LGDXRobot2 MCU driver for ROS2.</description>
   <maintainer email="sam@bristolgram.uk">Kai Tung Yu</maintainer>
   <license>TODO: License declaration</license>
 
@@ -17,6 +17,7 @@
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>joy</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
