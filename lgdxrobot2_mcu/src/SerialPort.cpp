@@ -1,41 +1,85 @@
 #include <filesystem>
 #include <chrono>
+#include <iostream>
 
 #include "SerialPort.hpp"
 
+void SerialPort::startSerialIo()
+{
+  static bool first = true;
+  if(first)
+  {
+    std::thread thread{[this](){ ioservice.run(); }};
+    ioThread.swap(thread);
+    first = false;
+  }
+}
+
+void SerialPort::startTimerIo()
+{
+  static bool first = true;
+  if(first)
+  {
+    std::thread thread{[this](){ timerService.run(); }};
+    timerThread.swap(thread);
+    first = false;
+  }
+}
+
 void SerialPort::autoSearch()
 {
-  int wait = 3;
-  bool found = false;
   std::string port;
-  while(!found)
+  std::filesystem::path path {"/dev"};
+  for(auto const &file : std::filesystem::directory_iterator(path))
   {
-    std::filesystem::path path {"/dev"};
-    for(auto const &file : std::filesystem::directory_iterator(path))
+    if(file.path().string().find("ttyACM") != std::string::npos)
     {
-      if(file.path().string().find("ttyACM") != std::string::npos)
-      {
-        port = file.path().string();
-        std::string msg = std::string("Serial device ") + port + std::string(" found.");
-        debug(msg, 1);
-        found = true;
-        break;
-      }  
-    }
-    if(!found)
-    {
-      std::string msg = std::string("No serial device found, wait for ") + std::to_string(wait) + std::string(" seconds.");
+      port = file.path().string();
+      std::string msg = std::string("Serial device ") + port + std::string(" found.");
       debug(msg, 1);
-      std::this_thread::sleep_for(std::chrono::seconds(wait));
-    }
+      connect(port);
+      return;
+    }  
   }
-  connect(port);
+
+  std::string msg = std::string("No serial device found, try again in ") + std::to_string(kWaitSecond) + std::string(" seconds.");
+  debug(msg, 1);
+  timer.expires_after(std::chrono::seconds(kWaitSecond));
+  timer.async_wait(std::bind(&SerialPort::autoSearch, this));
+  startTimerIo();
+}
+
+void SerialPort::connect(const std::string &port)
+{
+  boost::system::error_code error;
+  serial.open(port, error);
+  if(error) 
+  {
+    std::string msg = std::string("Serial connection throws an error: ") + std::string(error.message()) + std::string(", try again in ") + std::to_string(kWaitSecond) + std::string(" seconds.");
+    debug(msg, 3);
+    timer.expires_after(std::chrono::seconds(kWaitSecond));
+    timer.async_wait(std::bind(&SerialPort::connect, this, port));
+    startTimerIo();
+    return;
+  }
+  std::string msg = std::string("Serial port connected to ") + port;
+  debug(msg, 1);
+  startSerialIo();
+  read();
 }
 
 void SerialPort::reconnect()
 {
-  serial.close();
-  autoSearch();
+  if(serial.is_open())
+    serial.close();
+  if(defaultPortName.empty())
+  {
+    autoSearch();
+  }
+  else
+  {
+    connect(defaultPortName);
+  }
 }
 
 void SerialPort::read()
@@ -143,28 +187,31 @@ void SerialPort::debug(const std::string &msg, int level)
     debugCallback(msg, level);
 }
 
-SerialPort::SerialPort(std::function<void(const McuData &)> read, std::function<void(const std::string&, int)> debug) : ioservice(), serial(ioservice), readCallback(read), debugCallback(debug)
+SerialPort::SerialPort(std::function<void(const McuData &)> read, std::function<void(const std::string&, int)> debug) : ioservice(), serial(ioservice), timerService(), timer(timerService), readCallback(read), debugCallback(debug)
 {
-  autoSearch();
 }
 
 SerialPort::~SerialPort()
 {
+  timerService.stop();
+  timer.cancel();
+  timerThread.join();
   ioservice.stop();
   ioThread.join();
   serial.close();
 }
 
-void SerialPort::connect(std::string &port)
+void SerialPort::start(const std::string &port)
 {
-  serial.open(port);
-  if(!firstConnection) 
+  if(port.empty())
   {
-    std::thread thread{[this](){ ioservice.run(); }};
-    ioThread.swap(thread);
-    firstConnection = true;
+    autoSearch();
   }
-  read();
+  else
+  {
+    defaultPortName = port;
+    connect(defaultPortName);
+  }
 }
 
 void SerialPort::setInverseKinematics(float x, float y, float w)

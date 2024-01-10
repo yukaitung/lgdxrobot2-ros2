@@ -72,5 +72,12 @@ void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
 
 McuNode::McuNode() : Node("mcu_node"), serial(std::bind(&McuNode::serialReadCallback, this, std::placeholders::_1), std::bind(&McuNode::serialDebugCallback, this, std::placeholders::_1, std::placeholders::_2))
 {
+  auto serial_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+  serial_param_desc.description = "Default serial port name or automated search if unspecified.";
+  this->declare_parameter("serial_port", "", serial_param_desc);
+  auto control_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+  control_param_desc.description = "Robot control mode, using `joy` for joystick or `cmd_vel` for ROS nav stack.";
+  this->declare_parameter("control_mode", "joy", control_param_desc);
+  serial.start(this->get_parameter("serial_port").as_string());
   joySubscription = this->create_subscription<sensor_msgs::msg::Joy>("joy", 10, std::bind(&McuNode::joyCallback, this, std::placeholders::_1));
 }

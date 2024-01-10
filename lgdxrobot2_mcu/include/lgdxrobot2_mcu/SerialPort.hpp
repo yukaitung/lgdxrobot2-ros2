@@ -17,6 +17,9 @@ class SerialPort
     boost::asio::io_service ioservice;
     boost::asio::serial_port serial;
     std::thread ioThread;
+    boost::asio::io_service timerService;
+    boost::asio::steady_timer timer;
+    std::thread timerThread;
     McuData mcuData;
     std::function<void(const McuData &)> readCallback = nullptr;
     std::function<void(const std::string &, int)> debugCallback = nullptr;
@@ -26,7 +29,8 @@ class SerialPort
     char readBuffer[kReadBufferSize] = {0};
     int localReadBufferTargetSize = 0;
 
-    bool firstConnection = false;
+    const int kWaitSecond = 3;
+    std::string defaultPortName;
 
     // Util
     uint32_t floatToUint32(float n){ return (uint32_t)(*(uint32_t*)&n); }
@@ -35,8 +39,13 @@ class SerialPort
       return a << 24 | b << 16 | c << 8 | d;
     }
 
+    // io_service thread
+    void startSerialIo();
+    void startTimerIo();
+    
     // Connection
     void autoSearch();
+    void connect(const std::string &port);
     void reconnect();
 
     // Read from MCU
@@ -54,7 +63,7 @@ class SerialPort
     SerialPort(std::function<void(const McuData &)> read, std::function<void(const std::string&, int)> debug);
     ~SerialPort();
 
-    void connect(std::string &port);
+    void start(const std::string &port);
     void setInverseKinematics(float x, float y, float w);
     void setEstop(int enable);
 };
