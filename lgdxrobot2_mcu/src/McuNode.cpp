@@ -1,5 +1,9 @@
 #include "McuNode.hpp"
 
+// Odom
+#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
+
 void McuNode::serialDebugCallback(const std::string &msg, int level)
 {
   switch(level)
@@ -15,6 +19,48 @@ void McuNode::serialDebugCallback(const std::string &msg, int level)
 
 void McuNode::serialReadCallback(const McuData& data)
 {
+  if(publishOdom)
+  {
+    // Calculate the forward kinematic (putting into mcu later...)
+    double xDelta = (data.measuredWheelVelocity[0] + data.measuredWheelVelocity[1] + data.measuredWheelVelocity[2] + data.measuredWheelVelocity[3]) * 0.009375 * 0.02; // r / 4 // 20ms
+    double yDelta = (-data.measuredWheelVelocity[0] + data.measuredWheelVelocity[1] + data.measuredWheelVelocity[2] - data.measuredWheelVelocity[3]) * 0.009375 * 0.02; // r / 4
+    double wDelta = (-data.measuredWheelVelocity[0] + data.measuredWheelVelocity[1] - data.measuredWheelVelocity[2] + data.measuredWheelVelocity[3]) * 0.009375 * 0.02; // r / 4
+
+    xOdom += xDelta;
+    yOdom += yDelta;
+    wOdom += wDelta;
+
+    tf2::Quaternion quaternion;
+    quaternion.setRPY(0, 0, wOdom);
+    geometry_msgs::msg::Quaternion odomQuaternion = tf2::toMsg(quaternion);
+    rclcpp::Time currentTime = this->get_clock()->now();
+
+    // Publist tf
+    geometry_msgs::msg::TransformStamped odomTf;
+    odomTf.header.stamp = currentTime;
+    odomTf.header.frame_id = "odom";
+    odomTf.child_frame_id = "base_link";
+    odomTf.transform.translation.x = xOdom;
+    odomTf.transform.translation.y = yOdom;
+    odomTf.transform.translation.z = 0.0;
+    odomTf.transform.rotation = odomQuaternion;
+    tfBroadcaster->sendTransform(odomTf);
+
+    // Publish odom
+    nav_msgs::msg::Odometry odometry;
+    odometry.header.stamp = currentTime;
+    odometry.header.frame_id = "odom";
+    odometry.pose.pose.position.x = xOdom;
+    odometry.pose.pose.position.y = yOdom;
+    odometry.pose.pose.position.z = 0.0;
+    odometry.pose.pose.orientation = odomQuaternion;
+    odometry.child_frame_id = "base_link";
+    odometry.twist.twist.linear.x = xDelta;
+    odometry.twist.twist.linear.y = yDelta;
+    odometry.twist.twist.angular.z = wDelta;
+    odomPublisher->publish(odometry);
+  }
+  
 }
 
 void McuNode::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
@@ -87,6 +133,13 @@ McuNode::McuNode() : Node("mcu_node"), serial(std::bind(&McuNode::serialReadCall
   auto control_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
   control_param_desc.description = "Robot control mode, using `joy` / unspecified for joystick or `cmd_vel` for ROS nav stack.";
   this->declare_parameter("control_mode", "joy", control_param_desc);
+  auto odom_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+  odom_param_desc.description = "Publishing odometry information and tf using the forward kinematic from the chassis.";
+  this->declare_parameter("publish_odom", true, control_param_desc);
+  auto base_link_frame_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+  base_link_frame_param_desc.description = "Custom name of base link frame.";
+  this->declare_parameter("base_link_frame", "base_link", control_param_desc);
+
 
   serial.start(this->get_parameter("serial_port").as_string());
   std::string controlMode = this->get_parameter("control_mode").as_string();
@@ -104,5 +157,12 @@ McuNode::McuNode() : Node("mcu_node"), serial(std::bind(&McuNode::serialReadCall
   {
     RCLCPP_FATAL(this->get_logger(), "Control mode is invalid, the program isterminaling");
     exit(0);
+  }
+  if(this->get_parameter("publish_odom").as_bool())
+  {
+    publishOdom = true;
+    baseLinkName = this->get_parameter("base_link_frame").as_string();
+    tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+    odomPublisher = this->create_publisher<nav_msgs::msg::Odometry>("odom", 50);
   }
 }
