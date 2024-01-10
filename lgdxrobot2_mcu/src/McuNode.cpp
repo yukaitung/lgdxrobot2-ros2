@@ -85,18 +85,24 @@ McuNode::McuNode() : Node("mcu_node"), serial(std::bind(&McuNode::serialReadCall
   serial_param_desc.description = "Default serial port name or automated search if unspecified.";
   this->declare_parameter("serial_port", "", serial_param_desc);
   auto control_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
-  control_param_desc.description = "Robot control mode, using `joy` for joystick or `cmd_vel` for ROS nav stack.";
+  control_param_desc.description = "Robot control mode, using `joy` / unspecified for joystick or `cmd_vel` for ROS nav stack.";
   this->declare_parameter("control_mode", "joy", control_param_desc);
 
   serial.start(this->get_parameter("serial_port").as_string());
   std::string controlMode = this->get_parameter("control_mode").as_string();
-  if(controlMode.compare(std::string("joy")))
+  if(controlMode.empty() || controlMode.compare(std::string("joy")) == 0)
+  {
+    RCLCPP_INFO(this->get_logger(), "MCU Node is running in joy control mode");
     joySubscription = this->create_subscription<sensor_msgs::msg::Joy>("joy", 10, std::bind(&McuNode::joyCallback, this, std::placeholders::_1));
-  else if(controlMode.compare(std::string("cmd_vel")))
+  }
+  else if(controlMode.compare(std::string("cmd_vel")) == 0)
+  {
+    RCLCPP_INFO(this->get_logger(), "MCU Node is running in cmd_vel mode");
     cmdVelSubscription = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&McuNode::cmdVelCallback, this, std::placeholders::_1));
+  }
   else
   {
-    RCLCPP_INFO(this->get_logger(), "control_mode is invalid, terminaling the program");
+    RCLCPP_FATAL(this->get_logger(), "Control mode is invalid, the program isterminaling");
     exit(0);
   }
 }
