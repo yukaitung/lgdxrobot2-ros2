@@ -2,6 +2,7 @@
 #define MCUNODE_HPP
 
 #include "rclcpp/rclcpp.hpp"
+#include "geometry_msgs/msg/twist.hpp"
 #include "sensor_msgs/msg/joy.hpp"
 
 #include "SerialPort.hpp"
@@ -11,6 +12,7 @@ class McuNode : public rclcpp::Node
   private:
     // Object
     SerialPort serial;
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
     rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joySubscription;
 
     // Joy
@@ -20,6 +22,7 @@ class McuNode : public rclcpp::Node
 
     void serialDebugCallback(const std::string &msg, int level);
     void serialReadCallback(const McuData &data);
+    void cmdVelCallback(const geometry_msgs::msg::Twist &msg);
     void joyCallback(const sensor_msgs::msg::Joy &msg);
     
   public:

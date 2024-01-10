@@ -17,6 +17,15 @@ void McuNode::serialReadCallback(const McuData& data)
 {
 }
 
+void McuNode::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
+{
+  float x = msg.linear.x;
+  float y = msg.linear.y;
+  float w = msg.angular.z;
+  RCLCPP_DEBUG(this->get_logger(), "Received IK (%f, %f, %f)", x, y, w);
+  serial.setInverseKinematics(x, y, w);
+}
+
 void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
 {
   // E-Stop
@@ -78,6 +87,16 @@ McuNode::McuNode() : Node("mcu_node"), serial(std::bind(&McuNode::serialReadCall
   auto control_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
   control_param_desc.description = "Robot control mode, using `joy` for joystick or `cmd_vel` for ROS nav stack.";
   this->declare_parameter("control_mode", "joy", control_param_desc);
+
   serial.start(this->get_parameter("serial_port").as_string());
-  joySubscription = this->create_subscription<sensor_msgs::msg::Joy>("joy", 10, std::bind(&McuNode::joyCallback, this, std::placeholders::_1));
+  std::string controlMode = this->get_parameter("control_mode").as_string();
+  if(controlMode.compare(std::string("joy")))
+    joySubscription = this->create_subscription<sensor_msgs::msg::Joy>("joy", 10, std::bind(&McuNode::joyCallback, this, std::placeholders::_1));
+  else if(controlMode.compare(std::string("cmd_vel")))
+    cmdVelSubscription = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&McuNode::cmdVelCallback, this, std::placeholders::_1));
+  else
+  {
+    RCLCPP_INFO(this->get_logger(), "control_mode is invalid, terminaling the program");
+    exit(0);
+  }
 }
