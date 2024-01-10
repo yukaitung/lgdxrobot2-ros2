@@ -12,9 +12,9 @@
 class SerialPort
 {
   private:
-    // Objects
-    std::string portName;
-    boost::asio::io_service ioservice;
+    const int kWaitSecond = 3;
+    std::string defaultPortName;
+    boost::asio::io_service serialService;
     boost::asio::serial_port serial;
     std::thread ioThread;
     boost::asio::io_service timerService;
@@ -27,10 +27,6 @@ class SerialPort
     // Read Buffer
     static const int kReadBufferSize = 512;
     char readBuffer[kReadBufferSize] = {0};
-    int localReadBufferTargetSize = 0;
-
-    const int kWaitSecond = 3;
-    std::string defaultPortName;
 
     // Util
     uint32_t floatToUint32(float n){ return (uint32_t)(*(uint32_t*)&n); }
@@ -54,7 +50,7 @@ class SerialPort
     void processReadData();
 
     // Write to MCU
-    void write(std::vector<char> &data);
+    void write(const std::vector<char> &data);
     void writeHandler(boost::system::error_code error);
 
     void debug(const std::string &msg, int level);

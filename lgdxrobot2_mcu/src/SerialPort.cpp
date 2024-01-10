@@ -9,7 +9,7 @@ void SerialPort::startSerialIo()
   static bool first = true;
   if(first)
   {
-    std::thread thread{[this](){ ioservice.run(); }};
+    std::thread thread{[this](){ serialService.run(); }};
     ioThread.swap(thread);
     first = false;
   }
@@ -73,13 +73,9 @@ void SerialPort::reconnect()
   if(serial.is_open())
     serial.close();
   if(defaultPortName.empty())
-  {
     autoSearch();
-  }
   else
-  {
     connect(defaultPortName);
-  }
 }
 
 void SerialPort::read()
@@ -96,15 +92,14 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
       // Find the header and frame size
       if(readBuffer[0] == char(170)) // 170 = 0xAA
       {
-        localReadBufferTargetSize = combineBytes((uint8_t) readBuffer[1], (uint8_t) readBuffer[2], (uint8_t) readBuffer[3], (uint8_t) readBuffer[4]);
-        if(int(size) == localReadBufferTargetSize)
+        int frameSize = combineBytes((uint8_t) readBuffer[1], (uint8_t) readBuffer[2], (uint8_t) readBuffer[3], (uint8_t) readBuffer[4]);
+        if(int(size) == frameSize)
         {
           // Process the data if received data = target size, 
           processReadData();
         }
       }
     }
-
     // Read upcoming data
     read();
   }
@@ -166,7 +161,7 @@ void SerialPort::processReadData()
   }
 }
 
-void SerialPort::write(std::vector<char> &data)
+void SerialPort::write(const std::vector<char> &data)
 {
  serial.async_write_some(boost::asio::buffer(data), std::bind(&SerialPort::readHandler, this, std::placeholders::_1, 0));
 }
@@ -187,7 +182,7 @@ void SerialPort::debug(const std::string &msg, int level)
     debugCallback(msg, level);
 }
 
-SerialPort::SerialPort(std::function<void(const McuData &)> read, std::function<void(const std::string&, int)> debug) : ioservice(), serial(ioservice), timerService(), timer(timerService), readCallback(read), debugCallback(debug)
+SerialPort::SerialPort(std::function<void(const McuData &)> read, std::function<void(const std::string&, int)> debug) : serialService(), serial(serialService), timerService(), timer(timerService), readCallback(read), debugCallback(debug)
 {
 }
 
@@ -196,7 +191,7 @@ SerialPort::~SerialPort()
   timerService.stop();
   timer.cancel();
   timerThread.join();
-  ioservice.stop();
+  serialService.stop();
   ioThread.join();
   serial.close();
 }
