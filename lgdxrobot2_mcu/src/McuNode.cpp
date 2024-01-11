@@ -19,7 +19,8 @@ void McuNode::serialDebugCallback(const std::string &msg, int level)
 
 void McuNode::serialReadCallback(const McuData& data)
 {
-  if(publishOdom)
+  /*
+   if(publishOdom)
   {
     // Calculate the forward kinematic (putting into mcu later...)
     double xDelta = (data.measuredWheelVelocity[0] + data.measuredWheelVelocity[1] + data.measuredWheelVelocity[2] + data.measuredWheelVelocity[3]) * 0.009375 * 0.02; // r / 4 // 20ms
@@ -60,6 +61,8 @@ void McuNode::serialReadCallback(const McuData& data)
     odometry.twist.twist.angular.z = wDelta;
     odomPublisher->publish(odometry);
   }
+  */
+ 
   
 }
 
@@ -68,7 +71,6 @@ void McuNode::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
   float x = msg.linear.x;
   float y = msg.linear.y;
   float w = msg.angular.z;
-  RCLCPP_DEBUG(this->get_logger(), "Received IK (%f, %f, %f)", x, y, w);
   serial.setInverseKinematics(x, y, w);
 }
 

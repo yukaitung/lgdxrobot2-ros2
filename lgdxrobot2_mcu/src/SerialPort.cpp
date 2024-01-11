@@ -87,12 +87,12 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
 {
   if(!error)
   {
-    if(size >= 5) 
+    if(size >= 2) 
     {
       // Find the header and frame size
       if(readBuffer[0] == char(170)) // 170 = 0xAA
       {
-        int frameSize = combineBytes((uint8_t) readBuffer[1], (uint8_t) readBuffer[2], (uint8_t) readBuffer[3], (uint8_t) readBuffer[4]);
+        int frameSize = readBuffer[1];
         if(int(size) == frameSize)
         {
           // Process the data if received data = target size, 
@@ -113,7 +113,21 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
 
 void SerialPort::processReadData()
 {
-  int index = 5;
+  int index = 2;
+  mcuData.refreshTime = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1]);
+  index += 2;
+  for(int i = 0; i < 3; i++)
+  {
+    uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
+    mcuData.transform[i] = uint32ToFloat(temp);
+    index += 4;
+  }
+  for(int i = 0; i < 3; i++)
+  {
+    uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
+    mcuData.forwardKinematic[i] = uint32ToFloat(temp);
+    index += 4;
+  }
   for(int i = 0; i < mcuData.wheelCount; i++) 
   {
     uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
@@ -146,14 +160,15 @@ void SerialPort::processReadData()
   }
   for(int i = 0; i < 2; i++) 
   {
-    mcuData.battery[i] = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    mcuData.battery[i] *= 0.004;
-    index += 4;
+    mcuData.battery[i] = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1]) * 0.004;
+    index += 2;
   }
-  for(int i = 0; i < 2; i++) 
+  uint8_t eStopByte = readBuffer[index];
+  int compare = 128;
+  for(int i = 0; i < 2; i++)
   {
-    mcuData.estop[i] = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    index += 4;
+    mcuData.eStop[i] = (eStopByte & compare) >> (7 - i);
+    compare = compare >> 1;
   }
   if(readCallback)
   {
