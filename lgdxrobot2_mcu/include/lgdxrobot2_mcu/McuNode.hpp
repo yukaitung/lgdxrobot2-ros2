@@ -31,9 +31,7 @@ class McuNode : public rclcpp::Node
 
     // Odom
     bool publishOdom = false;
-    double xOdom = 0;
-    double yOdom = 0;
-    double wOdom = 0;
+    bool publishTf = false;
 
     void serialDebugCallback(const std::string &msg, int level);
     void serialReadCallback(const McuData &data);

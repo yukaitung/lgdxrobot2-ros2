@@ -25,7 +25,7 @@ class SerialPort
     std::function<void(const std::string &, int)> debugCallback = nullptr;
 
     // Read Buffer
-    static const int kReadBufferSize = 512;
+    static const int kReadBufferSize = 2048;
     char readBuffer[kReadBufferSize] = {0};
 
     // Util

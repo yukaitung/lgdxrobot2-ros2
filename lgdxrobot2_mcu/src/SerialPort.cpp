@@ -6,24 +6,31 @@
 
 void SerialPort::startSerialIo()
 {
-  static bool first = true;
-  if(first)
+  if(ioThread.joinable()) 
   {
-    std::thread thread{[this](){ serialService.run(); }};
-    ioThread.swap(thread);
-    first = false;
+    // serialService returned, restart the timerService
+    serialService.restart();
+    ioThread.join();
   }
+  std::thread thread{[this](){ serialService.run(); }};
+  ioThread.swap(thread);
 }
 
 void SerialPort::startTimerIo()
 {
-  static bool first = true;
-  if(first)
+  if(!timerService.stopped() && timerThread.joinable()) 
   {
-    std::thread thread{[this](){ timerService.run(); }};
-    timerThread.swap(thread);
-    first = false;
+    // The timer is continue running, don't do anything
+    return;
   }
+  if(timerThread.joinable())
+  {
+    // timerService returned, restart the timerService
+    timerService.restart();
+    timerThread.join();    
+  }
+  std::thread thread{[this](){ timerService.run(); }};
+  timerThread.swap(thread);
 }
 
 void SerialPort::autoSearch()
@@ -32,6 +39,7 @@ void SerialPort::autoSearch()
   std::filesystem::path path {"/dev"};
   for(auto const &file : std::filesystem::directory_iterator(path))
   {
+    // Linux only, find first /dev/ttyACM*
     if(file.path().string().find("ttyACM") != std::string::npos)
     {
       port = file.path().string();
@@ -64,15 +72,15 @@ void SerialPort::connect(const std::string &port)
   }
   std::string msg = std::string("Serial port connected to ") + port;
   debug(msg, 1);
-  startSerialIo();
   read();
+  startSerialIo();
 }
 
 void SerialPort::reconnect()
 {
   if(serial.is_open())
     serial.close();
-  if(defaultPortName.empty())
+  if(defaultPortName.empty()) // Perform auto search if no defaultPortName
     autoSearch();
   else
     connect(defaultPortName);
@@ -80,7 +88,8 @@ void SerialPort::reconnect()
 
 void SerialPort::read()
 {
-  serial.async_read_some(boost::asio::buffer(readBuffer, kReadBufferSize), std::bind(&SerialPort::readHandler, this, std::placeholders::_1, std::placeholders::_2));
+  if(serial.is_open())
+    serial.async_read_some(boost::asio::buffer(readBuffer, kReadBufferSize), std::bind(&SerialPort::readHandler, this, std::placeholders::_1, std::placeholders::_2));    
 }
 
 void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
@@ -178,7 +187,8 @@ void SerialPort::processReadData()
 
 void SerialPort::write(const std::vector<char> &data)
 {
- serial.async_write_some(boost::asio::buffer(data), std::bind(&SerialPort::readHandler, this, std::placeholders::_1, 0));
+  if(serial.is_open())
+    serial.async_write_some(boost::asio::buffer(data), std::bind(&SerialPort::readHandler, this, std::placeholders::_1, 0));
 }
 
 void SerialPort::writeHandler(boost::system::error_code error)
@@ -204,9 +214,9 @@ SerialPort::SerialPort(std::function<void(const McuData &)> read, std::function<
 SerialPort::~SerialPort()
 {
   timerService.stop();
-  timer.cancel();
   if(timerThread.joinable())
     timerThread.join();
+  timer.cancel();
   serialService.stop();
   if(ioThread.joinable())
     ioThread.join();
@@ -217,6 +227,7 @@ void SerialPort::start(const std::string &port)
 {
   if(port.empty())
   {
+    // Perform auto search if no port specified
     autoSearch();
   }
   else

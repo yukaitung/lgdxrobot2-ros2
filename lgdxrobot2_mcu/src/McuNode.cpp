@@ -19,51 +19,42 @@ void McuNode::serialDebugCallback(const std::string &msg, int level)
 
 void McuNode::serialReadCallback(const McuData& data)
 {
-  /*
-   if(publishOdom)
+  if(publishTf || publishOdom)
   {
-    // Calculate the forward kinematic (putting into mcu later...)
-    double xDelta = (data.measuredWheelVelocity[0] + data.measuredWheelVelocity[1] + data.measuredWheelVelocity[2] + data.measuredWheelVelocity[3]) * 0.009375 * 0.02; // r / 4 // 20ms
-    double yDelta = (-data.measuredWheelVelocity[0] + data.measuredWheelVelocity[1] + data.measuredWheelVelocity[2] - data.measuredWheelVelocity[3]) * 0.009375 * 0.02; // r / 4
-    double wDelta = (-data.measuredWheelVelocity[0] + data.measuredWheelVelocity[1] - data.measuredWheelVelocity[2] + data.measuredWheelVelocity[3]) * 0.009375 * 0.02; // r / 4
-
-    xOdom += xDelta;
-    yOdom += yDelta;
-    wOdom += wDelta;
-
     tf2::Quaternion quaternion;
-    quaternion.setRPY(0, 0, wOdom);
+    quaternion.setRPY(0, 0, data.transform[2]);
     geometry_msgs::msg::Quaternion odomQuaternion = tf2::toMsg(quaternion);
     rclcpp::Time currentTime = this->get_clock()->now();
 
-    // Publist tf
-    geometry_msgs::msg::TransformStamped odomTf;
-    odomTf.header.stamp = currentTime;
-    odomTf.header.frame_id = "odom";
-    odomTf.child_frame_id = "base_link";
-    odomTf.transform.translation.x = xOdom;
-    odomTf.transform.translation.y = yOdom;
-    odomTf.transform.translation.z = 0.0;
-    odomTf.transform.rotation = odomQuaternion;
-    tfBroadcaster->sendTransform(odomTf);
-
-    // Publish odom
-    nav_msgs::msg::Odometry odometry;
-    odometry.header.stamp = currentTime;
-    odometry.header.frame_id = "odom";
-    odometry.pose.pose.position.x = xOdom;
-    odometry.pose.pose.position.y = yOdom;
-    odometry.pose.pose.position.z = 0.0;
-    odometry.pose.pose.orientation = odomQuaternion;
-    odometry.child_frame_id = "base_link";
-    odometry.twist.twist.linear.x = xDelta;
-    odometry.twist.twist.linear.y = yDelta;
-    odometry.twist.twist.angular.z = wDelta;
-    odomPublisher->publish(odometry);
+    if(publishTf)
+    {
+      geometry_msgs::msg::TransformStamped odomTf;
+      odomTf.header.stamp = currentTime;
+      odomTf.header.frame_id = "odom";
+      odomTf.child_frame_id = "base_link";
+      odomTf.transform.translation.x = data.transform[0];
+      odomTf.transform.translation.y = data.transform[1];
+      odomTf.transform.translation.z = 0.0;
+      odomTf.transform.rotation = odomQuaternion;
+      tfBroadcaster->sendTransform(odomTf);
+    }
+    
+    if(publishOdom)
+    {
+      nav_msgs::msg::Odometry odometry;
+      odometry.header.stamp = currentTime;
+      odometry.header.frame_id = "odom";
+      odometry.pose.pose.position.x = data.transform[0];
+      odometry.pose.pose.position.y = data.transform[1];
+      odometry.pose.pose.position.z = 0.0;
+      odometry.pose.pose.orientation = odomQuaternion;
+      odometry.child_frame_id = "base_link";
+      odometry.twist.twist.linear.x = data.forwardKinematic[0];
+      odometry.twist.twist.linear.y = data.forwardKinematic[1];
+      odometry.twist.twist.angular.z = data.forwardKinematic[2];
+      odomPublisher->publish(odometry);
+    }
   }
-  */
- 
-  
 }
 
 void McuNode::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
@@ -71,6 +62,7 @@ void McuNode::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
   float x = msg.linear.x;
   float y = msg.linear.y;
   float w = msg.angular.z;
+  RCLCPP_INFO(this->get_logger(), "/cmd_vel %f %f %f", x, y, w);
   serial.setInverseKinematics(x, y, w);
 }
 
@@ -130,17 +122,20 @@ void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
 McuNode::McuNode() : Node("mcu_node"), serial(std::bind(&McuNode::serialReadCallback, this, std::placeholders::_1), std::bind(&McuNode::serialDebugCallback, this, std::placeholders::_1, std::placeholders::_2))
 {
   auto serial_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
-  serial_param_desc.description = "Default serial port name or automated search if unspecified.";
+  serial_param_desc.description = "Default serial port name or automated search (Linux only) if port name unspecified.";
   this->declare_parameter("serial_port", "", serial_param_desc);
   auto control_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
   control_param_desc.description = "Robot control mode, using `joy` / unspecified for joystick or `cmd_vel` for ROS nav stack.";
   this->declare_parameter("control_mode", "joy", control_param_desc);
   auto odom_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
-  odom_param_desc.description = "Publishing odometry information and tf using the forward kinematic from the chassis.";
-  this->declare_parameter("publish_odom", true, control_param_desc);
+  odom_param_desc.description = "Publishing odometry information from the chassis.";
+  this->declare_parameter("publish_odom", true, odom_param_desc);
+  auto tf_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+  tf_param_desc.description = "Publishing tf information from the chassis.";
+  this->declare_parameter("publish_tf", true, tf_param_desc);
   auto base_link_frame_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
-  base_link_frame_param_desc.description = "Custom name of base link frame.";
-  this->declare_parameter("base_link_frame", "base_link", control_param_desc);
+  base_link_frame_param_desc.description = "Custom name of base_link frame.";
+  this->declare_parameter("base_link_frame", "base_link", base_link_frame_param_desc);
 
 
   serial.start(this->get_parameter("serial_port").as_string());
@@ -164,7 +159,11 @@ McuNode::McuNode() : Node("mcu_node"), serial(std::bind(&McuNode::serialReadCall
   {
     publishOdom = true;
     baseLinkName = this->get_parameter("base_link_frame").as_string();
-    tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     odomPublisher = this->create_publisher<nav_msgs::msg::Odometry>("odom", 50);
+  }
+  if(this->get_parameter("publish_tf").as_bool())
+  {
+    publishTf = true;
+    tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
   }
 }
