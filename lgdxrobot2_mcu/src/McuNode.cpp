@@ -62,7 +62,7 @@ void McuNode::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
   float x = msg.linear.x;
   float y = msg.linear.y;
   float w = msg.angular.z;
-  RCLCPP_INFO(this->get_logger(), "/cmd_vel %f %f %f", x, y, w);
+  //RCLCPP_INFO(this->get_logger(), "/cmd_vel %f %f %f", x, y, w);
   serial.setInverseKinematics(x, y, w);
 }
 

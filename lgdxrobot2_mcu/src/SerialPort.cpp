@@ -191,12 +191,12 @@ void SerialPort::write(const std::vector<char> &data)
 }
 
 void SerialPort::writeHandler(boost::system::error_code error)
-{
+{ 
   if(error) 
   {
     std::string msg = std::string("Serial write throws an error: ") + std::string(error.message());
     debug(msg, 3);
-    reconnect();
+    //reconnect();
   }
 }
 
