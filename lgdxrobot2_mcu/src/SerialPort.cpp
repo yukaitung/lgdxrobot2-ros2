@@ -1,6 +1,5 @@
 #include <filesystem>
 #include <chrono>
-#include <iostream>
 
 #include "SerialPort.hpp"
 
