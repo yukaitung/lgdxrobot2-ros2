@@ -122,19 +122,19 @@ void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
 McuNode::McuNode() : Node("mcu_node"), serial(std::bind(&McuNode::serialReadCallback, this, std::placeholders::_1), std::bind(&McuNode::serialDebugCallback, this, std::placeholders::_1, std::placeholders::_2))
 {
   auto serial_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
-  serial_param_desc.description = "Default serial port name or automated search (Linux only) if port name unspecified.";
+  serial_param_desc.description = "Default serial port name or (Linux only) perform automated search if the port name is unspecified.";
   this->declare_parameter("serial_port", "", serial_param_desc);
   auto control_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
-  control_param_desc.description = "Robot control mode, using `joy` / unspecified for joystick or `cmd_vel` for ROS nav stack.";
+  control_param_desc.description = "Robot control mode, using `joy` for joystick or `cmd_vel` for ROS nav stack.";
   this->declare_parameter("control_mode", "joy", control_param_desc);
   auto odom_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
   odom_param_desc.description = "Publishing odometry information from the chassis.";
-  this->declare_parameter("publish_odom", true, odom_param_desc);
+  this->declare_parameter("publish_odom", false, odom_param_desc);
   auto tf_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
   tf_param_desc.description = "Publishing tf information from the chassis.";
-  this->declare_parameter("publish_tf", true, tf_param_desc);
+  this->declare_parameter("publish_tf", false, tf_param_desc);
   auto base_link_frame_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
-  base_link_frame_param_desc.description = "Custom name of base_link frame.";
+  base_link_frame_param_desc.description = "Custom name for base_link frame.";
   this->declare_parameter("base_link_frame", "base_link", base_link_frame_param_desc);
 
 
