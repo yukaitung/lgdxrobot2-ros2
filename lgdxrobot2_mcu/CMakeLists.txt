@@ -18,15 +18,15 @@ find_package(Boost REQUIRED)
 
 include_directories(include/lgdxrobot2_mcu)
 
-add_executable(mcu_node 
+add_executable(lgdxrobot2_mcu_node 
   src/main.cpp 
   src/McuNode.cpp 
   src/SerialPort.cpp
 )
-ament_target_dependencies(mcu_node rclcpp std_msgs geometry_msgs nav_msgs sensor_msgs tf2_geometry_msgs)
-target_link_libraries(mcu_node Boost::headers)
+ament_target_dependencies(lgdxrobot2_mcu_node rclcpp std_msgs geometry_msgs nav_msgs sensor_msgs tf2_geometry_msgs)
+target_link_libraries(lgdxrobot2_mcu_node Boost::headers)
 
-install(TARGETS mcu_node DESTINATION lib/${PROJECT_NAME})
+install(TARGETS lgdxrobot2_mcu_node DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 ament_package()

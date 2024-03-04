@@ -119,7 +119,7 @@ void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
   serial.setInverseKinematics(x, y, w);
 }
 
-McuNode::McuNode() : Node("mcu_node"), serial(std::bind(&McuNode::serialReadCallback, this, std::placeholders::_1), std::bind(&McuNode::serialDebugCallback, this, std::placeholders::_1, std::placeholders::_2))
+McuNode::McuNode() : Node("lgdxrobot2_mcu_node"), serial(std::bind(&McuNode::serialReadCallback, this, std::placeholders::_1), std::bind(&McuNode::serialDebugCallback, this, std::placeholders::_1, std::placeholders::_2))
 {
   auto serial_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
   serial_param_desc.description = "Default serial port name or (Linux only) perform automated search if the port name is unspecified.";

@@ -50,7 +50,7 @@
       inter_cam_sync_mode: 0
       laser_power: 150.0
       output_trigger_enabled: false
-      profile: 848x480x30
+      profile: 1280x720x30
       sequence_id: 0
       sequence_name: 0
       sequence_size: 2

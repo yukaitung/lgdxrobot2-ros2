@@ -1,31 +1,36 @@
+"""\
+This script initalises complete ROS2 NAV stack using Rtabmap as odometry source.
+
+Usage: 
+cd lgdx_ws # The location of the source code
+. install/setup.bash
+ros2 launch lgdxrobot2_navigation nav2_rtabmap.launch.py
+"""
+
 import launch
 from launch.substitutions import Command, LaunchConfiguration
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 import launch_ros
+from launch_ros.substitutions import FindPackageShare
 import os
+import yaml
+
+def generate_param_path_with_profile(file_name, profile):
+    navigation_pkg_share = launch_ros.substitutions.FindPackageShare(package='lgdxrobot2_navigation').find('lgdxrobot2_navigation')
+    path = os.path.join(navigation_pkg_share, "param", profile, file_name)
+    if os.path.exists(path):
+        return path
+    else: # Rollback to default parameter
+        return os.path.join(navigation_pkg_share, "param", file_name)
 
 def generate_launch_description():
+    profile = "rtabmap"
     description_pkg_share = launch_ros.substitutions.FindPackageShare(package='lgdxrobot2_description').find('lgdxrobot2_description')
     navigation_pkg_share = launch_ros.substitutions.FindPackageShare(package='lgdxrobot2_navigation').find('lgdxrobot2_navigation')
-    slam_toolbox_pkg_share = launch_ros.substitutions.FindPackageShare(package='slam_toolbox').find('slam_toolbox')
     default_model_path = os.path.join(description_pkg_share, 'src/description/lgdxrobot2_description.urdf')
     default_rviz_config_path = os.path.join(navigation_pkg_share, 'rviz/default.rviz')
 
-    # Camera, IMU
-    realsense2_camera_node = launch_ros.actions.Node(
-        package='realsense2_camera',
-        namespace='camera',
-        name='camera',
-        executable='realsense2_camera_node',
-        output='screen',
-        parameters=[os.path.join(navigation_pkg_share, 'param/realsense2_camera.yaml')]
-    )
-    imu_filter_madgwick_node = launch_ros.actions.Node(
-        package='imu_filter_madgwick',
-        executable='imu_filter_madgwick_node',
-        output='screen',
-        remappings=[('/imu/data_raw', '/camera/imu')],
-        parameters=[os.path.join(navigation_pkg_share, 'param/imu_filter_madgwick.yaml')]
-    )
     # Robot visualisation
     robot_state_publisher_node = launch_ros.actions.Node(
         package='robot_state_publisher',
@@ -44,39 +49,64 @@ def generate_launch_description():
         output='screen',
         arguments=['-d', LaunchConfiguration('rvizconfig')],
     )
-    # Robot odom
-    rtabmap_odom = launch_ros.actions.Node(
-        package='rtabmap_odom', 
-        executable='ros',
-        name="rgbd_odometry",
-        #output="screen",
-        remappings=[
-                ("/rgb/image", "/camera/color/image_raw"),
-                ("/depth/image", "/camera/aligned_depth_to_color/image_raw"),
-                ("/rgb/camera_info", "/camera/color/camera_info")]
+    # LGDX Core
+    lgdxrobot2_mcu_node = launch_ros.actions.Node(
+        package='lgdxrobot2_mcu',
+        executable='lgdxrobot2_mcu_node',
+        output='screen',
+        parameters=[generate_param_path_with_profile("lgdxrobot2_mcu_node.yaml", profile)]
     )
-    # Robot navigation
+    # Camera, IMU filter
+    realsense2_camera_node = launch_ros.actions.Node(
+        package='realsense2_camera',
+        executable='realsense2_camera_node',
+        output='screen',
+        namespace='camera',
+        parameters=[generate_param_path_with_profile("realsense2_camera.yaml", profile)]
+    )
+    imu_filter_madgwick_node = launch_ros.actions.Node(
+        package='imu_filter_madgwick',
+        executable='imu_filter_madgwick_node',
+        output='screen',
+        remappings=[('/imu/data_raw', '/camera/imu')],
+        parameters=[generate_param_path_with_profile("imu_filter_madgwick.yaml", profile)]
+    )
+    # Rtabmap
+    rtabmap_node = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [FindPackageShare("rtabmap_launch"), '/launch', '/rtabmap.launch.py']
+        ),
+        launch_arguments=yaml.load(open(generate_param_path_with_profile("rtabmap.yaml", profile)), Loader=yaml.FullLoader).items()
+    )
+    # State Estimation Nodes
     robot_localization_node = launch_ros.actions.Node(
         package='robot_localization',
         executable='ekf_node',
         name='ekf_filter_node',
         output='screen',
-        parameters=[os.path.join(navigation_pkg_share, 'param/ekf_rtabmap.yaml')]
+        parameters=[generate_param_path_with_profile("ekf.yaml", profile)]
     )
-
-    # Robot navigation
+    # NAV2
+    nav2_node = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [FindPackageShare("nav2_bringup"), '/launch', '/navigation_launch.py']
+        ),
+        launch_arguments={'params_file': generate_param_path_with_profile("nav2.yaml", profile)}.items()
+    )
 
     return launch.LaunchDescription([
         launch.actions.DeclareLaunchArgument(name='model', default_value=default_model_path, description='Absolute path to robot urdf file'),
         launch.actions.DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path, description='Absolute path to rviz config file'),
-        realsense2_camera_node,
-        imu_filter_madgwick_node,
-
+        
         robot_state_publisher_node,
         joint_state_publisher_node,
         rviz_node,
+        
+        lgdxrobot2_mcu_node,
+        realsense2_camera_node,
+        imu_filter_madgwick_node,
 
-        #rtabmap_odom,
-
+        rtabmap_node,
         robot_localization_node,
+        nav2_node
     ])
