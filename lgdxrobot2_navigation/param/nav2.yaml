@@ -185,13 +185,13 @@ local_costmap:
       rolling_window: true
       width: 3
       height: 3
-      resolution: 0.05
+      resolution: 0.04
       footprint: "[ [0.143, 0.1185], [0.143, -0.1185], [-0.143, -0.1185], [-0.143, 0.1185] ]"
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.3
+        inflation_radius: 0.2
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -224,7 +224,7 @@ global_costmap:
       robot_base_frame: base_link
       use_sim_time: False
       robot_radius: 0.143
-      resolution: 0.05
+      resolution: 0.04
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       obstacle_layer:
@@ -240,7 +240,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.3
+        inflation_radius: 0.2
       always_send_full_costmap: True
   global_costmap_client:
     ros__parameters:
@@ -268,10 +268,34 @@ planner_server:
     use_sim_time: False
     planner_plugins: ["GridBased"]
     GridBased:
-      plugin: "nav2_navfn_planner/NavfnPlanner"
-      tolerance: 0.5
-      use_astar: false
+      plugin: "nav2_smac_planner/SmacPlannerLattice"
       allow_unknown: true
+      tolerance: 0.1
+      max_iterations: 1000000
+      max_on_approach_iterations: 1000
+      max_planning_time: 5.0
+      analytic_expansion_ratio: 3.5 
+      analytic_expansion_max_length: 3.0
+      analytic_expansion_max_cost: 200.0
+      analytic_expansion_max_cost_override: false
+      reverse_penalty: 2.0
+      change_penalty: 0.05
+      non_straight_penalty: 1.05
+      cost_penalty: 2.0
+      rotation_penalty: 5.0
+      retrospective_penalty: 0.015
+      lattice_filepath: ""
+      lookup_table_size: 20.0 
+      cache_obstacle_heuristic: false
+      allow_reverse_expansion: false
+      smooth_path: True
+      smoother:
+        max_iterations: 1000
+        w_smooth: 0.3
+        w_data: 0.2
+        tolerance: 1.0e-10
+        do_refinement: true
+        refinement_num: 2
 
 planner_server_rclcpp_node:
   ros__parameters:

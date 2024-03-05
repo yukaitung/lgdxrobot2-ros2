@@ -38,7 +38,7 @@
         right: 847
         top: 0
       emitter_always_on: false
-      emitter_enabled: 1
+      emitter_enabled: 0
       emitter_on_off: false
       enable_auto_exposure: true
       error_polling_enabled: true
@@ -66,8 +66,8 @@
     enable_color: true
     enable_depth: true
     enable_gyro: true
-    enable_infra1: false
-    enable_infra2: false
+    enable_infra1: true
+    enable_infra2: true
     enable_sync: true
     filter_by_sequence_id:
       enable: false
