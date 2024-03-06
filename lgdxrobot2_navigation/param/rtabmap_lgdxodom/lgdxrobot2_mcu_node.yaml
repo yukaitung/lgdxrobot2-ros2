@@ -2,6 +2,6 @@ lgdxrobot2_mcu:
   ros__parameters:
     base_link_frame: base_link
     control_mode: cmd_vel
-    publish_odom: false
+    publish_odom: true
     publish_tf: false
     serial_port: ''

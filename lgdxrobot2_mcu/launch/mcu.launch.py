@@ -7,7 +7,6 @@ def generate_launch_description():
         package='lgdxrobot2_mcu',
         executable='lgdxrobot2_mcu_node',
         output='screen',
-        remappings=[('/odom', '/lgdxrobot2/odom')],
         parameters=[{'serial_port': LaunchConfiguration('serial_port')},
                     {'control_mode': LaunchConfiguration('control_mode')}, 
                     {'publish_odom': LaunchConfiguration('publish_odom')}, 

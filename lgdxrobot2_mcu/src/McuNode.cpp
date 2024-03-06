@@ -119,7 +119,7 @@ void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
   serial.setInverseKinematics(x, y, w);
 }
 
-McuNode::McuNode() : Node("lgdxrobot2_mcu_node"), serial(std::bind(&McuNode::serialReadCallback, this, std::placeholders::_1), std::bind(&McuNode::serialDebugCallback, this, std::placeholders::_1, std::placeholders::_2))
+McuNode::McuNode() : Node("lgdxrobot2_mcu"), serial(std::bind(&McuNode::serialReadCallback, this, std::placeholders::_1), std::bind(&McuNode::serialDebugCallback, this, std::placeholders::_1, std::placeholders::_2))
 {
   auto serial_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
   serial_param_desc.description = "Default serial port name or (Linux only) perform automated search if the port name is unspecified.";
@@ -152,17 +152,19 @@ McuNode::McuNode() : Node("lgdxrobot2_mcu_node"), serial(std::bind(&McuNode::ser
   }
   else
   {
-    RCLCPP_FATAL(this->get_logger(), "Control mode is invalid, the program isterminaling");
+    RCLCPP_FATAL(this->get_logger(), "Control mode is invalid, the program is terminaling");
     exit(0);
   }
   if(this->get_parameter("publish_odom").as_bool())
   {
+    RCLCPP_INFO(this->get_logger(), "MCU Node will publish odom");
     publishOdom = true;
     baseLinkName = this->get_parameter("base_link_frame").as_string();
-    odomPublisher = this->create_publisher<nav_msgs::msg::Odometry>("odom", 50);
+    odomPublisher = this->create_publisher<nav_msgs::msg::Odometry>("/lgdxrobot2/odom", 50);
   }
   if(this->get_parameter("publish_tf").as_bool())
   {
+    RCLCPP_INFO(this->get_logger(), "MCU Node will publish tf");
     publishTf = true;
     tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
   }
