@@ -7,7 +7,6 @@ void SerialPort::startSerialIo()
 {
   if(ioThread.joinable()) 
   {
-    // serialService returned, restart the timerService
     serialService.restart();
     ioThread.join();
   }
@@ -71,14 +70,12 @@ void SerialPort::connect(const std::string &port)
   }
   std::string msg = std::string("Serial port connected to ") + port;
   debug(msg, 1);
-  read();
   startSerialIo();
+  read();
 }
 
 void SerialPort::reconnect()
 {
-  if(serial.is_open())
-    serial.close();
   if(defaultPortName.empty()) // Perform auto search if no defaultPortName
     autoSearch();
   else
@@ -87,12 +84,13 @@ void SerialPort::reconnect()
 
 void SerialPort::read()
 {
-  if(serial.is_open())
-    serial.async_read_some(boost::asio::buffer(readBuffer, kReadBufferSize), std::bind(&SerialPort::readHandler, this, std::placeholders::_1, std::placeholders::_2));    
+  serial.async_read_some(boost::asio::buffer(readBuffer, kReadBufferSize), std::bind(&SerialPort::readHandler, this, std::placeholders::_1, std::placeholders::_2));    
 }
 
 void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
 {
+  if(!serial.is_open())
+    return; // Discard further error is the serial is closed
   if(!error)
   {
     if(size >= 2) 
@@ -115,6 +113,8 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
   {
     std::string msg = std::string("Serial read throws an error: ") + std::string(error.message());
     debug(msg, 3);
+    //serialService.stop();
+    serial.close();
     reconnect();
   }
 }
