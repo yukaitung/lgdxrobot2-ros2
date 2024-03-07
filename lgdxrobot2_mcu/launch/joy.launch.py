@@ -7,7 +7,11 @@ def generate_launch_description():
         package='lgdxrobot2_mcu',
         executable='lgdxrobot2_mcu_node',
         output='screen',
-        parameters=[{'serial_port': LaunchConfiguration('serial_port')}]
+        parameters=[{
+                        'serial_port': LaunchConfiguration('serial_port'),
+                        'publish_odom': True,
+                        'publish_tf': True
+                    }]
     )
     joy_node = launch_ros.actions.Node(
         package='joy',
