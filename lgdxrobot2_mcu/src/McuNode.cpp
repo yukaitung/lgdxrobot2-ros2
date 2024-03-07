@@ -24,12 +24,12 @@ void McuNode::serialReadCallback(const McuData& data)
     tf2::Quaternion quaternion;
     quaternion.setRPY(0, 0, data.transform[2]);
     geometry_msgs::msg::Quaternion odomQuaternion = tf2::toMsg(quaternion);
-    rclcpp::Time currentTime = this->get_clock()->now();
+   //rclcpp::Time currentTime = this->get_clock()->now();
 
     if(publishTf)
     {
       geometry_msgs::msg::TransformStamped odomTf;
-      odomTf.header.stamp = currentTime;
+      odomTf.header.stamp = this->get_clock()->now();
       odomTf.header.frame_id = "odom";
       odomTf.child_frame_id = "base_link";
       odomTf.transform.translation.x = data.transform[0];
@@ -42,13 +42,13 @@ void McuNode::serialReadCallback(const McuData& data)
     if(publishOdom)
     {
       nav_msgs::msg::Odometry odometry;
-      odometry.header.stamp = currentTime;
+      odometry.header.stamp = this->get_clock()->now();
       odometry.header.frame_id = "odom";
       odometry.pose.pose.position.x = data.transform[0];
       odometry.pose.pose.position.y = data.transform[1];
       odometry.pose.pose.position.z = 0.0;
       odometry.pose.pose.orientation = odomQuaternion;
-      odometry.child_frame_id = "base_link";
+      odometry.child_frame_id = baseLinkName;
       odometry.twist.twist.linear.x = data.forwardKinematic[0];
       odometry.twist.twist.linear.y = data.forwardKinematic[1];
       odometry.twist.twist.angular.z = data.forwardKinematic[2];
@@ -160,7 +160,7 @@ McuNode::McuNode() : Node("lgdxrobot2_mcu"), serial(std::bind(&McuNode::serialRe
     RCLCPP_INFO(this->get_logger(), "MCU Node will publish odom");
     publishOdom = true;
     baseLinkName = this->get_parameter("base_link_frame").as_string();
-    odomPublisher = this->create_publisher<nav_msgs::msg::Odometry>("/lgdxrobot2/odom", 50);
+    odomPublisher = this->create_publisher<nav_msgs::msg::Odometry>("/lgdxrobot2/odom", 100);
   }
   if(this->get_parameter("publish_tf").as_bool())
   {
