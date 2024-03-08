@@ -24,14 +24,14 @@ void McuNode::serialReadCallback(const McuData& data)
     tf2::Quaternion quaternion;
     quaternion.setRPY(0, 0, data.transform[2]);
     geometry_msgs::msg::Quaternion odomQuaternion = tf2::toMsg(quaternion);
-   //rclcpp::Time currentTime = this->get_clock()->now();
+    rclcpp::Time currentTime = this->get_clock()->now();
 
     if(publishTf)
     {
       geometry_msgs::msg::TransformStamped odomTf;
-      odomTf.header.stamp = this->get_clock()->now();
+      odomTf.header.stamp = currentTime;
       odomTf.header.frame_id = "odom";
-      odomTf.child_frame_id = "base_link";
+      odomTf.child_frame_id = baseLinkName;
       odomTf.transform.translation.x = data.transform[0];
       odomTf.transform.translation.y = data.transform[1];
       odomTf.transform.translation.z = 0.0;
@@ -42,7 +42,7 @@ void McuNode::serialReadCallback(const McuData& data)
     if(publishOdom)
     {
       nav_msgs::msg::Odometry odometry;
-      odometry.header.stamp = this->get_clock()->now();
+      odometry.header.stamp = currentTime;
       odometry.header.frame_id = "odom";
       odometry.pose.pose.position.x = data.transform[0];
       odometry.pose.pose.position.y = data.transform[1];
@@ -143,12 +143,12 @@ McuNode::McuNode() : Node("lgdxrobot2_mcu"), serial(std::bind(&McuNode::serialRe
   if(controlMode.empty() || controlMode.compare(std::string("joy")) == 0)
   {
     RCLCPP_INFO(this->get_logger(), "MCU Node is running in joy control mode");
-    joySubscription = this->create_subscription<sensor_msgs::msg::Joy>("joy", 10, std::bind(&McuNode::joyCallback, this, std::placeholders::_1));
+    joySubscription = this->create_subscription<sensor_msgs::msg::Joy>("joy", rclcpp::QoS(rclcpp::QoS(10)), std::bind(&McuNode::joyCallback, this, std::placeholders::_1));
   }
   else if(controlMode.compare(std::string("cmd_vel")) == 0)
   {
     RCLCPP_INFO(this->get_logger(), "MCU Node is running in cmd_vel mode");
-    cmdVelSubscription = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&McuNode::cmdVelCallback, this, std::placeholders::_1));
+    cmdVelSubscription = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", rclcpp::QoS(rclcpp::QoS(10)), std::bind(&McuNode::cmdVelCallback, this, std::placeholders::_1));
   }
   else
   {
@@ -160,7 +160,7 @@ McuNode::McuNode() : Node("lgdxrobot2_mcu"), serial(std::bind(&McuNode::serialRe
     RCLCPP_INFO(this->get_logger(), "MCU Node will publish odom");
     publishOdom = true;
     baseLinkName = this->get_parameter("base_link_frame").as_string();
-    odomPublisher = this->create_publisher<nav_msgs::msg::Odometry>("/lgdxrobot2/odom", 100);
+    odomPublisher = this->create_publisher<nav_msgs::msg::Odometry>("/lgdxrobot2/odom", rclcpp::QoS(10));
   }
   if(this->get_parameter("publish_tf").as_bool())
   {
