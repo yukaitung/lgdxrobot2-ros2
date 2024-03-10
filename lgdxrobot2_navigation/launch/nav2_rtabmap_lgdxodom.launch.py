@@ -1,5 +1,5 @@
 """\
-This script initalises complete ROS2 NAV stack using Rtabmap as odometry source.
+This script initalises complete ROS2 NAV stack using lgdxodom as odometry source.
 
 Usage: 
 cd lgdx_ws # The location of the source code

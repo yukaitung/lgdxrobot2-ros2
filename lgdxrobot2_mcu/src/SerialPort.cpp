@@ -70,8 +70,8 @@ void SerialPort::connect(const std::string &port)
   }
   std::string msg = std::string("Serial port connected to ") + port;
   debug(msg, 1);
-  startSerialIo();
   read();
+  startSerialIo();
 }
 
 void SerialPort::reconnect()
