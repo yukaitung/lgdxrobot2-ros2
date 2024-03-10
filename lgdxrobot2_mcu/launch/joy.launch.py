@@ -1,5 +1,18 @@
+"""\
+This script initalises LGDXRobot2 MCU node, JOY node and visualise the odometry with Rviz
+
+Usage: 
+cd lgdx_ws # The location of the source code
+. install/setup.bash
+ros2 launch lgdxrobot2_mcu joy.launch.py
+ros2 launch lgdxrobot2_mcu joy.launch.py rviz:=false # Without Rviz
+"""
+
 import launch
 from launch.substitutions import Command, LaunchConfiguration
+from launch.conditions import LaunchConfigurationEquals
+from launch.actions import RegisterEventHandler
+from launch.event_handlers import OnProcessStart
 import launch_ros
 import os
 
@@ -21,19 +34,18 @@ def generate_launch_description():
     rviz_node = launch_ros.actions.Node(
         package='rviz2',
         executable='rviz2',
+        condition=LaunchConfigurationEquals('rviz', 'true'),
         name='rviz2',
         output='screen',
         arguments=['-d', LaunchConfiguration('rvizconfig')],
     )
-    mcu_node = launch_ros.actions.Node(
+    lgdxrobot2_mcu_node = launch_ros.actions.Node(
         package='lgdxrobot2_mcu',
         executable='lgdxrobot2_mcu_node',
         output='screen',
-        parameters=[{
-                        'serial_port': LaunchConfiguration('serial_port'),
-                        'publish_odom': True,
-                        'publish_tf': True
-                    }]
+        parameters=[{'serial_port': LaunchConfiguration('serial_port'),
+                     'publish_odom': True,
+                     'publish_tf': True}]
     )
     joy_node = launch_ros.actions.Node(
         package='joy',
@@ -44,11 +56,26 @@ def generate_launch_description():
         launch.actions.DeclareLaunchArgument(name='serial_port', default_value='', description='Absolute path serial port device.'),
         launch.actions.DeclareLaunchArgument(name='model', default_value=default_model_path, description='Absolute path to robot urdf file'),
         launch.actions.DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path, description='Absolute path to rviz config file'),
-        
-        robot_state_publisher_node,
-        joint_state_publisher_node,
-        rviz_node,
+        launch.actions.DeclareLaunchArgument(name='rviz', default_value='true', description='Visualise the odometry with Rviz'),
 
-        mcu_node,
+        RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=lgdxrobot2_mcu_node,
+                on_start=[robot_state_publisher_node],
+            )
+        ),
+        RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=lgdxrobot2_mcu_node,
+                on_start=[joint_state_publisher_node],
+            )
+        ),
+        RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=lgdxrobot2_mcu_node,
+                on_start=[rviz_node],
+            )
+        ),
+        lgdxrobot2_mcu_node,
         joy_node
     ])

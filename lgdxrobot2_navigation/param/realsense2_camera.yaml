@@ -66,8 +66,8 @@
     enable_color: true
     enable_depth: true
     enable_gyro: true
-    enable_infra1: true
-    enable_infra2: true
+    enable_infra1: false
+    enable_infra2: false
     enable_sync: true
     filter_by_sequence_id:
       enable: false

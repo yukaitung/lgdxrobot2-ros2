@@ -1,5 +1,5 @@
 """\
-This script initalises complete ROS2 NAV stack using Rtabmap as odometry source.
+This script initalises complete ROS2 NAV stack using Rtabmap to generate map.
 
 Usage: 
 cd lgdx_ws # The location of the source code
@@ -9,8 +9,10 @@ ros2 launch lgdxrobot2_navigation nav2_rtabmap.launch.py
 
 import launch
 from launch.substitutions import Command, LaunchConfiguration
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, RegisterEventHandler
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.conditions import LaunchConfigurationEquals
+from launch.event_handlers import OnProcessStart
 import launch_ros
 from launch_ros.substitutions import FindPackageShare
 import os
@@ -54,7 +56,8 @@ def generate_launch_description():
         package='lgdxrobot2_mcu',
         executable='lgdxrobot2_mcu_node',
         output='screen',
-        parameters=[generate_param_path_with_profile("lgdxrobot2_mcu_node.yaml", profile)]
+        parameters=[generate_param_path_with_profile("lgdxrobot2_mcu_node.yaml", profile)],
+        remappings=[('/lgdxrobot2/ext_imu', '/imu/data')]
     )
     # Camera, IMU filter
     realsense2_camera_node = launch_ros.actions.Node(
@@ -64,11 +67,17 @@ def generate_launch_description():
         namespace='camera',
         parameters=[generate_param_path_with_profile("realsense2_camera.yaml", profile)]
     )
+    imu_transformer = launch_ros.actions.Node(
+        package='imu_transformer',
+        executable='imu_transformer_node',
+        output='screen',
+        remappings=[('/imu_in', '/camera/imu')]
+    )
     imu_filter_madgwick_node = launch_ros.actions.Node(
         package='imu_filter_madgwick',
         executable='imu_filter_madgwick_node',
         output='screen',
-        remappings=[('/imu/data_raw', '/camera/imu')],
+        remappings=[('/imu/data_raw', '/imu_out')],
         parameters=[generate_param_path_with_profile("imu_filter_madgwick.yaml", profile)]
     )
     # Rtabmap
@@ -98,15 +107,61 @@ def generate_launch_description():
         launch.actions.DeclareLaunchArgument(name='model', default_value=default_model_path, description='Absolute path to robot urdf file'),
         launch.actions.DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path, description='Absolute path to rviz config file'),
         
-        robot_state_publisher_node,
-        joint_state_publisher_node,
-        rviz_node,
-        
+        # Launch mcu node then launch robot visualisation
+        RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=lgdxrobot2_mcu_node,
+                on_start=[robot_state_publisher_node],
+            )
+        ),
+        RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=lgdxrobot2_mcu_node,
+                on_start=[joint_state_publisher_node],
+            )
+        ),
+        RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=lgdxrobot2_mcu_node,
+                on_start=[rviz_node],
+            )
+        ),
+
+        # Launching IMU: realsense2_camera_node -> imu_transformer, imu_filter_madgwick_node
+        RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=realsense2_camera_node,
+                on_start=[imu_transformer],
+            )
+        ),
+        RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=realsense2_camera_node,
+                on_start=[imu_filter_madgwick_node],
+            )
+        ),
+
+        # Launching NAV2: realsense2_camera_node -> rtabmap_node, robot_localization_node, nav2_node
+        RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=realsense2_camera_node,
+                on_start=[rtabmap_node],
+            )
+        ),
+        RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=realsense2_camera_node,
+                on_start=[robot_localization_node],
+            )
+        ),
+        RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=realsense2_camera_node,
+                on_start=[nav2_node],
+            )
+        ),
+
+        # Hardware
         lgdxrobot2_mcu_node,
         realsense2_camera_node,
-        imu_filter_madgwick_node,
-
-        rtabmap_node,
-        robot_localization_node,
-        nav2_node
     ])
