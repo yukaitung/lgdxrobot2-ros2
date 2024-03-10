@@ -191,5 +191,6 @@ McuNode::McuNode() : Node("lgdxrobot2_mcu"), serial(std::bind(&McuNode::serialRe
   if(this->get_parameter("reset_transform").as_bool())
   {
     RCLCPP_INFO(this->get_logger(), "MCU Node will reset transform");
+    serial.resetTransform();
   }
 }
