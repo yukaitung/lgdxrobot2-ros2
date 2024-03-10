@@ -36,9 +36,11 @@ void McuNode::serialReadCallback(const McuData& data)
       odomTf.transform.translation.y = data.transform[1];
       odomTf.transform.translation.z = 0.0;
       odomTf.transform.rotation = odomQuaternion;
-      tfBroadcaster->sendTransform(odomTf);
+      if(tfBroadcaster)
+        tfBroadcaster->sendTransform(odomTf);
+      else
+        RCLCPP_ERROR(this->get_logger(), "tfBroadcaster does not initalised.");
     }
-    
     if(publishOdom)
     {
       nav_msgs::msg::Odometry odometry;
@@ -52,7 +54,10 @@ void McuNode::serialReadCallback(const McuData& data)
       odometry.twist.twist.linear.x = data.forwardKinematic[0];
       odometry.twist.twist.linear.y = data.forwardKinematic[1];
       odometry.twist.twist.angular.z = data.forwardKinematic[2];
-      odomPublisher->publish(odometry);
+      if(odomPublisher)
+        odomPublisher->publish(odometry);
+      else
+        RCLCPP_ERROR(this->get_logger(), "odomPublisher does not initalised.");
     }
   }
 }
