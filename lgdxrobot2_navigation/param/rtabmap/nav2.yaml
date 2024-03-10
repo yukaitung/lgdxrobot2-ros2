@@ -102,13 +102,13 @@ bt_navigator_rclcpp_node:
 controller_server:
   ros__parameters:
     use_sim_time: False
-    controller_frequency: 20.0
+    controller_frequency: 100.0
     min_x_velocity_threshold: 0.001
-    min_y_velocity_threshold: 0.5
+    min_y_velocity_threshold: 0.001
     min_theta_velocity_threshold: 0.001
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
-    goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
+    goal_checker_plugins: ["general_goal_checker"]
     controller_plugins: ["FollowPath"]
 
     # Progress checker parameters
@@ -117,44 +117,43 @@ controller_server:
       required_movement_radius: 0.5
       movement_time_allowance: 10.0
     # Goal checker parameters
-    #precise_goal_checker:
-    #  plugin: "nav2_controller::SimpleGoalChecker"
-    #  xy_goal_tolerance: 0.02
-    #  yaw_goal_tolerance: 0.01745329
-    #  stateful: True
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.02
+      xy_goal_tolerance: 0.1
       yaw_goal_tolerance: 0.01745329
     # DWB parameters
     FollowPath:
-      plugin: "dwb_core::DWBLocalPlanner"
+      plugin: "nav2_rotation_shim_controller::RotationShimController"
+      angular_dist_threshold: 0.785
+      forward_sampling_distance: 0.5
+      rotate_to_heading_angular_vel: 0.2
+      max_angular_accel: 2.0
+      simulate_ahead_time: 1.0
+      primary_controller: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 0.1
-      max_vel_y: 0.1
-      max_vel_theta: 0.1
+      max_vel_x: 0.2
+      max_vel_y: 0.0
+      max_vel_theta: 0.2
       min_speed_xy: 0.0
-      max_speed_xy: 0.1
+      max_speed_xy: 0.2
       min_speed_theta: 0.0
-      # Add high threshold velocity for turtlebot 3 issue.
-      # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
-      acc_lim_x: 0.2
+      acc_lim_x: 2.0
       acc_lim_y: 0.0
-      acc_lim_theta: 0.2
-      decel_lim_x: -0.2
+      acc_lim_theta: 2.0
+      decel_lim_x: -2.0
       decel_lim_y: 0.0
-      decel_lim_theta: -0.2
-      vx_samples: 20
-      vy_samples: 5
-      vtheta_samples: 20
+      decel_lim_theta: -2.0
+      vx_samples: 100
+      vy_samples: 20
+      vtheta_samples: 100
       sim_time: 1.7
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.25
+      xy_goal_tolerance: 0.1
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: True
       stateful: True
@@ -185,7 +184,7 @@ local_costmap:
       rolling_window: true
       width: 3
       height: 3
-      resolution: 0.04
+      resolution: 0.05
       footprint: "[ [0.143, 0.1185], [0.143, -0.1185], [-0.143, -0.1185], [-0.143, 0.1185] ]"
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
@@ -224,7 +223,7 @@ global_costmap:
       robot_base_frame: base_link
       use_sim_time: False
       robot_radius: 0.143
-      resolution: 0.04
+      resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       obstacle_layer:
@@ -264,14 +263,25 @@ map_saver:
 
 planner_server:
   ros__parameters:
-    expected_planner_frequency: 20.0
+    expected_planner_frequency: 100.0
     use_sim_time: False
     planner_plugins: ["GridBased"]
     GridBased:
-      plugin: 'nav2_navfn_planner/NavfnPlanner'
-      use_astar: False
-      allow_unknown: True
-      tolerance: 0.02
+      plugin: "nav2_smac_planner/SmacPlanner2D"
+      tolerance: 0.1
+      downsample_costmap: false
+      downsampling_factor: 1
+      allow_unknown: true
+      max_iterations: 1000000
+      max_on_approach_iterations: 1000
+      max_planning_time: 2.0
+      cost_travel_multiplier: 2.0
+      use_final_approach_orientation: false
+      smoother:
+        max_iterations: 1000
+        w_smooth: 0.3
+        w_data: 0.2
+        tolerance: 1.0e-10
 
 planner_server_rclcpp_node:
   ros__parameters:

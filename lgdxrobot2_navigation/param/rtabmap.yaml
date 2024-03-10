@@ -1,4 +1,4 @@
-rtabmap_args: "--delete_db_on_start --Optimizer/GravitySigma 0 --Rtabmap/DetectionRate 2 --Vis/MaxDepth 3.0 --Vis/MinDepth 0.3  --Grid/CellSize 0.04"
+rtabmap_args: "--delete_db_on_start --Optimizer/GravitySigma 0 --Rtabmap/DetectionRate 2 --Vis/MaxDepth 3.0 --Vis/MinDepth 0.3  --Grid/CellSize 0.05"
 namespace: "/"
 rgb_topic: "/camera/color/image_raw"
 depth_topic: "/camera/aligned_depth_to_color/image_raw"
