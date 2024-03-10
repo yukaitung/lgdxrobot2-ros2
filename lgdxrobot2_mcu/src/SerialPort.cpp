@@ -71,6 +71,11 @@ void SerialPort::connect(const std::string &port)
   std::string msg = std::string("Serial port connected to ") + port;
   debug(msg, 1);
   read();
+  if(resetTransformOnConnected)
+  {
+    resetTransformOnConnected = false;
+    resetTransformPrivate();
+  }
   startSerialIo();
 }
 
@@ -184,6 +189,13 @@ void SerialPort::processReadData()
   }
 }
 
+void SerialPort::resetTransformPrivate()
+{
+  std::vector<char> ba(1);
+  ba[0] = 'T';
+  write(ba);
+}
+
 void SerialPort::write(const std::vector<char> &data)
 {
   if(serial.is_open())
@@ -266,5 +278,40 @@ void SerialPort::setEstop(int enable)
   ba[2] = (enable & 16711680) >> 16;
   ba[3] = (enable & 65280) >> 8;
   ba[4] = enable & 255;
+  write(ba);
+}
+
+void SerialPort::resetTransform()
+{
+  if(serial.is_open())
+    resetTransformPrivate();
+  else
+    resetTransformOnConnected = true;
+}
+
+void SerialPort::setExternalImu(float ax, float ay, float az, float gz)
+{
+  uint32_t ux = floatToUint32(ax);
+  uint32_t uy = floatToUint32(ay);
+  uint32_t uz = floatToUint32(az);
+  uint32_t ugz = floatToUint32(gz);
+  std::vector<char> ba(17);
+  ba[0] = 'M';
+  ba[1] = (ux & 4278190080) >> 24;
+  ba[2] = (ux & 16711680) >> 16;
+  ba[3] = (ux & 65280) >> 8;
+  ba[4] = ux & 255;
+  ba[5] = (uy & 4278190080) >> 24;
+  ba[6] = (uy & 16711680) >> 16;
+  ba[7] = (uy & 65280) >> 8;
+  ba[8] = uy & 255;
+  ba[9] = (uz & 4278190080) >> 24;
+  ba[10] = (uz & 16711680) >> 16;
+  ba[11] = (uz & 65280) >> 8;
+  ba[12] = uz & 255;
+  ba[13] = (ugz & 4278190080) >> 24;
+  ba[14] = (ugz & 16711680) >> 16;
+  ba[15] = (ugz & 65280) >> 8;
+  ba[16] = ugz & 255;
   write(ba);
 }

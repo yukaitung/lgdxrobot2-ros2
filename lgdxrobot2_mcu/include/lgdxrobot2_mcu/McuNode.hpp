@@ -5,6 +5,7 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "sensor_msgs/msg/joy.hpp"
+#include "sensor_msgs/msg/imu.hpp"
 
 // Odom
 #include "tf2_ros/transform_broadcaster.h"
@@ -18,6 +19,7 @@ class McuNode : public rclcpp::Node
     SerialPort serial;
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
     rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joySubscription;
+    rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imuSubscription;
 
     // Odom
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPublisher;
@@ -37,6 +39,7 @@ class McuNode : public rclcpp::Node
     void serialReadCallback(const McuData &data);
     void cmdVelCallback(const geometry_msgs::msg::Twist &msg);
     void joyCallback(const sensor_msgs::msg::Joy &msg);
+    void imuCallback(const sensor_msgs::msg::Imu &msg);
     
   public:
     McuNode();

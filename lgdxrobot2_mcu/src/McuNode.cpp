@@ -119,6 +119,15 @@ void McuNode::joyCallback(const sensor_msgs::msg::Joy &msg)
   serial.setInverseKinematics(x, y, w);
 }
 
+void McuNode::imuCallback(const sensor_msgs::msg::Imu &msg)
+{
+  float ax = msg.linear_acceleration.x;
+  float ay = msg.linear_acceleration.y;
+  float az = msg.linear_acceleration.z;
+  float gz = msg.angular_velocity.z;
+  serial.setExternalImu(ax, ay, az, gz);
+}
+
 McuNode::McuNode() : Node("lgdxrobot2_mcu"), serial(std::bind(&McuNode::serialReadCallback, this, std::placeholders::_1), std::bind(&McuNode::serialDebugCallback, this, std::placeholders::_1, std::placeholders::_2))
 {
   auto serial_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
@@ -136,6 +145,12 @@ McuNode::McuNode() : Node("lgdxrobot2_mcu"), serial(std::bind(&McuNode::serialRe
   auto base_link_frame_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
   base_link_frame_param_desc.description = "Custom name for base_link frame.";
   this->declare_parameter("base_link_frame", "base_link", base_link_frame_param_desc);
+  auto use_external_imu_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+  use_external_imu_param_desc.description = "Using external IMU for odometry calcuation.";
+  this->declare_parameter("use_external_imu", false, use_external_imu_param_desc);
+  auto reset_transform_param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+  reset_transform_param_desc.description = "Reset robot transform on start up.";
+  this->declare_parameter("reset_transform", false, reset_transform_param_desc);
 
 
   serial.start(this->get_parameter("serial_port").as_string());
@@ -167,5 +182,14 @@ McuNode::McuNode() : Node("lgdxrobot2_mcu"), serial(std::bind(&McuNode::serialRe
     RCLCPP_INFO(this->get_logger(), "MCU Node will publish tf");
     publishTf = true;
     tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+  }
+  if(this->get_parameter("use_external_imu").as_bool())
+  {
+    RCLCPP_INFO(this->get_logger(), "MCU Node will use external IMU");
+    imuSubscription = this->create_subscription<sensor_msgs::msg::Imu>("/lgdxrobot2/ext_imu", rclcpp::QoS(rclcpp::QoS(10)), std::bind(&McuNode::imuCallback, this, std::placeholders::_1));
+  }
+  if(this->get_parameter("reset_transform").as_bool())
+  {
+    RCLCPP_INFO(this->get_logger(), "MCU Node will reset transform");
   }
 }

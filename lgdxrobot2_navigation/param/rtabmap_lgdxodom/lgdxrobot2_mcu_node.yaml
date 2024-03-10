@@ -4,4 +4,6 @@ lgdxrobot2_mcu:
     control_mode: cmd_vel
     publish_odom: true
     publish_tf: false
+    use_external_imu: true
+    reset_transform: true
     serial_port: ''

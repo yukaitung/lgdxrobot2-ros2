@@ -23,6 +23,7 @@ class SerialPort
     McuData mcuData;
     std::function<void(const McuData &)> readCallback = nullptr;
     std::function<void(const std::string &, int)> debugCallback = nullptr;
+    bool resetTransformOnConnected = false;
 
     // Read Buffer
     static const int kReadBufferSize = 2048;
@@ -49,6 +50,7 @@ class SerialPort
     void processReadData();
 
     // Write to MCU
+    void resetTransformPrivate();
     void write(const std::vector<char> &data);
     void writeHandler(boost::system::error_code error);
 
@@ -61,6 +63,8 @@ class SerialPort
     void start(const std::string &port);
     void setInverseKinematics(float x, float y, float w);
     void setEstop(int enable);
+    void resetTransform();
+    void setExternalImu(float ax, float ay, float az, float gz);
 };
 
 #endif // SERIALPORT_HPP

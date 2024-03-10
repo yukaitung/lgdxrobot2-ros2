@@ -54,7 +54,8 @@ def generate_launch_description():
         package='lgdxrobot2_mcu',
         executable='lgdxrobot2_mcu_node',
         output='screen',
-        parameters=[generate_param_path_with_profile("lgdxrobot2_mcu_node.yaml", profile)]
+        parameters=[generate_param_path_with_profile("lgdxrobot2_mcu_node.yaml", profile)],
+        remappings=[('/lgdxrobot2/ext_imu', '/imu/data')]
     )
     # Camera, IMU filter
     realsense2_camera_node = launch_ros.actions.Node(
