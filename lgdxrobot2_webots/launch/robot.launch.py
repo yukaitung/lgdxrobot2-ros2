@@ -7,7 +7,7 @@ from launch import LaunchDescription
 from ament_index_python.packages import get_package_share_directory
 from webots_ros2_driver.webots_launcher import WebotsLauncher
 from webots_ros2_driver.webots_controller import WebotsController
-from webots_ros2_driver.wait_for_controller_connection import WaitForControllerConnection
+from webots_ros2_driver.utils import controller_url_prefix
 import os
 
 def generate_launch_description():
@@ -18,7 +18,7 @@ def generate_launch_description():
   
   webots = WebotsLauncher(
     world=PathJoinSubstitution([package_dir, 'worlds', world]),
-    ros2_supervisor=True
+    #ros2_supervisor=True
   )
 
   robot_state_publisher = Node(
@@ -40,7 +40,7 @@ def generate_launch_description():
     ],
     respawn=True
   )
-
+  
   return LaunchDescription([
     DeclareLaunchArgument(
       name='use_sim_time',
@@ -48,7 +48,7 @@ def generate_launch_description():
       description='Use the /clock topic to synchronize the ROS controller with the simulation.'
     ),
     webots,
-    webots._supervisor,
+    #webots._supervisor,
 
     robot_state_publisher,
 

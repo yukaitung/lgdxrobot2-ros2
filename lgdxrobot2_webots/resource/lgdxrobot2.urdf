@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
-<robot name="lgdxrobot2" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="LGDXRobot2" xmlns:xacro="http://ros.org/wiki/xacro">
   <webots>
+    <plugin type="LgdxRobot2::LgdxRobot2Driver" />
     <device reference="camera rgb" type="Camera">
       <ros>
         <topicName>/LGDXRobot2/camera/color</topicName>

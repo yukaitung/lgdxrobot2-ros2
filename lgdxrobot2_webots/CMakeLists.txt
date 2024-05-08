@@ -6,11 +6,45 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(webots_ros2_driver REQUIRED)
 
+# Export the plugin configuration file
+pluginlib_export_plugin_description_file(webots_ros2_driver lgdxrobot2_driver.xml)
+
+include_directories(include/lgdxrobot2_webots)
+
+add_library(
+  ${PROJECT_NAME}
+  SHARED
+  src/LgdxRobot2Driver.cpp
+)
+ament_target_dependencies(
+  ${PROJECT_NAME}
+  pluginlib
+  rclcpp
+  webots_ros2_driver
+)
+
+install(TARGETS 
+  ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 install(
   DIRECTORY launch protos resource worlds
   DESTINATION share/${PROJECT_NAME}
 )
 
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  ${PROJECT_NAME}
+)
 ament_package()
 
