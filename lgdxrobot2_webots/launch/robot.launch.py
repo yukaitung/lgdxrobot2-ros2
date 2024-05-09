@@ -12,13 +12,13 @@ import os
 
 def generate_launch_description():
   package_dir = get_package_share_directory('lgdxrobot2_webots')
-  world = 'world.wbt'
+  world = LaunchConfiguration('world')
   use_sim_time = LaunchConfiguration('use_sim_time')
   robot_description_path = os.path.join(package_dir, 'resource', 'lgdxrobot2.urdf')
   
   webots = WebotsLauncher(
     world=PathJoinSubstitution([package_dir, 'worlds', world]),
-    #ros2_supervisor=True
+    ros2_supervisor=True
   )
 
   robot_state_publisher = Node(
@@ -31,7 +31,7 @@ def generate_launch_description():
   )
 
   lgdxrobot2_driver = WebotsController(
-    robot_name='lgdxrobot2',
+    robot_name='LGDXRobot2',
     parameters=[
       {
         'robot_description': robot_description_path,
@@ -43,12 +43,17 @@ def generate_launch_description():
   
   return LaunchDescription([
     DeclareLaunchArgument(
+      'world',
+      default_value='world.wbt',
+      description='Choose one of the world files'
+    ),
+    DeclareLaunchArgument(
       name='use_sim_time',
       default_value='True',
       description='Use the /clock topic to synchronize the ROS controller with the simulation.'
     ),
     webots,
-    #webots._supervisor,
+    webots._supervisor,
 
     robot_state_publisher,
 

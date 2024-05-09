@@ -44,7 +44,7 @@ RectangleArena {
   floorSize 5 5
 }
 LGDXRobot2 {
-  name "lgdxrobot2"
+  name "LGDXRobot2"
   controller "<extern>"
 }
 WoodenBox {
