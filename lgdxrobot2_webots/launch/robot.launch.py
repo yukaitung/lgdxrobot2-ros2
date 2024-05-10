@@ -21,15 +21,6 @@ def generate_launch_description():
     ros2_supervisor=True
   )
 
-  robot_state_publisher = Node(
-    package='robot_state_publisher',
-    executable='robot_state_publisher',
-    output='screen',
-    parameters=[{
-        'robot_description': '<robot name=""><link name=""/></robot>'
-    }],
-  )
-
   lgdxrobot2_driver = WebotsController(
     robot_name='LGDXRobot2',
     parameters=[
@@ -50,12 +41,10 @@ def generate_launch_description():
     DeclareLaunchArgument(
       name='use_sim_time',
       default_value='True',
-      description='Use the /clock topic to synchronize the ROS controller with the simulation.'
+      description='Use the simulation time from Webots.'
     ),
     webots,
     webots._supervisor,
-
-    robot_state_publisher,
 
     lgdxrobot2_driver,
 

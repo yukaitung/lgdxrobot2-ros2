@@ -4,8 +4,12 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/macros.hpp"
 #include "geometry_msgs/msg/twist.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 #include "webots_ros2_driver/PluginInterface.hpp"
 #include "webots_ros2_driver/WebotsNode.hpp"
+
+// Odom
+#include "tf2_ros/transform_broadcaster.h"
 
 #define CHASSIS_LX 0.237
 #define CHASSIS_LY 0.287
@@ -16,10 +20,20 @@ namespace LgdxRobot2
 class LgdxRobot2Driver : public webots_ros2_driver::PluginInterface
 {
   private:
-    void cmdVelCallback(const geometry_msgs::msg::Twist &msg);
-    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
+    webots_ros2_driver::WebotsNode *rosNode;
+
     WbDeviceTag wheels[4];
-    float wheelsVelocity[4] = {0};
+    double wheelsVelocity[4] = {0};
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
+    
+    double lastSimTime = 0;
+    double motorLastPosition[4] = {0};
+    double robotTransform[3] = {0};
+    WbDeviceTag positionSensors[4];
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPublisher;
+    std::shared_ptr<tf2_ros::TransformBroadcaster> tfBroadcaster;
+
+    void cmdVelCallback(const geometry_msgs::msg::Twist &msg);
 
   public:
     void init(webots_ros2_driver::WebotsNode *node, std::unordered_map<std::string, std::string> &parameters) override;
