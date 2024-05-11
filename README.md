@@ -22,3 +22,9 @@ XXX
 ### Build & Run
 
 XXX
+
+# Dev notes
+
+### lgdxrobot2_navigation
+
+The `slam_launch.py` in `nav2_bringup` does not map accroding to namespace, so I copied launch files from git.
