@@ -1,13 +1,11 @@
 import launch
-from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument
 from launch import LaunchDescription
 from ament_index_python.packages import get_package_share_directory
 from webots_ros2_driver.webots_launcher import WebotsLauncher
 from webots_ros2_driver.webots_controller import WebotsController
-from webots_ros2_driver.utils import controller_url_prefix
 import os
 
 def generate_launch_description():
