@@ -13,7 +13,7 @@ import os
 launch_args = [
   DeclareLaunchArgument(
     'namespace',
-    default_value='LGDXRobot2',
+    default_value='',
     description='Robot name.'
   ),
   DeclareLaunchArgument(
@@ -38,6 +38,7 @@ def launch_setup(context):
   robot_description_path = os.path.join(package_dir, 'resource', 'lgdxrobot2.urdf')
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
   nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
+  namespace = LaunchConfiguration('namespace')
   namespace_str = LaunchConfiguration('namespace').perform(context)
   world = LaunchConfiguration('world')
   use_sim_time = LaunchConfiguration('use_sim_time')
@@ -48,7 +49,7 @@ def launch_setup(context):
   )
 
   lgdxrobot2_driver = WebotsController(
-    robot_name=namespace_str,
+    robot_name='LGDXRobot2',
     parameters=[
       {
         'robot_description': robot_description_path,
@@ -76,7 +77,7 @@ def launch_setup(context):
       os.path.join(description_package_dir, 'launch', 'display.launch.py')
     ),
     launch_arguments={
-      'namespace': namespace_str,
+      'namespace': namespace,
       'use_sim_time': use_sim_time,
       'model': 'lgdxrobot2_simulation.urdf',
       'use_rviz': 'False',
@@ -88,6 +89,7 @@ def launch_setup(context):
       os.path.join(nav2_package_dir, 'launch', 'nav2_base.launch.py')
     ),
     launch_arguments={
+      'namespace': namespace,
       'use_sim_time': use_sim_time,
       'profile': 'webots'
     }.items(),
