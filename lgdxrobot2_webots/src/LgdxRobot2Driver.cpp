@@ -44,7 +44,7 @@ void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered
     rclcpp::SensorDataQoS().reliable(),
     std::bind(&LgdxRobot2Driver::cmdVelCallback, this, std::placeholders::_1)
   );
-  odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("/LGDXRobot2/odom", rclcpp::SensorDataQoS().reliable());
+  odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("/odom", rclcpp::SensorDataQoS().reliable());
   tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(node);
 }
 
@@ -88,7 +88,7 @@ void LgdxRobot2Driver::step()
   odomTf.transform.rotation = odomQuaternion;
   if(tfBroadcaster)
     tfBroadcaster->sendTransform(odomTf);
-
+  
   nav_msgs::msg::Odometry odometry;
   odometry.header.stamp = currentTime;
   odometry.header.frame_id = "odom";

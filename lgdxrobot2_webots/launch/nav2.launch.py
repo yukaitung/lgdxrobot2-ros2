@@ -13,11 +13,9 @@ import os
 def generate_launch_description():
   package_dir = get_package_share_directory('lgdxrobot2_webots')
   robot_description_path = os.path.join(package_dir, 'resource', 'lgdxrobot2.urdf')
-  description_package_dir = get_package_share_directory('lgdxrobot2_description')
   nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
   world = LaunchConfiguration('world')
   use_sim_time = LaunchConfiguration('use_sim_time')
-  use_rviz = LaunchConfiguration('use_rviz')
   
   webots = WebotsLauncher(
     world=PathJoinSubstitution([package_dir, 'worlds', world]),
@@ -32,19 +30,13 @@ def generate_launch_description():
         'use_sim_time': use_sim_time
       },
     ],
+    remappings=[
+      ('/cmd_vel', '/LGDXRobot2/cmd_vel'), 
+      ('/odom', '/LGDXRobot2/odom'), 
+      ('/tf', '/LGDXRobot2/tf'), 
+      ('/tf_static', '/LGDXRobot2/tf_static'),
+    ],
     respawn=True
-  )
-  
-  description_nodes = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(description_package_dir, 'launch', 'display.launch.py')
-    ),
-    launch_arguments={
-      'model': 'lgdxrobot2_simulation.urdf',
-      'use_rviz': use_rviz,
-      'rviz_config': 'navigation.rviz',
-      'use_sim_time': use_sim_time,
-    }.items(),
   )
   
   nav2_nodes = IncludeLaunchDescription(
