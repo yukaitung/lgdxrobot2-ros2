@@ -12,9 +12,9 @@ import os
 
 def generate_launch_description():
   package_dir = get_package_share_directory('lgdxrobot2_webots')
+  robot_description_path = os.path.join(package_dir, 'resource', 'lgdxrobot2.urdf')
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
   world = LaunchConfiguration('world')
-  robot_description_path = os.path.join(package_dir, 'resource', 'lgdxrobot2.urdf')
   use_sim_time = LaunchConfiguration('use_sim_time')
   use_rviz = LaunchConfiguration('use_rviz')
   
@@ -54,7 +54,7 @@ def generate_launch_description():
     DeclareLaunchArgument(
       'world',
       default_value='world.wbt',
-      description='Choose one of the world files.'
+      description='World file in `lgdxrobot2_webots` package.'
     ),
     DeclareLaunchArgument(
       name='use_sim_time',
@@ -64,8 +64,9 @@ def generate_launch_description():
     DeclareLaunchArgument(
       name='use_rviz',
       default_value='True',
-      description='Launch RVIZ2.'
+      description='Launch RViz2.'
     ),
+    
     webots,
     webots._supervisor,
 
