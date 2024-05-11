@@ -4,21 +4,21 @@
     <plugin type="LgdxRobot2::LgdxRobot2Driver" />
     <device reference="camera rgb" type="Camera">
       <ros>
-        <topicName>/LGDXRobot2/camera/color</topicName>
+        <topicName>/camera/color</topicName>
         <enabled>true</enabled>
         <alwaysOn>true</alwaysOn>
       </ros>
     </device>
     <device reference="camera depth" type="RangeFinder">
       <ros>
-        <topicName>/LGDXRobot2/camera/depth</topicName>
+        <topicName>/camera/depth</topicName>
         <enabled>true</enabled>
         <alwaysOn>true</alwaysOn>
       </ros>
     </device>
     <device reference="lidar" type="Lidar">
       <ros>
-        <topicName>/LGDXRobot2/scan</topicName>
+        <topicName>/scan</topicName>
         <enabled>true</enabled>
         <alwaysOn>true</alwaysOn>
       </ros>

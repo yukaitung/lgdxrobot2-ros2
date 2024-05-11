@@ -14,7 +14,6 @@ def generate_launch_description():
   package_dir = get_package_share_directory('lgdxrobot2_webots')
   robot_description_path = os.path.join(package_dir, 'resource', 'lgdxrobot2.urdf')
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
-  nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
   world = LaunchConfiguration('world')
   use_sim_time = LaunchConfiguration('use_sim_time')
   use_rviz = LaunchConfiguration('use_rviz')
@@ -47,19 +46,9 @@ def generate_launch_description():
     }.items(),
   )
   
-  nav2_nodes = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(nav2_package_dir, 'launch', 'nav2_base.launch.py')
-    ),
-    launch_arguments={
-      'use_sim_time': use_sim_time,
-      'profile': 'webots'
-    }.items(),
-  )
-  
   waiting_nodes = WaitForControllerConnection(
     target_driver=lgdxrobot2_driver,
-    nodes_to_start=[nav2_nodes]
+    nodes_to_start=[description_nodes]
   )
   
   return LaunchDescription([
