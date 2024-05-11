@@ -2,22 +2,31 @@
 <robot name="LGDXRobot2" xmlns:xacro="http://ros.org/wiki/xacro">
   <link name="base_link">
   </link>
+  <link name="base_footprint"/>
+  <joint name="base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_footprint"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
   <joint name="wheel4" type="continuous">
     <parent link="base_link"/>
     <child link="WHEEL_4_SOLID"/>
     <axis xyz="0 -0.000004 -1"/>
     <limit effort="10" velocity="10"/>
-    <origin xyz="-0.1055 -0.1025 -0.0545" rpy="1.5708 0 0"/>
+    <origin xyz="-0.1055 -0.1025 0.0375" rpy="1.5708 0 0"/>
   </joint>
   <link name="WHEEL_4_SOLID">
     <visual>
-      <origin xyz="0 0.00001 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.0375" length="0.032"/>
       </geometry>
+      <material name="LGDXBlack">
+        <color rgba="0 0 0 1.0"/>
+      </material>
     </visual>
     <collision>
-      <origin xyz="0 0.00001 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.0375" length="0.032"/>
       </geometry>
@@ -28,17 +37,20 @@
     <child link="WHEEL_3_SOLID"/>
     <axis xyz="0 -0.000004 -1"/>
     <limit effort="10" velocity="10"/>
-    <origin xyz="-0.1055 0.10251 -0.0545" rpy="1.5708 0 0"/>
+    <origin xyz="-0.1055 0.1025 0.0375" rpy="1.5708 0 0"/>
   </joint>
   <link name="WHEEL_3_SOLID">
     <visual>
-      <origin xyz="0 0.00001 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.0375" length="0.032"/>
       </geometry>
+      <material name="LGDXBlack">
+        <color rgba="0 0 0 1.0"/>
+      </material>
     </visual>
     <collision>
-      <origin xyz="0 0.00001 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.0375" length="0.032"/>
       </geometry>
@@ -49,17 +61,20 @@
     <child link="WHEEL_2_SOLID"/>
     <axis xyz="0 -0.000004 -1"/>
     <limit effort="10" velocity="10"/>
-    <origin xyz="0.1055 -0.10249 -0.0545" rpy="1.5708 0 0"/>
+    <origin xyz="0.1055 -0.1025 0.0375" rpy="1.5708 0 0"/>
   </joint>
   <link name="WHEEL_2_SOLID">
     <visual>
-      <origin xyz="0 0.00001 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.0375" length="0.032"/>
       </geometry>
+      <material name="LGDXBlack">
+        <color rgba="0 0 0 1.0"/>
+      </material>
     </visual>
     <collision>
-      <origin xyz="0 0.00001 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.0375" length="0.032"/>
       </geometry>
@@ -70,17 +85,20 @@
     <child link="WHEEL_1_SOLID"/>
     <axis xyz="0 -0.000004 -1"/>
     <limit effort="10" velocity="10"/>
-    <origin xyz="0.1055 0.10251 -0.0545" rpy="1.5708 0 0"/>
+    <origin xyz="0.1055 0.1025 0.0375" rpy="1.5708 0 0"/>
   </joint>
   <link name="WHEEL_1_SOLID">
     <visual>
-      <origin xyz="0 0.00001 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.0375" length="0.032"/>
       </geometry>
+      <material name="LGDXBlack">
+        <color rgba="0 0 0 1.0"/>
+      </material>
     </visual>
     <collision>
-      <origin xyz="0 0.00001 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.0375" length="0.032"/>
       </geometry>
@@ -88,13 +106,13 @@
   </link>
   <link name="BASE_FRONT_SOLID">
     <visual>
-      <origin xyz="0 0.00001 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="0.08 0.145 0.004"/>
       </geometry>
     </visual>
     <collision>
-      <origin xyz="0 0.00001 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="0.08 0.145 0.004"/>
       </geometry>
@@ -103,7 +121,7 @@
   <joint name="base_link_BASE_FRONT_SOLID_joint" type="fixed">
     <parent link="base_link"/>
     <child link="BASE_FRONT_SOLID"/>
-    <origin xyz="0.102 0.00001 -0.036" rpy="0 0 0"/>
+    <origin xyz="0.102 0 0.057" rpy="0 0 0"/>
   </joint>
   <link name="BASE_REAR_SOLID">
     <visual>
@@ -120,7 +138,7 @@
   <joint name="base_link_BASE_REAR_SOLID_joint" type="fixed">
     <parent link="base_link"/>
     <child link="BASE_REAR_SOLID"/>
-    <origin xyz="-0.102 0 -0.036" rpy="0 0 0"/>
+    <origin xyz="-0.102 0 0.057" rpy="0 0 0"/>
   </joint>
   <link name="BASE_TOP_SOLID">
     <visual>
@@ -137,7 +155,7 @@
   <joint name="base_link_BASE_TOP_SOLID_joint" type="fixed">
     <parent link="base_link"/>
     <child link="BASE_TOP_SOLID"/>
-    <origin xyz="0 0 0.036" rpy="0 0 0"/>
+    <origin xyz="0 0 0.129" rpy="0 0 0"/>
   </joint>
   <link name="BASE_CENTRE_SOLID">
     <visual>
@@ -154,7 +172,7 @@
   <joint name="base_link_BASE_CENTRE_SOLID_joint" type="fixed">
     <parent link="base_link"/>
     <child link="BASE_CENTRE_SOLID"/>
-    <origin xyz="0 0 -0.036" rpy="0 0 0"/>
+    <origin xyz="0 0 0.057" rpy="0 0 0"/>
   </joint>
   <link name="lidar">
     <visual>
@@ -185,7 +203,7 @@
   <joint name="base_link_lidar_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar"/>
-    <origin xyz="0 0 0.067" rpy="0 0 0"/>
+    <origin xyz="0 0 0.157" rpy="0 0 3.14159"/>
   </joint>
   <link name="screw3">
     <visual>
@@ -358,7 +376,7 @@
   <joint name="base_link_camera_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera"/>
-    <origin xyz="0.1 0.01 -0.03" rpy="0 0 0"/>
+    <origin xyz="0.1 0.01 0.059" rpy="0 0 0"/>
   </joint>
   <link name="camera depth">
   </link>
