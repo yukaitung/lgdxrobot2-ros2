@@ -77,7 +77,7 @@ void LgdxRobot2Driver::step()
   quaternion.setRPY(0, 0, robotTransform[2]);
   geometry_msgs::msg::Quaternion odomQuaternion = tf2::toMsg(quaternion);
   rclcpp::Time currentTime = rosNode->get_clock()->now();
-
+  /*
   geometry_msgs::msg::TransformStamped odomTf;
   odomTf.header.stamp = currentTime;
   odomTf.header.frame_id = "odom";
@@ -88,7 +88,7 @@ void LgdxRobot2Driver::step()
   odomTf.transform.rotation = odomQuaternion;
   if(tfBroadcaster)
     tfBroadcaster->sendTransform(odomTf);
-  
+  */
   nav_msgs::msg::Odometry odometry;
   odometry.header.stamp = currentTime;
   odometry.header.frame_id = "odom";

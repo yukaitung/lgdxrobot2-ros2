@@ -61,6 +61,17 @@ def launch_setup(context):
   bringup_dir = get_package_share_directory('lgdxrobot2_navigation')
   launch_dir = os.path.join(bringup_dir, 'launch')
 
+  robot_localization_node = Node(
+    package='robot_localization',
+    executable='ekf_node',
+    name='ekf_filter_node',
+    output='screen',
+    parameters=[
+      generate_param_path_with_profile("ekf.yaml", profile_str),
+      {'use_sim_time': use_sim_time }
+    ]
+  )
+
   ros2_nav = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(os.path.join(launch_dir, 'bringup_launch.py')),
     launch_arguments={
@@ -76,7 +87,7 @@ def launch_setup(context):
     }.items(),
   )
 
-  return [ros2_nav]
+  return [robot_localization_node, ros2_nav]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)

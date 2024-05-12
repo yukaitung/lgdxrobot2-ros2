@@ -33,36 +33,69 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.0053978010678299455 0.9999657233547687 0.006278205094296219 1.4208330621313927
-  position -2.049352143842162 -0.04609974346207524 11.62909576868531
+  orientation -0.014995675165428176 0.9996366981946148 0.022396458400860502 1.1803359953135828
+  position -8.690756109456807 -0.09467230880458033 19.446979095175905
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 RectangleArena {
-  floorSize 5 5
+  floorSize 10 10
+  wallHeight 0.5
 }
 LGDXRobot2 {
-  name "LGDXRobot2"
   controller "<extern>"
+  name "LGDXRobot2"
 }
 WoodenBox {
-  translation 0.308346 -1.51644 0.3
+  translation 0.791722 -2.38815 0.3
 }
 WoodenBox {
-  translation -1.39058 -0.991042 0.3
+  translation -1.24048 -1.49362 0.3
   name "wooden box(2)"
 }
 WoodenBox {
-  translation -2.04113 0.475212 0.3
+  translation -2.38066 0.224695 0.3
   name "wooden box(3)"
 }
 WoodenBox {
-  translation -0.26639 1.56307 0.3
+  translation -0.776224 1.3953 0.3
   name "wooden box(4)"
 }
 WoodenBox {
-  translation 1.21516 0.333658 0.3
+  translation 2.14769 0.866455 0.3
   name "wooden box(1)"
+}
+WoodenBox {
+  translation 3.48719 3.757 0.3
+  name "wooden box(5)"
+}
+WoodenBox {
+  translation 0.171462 3.84091 0.3
+  name "wooden box(6)"
+}
+WoodenBox {
+  translation -3.30406 3.79815 0.3
+  name "wooden box(7)"
+}
+WoodenBox {
+  translation -3.16461 -1.91712 0.3
+  name "wooden box(8)"
+}
+WoodenBox {
+  translation -4.20281 1.43993 0.3
+  name "wooden box(10)"
+}
+WoodenBox {
+  translation -1.55294 -3.54785 0.3
+  name "wooden box(9)"
+}
+WoodenBox {
+  translation 3.25057 -3.81393 0.3
+  name "wooden box(11)"
+}
+WoodenBox {
+  translation 3.64884 -0.68742 0.3
+  name "wooden box(12)"
 }
