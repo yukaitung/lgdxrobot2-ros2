@@ -4,6 +4,7 @@ from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, Opaq
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from nav2_common.launch import ReplaceString
 import os
 
 launch_args = [
@@ -31,6 +32,11 @@ launch_args = [
     name='nav2_params_file',
     default_value='',
     description='The absolute path for nav2 parameters.'
+  ),
+  DeclareLaunchArgument(
+    name='lattice_file',
+    default_value='',
+    description='The absolute path for lattice file.'
   ),
   DeclareLaunchArgument(
     name='use_sim_time',
@@ -67,6 +73,12 @@ def launch_setup(context):
   use_respawn = LaunchConfiguration('use_respawn')
   bringup_dir = get_package_share_directory('lgdxrobot2_navigation')
   launch_dir = os.path.join(bringup_dir, 'launch')
+
+  lattice_file = LaunchConfiguration('lattice_file')
+  nav2_params_file = ReplaceString(
+    source_file=nav2_params_file,
+    replacements={'<lattice_filepath>': ('/', lattice_file)},
+  )
 
   robot_localization_node = Node(
     package='robot_localization',

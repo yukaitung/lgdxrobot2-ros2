@@ -156,6 +156,7 @@ def launch_setup(context):
       'map': map,
       'ekf_params_file': generate_param_path_with_profile('ekf.yaml', profile_str),
       'nav2_params_file': generate_param_path_with_profile('nav2.yaml', profile_str),
+      'lattice_file': generate_param_path_with_profile('lattice.json', profile_str),
       'use_sim_time': use_sim_time,
       'autostart': autostart,
       'use_composition': use_composition,
