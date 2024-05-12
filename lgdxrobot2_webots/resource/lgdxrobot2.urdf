@@ -6,20 +6,20 @@
       <ros>
         <topicName>/camera/color</topicName>
         <enabled>true</enabled>
-        <alwaysOn>true</alwaysOn>
+        <alwaysOn>false</alwaysOn>
       </ros>
     </device>
     <device reference="camera depth" type="RangeFinder">
       <ros>
         <topicName>/camera/depth</topicName>
         <enabled>true</enabled>
-        <alwaysOn>true</alwaysOn>
+        <alwaysOn>false</alwaysOn>
       </ros>
     </device>
     <device reference="lidar" type="Lidar">
       <ros>
         <topicName>/scan</topicName>
-        <updateRate>30</updateRate>
+        <updateRate>15</updateRate>
         <enabled>true</enabled>
         <alwaysOn>true</alwaysOn>
       </ros>

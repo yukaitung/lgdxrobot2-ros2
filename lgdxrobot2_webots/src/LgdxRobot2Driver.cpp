@@ -67,10 +67,10 @@ void LgdxRobot2Driver::step()
     motorPositionChange[i] = motorPosition[i] - motorLastPosition[i];
   }
   motorForwardKinematic[0] = ((motorPositionChange[0] + motorPositionChange[1] + motorPositionChange[2] + motorPositionChange[3]) * (WHEEL_RADIUS / 4)) / timeElapsed;
-  motorForwardKinematic[1] = ((-motorPositionChange[0] + motorPositionChange[1] + motorPositionChange[2] - motorPositionChange[3]) * (WHEEL_RADIUS / 4)) / timeElapsed;
-  motorForwardKinematic[2] = ((-motorPositionChange[0] + motorPositionChange[1] - motorPositionChange[2] + motorPositionChange[3]) * ((WHEEL_RADIUS) / (4 * (CHASSIS_LX + CHASSIS_LY)))) / timeElapsed;
+  motorForwardKinematic[1] = ((-motorPositionChange[0] + motorPositionChange[1] + motorPositionChange[2] - motorPositionChange[3]) * (WHEEL_RADIUS / 4)) / timeElapsed; // Variation in formula
+  motorForwardKinematic[2] = ((-motorPositionChange[0] + motorPositionChange[1] - motorPositionChange[2] + motorPositionChange[3]) * ((WHEEL_RADIUS) * 2 / (M_PI * (CHASSIS_LX + CHASSIS_LY)))) / timeElapsed;
   robotTransform[0] += (motorForwardKinematic[0] * cos(robotTransform[2]) - motorForwardKinematic[1] * sin(robotTransform[2])) * timeElapsed;
-	robotTransform[1] -= (motorForwardKinematic[0] * sin(robotTransform[2]) - motorForwardKinematic[1] * cos(robotTransform[2])) * timeElapsed;
+	robotTransform[1] += (motorForwardKinematic[0] * sin(robotTransform[2]) + motorForwardKinematic[1] * cos(robotTransform[2])) * timeElapsed;
   robotTransform[2] += motorForwardKinematic[2] * timeElapsed;
 
   tf2::Quaternion quaternion;

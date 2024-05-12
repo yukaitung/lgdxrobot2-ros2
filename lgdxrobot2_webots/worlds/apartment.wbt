@@ -32,7 +32,6 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/living_room_furniture/protos/Armchair.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/living_room_furniture/protos/Sofa.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/living_room_furniture/protos/Carpet.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/telephone/protos/OfficeTelephone.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/bathroom/protos/WashingMachine.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/bathroom/protos/Bathtube.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/bathroom/protos/Toilet.proto"
@@ -40,14 +39,35 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "../protos/LGDXRobot2.proto"
 
 WorldInfo {
-  info [
-    "This simulation was sponsored by Kamal Othman & Prof. Ahmad Rad from AISL-SFU"
+  basicTimeStep 16
+  contactProperties [
+    ContactProperties {
+      material1 "InteriorWheelMat"
+      coulombFriction [
+        0, 2, 0
+      ]
+      frictionRotation -0.785398 0
+      bounce 0
+      forceDependentSlip [
+        10, 0
+      ]
+    }
+    ContactProperties {
+      material1 "ExteriorWheelMat"
+      coulombFriction [
+        0, 2, 0
+      ]
+      frictionRotation 0.785398 0
+      bounce 0
+      forceDependentSlip [
+        10, 0
+      ]
+    }
   ]
-  title "Complete apartment including two bedrooms, one bathroom, one restroom, stairs and a balcony"
 }
 Viewpoint {
-  orientation -0.0037499650649591046 0.9999859965293917 0.003734234477249977 1.5750140034445095
-  position -6.288183422106192 -6.910726308535546 28.119770198505115
+  orientation -0.0018749962332394712 0.9999968191902635 0.0016870087376393218 1.6762531631445485
+  position -2.8398696412711444 -7.540354140982357 34.05112284704371
   exposure 0.5
   ambientOcclusionRadius 1
 }
@@ -1207,13 +1227,8 @@ Cabinet {
     colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
   }
 }
-OfficeTelephone {
-  translation -4.496782 -6.58 1.0611279999999998
-  rotation -0.2907400269219462 0 0.9568020885979639 3.14159
-  enablePhysics FALSE
-}
 WashingMachine {
-  translation -2.00701 -5.63126 0.51
+  translation -2.00701 -5.83126 0.51
 }
 Bathtube {
   translation -4.96001 -11.9954 0
