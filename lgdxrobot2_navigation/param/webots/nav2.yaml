@@ -49,7 +49,7 @@ amcl_rclcpp_node:
 
 bt_navigator:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: True
     global_frame: map
     robot_base_frame: base_link
     odom_topic: /odom
@@ -117,11 +117,16 @@ controller_server:
       required_movement_radius: 0.5
       movement_time_allowance: 10.0
     # Goal checker parameters
+    #precise_goal_checker:
+    #  plugin: "nav2_controller::SimpleGoalChecker"
+    #  xy_goal_tolerance: 0.25
+    #  yaw_goal_tolerance: 0.25
+    #  stateful: True
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.05
-      yaw_goal_tolerance: 0.01745329
+      xy_goal_tolerance: 0.25
+      yaw_goal_tolerance: 0.25
     # DWB parameters
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
@@ -129,7 +134,7 @@ controller_server:
       min_vel_x: 0.0
       min_vel_y: 0.0
       max_vel_x: 0.2
-      max_vel_y: 0.2
+      max_vel_y: 0.0
       max_vel_theta: 0.2
       min_speed_xy: 0.0
       max_speed_xy: 0.2
@@ -147,7 +152,7 @@ controller_server:
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.1
+      xy_goal_tolerance: 0.25
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: True
       stateful: True
@@ -206,7 +211,6 @@ local_costmap:
           obstacle_max_range: 2.5
           obstacle_min_range: 0.0
       static_layer:
-        plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
       always_send_full_costmap: True
   local_costmap_client:
@@ -256,6 +260,11 @@ global_costmap:
     ros__parameters:
       use_sim_time: True
 
+map_server:
+  ros__parameters:
+    use_sim_time: True
+    yaml_filename: "turtlebot3_world.yaml"
+
 map_saver:
   ros__parameters:
     use_sim_time: True
@@ -267,33 +276,17 @@ map_saver:
 planner_server:
   ros__parameters:
     expected_planner_frequency: 20.0
-    use_sim_time: False
+    use_sim_time: True
     planner_plugins: ["GridBased"]
     GridBased:
-      plugin: "nav2_smac_planner/SmacPlanner2D"
-      tolerance: 0.1
-      downsample_costmap: false
-      downsampling_factor: 1
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      tolerance: 0.5
+      use_astar: false
       allow_unknown: true
-      max_iterations: 1000000
-      max_on_approach_iterations: 1000
-      max_planning_time: 2.0
-      cost_travel_multiplier: 2.0
-      use_final_approach_orientation: false
-      smoother:
-        max_iterations: 1000
-        w_smooth: 0.3
-        w_data: 0.2
-        tolerance: 1.0e-10
 
-smoother_server:
+planner_server_rclcpp_node:
   ros__parameters:
-    smoother_plugins: ["simple_smoother"]
-    simple_smoother:
-      plugin: "nav2_smoother::SimpleSmoother"
-      tolerance: 1.0e-10
-      max_its: 1000
-      do_refinement: True
+    use_sim_time: True
 
 recoveries_server:
   ros__parameters:
@@ -310,18 +303,21 @@ recoveries_server:
     global_frame: odom
     robot_base_frame: base_link
     transform_timeout: 0.1
-    use_sim_time: False
+    use_sim_time: true
     simulate_ahead_time: 2.0
-    max_rotational_vel: 0.2
-    min_rotational_vel: 0.1
+    max_rotational_vel: 1.0
+    min_rotational_vel: 0.4
     rotational_acc_lim: 3.2
+
+robot_state_publisher:
+  ros__parameters:
+    use_sim_time: True
 
 waypoint_follower:
   ros__parameters:
     loop_rate: 20
     stop_on_failure: false
-    action_server_result_timeout: 900.0
-    waypoint_task_executor_plugin: "wait_at_waypoint"
+    waypoint_task_executor_plugin: "wait_at_waypoint"   
     wait_at_waypoint:
       plugin: "nav2_waypoint_follower::WaitAtWaypoint"
       enabled: True

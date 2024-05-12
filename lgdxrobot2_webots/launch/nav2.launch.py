@@ -23,7 +23,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     'world',
-    default_value='world.wbt',
+    default_value='apartment.wbt',
     description='World file in `lgdxrobot2_webots` package.'
   ),
   DeclareLaunchArgument(
