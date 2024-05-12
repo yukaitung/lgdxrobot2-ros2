@@ -8,7 +8,7 @@
     <child link="base_footprint"/>
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
-  <joint name="wheel4" type="continuous">
+  <joint name="wheel4" type="fixed">
     <parent link="base_link"/>
     <child link="WHEEL_4_SOLID"/>
     <axis xyz="0 -0.000004 -1"/>
@@ -32,7 +32,7 @@
       </geometry>
     </collision>
   </link>
-  <joint name="wheel3" type="continuous">
+  <joint name="wheel3" type="fixed">
     <parent link="base_link"/>
     <child link="WHEEL_3_SOLID"/>
     <axis xyz="0 -0.000004 -1"/>
@@ -56,7 +56,7 @@
       </geometry>
     </collision>
   </link>
-  <joint name="wheel2" type="continuous">
+  <joint name="wheel2" type="fixed">
     <parent link="base_link"/>
     <child link="WHEEL_2_SOLID"/>
     <axis xyz="0 -0.000004 -1"/>
@@ -80,7 +80,7 @@
       </geometry>
     </collision>
   </link>
-  <joint name="wheel1" type="continuous">
+  <joint name="wheel1" type="fixed">
     <parent link="base_link"/>
     <child link="WHEEL_1_SOLID"/>
     <axis xyz="0 -0.000004 -1"/>
@@ -205,148 +205,6 @@
     <child link="lidar"/>
     <origin xyz="0 0 0.157" rpy="0 0 3.14159"/>
   </joint>
-  <link name="screw3">
-    <visual>
-      <origin xyz="0.01 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0015" length="0.02"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin xyz="0.01 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0015" length="0.02"/>
-      </geometry>
-    </collision>
-    <visual>
-      <origin xyz="-0.0015 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0025" length="0.003"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin xyz="-0.0015 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0025" length="0.003"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="lidar_screw3_joint" type="fixed">
-    <parent link="lidar"/>
-    <child link="screw3"/>
-    <origin xyz="0.035 0.0245 -0.0105" rpy="0 1.570787 0"/>
-  </joint>
-  <link name="screw2">
-    <visual>
-      <origin xyz="0.01 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0015" length="0.02"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin xyz="0.01 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0015" length="0.02"/>
-      </geometry>
-    </collision>
-    <visual>
-      <origin xyz="-0.0015 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0025" length="0.003"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin xyz="-0.0015 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0025" length="0.003"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="lidar_screw2_joint" type="fixed">
-    <parent link="lidar"/>
-    <child link="screw2"/>
-    <origin xyz="0.035 0.0245 -0.0105" rpy="0 1.570787 0"/>
-  </joint>
-  <link name="screw1">
-    <visual>
-      <origin xyz="0.01 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0015" length="0.02"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin xyz="0.01 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0015" length="0.02"/>
-      </geometry>
-    </collision>
-    <visual>
-      <origin xyz="-0.0015 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0025" length="0.003"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin xyz="-0.0015 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0025" length="0.003"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="lidar_screw1_joint" type="fixed">
-    <parent link="lidar"/>
-    <child link="screw1"/>
-    <origin xyz="0.035 0.0245 -0.0105" rpy="0 1.570787 0"/>
-  </joint>
-  <link name="screw0">
-    <visual>
-      <origin xyz="0.01 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0015" length="0.02"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin xyz="0.01 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0015" length="0.02"/>
-      </geometry>
-    </collision>
-    <visual>
-      <origin xyz="-0.0015 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0025" length="0.003"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin xyz="-0.0015 0 0" rpy="3.141593 1.570793 3.141593"/>
-      <geometry>
-        <cylinder radius="0.0025" length="0.003"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="lidar_screw0_joint" type="fixed">
-    <parent link="lidar"/>
-    <child link="screw0"/>
-    <origin xyz="0.035 0.0245 -0.0105" rpy="0 1.570787 0"/>
-  </joint>
-  <joint name="lidar_secondary_motor" type="continuous">
-    <parent link="lidar"/>
-    <child link="solid"/>
-    <axis xyz="0 -0.000004 1"/>
-    <limit effort="10" velocity="150"/>
-    <origin xyz="-0.046 0.01 -0.01" rpy="-0.000014 0.000005 3.141587"/>
-  </joint>
-  <link name="solid">
-  </link>
-  <joint name="lidar_main_motor" type="continuous">
-    <parent link="lidar"/>
-    <child link="lower"/>
-    <axis xyz="0 -0.000004 1"/>
-    <limit effort="10" velocity="40"/>
-    <origin xyz="-0.046 0.02 -0.01" rpy="-0.000014 0.000005 3.141587"/>
-  </joint>
-  <link name="lower">
-  </link>
   <link name="camera">
     <visual>
       <origin xyz="0.006 0.01 0.034" rpy="0 0 0"/>

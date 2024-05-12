@@ -12,6 +12,11 @@ import os
 
 launch_args = [
   DeclareLaunchArgument(
+    name='profile',
+    default_value='webots',
+    description='Parameters profile.'
+  ),
+  DeclareLaunchArgument(
     'namespace',
     default_value='',
     description='Robot name.'
@@ -38,6 +43,7 @@ def launch_setup(context):
   robot_description_path = os.path.join(package_dir, 'resource', 'lgdxrobot2.urdf')
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
   nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
+  profile = LaunchConfiguration('profile')
   namespace = LaunchConfiguration('namespace')
   namespace_str = LaunchConfiguration('namespace').perform(context)
   world = LaunchConfiguration('world')
@@ -80,7 +86,8 @@ def launch_setup(context):
       'namespace': namespace,
       'use_sim_time': use_sim_time,
       'model': 'lgdxrobot2_simulation.urdf',
-      'use_rviz': 'False',
+      'use_rviz': 'True',
+      'rviz_config': 'navigation.rviz'
     }.items(),
   )
   
@@ -91,7 +98,7 @@ def launch_setup(context):
     launch_arguments={
       'namespace': namespace,
       'use_sim_time': use_sim_time,
-      'profile': 'webots'
+      'profile': profile
     }.items(),
   )
   

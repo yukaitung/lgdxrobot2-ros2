@@ -55,15 +55,6 @@ def launch_setup(context):
       ('/robot_description', namespace_str + '/robot_description')
     ]
   )
-  joint_state_publisher_node = Node(
-    package='joint_state_publisher',
-    executable='joint_state_publisher',
-    name='joint_state_publisher',
-    remappings=[
-      ('/joint_states', namespace_str + '/joint_states'), 
-      ('/robot_description', namespace_str + '/robot_description')
-    ]
-  )
   rviz_node = Node(
     package='rviz2',
     executable='rviz2',
@@ -74,7 +65,7 @@ def launch_setup(context):
     condition=launch.conditions.IfCondition(use_rviz)
   )
 
-  return [robot_state_publisher_node, joint_state_publisher_node, rviz_node]
+  return [robot_state_publisher_node, rviz_node]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)
