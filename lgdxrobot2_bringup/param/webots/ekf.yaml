@@ -15,4 +15,4 @@ ekf_filter_node:
                        false, false, true,
                        true,  true,  false,
                        false, false, true,
-                       false, false, false]
+                       true,  true,  true]

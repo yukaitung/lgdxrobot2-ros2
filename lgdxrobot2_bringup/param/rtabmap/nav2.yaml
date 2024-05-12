@@ -306,7 +306,7 @@ recoveries_server:
     simulate_ahead_time: 2.0
     max_rotational_vel: 0.1
     min_rotational_vel: 0.1
-    rotational_acc_lim: 3.2
+    rotational_acc_lim: 1.0
 
 robot_state_publisher:
   ros__parameters:
