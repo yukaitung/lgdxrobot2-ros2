@@ -7,8 +7,6 @@
   <maintainer email="sam@bristolgram.uk">Kai Tung Yu</maintainer>
   <license>TODO: License declaration</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <exec_depend>lgdxrobot2_description</exec_depend>
-  <exec_depend>lgdxrobot2_navigation</exec_depend>
   <export>
     <build_type>ament_cmake</build_type>
   </export>

@@ -3,17 +3,30 @@
 <package format="3">
   <name>lgdxrobot2_webots</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="sam@bristolgram.uk">user</maintainer>
+  <description>LGDXRobot2 configuration for Webots simulation.</description>
+  <maintainer email="sam@bristolgram.uk">Kai Tung Yu</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rclcpp</buildtool_depend>
+  <buildtool_depend>std_msgs</buildtool_depend>
+  <buildtool_depend>geometry_msgs</buildtool_depend>
+  <buildtool_depend>nav_msgs</buildtool_depend>
+  <buildtool_depend>tf2_geometry_msgs</buildtool_depend>
+  <buildtool_depend>pluginlib</buildtool_depend>
+  <buildtool_depend>webots_ros2_driver</buildtool_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
-  <exec_depend>rclpy</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>rclcpp</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>tf2_geometry_msgs</exec_depend>
+  <exec_depend>pluginlib</exec_depend>
+  <exec_depend>webots_ros2</exec_depend>
   <exec_depend>webots_ros2_driver</exec_depend>
 
   <export>

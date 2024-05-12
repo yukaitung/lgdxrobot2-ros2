@@ -3,12 +3,15 @@
 <package format="3">
   <name>lgdxrobot2_navigation</name>
   <version>0.0.0</version>
-  <description>LGDXRobot2 setting for ROS navigation.</description>
+  <description>LGDXRobot2 configuration for ROS2 navigation.</description>
   <maintainer email="sam@bristolgram.uk">Kai Tung Yu</maintainer>
   <license>TODO: License declaration</license>
+
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <exec_depend>robot_localization</exec_depend>
-  <exec_depend>ros2launch</exec_depend>
+
+  <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>

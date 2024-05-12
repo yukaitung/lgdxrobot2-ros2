@@ -26,12 +26,12 @@ add_library(
 )
 ament_target_dependencies(
   ${PROJECT_NAME}
-  pluginlib
   rclcpp
   std_msgs
   geometry_msgs
   nav_msgs
   tf2_geometry_msgs
+  pluginlib
   webots_ros2_driver
 )
 
@@ -53,4 +53,3 @@ ament_export_libraries(
   ${PROJECT_NAME}
 )
 ament_package()
-
