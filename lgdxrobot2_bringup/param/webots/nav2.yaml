@@ -120,8 +120,8 @@ controller_server:
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.2
-      yaw_goal_tolerance: 0.2
+      xy_goal_tolerance: 0.05
+      yaw_goal_tolerance: 0.0872665
     # DWB parameters
     FollowPath:
       plugin: "nav2_rotation_shim_controller::RotationShimController"
@@ -132,7 +132,7 @@ controller_server:
       simulate_ahead_time: 1.0
       primary_controller: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: 0.0
+      min_vel_x: -0.1
       min_vel_y: 0.0
       max_vel_x: 0.2
       max_vel_y: 0.0
@@ -150,10 +150,10 @@ controller_server:
       vy_samples: 5
       vtheta_samples: 30
       sim_time: 1.7
-      linear_granularity: 0.01
-      angular_granularity: 0.01
+      linear_granularity: 0.5
+      angular_granularity: 0.5
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.2
+      xy_goal_tolerance: 0.05
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: True
       stateful: True
