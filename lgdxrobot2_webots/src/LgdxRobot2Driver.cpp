@@ -3,6 +3,7 @@
 #include <webots/robot.h>
 #include <webots/motor.h>
 #include <webots/position_sensor.h>
+#include <webots/inertial_unit.h>
 
 // Odom
 #include "geometry_msgs/msg/transform_stamped.hpp"
@@ -39,6 +40,9 @@ void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered
     wb_position_sensor_enable(positionSensors[i], wb_robot_get_basic_time_step());
   }
 
+  inertialUnit = wb_robot_get_device("inertial_unit");
+  wb_inertial_unit_enable(inertialUnit, wb_robot_get_basic_time_step());
+
   cmdVelSubscription = node->create_subscription<geometry_msgs::msg::Twist>(
     "cmd_vel", 
     rclcpp::SensorDataQoS().reliable(),
@@ -66,18 +70,20 @@ void LgdxRobot2Driver::step()
     motorPosition[i] = wb_position_sensor_get_value(positionSensors[i]);
     motorPositionChange[i] = motorPosition[i] - motorLastPosition[i];
   }
+  const double *iuValue = wb_inertial_unit_get_roll_pitch_yaw(inertialUnit);
+  robotTransform[2] = iuValue[2];
+
   motorForwardKinematic[0] = ((motorPositionChange[0] + motorPositionChange[1] + motorPositionChange[2] + motorPositionChange[3]) * (WHEEL_RADIUS / 4)) / timeElapsed;
   motorForwardKinematic[1] = ((-motorPositionChange[0] + motorPositionChange[1] + motorPositionChange[2] - motorPositionChange[3]) * (WHEEL_RADIUS / 4)) / timeElapsed; // Variation in formula
-  motorForwardKinematic[2] = ((-motorPositionChange[0] + motorPositionChange[1] - motorPositionChange[2] + motorPositionChange[3]) * ((WHEEL_RADIUS) * 2 / (M_PI * (CHASSIS_LX + CHASSIS_LY)))) / timeElapsed;
+  //motorForwardKinematic[2] = ((-motorPositionChange[0] + motorPositionChange[1] - motorPositionChange[2] + motorPositionChange[3]) * ((WHEEL_RADIUS) * 2 / (M_PI * (CHASSIS_LX + CHASSIS_LY)))) / timeElapsed;
   robotTransform[0] += (motorForwardKinematic[0] * cos(robotTransform[2]) - motorForwardKinematic[1] * sin(robotTransform[2])) * timeElapsed;
 	robotTransform[1] += (motorForwardKinematic[0] * sin(robotTransform[2]) + motorForwardKinematic[1] * cos(robotTransform[2])) * timeElapsed;
-  robotTransform[2] += motorForwardKinematic[2] * timeElapsed;
-
+  
   tf2::Quaternion quaternion;
   quaternion.setRPY(0, 0, robotTransform[2]);
   geometry_msgs::msg::Quaternion odomQuaternion = tf2::toMsg(quaternion);
   rclcpp::Time currentTime = rosNode->get_clock()->now();
-  /*
+  
   geometry_msgs::msg::TransformStamped odomTf;
   odomTf.header.stamp = currentTime;
   odomTf.header.frame_id = "odom";
@@ -88,7 +94,7 @@ void LgdxRobot2Driver::step()
   odomTf.transform.rotation = odomQuaternion;
   if(tfBroadcaster)
     tfBroadcaster->sendTransform(odomTf);
-  */
+  
   nav_msgs::msg::Odometry odometry;
   odometry.header.stamp = currentTime;
   odometry.header.frame_id = "odom";

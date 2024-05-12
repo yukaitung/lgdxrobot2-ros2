@@ -33,6 +33,8 @@ class LgdxRobot2Driver : public webots_ros2_driver::PluginInterface
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPublisher;
     std::shared_ptr<tf2_ros::TransformBroadcaster> tfBroadcaster;
 
+    WbDeviceTag inertialUnit;
+
     void cmdVelCallback(const geometry_msgs::msg::Twist &msg);
 
   public:

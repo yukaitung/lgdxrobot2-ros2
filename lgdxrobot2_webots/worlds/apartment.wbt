@@ -66,8 +66,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.0018749962332394712 0.9999968191902635 0.0016870087376393218 1.6762531631445485
-  position -2.8398696412711444 -7.540354140982357 34.05112284704371
+  orientation -0.013235938841424997 0.9995420383169308 -0.027212562544191708 1.5573771518209703
+  position -6.957832058092859 -5.712808637663766 27.79785788942148
   exposure 0.5
   ambientOcclusionRadius 1
 }
@@ -79,8 +79,8 @@ TexturedBackground {
   ]
 }
 LGDXRobot2 {
-  translation -5.62 -5.78 0
-  rotation 0 0 1 -1.5707953071795862
+  translation -11.7435 -2.66728 -6.66134e-15
+  rotation 0 0 1 1.01503e-06
   controller "<extern>"
   name "LGDXRobot2"
 }
@@ -556,29 +556,6 @@ Cabinet {
   ]
 }
 Cabinet {
-  translation -7.2623999999999995 -6.39914 0
-  rotation 0 0 1 1.5708
-  name "cabinet 4(4)"
-  depth 0.4
-  outerThickness 0.02
-  rowsHeights [
-    0.32, 0.24, 0.24
-  ]
-  columnsWidths [
-    0.81
-  ]
-  layout [
-    "Shelf  (1, 2, 1, 0)"
-    "Shelf  (1, 3, 1, 0)"
-  ]
-  primaryAppearance PaintedWood {
-    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
-  }
-  secondaryAppearance PaintedWood {
-    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
-  }
-}
-Cabinet {
   translation -0.180166 -4.63275 0
   rotation 0 0 1 3.14159
   name "cabinet 4(2)"
@@ -601,58 +578,6 @@ Cabinet {
   }
   secondaryAppearance PaintedWood {
     colorOverride 0.827451 0.843137 0.811765
-  }
-}
-Cabinet {
-  translation -8.2024 -6.39914 0
-  rotation 0 0 1 1.5708
-  name "cabinet 4(5)"
-  depth 0.4
-  outerThickness 0.02
-  rowsHeights [
-    0.32, 0.24, 0.24, 0.24, 0.24
-  ]
-  columnsWidths [
-    0.96
-  ]
-  layout [
-    "Shelf  (1, 2, 1, 0)"
-    "Shelf  (1, 3, 1, 0)"
-    "Shelf  (1, 4, 1, 0)"
-    "Shelf  (1, 5, 1, 0)"
-  ]
-  primaryAppearance PaintedWood {
-    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
-  }
-  secondaryAppearance PaintedWood {
-    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
-  }
-}
-Cabinet {
-  translation -9.22241 -6.39914 0
-  rotation 0 0 1 1.5708
-  name "cabinet 4(1)"
-  depth 0.4
-  outerThickness 0.02
-  rowsHeights [
-    0.32, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24
-  ]
-  columnsWidths [
-    0.96
-  ]
-  layout [
-    "Shelf  (1, 2, 1, 0)"
-    "Shelf  (1, 3, 1, 0)"
-    "Shelf  (1, 4, 1, 0)"
-    "Shelf  (1, 5, 1, 0)"
-    "Shelf  (1, 6, 1, 0)"
-    "Shelf  (1, 7, 1, 0)"
-  ]
-  primaryAppearance PaintedWood {
-    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
-  }
-  secondaryAppearance PaintedWood {
-    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
   }
 }
 Cabinet {
@@ -1176,9 +1101,15 @@ Armchair {
   color 0.827451 0.843137 0.811765
 }
 Armchair {
-  translation -6.495947 -4.354153999999999 0
-  rotation 0 0 -1 -1.3592853071795865
+  translation -8.76322 -5.55768 1.77636e-14
+  rotation 0 0 1 2.14468
   name "armchair(4)"
+  color 0.13333333333333333 0.13333333333333333 0.13333333333333333
+}
+Armchair {
+  translation -6.06051 -4.27774 1.06581e-14
+  rotation 0 0 -1 -1.3592853071795865
+  name "armchair(2)"
   color 0.13333333333333333 0.13333333333333333 0.13333333333333333
 }
 Armchair {

@@ -18,6 +18,18 @@ PROTO LGDXRobot2 [
     name IS name
     controller IS controller
     children [
+      Accelerometer {
+        translation 0 0 0.09
+        name "accelerometer"
+      }
+      Gyro {
+        translation 0 0 0.09
+        name "gyro"
+      }
+      InertialUnit {
+        translation 0 0 0.09
+        name "inertial_unit"
+      }
       Astra {
         translation 0.1 0 0.059
         name "camera"

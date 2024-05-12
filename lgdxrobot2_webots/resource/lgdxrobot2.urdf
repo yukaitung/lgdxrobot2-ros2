@@ -2,6 +2,14 @@
 <robot name="LGDXRobot2" xmlns:xacro="http://ros.org/wiki/xacro">
   <webots>
     <plugin type="LgdxRobot2::LgdxRobot2Driver" />
+    <plugin type="webots_ros2_driver::Ros2IMU">
+      <topicName>/imu/data</topicName>
+      <updateRate>30</updateRate>
+      <alwaysOn>True</alwaysOn>
+      <inertialUnitName>inertial_unit</inertialUnitName>
+      <gyroName>gyro</gyroName>
+      <accelerometerName>accelerometer</accelerometerName>
+    </plugin>
     <device reference="camera rgb" type="Camera">
       <ros>
         <topicName>/camera/color</topicName>
