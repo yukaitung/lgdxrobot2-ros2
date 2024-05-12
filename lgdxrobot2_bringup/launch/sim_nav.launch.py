@@ -71,7 +71,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='rviz_config', 
-    default_value='navigation.rviz',
+    default_value='nav.rviz',
     description='The absolute path for the RViz config file.'
   ),
 ]
