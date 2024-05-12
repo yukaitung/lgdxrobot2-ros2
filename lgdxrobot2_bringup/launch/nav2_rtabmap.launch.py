@@ -1,4 +1,5 @@
 """\
+(Awaiting update)
 This script initalises complete ROS2 NAV stack using Rtabmap to generate map.
 
 Usage: 

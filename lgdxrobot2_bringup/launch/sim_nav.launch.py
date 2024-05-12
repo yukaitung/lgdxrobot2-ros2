@@ -1,4 +1,12 @@
-import launch
+"""\
+This script initalises LGDXRobot2 Webots simulation, RViz visualision and ROS2 Nav2 stack.
+
+Usage: 
+cd lgdx_ws # The location of the source code
+. install/setup.bash
+ros2 launch lgdxrobot2_bringup sim_nav.launch.py
+"""
+
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
@@ -19,7 +27,7 @@ launch_args = [
   DeclareLaunchArgument(
     'namespace',
     default_value='',
-    description='Robot name.'
+    description='Namespace for the robot.'
   ),
   DeclareLaunchArgument(
     'world',
@@ -27,30 +35,77 @@ launch_args = [
     description='World file in `lgdxrobot2_webots` package.'
   ),
   DeclareLaunchArgument(
+    name='slam',
+    default_value='True',
+    description='Whether run a SLAM.'
+  ),
+  DeclareLaunchArgument(
+    name='map',
+    default_value='',
+    description='The absolute path for map yaml.'
+  ),
+  DeclareLaunchArgument(
     name='use_sim_time',
     default_value='True',
     description='Use the simulation time from Webots.'
   ),
   DeclareLaunchArgument(
+    name='autostart',
+    default_value='True',
+    description='Automatically startup the nav2 stack',
+  ),
+  DeclareLaunchArgument(
+    name='use_composition',
+    default_value='True',
+    description='Whether to use composed bringup',
+  ),
+  DeclareLaunchArgument(
+    name='use_respawn',
+    default_value='False',
+    description='Whether to respawn if a node crashes.'
+  ),
+  DeclareLaunchArgument(
     name='use_rviz',
     default_value='True',
     description='Launch RViz2.'
-  )
+  ),
+  DeclareLaunchArgument(
+    name='rviz_config', 
+    default_value='navigation.rviz',
+    description='The absolute path for the RViz config file.'
+  ),
 ]
 
+def generate_param_path_with_profile(file_name, profile):
+  package_dir = get_package_share_directory('lgdxrobot2_bringup')
+  path = os.path.join(package_dir, "param", profile, file_name)
+  if os.path.exists(path):
+    return path
+  else:
+    return os.path.join(package_dir, "param", file_name)
+      
+
 def launch_setup(context):
-  package_dir = get_package_share_directory('lgdxrobot2_webots')
-  robot_description_path = os.path.join(package_dir, 'resource', 'lgdxrobot2.urdf')
+  package_dir = get_package_share_directory('lgdxrobot2_bringup')
+  webots_package_dir = get_package_share_directory('lgdxrobot2_webots')
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
   nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
-  profile = LaunchConfiguration('profile')
+  robot_description_path = os.path.join(webots_package_dir, 'resource', 'lgdxrobot2.urdf')
+  profile_str = LaunchConfiguration('profile').perform(context)
   namespace = LaunchConfiguration('namespace')
   namespace_str = LaunchConfiguration('namespace').perform(context)
   world = LaunchConfiguration('world')
+  slam = LaunchConfiguration('slam')
+  map = LaunchConfiguration('map')
   use_sim_time = LaunchConfiguration('use_sim_time')
+  autostart = LaunchConfiguration('autostart')
+  use_composition = LaunchConfiguration('use_composition')
+  use_respawn = LaunchConfiguration('use_respawn')
+  use_rviz = LaunchConfiguration('use_rviz')
+  rviz_config = LaunchConfiguration('rviz_config')
   
   webots = WebotsLauncher(
-    world=PathJoinSubstitution([package_dir, 'worlds', world]),
+    world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
     ros2_supervisor=True
   )
 
@@ -86,8 +141,8 @@ def launch_setup(context):
       'namespace': namespace,
       'use_sim_time': use_sim_time,
       'model': 'lgdxrobot2_simulation.urdf',
-      'use_rviz': 'True',
-      'rviz_config': 'navigation.rviz'
+      'use_rviz': use_rviz,
+      'rviz_config': PathJoinSubstitution([package_dir, 'rviz', rviz_config]),
     }.items(),
   )
   
@@ -97,8 +152,14 @@ def launch_setup(context):
     ),
     launch_arguments={
       'namespace': namespace,
+      'slam': slam,
+      'map': map,
+      'ekf_params_file': generate_param_path_with_profile('ekf.yaml', profile_str),
+      'nav2_params_file': generate_param_path_with_profile('nav2.yaml', profile_str),
       'use_sim_time': use_sim_time,
-      'profile': profile
+      'autostart': autostart,
+      'use_composition': use_composition,
+      'use_respawn': use_respawn
     }.items(),
   )
   

@@ -1,16 +1,25 @@
+"""\
+This script publishes the model for the LGDXRobot2 and RViz visualision.
+
+Usage: 
+cd lgdx_ws # The location of the source code
+. install/setup.bash
+ros2 launch lgdxrobot2_description display.launch.py
+"""
+
+from ament_index_python.packages import get_package_share_directory
 import launch
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
-from launch.substitutions.path_join_substitution import PathJoinSubstitution
 from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions.path_join_substitution import PathJoinSubstitution
 from launch_ros.actions import Node
-from ament_index_python.packages import get_package_share_directory
 
 launch_args = [
   DeclareLaunchArgument(
     'namespace',
     default_value='',
-    description='Robot name.'
+    description='Namespace for the robot.'
   ),
   DeclareLaunchArgument(
     name='use_sim_time',
@@ -29,8 +38,8 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='rviz_config', 
-    default_value='display.rviz',
-    description='RViz config file in `lgdxrobot2_description` package.'
+    default_value='',
+    description='The absolute path for the RViz config file.'
   ),
 ]
 
@@ -61,7 +70,7 @@ def launch_setup(context):
     name='rviz2',
     output='screen',
     parameters=[{'use_sim_time': use_sim_time}],
-    arguments=['-d', PathJoinSubstitution([package_dir, 'rviz', rviz_config])],
+    arguments=['-d', rviz_config],
     condition=launch.conditions.IfCondition(use_rviz)
   )
 

@@ -1,24 +1,36 @@
-from launch.substitutions import LaunchConfiguration
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, GroupAction
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch import LaunchDescription
-from launch_ros.actions import Node, SetParameter, SetRemap
-from launch_ros.substitutions import FindPackageShare
-from launch_ros.descriptions import ParameterFile
-from nav2_common.launch import RewrittenYaml
 from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
 import os
 
 launch_args = [
   DeclareLaunchArgument(
-    name='profile',
-    default_value='webots',
-    description='Parameters profile.'
-  ),
-  DeclareLaunchArgument(
     'namespace',
     default_value='',
-    description='Robot name.'
+    description='Namespace for the robot.'
+  ),
+  DeclareLaunchArgument(
+    name='slam',
+    default_value='True',
+    description='Whether run a SLAM.'
+  ),
+  DeclareLaunchArgument(
+    name='map',
+    default_value='',
+    description='The absolute path for map yaml file.'
+  ),
+  DeclareLaunchArgument(
+    name='ekf_params_file',
+    default_value='',
+    description='The absolute path for robot_localization_node parameters.'
+  ),
+  DeclareLaunchArgument(
+    name='nav2_params_file',
+    default_value='',
+    description='The absolute path for nav2 parameters.'
   ),
   DeclareLaunchArgument(
     name='use_sim_time',
@@ -31,7 +43,7 @@ launch_args = [
     description='Automatically startup the nav2 stack',
   ),
   DeclareLaunchArgument(
-    'use_composition',
+    name='use_composition',
     default_value='True',
     description='Whether to use composed bringup',
   ),
@@ -42,18 +54,13 @@ launch_args = [
   )
 ]
 
-def generate_param_path_with_profile(file_name, profile):
-  package_dir = get_package_share_directory('lgdxrobot2_navigation')
-  path = os.path.join(package_dir, "param", profile, file_name)
-  if os.path.exists(path):
-    return path
-  else: # Rollback to default parameter
-    return os.path.join(package_dir, "param", file_name)
-      
 def launch_setup(context):
-  profile_str = LaunchConfiguration('profile').perform(context)
   namespace = LaunchConfiguration('namespace')
   use_namespace = 'True' if LaunchConfiguration('namespace').perform(context) != '' else 'False'
+  slam = LaunchConfiguration('slam')
+  map = LaunchConfiguration('map')
+  ekf_params_file = LaunchConfiguration('ekf_params_file')
+  nav2_params_file = LaunchConfiguration('nav2_params_file')
   use_sim_time = LaunchConfiguration('use_sim_time')
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
@@ -67,7 +74,7 @@ def launch_setup(context):
     name='ekf_filter_node',
     output='screen',
     parameters=[
-      generate_param_path_with_profile("ekf.yaml", profile_str),
+      ekf_params_file,
       {'use_sim_time': use_sim_time }
     ]
   )
@@ -77,10 +84,10 @@ def launch_setup(context):
     launch_arguments={
       'namespace': namespace,
       'use_namespace': use_namespace,
-      'slam': 'True',
-      'map': '',
+      'slam': slam,
+      'map': map,
       'use_sim_time': use_sim_time,
-      'params_file': generate_param_path_with_profile("nav2.yaml", profile_str),
+      'params_file': nav2_params_file,
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,
