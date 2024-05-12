@@ -42,7 +42,7 @@ install(TARGETS
   RUNTIME DESTINATION bin
 )
 install(
-  DIRECTORY launch protos resource worlds
+  DIRECTORY protos resource worlds
   DESTINATION share/${PROJECT_NAME}
 )
 
