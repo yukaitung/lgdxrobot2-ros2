@@ -7,6 +7,7 @@ cd lgdx_ws # The location of the source code
 ros2 launch lgdxrobot2_bringup sim_nav.launch.py
 """
 
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
@@ -25,12 +26,12 @@ launch_args = [
     description='Parameters profile.'
   ),
   DeclareLaunchArgument(
-    'namespace',
+    name='namespace',
     default_value='',
     description='Namespace for the robot.'
   ),
   DeclareLaunchArgument(
-    'world',
+    name='world',
     default_value='apartment.wbt',
     description='World file in `lgdxrobot2_webots` package.'
   ),
@@ -74,6 +75,11 @@ launch_args = [
     default_value='nav.rviz',
     description='The absolute path for the RViz config file.'
   ),
+  DeclareLaunchArgument(
+    name='use_explore_lite', 
+    default_value='False',
+    description='Launch explore_lite to explore the map automatically.'
+  )
 ]
 
 def generate_param_path_with_profile(file_name, profile):
@@ -103,6 +109,7 @@ def launch_setup(context):
   use_respawn = LaunchConfiguration('use_respawn')
   use_rviz = LaunchConfiguration('use_rviz')
   rviz_config = LaunchConfiguration('rviz_config')
+  use_explore_lite = LaunchConfiguration('use_explore_lite')
   
   webots = WebotsLauncher(
     world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
@@ -145,7 +152,7 @@ def launch_setup(context):
       'rviz_config': PathJoinSubstitution([package_dir, 'rviz', rviz_config]),
     }.items(),
   )
-  
+
   nav2_nodes = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
       os.path.join(nav2_package_dir, 'launch', 'nav2_base.launch.py')
@@ -163,10 +170,22 @@ def launch_setup(context):
       'use_respawn': use_respawn
     }.items(),
   )
-  
+   
+  explore_node = IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(
+      os.path.join(package_dir, 'launch', 'explore.launch.py')
+    ),
+    condition=IfCondition(use_explore_lite),
+    launch_arguments={
+      'config': generate_param_path_with_profile('explore_node.yaml', profile_str),
+      'namespace': namespace,
+      'use_sim_time': use_sim_time
+    }.items()
+  )
+
   waiting_nodes = WaitForControllerConnection(
     target_driver=lgdxrobot2_driver,
-    nodes_to_start=[description_nodes] + [nav2_nodes]
+    nodes_to_start=[description_nodes] + [nav2_nodes] + [explore_node]
   )
 
   return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]
