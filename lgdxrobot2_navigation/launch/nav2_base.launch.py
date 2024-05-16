@@ -64,7 +64,7 @@ def launch_setup(context):
   namespace = LaunchConfiguration('namespace')
   use_namespace = 'True' if LaunchConfiguration('namespace').perform(context) != '' else 'False'
   slam = LaunchConfiguration('slam')
-  map = LaunchConfiguration('map')
+  map = LaunchConfiguration('map').perform(context)
   ekf_params_file = LaunchConfiguration('ekf_params_file')
   nav2_params_file = LaunchConfiguration('nav2_params_file')
   use_sim_time = LaunchConfiguration('use_sim_time')

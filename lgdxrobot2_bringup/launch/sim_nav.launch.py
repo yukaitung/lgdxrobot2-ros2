@@ -4,7 +4,8 @@ This script initalises LGDXRobot2 Webots simulation, RViz visualision and ROS2 N
 Usage: 
 cd lgdx_ws # The location of the source code
 . install/setup.bash
-ros2 launch lgdxrobot2_bringup sim_nav.launch.py
+ros2 launch lgdxrobot2_bringup sim_nav.launch.py use_explore_lite:=True
+ros2 launch lgdxrobot2_bringup sim_nav.launch.py slam:=False profile:='sim-loc' map:=/home/user/lgdx_ws/map.yaml
 """
 
 from launch.conditions import IfCondition
@@ -22,7 +23,7 @@ import os
 launch_args = [
   DeclareLaunchArgument(
     name='profile',
-    default_value='webots',
+    default_value='sim-slam',
     description='Parameters profile.'
   ),
   DeclareLaunchArgument(
