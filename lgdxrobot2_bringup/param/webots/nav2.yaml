@@ -39,7 +39,7 @@ slam_toolbox:
     # General Parameters
     use_scan_matching: False
     use_scan_barycenter: True
-    minimum_travel_distance: 0.5
+    minimum_travel_distance: 0.2
     minimum_travel_heading: 0.5
     scan_buffer_size: 10
     scan_buffer_maximum_scan_distance: 10.0
@@ -202,16 +202,16 @@ controller_server:
       plugin: "nav2_rotation_shim_controller::RotationShimController"
       angular_dist_threshold: 0.785
       forward_sampling_distance: 0.5
-      rotate_to_heading_angular_vel: 3.0
-      max_angular_accel: 3.0
+      rotate_to_heading_angular_vel: 4.0
+      max_angular_accel: 4.0
       simulate_ahead_time: 1.0
       primary_controller: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: 0.1
+      min_vel_x: 0.0
       min_vel_y: 0.0
       max_vel_x: 0.25
       max_vel_y: 0.0
-      max_vel_theta: 0.25
+      max_vel_theta: 0.20
       min_speed_xy: 0.0
       max_speed_xy: 0.25
       min_speed_theta: 0.0
@@ -224,7 +224,7 @@ controller_server:
       vx_samples: 20
       vy_samples: 5
       vtheta_samples: 20
-      sim_time: 1.7
+      sim_time: 1.5
       linear_granularity: 0.5
       angular_granularity: 0.5
       transform_tolerance: 0.2
@@ -233,12 +233,12 @@ controller_server:
       short_circuit_trajectory_evaluation: True
       stateful: True
       critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      BaseObstacle.scale: 0.05
-      PathAlign.scale: 100.0
+      BaseObstacle.scale: 0.6
+      PathAlign.scale: 50.0
       PathAlign.forward_point_distance: 0.2
       GoalAlign.scale: 24.0
       GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 100.0
+      PathDist.scale: 50.0
       GoalDist.scale: 24.0
       RotateToGoal.scale: 32.0
       RotateToGoal.slowing_factor: 5.0
@@ -356,7 +356,7 @@ planner_server:
       plugin: 'nav2_navfn_planner/NavfnPlanner'
       use_astar: False
       allow_unknown: True
-      tolerance: 0.05
+      tolerance: 0.1
 
 planner_server_rclcpp_node:
   ros__parameters:
@@ -421,7 +421,7 @@ collision_monitor:
       type: "polygon"
       action_type: "approach"
       footprint_topic: "/local_costmap/published_footprint"
-      time_before_collision: 1.5
+      time_before_collision: 1.75
       simulation_time_step: 0.1
       min_points: 6
       visualize: False
