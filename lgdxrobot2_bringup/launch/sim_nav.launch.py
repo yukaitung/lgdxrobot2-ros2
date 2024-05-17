@@ -5,7 +5,7 @@ Usage:
 cd lgdx_ws # The location of the source code
 . install/setup.bash
 ros2 launch lgdxrobot2_bringup sim_nav.launch.py use_explore_lite:=True
-ros2 launch lgdxrobot2_bringup sim_nav.launch.py slam:=False profile:='sim-loc' map:=/home/user/lgdx_ws/map.yaml
+ros2 launch lgdxrobot2_bringup sim_nav.launch.py slam:=False profile:='sim-loc'
 """
 
 from launch.conditions import IfCondition
@@ -43,8 +43,8 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='',
-    description='The absolute path for map yaml.'
+    default_value='apartment.yaml',
+    description='Map yaml file in `lgdxrobot2_webots` package.'
   ),
   DeclareLaunchArgument(
     name='use_sim_time',
@@ -161,7 +161,7 @@ def launch_setup(context):
     launch_arguments={
       'namespace': namespace,
       'slam': slam,
-      'map': map,
+      'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
       'ekf_params_file': generate_param_path_with_profile('ekf.yaml', profile_str),
       'nav2_params_file': generate_param_path_with_profile('nav2.yaml', profile_str),
       'lattice_file': generate_param_path_with_profile('lattice.json', profile_str),

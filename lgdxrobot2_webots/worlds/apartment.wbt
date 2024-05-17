@@ -7,12 +7,6 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/PorcelainChevronTiles.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/CementTiles.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/cabinet/protos/Cabinet.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/cabinet/protos/CabinetHandle.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/PaintedWood.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/solids/protos/SolidBox.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/kitchen/fridge/protos/Fridge.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/kitchen/oven/protos/Oven.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/kitchen/components/protos/Worktop.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/stairs/protos/StraightStairs.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/CarpetFibers.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/stairs/protos/StraightStairsRail.proto"
@@ -20,17 +14,13 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/bedroom/protos/Bed.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/BlanketFabric.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/chairs/protos/WoodenChair.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/tables/protos/RoundTable.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/tables/protos/Desk.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/apartment_structure/protos/Wall.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/apartment_structure/protos/Window.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/apartment_structure/protos/Radiator.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/apartment_structure/protos/Door.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/lights/protos/CeilingLight.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/tables/protos/Table.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/living_room_furniture/protos/Armchair.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/living_room_furniture/protos/Sofa.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/living_room_furniture/protos/Carpet.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/bathroom/protos/WashingMachine.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/bathroom/protos/Bathtube.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/bathroom/protos/Toilet.proto"
@@ -65,8 +55,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.0017342696520163132 0.9985532027296536 -0.05374470789878163 1.2998805426903726
-  position -13.456230305869804 -4.7265436652227155 26.38962616003809
+  orientation 0.0049999168812327145 0.9999750430377125 -0.004991405904718499 1.5725249572369602
+  position -6.015081102370934 -6.778597527015528 39.463763158835384
   exposure 0.5
   ambientOcclusionRadius 1
 }
@@ -295,205 +285,6 @@ DEF KITCHEN_BLOCK Pose {
         }
       ]
     }
-    Cabinet {
-      translation -0.11 1.65 0.15
-      rotation 0 0 -0.9999999999999999 1.5707953071795862
-      name "cabinet(2)"
-      depth 0.67
-      outerThickness 0.02
-      rowsHeights [
-        0.68, 0.25, 0.25, 0.25, 0.25, 0.34
-      ]
-      columnsWidths [
-        0.44
-      ]
-      layout [
-        "RightSidedDoor (1, 2, 1, 3, 1.5)"
-        "RightSidedDoor (1, 5, 1, 2, 1.5)"
-        "Shelf (1,2, 1, 0)"
-        "Shelf (1,3, 1, 0)"
-        "Shelf (1,4, 1, 0)"
-        "Shelf (1,5, 1, 0)"
-        "Shelf (1,6, 1, 0)"
-      ]
-      handle CabinetHandle {
-        translation 0 -0.15 0
-        handleLength 0.1
-        handleRadius 0.008
-        handleColor 0.427451 0.513725 0.533333
-      }
-      primaryAppearance PaintedWood {
-        colorOverride 0.2 0.2 0.2
-      }
-      secondaryAppearance PaintedWood {
-        colorOverride 0.827451 0.843137 0.811765
-      }
-    }
-    Cabinet {
-      translation 0.79 1.48 0.15
-      rotation 0 0 1 -1.5707953071795862
-      name "cabinet(5)"
-      outerThickness 0.02
-      rowsHeights [
-        0.21, 0.21, 0.22
-      ]
-      columnsWidths [
-        0.34, 0.47, 0.47
-      ]
-      layout [
-        "RightSidedDoor (2, 1, 1, 3, 1.5)"
-        "LeftSidedDoor (3, 1, 1, 3, 1.5)"
-        "RightSidedDoor (1, 1, 1, 3, 1.5)"
-        "Shelf (1, 2, 1, 0)"
-        "Shelf (1, 3, 1, 0)"
-        "Shelf (1, 1, 0, 3)"
-        "Shelf (2, 1, 0, 3)"
-      ]
-      handle CabinetHandle {
-        translation 0 0 0.1
-        handleLength 0.1
-        handleRadius 0.008
-        handleColor 0.427451 0.513725 0.533333
-      }
-      primaryAppearance PaintedWood {
-        colorOverride 0.2 0.2 0.2
-      }
-      secondaryAppearance PaintedWood {
-        colorOverride 0.2 0.2 0.2
-      }
-    }
-    Cabinet {
-      translation 2.15 -0.12 0.15
-      rotation 0 0 1 3.14159
-      name "cabinet(7)"
-      depth 0.7
-      outerThickness 0.02
-      rowsHeights [
-        0.25, 0.25, 0.14
-      ]
-      columnsWidths [
-        0.76, 0.54, 0.43, 0.43
-      ]
-      layout [
-        "LeftSidedDoor (2, 1, 1, 2, 1.5)"
-        "LeftSidedDoor (4, 1, 1, 3, 1.5)"
-        "RightSidedDoor (3, 1, 1, 3, 1.5)"
-        "Drawer (1, 1, 1, 1, 3.5)"
-        "Drawer (1, 2, 1, 1, 3.5)"
-        "Drawer (1, 3, 1, 1, 3.5)"
-        "Drawer (2, 3, 1, 1, 3.5)"
-        "Shelf (1, 2, 1, 0)"
-        "Shelf (1, 3, 2, 0)"
-        "Shelf (3, 2, 2, 0)"
-        "Shelf (1, 1, 0, 3)"
-        "Shelf (2, 1, 0, 3)"
-        "Shelf (3, 1, 0, 1)"
-      ]
-      handle CabinetHandle {
-        handleLength 0.1
-        handleRadius 0.008
-        handleColor 0.427451 0.513725 0.533333
-      }
-      primaryAppearance PaintedWood {
-        colorOverride 0.2 0.2 0.2
-      }
-      secondaryAppearance PaintedWood {
-        colorOverride 0.827451 0.843137 0.811765
-      }
-    }
-    SolidBox {
-      translation 1.55 -0.12 0.07
-      name "box(1)"
-      size 0.2 2.2 0.16
-      appearance PBRAppearance {
-        baseColor 0.8 0.8 0.8
-        roughness 0.5
-        metalness 0
-        textureTransform TextureTransform {
-          scale 4 4
-        }
-      }
-    }
-    SolidBox {
-      translation 0.65 1.08 0.07
-      rotation 0 0 1 1.5708
-      name "box(2)"
-      size 0.2 2 0.16
-      appearance PBRAppearance {
-        baseColor 0.8 0.8 0.8
-        roughness 0.5
-        metalness 0
-        textureTransform TextureTransform {
-          scale 4 4
-        }
-      }
-    }
-    SolidBox {
-      translation 1.9 -1.12 0.07
-      rotation 0 0 -1 4.71239
-      name "box(3)"
-      size 0.2 0.5 0.16
-      appearance PBRAppearance {
-        roughness 0.5
-        metalness 0
-        textureTransform TextureTransform {
-          scale 4 4
-        }
-      }
-    }
-    SolidBox {
-      translation -0.25 1.415 0.07
-      rotation 0 0 -1 6.28318
-      name "box(4)"
-      size 0.2 0.47 0.16
-      appearance PBRAppearance {
-        baseColor 0.8 0.8 0.8
-        roughness 0.5
-        metalness 0
-        textureTransform TextureTransform {
-          scale 4 4
-        }
-      }
-    }
-    Fridge {
-      translation 1.8 -1.57 0
-      rotation 0 0 -1 3.14159
-      name "fridge(1)"
-      mainColor 0.6666666666666666 0 0
-    }
-    Oven {
-      translation -0.11 1.24 0.17
-      rotation 0 0 1 -1.5707953071795862
-      name "oven(1)"
-    }
-    Worktop {
-      translation 0.345 1.31 0.86
-      rotation 0 0 1 4.71239
-      name "worktop(1)"
-      size 0.7 0.43 0.06
-    }
-    Worktop {
-      translation 0.78 1.531 0.86
-      rotation 0 0 1 4.71239
-      name "worktop(2)"
-      size 0.237 0.44 0.06
-    }
-    Worktop {
-      translation 0.780001 1.003 0.86
-      rotation 0 0 1 4.71239
-      name "worktop(3)"
-      size 0.085 0.442 0.06
-    }
-    Worktop {
-      translation 1.22 1.306 0.86
-      rotation 0 0 -1 1.5708
-      name "worktop(4)"
-      size 0.69 0.44 0.06
-    }
-    Worktop {
-      translation 1.79 0.435 0.86
-      size 0.7 2.43 0.06
-    }
   ]
 }
 StraightStairs {
@@ -555,31 +346,6 @@ Cabinet {
   ]
 }
 Cabinet {
-  translation -0.180166 -4.63275 0
-  rotation 0 0 1 3.14159
-  name "cabinet 4(2)"
-  depth 0.4
-  outerThickness 0.02
-  rowsHeights [
-    0.4, 0.4, 0.4, 0.4, 0.4
-  ]
-  columnsWidths [
-    0.4
-  ]
-  layout [
-    "Shelf  (1, 2, 1, 0)"
-    "Shelf  (1, 3, 1, 0)"
-    "Shelf  (1, 4, 1, 0)"
-    "Shelf  (1, 5, 1, 0)"
-  ]
-  primaryAppearance PaintedWood {
-    colorOverride 0.827451 0.843137 0.811765
-  }
-  secondaryAppearance PaintedWood {
-    colorOverride 0.827451 0.843137 0.811765
-  }
-}
-Cabinet {
   translation -0.16999999999999998 -9.12 0
   rotation 0 0 1 3.14159
 }
@@ -604,32 +370,25 @@ Bed {
   }
 }
 Cabinet {
-  translation -5.445295 -9.996606 0
-  name "cabinet(9)"
-  depth 0.3
-  rowsHeights [
-    0.7
-  ]
-  layout [
-    "RightSidedDoor (1, 1, 1, 1, 1.5)"
-    "LeftSidedDoor (2, 1, 2, 1, 1.5)"
-  ]
-}
-Cabinet {
   translation -5.80579 -10.1734 0
   rotation 0 0 1 3.14159
   name "cabinet(8)"
 }
 WoodenChair {
-  translation -3.40405 -2.90904 0
+  translation -3.40405 -1.91904 0
   name "wooden chair(4)"
 }
-RoundTable {
-  translation -1.430469 -3.615372 0
+WoodenChair {
+  translation -1.76405 -3.40904 0
+  name "wooden chair(3)"
 }
 WoodenChair {
-  translation -6.88 -12.059999999999999 0
-  rotation 0 0 1 -1.5707953071795862
+  translation -7.42405 -2.68904 1.15077e-08
+  rotation -9.589734506671008e-09 0.0036138716983296877 -0.9999934699443532 -5.307179586466759e-06
+  name "wooden chair(1)"
+}
+WoodenChair {
+  translation -5.58405 -6.52904 0
   name "wooden chair(2)"
 }
 Bed {
@@ -713,36 +472,6 @@ Window {
   size 0.3 1 2.4
   frameAppearance BrushedAluminium {
   }
-}
-Radiator {
-  translation -4.24028 -8.71399 0.36
-  rotation 0 0 1 -1.5707953071795862
-}
-Radiator {
-  translation -0.28465799999999997 -10.58667 0.36
-  rotation 0 0 1 3.14159
-  name "radiator(5)"
-}
-Radiator {
-  translation -3.23759 -6.88139 0.36
-  rotation 0 0 1 -1.5707953071795862
-  name "radiator(4)"
-  numberOfFins 20
-}
-Radiator {
-  translation -7.731897999999999 -12.834878 0.36
-  rotation 0 0 -1 -1.5707953071795862
-  name "radiator(3)"
-}
-Radiator {
-  translation -8.531595 -0.282246 0.36
-  rotation 0 0 1 -1.5707953071795862
-  name "radiator(2)"
-}
-Radiator {
-  translation -0.27999999999999997 -1.53 0.36
-  rotation 0 0 1 3.14159
-  name "radiator(1)"
 }
 Wall {
   translation 0 -4.57 0
@@ -953,35 +682,6 @@ Pose {
 Pose {
   translation -9.51375 -9.6494 0.4
 }
-Table {
-  translation -9.55609 -9.09224 0
-  name "table(2)"
-  size 0.3 0.3 0.4
-  feetSize 0.04 0.05
-  legAppearance BrushedAluminium {
-  }
-}
-Table {
-  translation -9.56036 -11.3804 0
-  name "table(3)"
-  size 0.3 0.3 0.4
-  feetSize 0.04 0.05
-  legAppearance BrushedAluminium {
-  }
-}
-Table {
-  translation -2.74109 -12.7454 0
-  name "table(4)"
-  size 0.3 0.3 0.4
-  feetSize 0.04 0.05
-  legAppearance BrushedAluminium {
-  }
-}
-Table {
-  translation -6.014093 -2.658387 0.02
-  name "table(5)"
-  size 0.8 1.2 0.53
-}
 Armchair {
   translation -2.57082 -9.80788 0
   rotation 0 0 1 -0.2115153071795861
@@ -995,7 +695,7 @@ Armchair {
   color 0.13333333333333333 0.13333333333333333 0.13333333333333333
 }
 Armchair {
-  translation -6.06051 -4.27774 1.06581e-14
+  translation -6.12811 -4.06884 1.06581e-14
   rotation 0 0 -1 -1.3592853071795865
   name "armchair(2)"
   color 0.13333333333333333 0.13333333333333333 0.13333333333333333
@@ -1007,50 +707,22 @@ Armchair {
   color 0.827451 0.843137 0.811765
 }
 Sofa {
-  translation -5.9207339999999995 -0.6887059999999999 0
-  rotation 0 0 1 -1.5707953071795862
-  color 0.13333333333333333 0.13333333333333333 0.13333333333333333
-}
-Sofa {
   translation -9.60874 -1.68351 -0.01
   rotation -9.58979e-09 9.58976e-09 -1 -1.5707953071795862
   name "sofa 2"
   color 0.13333333333333333 0.13333333333333333 0.13333333333333333
 }
 Sofa {
-  translation -7.308742 -2.513508 0
+  translation -5.26954 -1.38151 0
+  rotation 0 0 1 -2.094395307179586
   name "sofa 2(1)"
   color 0.13333333333333333 0.13333333333333333 0.13333333333333333
 }
-Carpet {
-  translation -5.803488 -2.55795 -0.015
-  rotation 0 0 1 -1.5707953071795862
-  color 0.13725490196078433 0.13725490196078433 0.13725490196078433
-}
-Cabinet {
-  translation -4.073264 -0.6770999999999999 0
-  rotation 0 0 1 3.14159
-  name "cabinet 4"
-  depth 0.4
-  outerThickness 0.02
-  rowsHeights [
-    0.52, 0.44, 0.44, 0.44, 0.44
-  ]
-  columnsWidths [
-    0.96
-  ]
-  layout [
-    "Shelf  (1, 2, 1, 0)"
-    "Shelf  (1, 3, 1, 0)"
-    "Shelf  (1, 4, 1, 0)"
-    "Shelf  (1, 5, 1, 0)"
-  ]
-  primaryAppearance PaintedWood {
-    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
-  }
-  secondaryAppearance PaintedWood {
-    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
-  }
+Sofa {
+  translation -1.1189 -0.725082 -8.02302e-09
+  rotation 1.30999e-08 3.51011e-09 1 -1.5707953071795862
+  name "sofa 2(2)"
+  color 0.13333333333333333 0.13333333333333333 0.13333333333333333
 }
 WashingMachine {
   translation -2.00701 -5.83126 0.51
