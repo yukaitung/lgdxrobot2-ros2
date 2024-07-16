@@ -1,4 +1,4 @@
 int32 task_id
-string complete_token
+string next_token
 ---
 bool success
