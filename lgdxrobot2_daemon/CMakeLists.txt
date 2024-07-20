@@ -9,11 +9,12 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# Grpc
-find_package(Protobuf REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_search_module(grpc REQUIRED grpc)
-pkg_search_module(grpc++ REQUIRED grpc++)
+#
+# gRPC
+#
+list(APPEND CMAKE_PREFIX_PATH "/home/user/.local") #TODO: use env
+find_package(protobuf CONFIG REQUIRED)
+find_package(gRPC CONFIG REQUIRED)
 
 add_library(${PROTO_NAME} 
   proto/RobotClientService.proto
@@ -21,15 +22,18 @@ add_library(${PROTO_NAME}
 target_link_libraries(${PROTO_NAME} 
   PUBLIC
   protobuf::libprotobuf
-  grpc
-  grpc++
+  gRPC::grpc
+  gRPC::grpc++
 )
-target_include_directories(${PROTO_NAME}  PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(${PROTO_NAME} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-protobuf_generate(TARGET ${PROTO_NAME}  LANGUAGE cpp)
-protobuf_generate(TARGET ${PROTO_NAME}  LANGUAGE grpc GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc PLUGIN "protoc-gen-grpc=/usr/bin/grpc_cpp_plugin")
+get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
+protobuf_generate(TARGET ${PROTO_NAME} LANGUAGE cpp)
+protobuf_generate(TARGET ${PROTO_NAME} LANGUAGE grpc GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}")
 
+#
 # Node
+#
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
@@ -59,5 +63,6 @@ ament_target_dependencies(${EXECUTABLE_NAME}
 )
 
 install(TARGETS ${EXECUTABLE_NAME} DESTINATION lib/${PROJECT_NAME})
+install(TARGETS ${PROTO_NAME} LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
 
 ament_package()
