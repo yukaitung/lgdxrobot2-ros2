@@ -52,6 +52,7 @@ include_directories(include/${PROJECT_NAME})
 
 add_executable(${EXECUTABLE_NAME} 
   src/main.cpp 
+  src/CloudAdapter.cpp
   src/DaemonNode.cpp
 )
 target_link_libraries(${EXECUTABLE_NAME} 
