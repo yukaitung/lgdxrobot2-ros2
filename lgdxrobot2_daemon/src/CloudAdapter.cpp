@@ -40,8 +40,12 @@ RpcRobotExchangeData MakeExchangeData()
 CloudAdapter::CloudAdapter (const char *serverAddress,
   const char *rootCertPath,
   const char *clientCertPath,
-  const char *clientKeyPath)
+  const char *clientKeyPath,
+  std::function<void(const RpcRespond *)> respondCb,
+  std::function<void(const char *, int)> debugCb)
 {
+  respondCallback = respondCb;
+  debugCallback = debugCb;
   std::string rootCert = readCert(rootCertPath);
   std::string clientCert = readCert(clientCertPath);
   std::string clientKey = readCert(clientKeyPath);
@@ -49,40 +53,6 @@ CloudAdapter::CloudAdapter (const char *serverAddress,
 
   grpcChannel = grpc::CreateChannel(serverAddress, grpc::SslCredentials(sslOptions));
   grpcStub = RobotClientService::NewStub(grpcChannel);
-
-  grpc::ClientContext *context = new grpc::ClientContext();
-  RpcCompleteToken request;
-  request.set_taskid(1);
-  request.set_token("");
-  RpcRespond *respond = new RpcRespond();
-  std::cout << "send" << std::endl;
-  grpcStub->async()->AutoTaskAbort(context, &request, respond, [context, respond, this](grpc::Status status){
-    if (!status.ok()) {
-      std::cout << " rpc failed." << std::endl;
-    }
-    else {
-      std::cout << "rpc ok" << std::endl;
-    }
-    delete context;
-    delete respond;
-  });
-  std::cout << "send ok" << std::endl;
-   /*
-  grpc::ClientContext *context2 = new grpc::ClientContext();
-  RpcRobotExchangeData request2 = MakeExchangeData();
-  RpcResultMessageWithTask *respond2 = new RpcResultMessageWithTask();
-  std::cout << "send" << std::endl;
-  grpcStub->async()->Exchange(context2, &request2, respond2, [context2, respond2, this](grpc::Status status){
-    if (!status.ok()) {
-      std::cout << " rpc failed." << std::endl;
-    }
-    else {
-      std::cout << "rpc ok" << std::endl;
-    }
-    delete context2;
-    delete respond2;
-  });
-  */
 }
 
 std::string CloudAdapter::readCert(const char *filename)
@@ -96,4 +66,76 @@ std::string CloudAdapter::readCert(const char *filename)
 		return ss.str();
   }
   return {};
+}
+
+void CloudAdapter::greet(RpcGreet &greet)
+{
+  grpc::ClientContext *context = new grpc::ClientContext();
+  RpcRespond *respond = new RpcRespond();
+  grpcStub->async()->Greet(context, &greet, respond, [context, respond, this](grpc::Status status)
+  {
+    if (!status.ok()) 
+    {
+      debugCallback("CloudAdapter::greet failed.", 3);
+    }
+    delete context;
+    delete respond;
+  });
+}
+
+void CloudAdapter::exchange(RpcExchange &exchange)
+{
+  grpc::ClientContext *context = new grpc::ClientContext();
+  RpcRespond *respond = new RpcRespond();
+  grpcStub->async()->Exchange(context, &exchange, respond, [context, respond, this](grpc::Status status)
+  {
+    if (status.ok()) 
+    {
+      respondCallback(respond);
+    }
+    else 
+    {
+      debugCallback("CloudAdapter::exchange failed.", 3);
+    }
+    delete context;
+    delete respond;
+  });
+}
+
+void CloudAdapter::autoTaskNext(RpcCompleteToken &token)
+{
+  grpc::ClientContext *context = new grpc::ClientContext();
+  RpcRespond *respond = new RpcRespond();
+  grpcStub->async()->AutoTaskNext(context, &token, respond, [context, respond, this](grpc::Status status)
+  {
+    if (status.ok()) 
+    {
+      respondCallback(respond);
+    }
+    else 
+    {
+      debugCallback("CloudAdapter::autoTaskNext failed.", 3);
+    }
+    delete context;
+    delete respond;
+  });
+}
+
+void CloudAdapter::autoTaskAbort(RpcCompleteToken &token)
+{
+  grpc::ClientContext *context = new grpc::ClientContext();
+  RpcRespond *respond = new RpcRespond();
+  grpcStub->async()->AutoTaskAbort(context, &token, respond, [context, respond, this](grpc::Status status)
+  {
+    if (status.ok()) 
+    {
+      respondCallback(respond);
+    }
+    else 
+    {
+      debugCallback("CloudAdapter::autoTaskAbort failed.", 3);
+    }
+    delete context;
+    delete respond;
+  });
 }
