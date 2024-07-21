@@ -13,7 +13,7 @@ class DaemonNode : public rclcpp::Node
   private:
     // gRPC
     std::unique_ptr<RobotClientService::Stub> grpcStub;
-
+    
     // Auto Task
     lgdxrobot2_daemon::msg::AutoTask currentTask;
     rclcpp::Publisher<lgdxrobot2_daemon::msg::AutoTask>::SharedPtr autoTaskPublisher;

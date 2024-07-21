@@ -47,34 +47,38 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
   std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel("192.168.1.10:5162", grpc::SslCredentials(sslOptions));
   grpcStub = RobotClientService::NewStub(channel);
 
-/*
-  grpc::ClientContext context;
+  grpc::ClientContext *context = new grpc::ClientContext();
   RpcCompleteToken request;
   request.set_taskid(1);
   request.set_token("");
-  RpcResultMessage respond;
+  RpcResultMessage *respond = new RpcResultMessage();
   std::cout << "send" << std::endl;
-  grpc::Status status = grpcStub->AbortAutoTask(&context, request, &respond);
-  if (!status.ok()) {
-    std::cout << " rpc failed." << std::endl;
-  }
-  else {
-    std::cout << "rpc ok" << std::endl;
-  }
-  std::cout << "send ok" << std::endl;*/
-
-  grpc::ClientContext context;
-  RpcRobotExchangeData request = MakeExchangeData();
-  RpcResultMessageWithTask respond;
-  std::cout << "send" << std::endl;
-  grpc::Status status = grpcStub->Exchange(&context, request, &respond);
-  if (!status.ok()) {
-    std::cout << " rpc failed." << std::endl;
-  }
-  else {
-    std::cout << "rpc ok" << std::endl;
-  }
+  grpcStub->async()->AbortAutoTask(context, &request, respond, [context, respond, this](grpc::Status status){
+    if (!status.ok()) {
+      std::cout << " rpc failed." << std::endl;
+    }
+    else {
+      std::cout << "rpc ok" << std::endl;
+    }
+    delete context;
+    delete respond;
+  });
   std::cout << "send ok" << std::endl;
+
+  grpc::ClientContext *context2 = new grpc::ClientContext();
+  RpcRobotExchangeData request2 = MakeExchangeData();
+  RpcResultMessageWithTask *respond2 = new RpcResultMessageWithTask();
+  std::cout << "send" << std::endl;
+  grpcStub->async()->Exchange(context2, &request2, respond2, [context2, respond2, this](grpc::Status status){
+    if (!status.ok()) {
+      std::cout << " rpc failed." << std::endl;
+    }
+    else {
+      std::cout << "rpc ok" << std::endl;
+    }
+    delete context2;
+    delete respond2;
+  });
   
 
   //autoTaskPublisher = this->create_publisher<lgdxrobot2_daemon::msg::AutoTask>("/daemon/autotask", rclcpp::SensorDataQoS().reliable());
