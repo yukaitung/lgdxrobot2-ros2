@@ -12,12 +12,25 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
     [](const RpcRespond *respond){
       std::cout << "test" << std::endl;
     },
-    [](const char *message, int level){
-      std::cout << "test" << std::endl;
+    [this](const char *message, int level){
+      logCallback(message, level);
     });
 
   //autoTaskPublisher = this->create_publisher<lgdxrobot2_daemon::msg::AutoTask>("/daemon/autotask", rclcpp::SensorDataQoS().reliable());
   //autoTaskPublisherTimer = this->create_wall_timer(20ms, std::bind(&DaemonNode::autoTaskPublisherTimerCallback, this));
+}
+
+void DaemonNode::logCallback(const char *msg, int level)
+{
+  switch(level)
+  {
+    case RCLCPP_LOG_MIN_SEVERITY_INFO:
+      RCLCPP_INFO(this->get_logger(), "%s", msg);
+      break;
+    case RCLCPP_LOG_MIN_SEVERITY_ERROR:
+      RCLCPP_ERROR(this->get_logger(), "%s", msg);
+      break;
+  }
 }
 
 void DaemonNode::autoTaskPublisherTimerCallback()

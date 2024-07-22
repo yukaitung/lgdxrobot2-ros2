@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "hwinfo/hwinfo.h"
+#include "hwinfo/utils/unit.h"
 #include "grpc/grpc.h"
 #include "grpcpp/channel.h"
 #include "grpcpp/client_context.h"
@@ -41,11 +43,11 @@ CloudAdapter::CloudAdapter (const char *serverAddress,
   const char *rootCertPath,
   const char *clientCertPath,
   const char *clientKeyPath,
-  std::function<void(const RpcRespond *)> respondCb,
-  std::function<void(const char *, int)> debugCb)
+  std::function<void(const RpcRespond *)> updateDaemonCb,
+  std::function<void(const char *, int)> logCb)
 {
-  respondCallback = respondCb;
-  debugCallback = debugCb;
+  updateDeamon = updateDaemonCb;
+  log = logCb;
   std::string rootCert = readCert(rootCertPath);
   std::string clientCert = readCert(clientCertPath);
   std::string clientKey = readCert(clientKeyPath);
@@ -53,6 +55,10 @@ CloudAdapter::CloudAdapter (const char *serverAddress,
 
   grpcChannel = grpc::CreateChannel(serverAddress, grpc::SslCredentials(sslOptions));
   grpcStub = RobotClientService::NewStub(grpcChannel);
+
+  systemInfo = GenerateSystemInfo();
+  greet = GenerateGreet(&systemInfo);
+  grpcGreet(greet);
 }
 
 std::string CloudAdapter::readCert(const char *filename)
@@ -68,15 +74,54 @@ std::string CloudAdapter::readCert(const char *filename)
   return {};
 }
 
-void CloudAdapter::greet(RpcGreet &greet)
+RpcRobotSystemInfo CloudAdapter::GenerateSystemInfo()
+{
+  RpcRobotSystemInfo info;
+  const auto cpus = hwinfo::getAllCPUs();
+  if (cpus.size() > 0)
+  {
+    hwinfo::CPU cpu = cpus.at(0);
+    info.set_cpu(cpu.modelName());
+  }
+  else
+  {
+    info.set_cpu("");
+  }
+  hwinfo::OS os;
+  info.set_os(os.name());
+  info.set_is32bit(os.is32bit());
+  info.set_islittleendian(os.isLittleEndian());
+  const auto gpus = hwinfo::getAllGPUs();
+  if (gpus.size() > 0)
+  {
+    hwinfo::GPU gpu = gpus.at(0);
+    info.set_gpu(gpu.name());
+  }
+  hwinfo::Memory memory;
+  info.set_rammib(hwinfo::unit::bytes_to_MiB(memory.total_Bytes()));
+  return info;
+}
+
+RpcGreet CloudAdapter::GenerateGreet(RpcRobotSystemInfo *systemInfo)
+{
+  RpcGreet greet;
+  greet.set_allocated_systeminfo(systemInfo);
+  return greet;
+}
+
+void CloudAdapter::grpcGreet(RpcGreet &greet)
 {
   grpc::ClientContext *context = new grpc::ClientContext();
   RpcRespond *respond = new RpcRespond();
   grpcStub->async()->Greet(context, &greet, respond, [context, respond, this](grpc::Status status)
   {
-    if (!status.ok()) 
+    if (status.ok()) 
     {
-      debugCallback("CloudAdapter::greet failed.", 3);
+      log("grpcGreet() succeed, start data exchange.", 1);
+    }
+    else
+    {
+      log("CloudAdapter::greet failed.", 3);
     }
     delete context;
     delete respond;
@@ -91,11 +136,11 @@ void CloudAdapter::exchange(RpcExchange &exchange)
   {
     if (status.ok()) 
     {
-      respondCallback(respond);
+      updateDeamon(respond);
     }
     else 
     {
-      debugCallback("CloudAdapter::exchange failed.", 3);
+      log("CloudAdapter::exchange failed.", 3);
     }
     delete context;
     delete respond;
@@ -110,11 +155,11 @@ void CloudAdapter::autoTaskNext(RpcCompleteToken &token)
   {
     if (status.ok()) 
     {
-      respondCallback(respond);
+      updateDeamon(respond);
     }
     else 
     {
-      debugCallback("CloudAdapter::autoTaskNext failed.", 3);
+      log("CloudAdapter::autoTaskNext failed.", 3);
     }
     delete context;
     delete respond;
@@ -129,11 +174,11 @@ void CloudAdapter::autoTaskAbort(RpcCompleteToken &token)
   {
     if (status.ok()) 
     {
-      respondCallback(respond);
+      updateDeamon(respond);
     }
     else 
     {
-      debugCallback("CloudAdapter::autoTaskAbort failed.", 3);
+      log("CloudAdapter::autoTaskAbort failed.", 3);
     }
     delete context;
     delete respond;

@@ -12,19 +12,25 @@ class CloudAdapter
   private:
     std::shared_ptr<grpc::Channel> grpcChannel;
     std::unique_ptr<RobotClientService::Stub> grpcStub;
-    std::function<void(const RpcRespond *)> respondCallback;
-    std::function<void(const char *, int)> debugCallback;
+    std::function<void(const RpcRespond *)> updateDeamon;
+    std::function<void(const char *, int)> log;
+
+    RpcRobotSystemInfo systemInfo;
+    RpcGreet greet;
 
     std::string readCert(const char *filename);
+    RpcRobotSystemInfo GenerateSystemInfo();
+    RpcGreet GenerateGreet(RpcRobotSystemInfo *systemInfo);
+
 
   public:
     CloudAdapter(const char *serverAddress,
       const char *rootCertPath,
       const char *clientCertPath,
       const char *clientKeyPath,
-      std::function<void(const RpcRespond *)> respondCb,
-      std::function<void(const char *, int)> debugCb);
-    void greet(RpcGreet &greet);
+      std::function<void(const RpcRespond *)> updateDaemonCb,
+      std::function<void(const char *, int)> logCb);
+    void grpcGreet(RpcGreet &greet);
     void exchange(RpcExchange &exchange);
     void autoTaskNext(RpcCompleteToken &token);
     void autoTaskAbort(RpcCompleteToken &token);

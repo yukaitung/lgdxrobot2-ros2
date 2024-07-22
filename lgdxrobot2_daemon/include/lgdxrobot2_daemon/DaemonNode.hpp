@@ -16,6 +16,7 @@ class DaemonNode : public rclcpp::Node
     rclcpp::Publisher<lgdxrobot2_daemon::msg::AutoTask>::SharedPtr autoTaskPublisher;
     rclcpp::TimerBase::SharedPtr autoTaskPublisherTimer;
 
+    void logCallback(const char *msg, int level);
     void autoTaskPublisherTimerCallback();
     
   public:

@@ -12,7 +12,7 @@ endif()
 #
 # gRPC
 #
-list(APPEND CMAKE_PREFIX_PATH "/home/user/.local") #TODO: use env
+list(APPEND CMAKE_PREFIX_PATH "../third_party/grpc") 
 find_package(protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
@@ -32,12 +32,9 @@ protobuf_generate(TARGET ${PROTO_NAME} LANGUAGE cpp)
 protobuf_generate(TARGET ${PROTO_NAME} LANGUAGE grpc GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}")
 
 #
-# Node
+# Node Msg
 #
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
-
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/AutoTask.msg"
   "srv/AutoTaskNext.srv"
@@ -47,6 +44,13 @@ rosidl_get_typesupport_target(cpp_typesupport_target
   ${PROJECT_NAME}
   rosidl_typesupport_cpp
 )
+
+#
+# Node
+#
+add_subdirectory(../third_party/hwinfo hwinfo)
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
 
 include_directories(include/${PROJECT_NAME})
 
@@ -58,6 +62,7 @@ add_executable(${EXECUTABLE_NAME}
 target_link_libraries(${EXECUTABLE_NAME} 
   ${PROTO_NAME}
   "${cpp_typesupport_target}"
+  hwinfo::HWinfo
 )
 ament_target_dependencies(${EXECUTABLE_NAME}  
   rclcpp
