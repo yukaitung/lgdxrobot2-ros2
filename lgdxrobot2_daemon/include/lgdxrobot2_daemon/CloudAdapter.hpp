@@ -7,21 +7,26 @@
 
 #include "proto/RobotClientService.grpc.pb.h"
 
+enum class CloudFunctions
+{
+  Greet = 0,
+  Exchange,
+  AutoTaskNext,
+  AutoTaskAbort
+};
+
 class CloudAdapter
 {
   private:
+    const int kGrpcWaitSec = 5;
     std::shared_ptr<grpc::Channel> grpcChannel;
     std::unique_ptr<RobotClientService::Stub> grpcStub;
     std::function<void(const RpcRespond *)> updateDeamon;
     std::function<void(const char *, int)> log;
-
-    RpcRobotSystemInfo systemInfo;
-    RpcGreet greet;
+    std::function<void(CloudFunctions)> error;
 
     std::string readCert(const char *filename);
-    RpcRobotSystemInfo GenerateSystemInfo();
-    RpcGreet GenerateGreet(RpcRobotSystemInfo *systemInfo);
-
+    void setSystemInfo(RpcRobotSystemInfo *info);
 
   public:
     CloudAdapter(const char *serverAddress,
@@ -29,8 +34,9 @@ class CloudAdapter
       const char *clientCertPath,
       const char *clientKeyPath,
       std::function<void(const RpcRespond *)> updateDaemonCb,
-      std::function<void(const char *, int)> logCb);
-    void grpcGreet(RpcGreet &greet);
+      std::function<void(const char *, int)> logCb,
+      std::function<void(CloudFunctions)> errorCb);
+    void greet();
     void exchange(RpcExchange &exchange);
     void autoTaskNext(RpcCompleteToken &token);
     void autoTaskAbort(RpcCompleteToken &token);
