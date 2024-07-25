@@ -12,42 +12,16 @@
 #include "grpcpp/create_channel.h"
 #include "grpcpp/security/credentials.h"
 
-/*
-RpcRobotDof MakeRobotDof()
-{
-  RpcRobotDof dof;
-  dof.set_x(0);
-  dof.set_y(0);
-  dof.set_w(0);
-  return dof;
-}
-
-RpcRobotExchangeData MakeExchangeData()
-{
-  RpcRobotExchangeData data;
-  data.add_batteries(12.1f);
-  data.add_batteries(12.2f);
-  data.add_emergencystopsenabled(true);
-  data.add_emergencystopsenabled(true);
-  data.set_gettask(false);
-  RpcRobotDof *position = new RpcRobotDof();
-  *position = MakeRobotDof();
-  RpcRobotDof *velocity = new RpcRobotDof();
-  *velocity = MakeRobotDof();
-  data.set_allocated_position(position);
-  data.set_allocated_velocity(velocity);
-  return data;
-}
-*/
-
 CloudAdapter::CloudAdapter(const char *serverAddress,
   const char *rootCertPath,
   const char *clientCertPath,
   const char *clientKeyPath,
+  std::function<void(void)> startNextExchangeCb,
   std::function<void(const RpcRespond *)> updateDaemonCb,
   std::function<void(const char *, int)> logCb,
   std::function<void(CloudFunctions)> errorCb)
 {
+  startNextExchange = startNextExchangeCb;
   updateDeamon = updateDaemonCb;
   log = logCb;
   error = errorCb;
@@ -104,17 +78,20 @@ void CloudAdapter::greet()
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
   context->set_deadline(deadline);
-  RpcGreet *greet = new RpcGreet();
+
+  RpcGreet *request = new RpcGreet();
   RpcRobotSystemInfo *systemInfo = new RpcRobotSystemInfo();
   setSystemInfo(systemInfo);
-  greet->set_allocated_systeminfo(systemInfo);
-  RpcRespond *respond = new RpcRespond();
+  request->set_allocated_systeminfo(systemInfo);
 
-  grpcStub->async()->Greet(context, greet, respond, [context, greet, systemInfo, respond, this](grpc::Status status)
+  RpcRespond *respond = new RpcRespond();
+  
+  grpcStub->async()->Greet(context, request, respond, [context, request, systemInfo, respond, this](grpc::Status status)
   {
     if (status.ok()) 
     {
       log("Connect to the cloud, start data exchange.", 1);
+      startNextExchange();
     }
     else
     {
@@ -122,29 +99,50 @@ void CloudAdapter::greet()
       error(CloudFunctions::Greet);
     }
     delete context;
-    delete greet;
+    delete request;
     delete respond;
   });
 }
 
-void CloudAdapter::exchange(RpcExchange &exchange)
+void CloudAdapter::exchange()
 {
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
   context->set_deadline(deadline);
+
+  RpcExchange *request = new RpcExchange();
+  request->add_batteries(12.1f);
+  request->add_batteries(12.2f);
+  request->add_emergencystopsenabled(true);
+  request->add_emergencystopsenabled(true);
+  request->set_gettask(false);
+  RpcRobotDof *position = new RpcRobotDof();
+  position->set_x(0);
+  position->set_y(0);
+  position->set_w(0);
+  request->set_allocated_position(position);
+  RpcRobotDof *velocity = new RpcRobotDof();
+  velocity->set_x(0);
+  velocity->set_y(0);
+  velocity->set_w(0);
+  request->set_allocated_velocity(velocity);
+
   RpcRespond *respond = new RpcRespond();
-  grpcStub->async()->Exchange(context, &exchange, respond, [context, respond, this](grpc::Status status)
+
+  grpcStub->async()->Exchange(context, request, respond, [context, request, respond, this](grpc::Status status)
   {
     if (status.ok()) 
     {
       updateDeamon(respond);
+      startNextExchange();
     }
     else 
     {
-      log("CloudAdapter::exchange failed.", 3);
+      log("CloudAdapter::exchange() failed.", 3);
       error(CloudFunctions::Exchange);
     }
     delete context;
+    delete request;
     delete respond;
   });
 }
@@ -154,8 +152,13 @@ void CloudAdapter::autoTaskNext(RpcCompleteToken &token)
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
   context->set_deadline(deadline);
+
+  RpcCompleteToken *request = new RpcCompleteToken();
+  *request = token;
+
   RpcRespond *respond = new RpcRespond();
-  grpcStub->async()->AutoTaskNext(context, &token, respond, [context, respond, this](grpc::Status status)
+
+  grpcStub->async()->AutoTaskNext(context, request, respond, [context, request,respond, this](grpc::Status status)
   {
     if (status.ok()) 
     {
@@ -163,10 +166,11 @@ void CloudAdapter::autoTaskNext(RpcCompleteToken &token)
     }
     else 
     {
-      log("CloudAdapter::autoTaskNext failed.", 3);
+      log("CloudAdapter::autoTaskNext() failed.", 3);
       error(CloudFunctions::Exchange);
     }
     delete context;
+    delete request;
     delete respond;
   });
 }
@@ -176,8 +180,13 @@ void CloudAdapter::autoTaskAbort(RpcCompleteToken &token)
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
   context->set_deadline(deadline);
+
+  RpcCompleteToken *request = new RpcCompleteToken();
+  *request = token;
+
   RpcRespond *respond = new RpcRespond();
-  grpcStub->async()->AutoTaskAbort(context, &token, respond, [context, respond, this](grpc::Status status)
+
+  grpcStub->async()->AutoTaskAbort(context, request, respond, [context, request, respond, this](grpc::Status status)
   {
     if (status.ok()) 
     {
@@ -185,10 +194,11 @@ void CloudAdapter::autoTaskAbort(RpcCompleteToken &token)
     }
     else 
     {
-      log("CloudAdapter::autoTaskAbort failed.", 3);
+      log("CloudAdapter::autoTaskAbort() failed.", 3);
       error(CloudFunctions::AutoTaskAbort);
     }
     delete context;
+    delete request;
     delete respond;
   });
 }

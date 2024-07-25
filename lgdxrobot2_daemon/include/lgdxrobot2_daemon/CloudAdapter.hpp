@@ -21,6 +21,7 @@ class CloudAdapter
     const int kGrpcWaitSec = 5;
     std::shared_ptr<grpc::Channel> grpcChannel;
     std::unique_ptr<RobotClientService::Stub> grpcStub;
+    std::function<void(void)> startNextExchange;
     std::function<void(const RpcRespond *)> updateDeamon;
     std::function<void(const char *, int)> log;
     std::function<void(CloudFunctions)> error;
@@ -33,11 +34,12 @@ class CloudAdapter
       const char *rootCertPath,
       const char *clientCertPath,
       const char *clientKeyPath,
+      std::function<void(void)> startNextExchangeCb,
       std::function<void(const RpcRespond *)> updateDaemonCb,
       std::function<void(const char *, int)> logCb,
       std::function<void(CloudFunctions)> errorCb);
     void greet();
-    void exchange(RpcExchange &exchange);
+    void exchange();
     void autoTaskNext(RpcCompleteToken &token);
     void autoTaskAbort(RpcCompleteToken &token);
 };
