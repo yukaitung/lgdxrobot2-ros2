@@ -19,7 +19,8 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
 				currentTask.task_name = task.taskname();
 				currentTask.task_progress_id = task.taskprogressid();
 				currentTask.task_progress_name = task.taskprogressname();
-				currentTask.complete_token = task.completetoken();
+				currentTask.next_token = task.nexttoken();
+        robotIdle = false;
 			}
     },
     [this](const char *message, int level){
@@ -39,7 +40,6 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
   cloudRetryTimer = this->create_wall_timer(std::chrono::milliseconds(cloudRetryWait), 
     std::bind(&DaemonNode::cloudRetry, this));
   cloudRetryTimer->cancel();
-
   cloudExchangeTimer = this->create_wall_timer(std::chrono::milliseconds(500), 
     std::bind(&DaemonNode::cloudExchange, this));
   cloudExchangeTimer->cancel();
@@ -55,7 +55,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
     [this](const std::shared_ptr<lgdxrobot2_daemon::srv::AutoTaskNext::Request> request,
       std::shared_ptr<lgdxrobot2_daemon::srv::AutoTaskNext::Response> response) 
     {
-      if (!currentTask.complete_token.empty() && (request->next_token == currentTask.complete_token))
+      if (!currentTask.next_token.empty() && (request->next_token == currentTask.next_token))
       {
         cloudAutoTaskNext();
         response->success = true;
@@ -69,7 +69,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
     [this](const std::shared_ptr<lgdxrobot2_daemon::srv::AutoTaskAbort::Request> request,
       std::shared_ptr<lgdxrobot2_daemon::srv::AutoTaskAbort::Response> response)
     {
-      if (!currentTask.complete_token.empty() && (request->next_token == currentTask.complete_token))
+      if (!currentTask.next_token.empty() && (request->next_token == currentTask.next_token))
       {
         cloudautoTaskAbort();
         response->success = true;
@@ -132,28 +132,33 @@ void DaemonNode::cloudExchange()
 {
   if (!cloudExchangeTimer->is_canceled())
     cloudExchangeTimer->cancel();
-  cloud->exchange();
+
+  bool getTask = robotIdle == true && robotStopped == false;
+
+  cloud->exchange(getTask);
   // Don't reset the cloudExchangeTimer here
 }
 
 void DaemonNode::cloudAutoTaskNext()
 {
-  if (!currentTask.complete_token.empty())
+  if (!currentTask.next_token.empty())
   {
-    RpcCompleteToken token;
+    RpcNextToken token;
     token.set_taskid(currentTask.task_id);
-    token.set_token(currentTask.complete_token);
+    token.set_token(currentTask.next_token);
     cloud->autoTaskNext(token);
+    robotIdle = true;
   }
 }
 
 void DaemonNode::cloudautoTaskAbort()
 {
-  if (!currentTask.complete_token.empty())
+  if (!currentTask.next_token.empty())
   {
-    RpcCompleteToken token;
+    RpcNextToken token;
     token.set_taskid(currentTask.task_id);
-    token.set_token(currentTask.complete_token);
+    token.set_token(currentTask.next_token);
     cloud->autoTaskAbort(token);
+    robotIdle = true;
   }
 }

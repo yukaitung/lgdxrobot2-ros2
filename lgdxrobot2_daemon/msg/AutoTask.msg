@@ -2,4 +2,4 @@ int32 task_id
 string task_name
 int32 task_progress_id
 string task_progress_name
-string complete_token
+string next_token

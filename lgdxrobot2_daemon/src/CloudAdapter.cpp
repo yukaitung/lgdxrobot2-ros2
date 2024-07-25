@@ -104,7 +104,7 @@ void CloudAdapter::greet()
   });
 }
 
-void CloudAdapter::exchange()
+void CloudAdapter::exchange(bool getTask)
 {
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
@@ -115,7 +115,7 @@ void CloudAdapter::exchange()
   request->add_batteries(12.2f);
   request->add_emergencystopsenabled(true);
   request->add_emergencystopsenabled(true);
-  request->set_gettask(false);
+  request->set_gettask(getTask);
   RpcRobotDof *position = new RpcRobotDof();
   position->set_x(0);
   position->set_y(0);
@@ -147,13 +147,13 @@ void CloudAdapter::exchange()
   });
 }
 
-void CloudAdapter::autoTaskNext(RpcCompleteToken &token)
+void CloudAdapter::autoTaskNext(RpcNextToken &token)
 {
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
   context->set_deadline(deadline);
 
-  RpcCompleteToken *request = new RpcCompleteToken();
+  RpcNextToken *request = new RpcNextToken();
   *request = token;
 
   RpcRespond *respond = new RpcRespond();
@@ -175,13 +175,13 @@ void CloudAdapter::autoTaskNext(RpcCompleteToken &token)
   });
 }
 
-void CloudAdapter::autoTaskAbort(RpcCompleteToken &token)
+void CloudAdapter::autoTaskAbort(RpcNextToken &token)
 {
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
   context->set_deadline(deadline);
 
-  RpcCompleteToken *request = new RpcCompleteToken();
+  RpcNextToken *request = new RpcNextToken();
   *request = token;
 
   RpcRespond *respond = new RpcRespond();

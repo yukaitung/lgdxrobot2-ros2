@@ -39,9 +39,9 @@ class CloudAdapter
       std::function<void(const char *, int)> logCb,
       std::function<void(CloudFunctions)> errorCb);
     void greet();
-    void exchange();
-    void autoTaskNext(RpcCompleteToken &token);
-    void autoTaskAbort(RpcCompleteToken &token);
+    void exchange(bool getTask);
+    void autoTaskNext(RpcNextToken &token);
+    void autoTaskAbort(RpcNextToken &token);
 };
 
 #endif // CLOUDADAPTER_HPP

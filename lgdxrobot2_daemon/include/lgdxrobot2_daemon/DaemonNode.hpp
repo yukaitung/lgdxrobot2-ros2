@@ -20,6 +20,8 @@ class DaemonNode : public rclcpp::Node
     rclcpp::TimerBase::SharedPtr cloudExchangeTimer;
 
     // Auto Task
+    bool robotIdle = true;
+    bool robotStopped = false;
     lgdxrobot2_daemon::msg::AutoTask currentTask;
     rclcpp::Publisher<lgdxrobot2_daemon::msg::AutoTask>::SharedPtr autoTaskPublisher;
     rclcpp::TimerBase::SharedPtr autoTaskPublisherTimer;
