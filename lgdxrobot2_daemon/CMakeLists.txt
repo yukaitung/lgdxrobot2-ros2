@@ -52,21 +52,29 @@ rosidl_get_typesupport_target(cpp_typesupport_target
 add_subdirectory(../third_party/hwinfo hwinfo)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(Boost REQUIRED)
 
 include_directories(include/${PROJECT_NAME})
 
 add_executable(${EXECUTABLE_NAME} 
-  src/main.cpp 
   src/CloudAdapter.cpp
   src/DaemonNode.cpp
+  src/main.cpp 
+  src/SerialPort.cpp
 )
 target_link_libraries(${EXECUTABLE_NAME} 
   ${PROTO_NAME}
   "${cpp_typesupport_target}"
   hwinfo::HWinfo
+  Boost::headers
 )
 ament_target_dependencies(${EXECUTABLE_NAME}  
-  rclcpp
+  rclcpp std_msgs geometry_msgs nav_msgs sensor_msgs tf2_geometry_msgs
 )
 
 install(TARGETS ${EXECUTABLE_NAME} DESTINATION lib/${PROJECT_NAME})

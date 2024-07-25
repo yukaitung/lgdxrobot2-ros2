@@ -1,7 +1,8 @@
-#ifndef MCUDATA_HPP
-#define MCUDATA_HPP
+#ifndef ROBOTDATA_HPP
+#define ROBOTDATA_HPP
 
-struct McuData{
+struct RobotData
+{
   const int wheelCount = 4;
   int refreshTime = 0;
   float transform[3] = {0};
@@ -15,4 +16,4 @@ struct McuData{
   int eStop[2] = {0};
 };
 
-#endif // MCUDATA_HPP
+#endif // ROBOTDATA_HPP

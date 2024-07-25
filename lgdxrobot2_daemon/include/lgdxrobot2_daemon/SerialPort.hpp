@@ -7,23 +7,24 @@
 #include <functional>
 #include <boost/asio.hpp>
 
-#include "McuData.hpp"
+#include "RobotData.hpp"
 
 class SerialPort
 {
   private:
     const int kWaitSecond = 3;
     std::string defaultPortName;
+    bool resetTransformOnConnected = false;
+    std::function<void(const RobotData &)> updateDeamon;
+    std::function<void(const char *, int)> log;
+
+    RobotData robotData;
     boost::asio::io_service serialService;
     boost::asio::serial_port serial;
     std::thread ioThread;
     boost::asio::io_service timerService;
     boost::asio::steady_timer timer;
     std::thread timerThread;
-    McuData mcuData;
-    std::function<void(const McuData &)> readCallback = nullptr;
-    std::function<void(const std::string &, int)> debugCallback = nullptr;
-    bool resetTransformOnConnected = false;
 
     // Read Buffer
     static const int kReadBufferSize = 2048;
@@ -57,7 +58,8 @@ class SerialPort
     void debug(const std::string &msg, int level);
   
   public:
-    SerialPort(std::function<void(const McuData &)> read, std::function<void(const std::string&, int)> debug);
+    SerialPort(std::function<void(const RobotData &)> updateDaemonCb,
+      std::function<void(const char *, int)> logCb);
     ~SerialPort();
 
     void start(const std::string &port);

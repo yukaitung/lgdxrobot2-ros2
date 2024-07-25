@@ -1,7 +1,31 @@
-#include <filesystem>
 #include <chrono>
+#include <cstdio>
+#include <filesystem>
 
 #include "SerialPort.hpp"
+
+SerialPort::SerialPort(std::function<void(const RobotData &)> updateDaemonCb,
+  std::function<void(const char *, int)> logCb) : 
+    serialService(), 
+    serial(serialService), 
+    timerService(), 
+    timer(timerService)
+{
+  updateDeamon = updateDaemonCb;
+  log = logCb;
+}
+
+SerialPort::~SerialPort()
+{
+  timerService.stop();
+  if(timerThread.joinable())
+    timerThread.join();
+  timer.cancel();
+  serialService.stop();
+  if(ioThread.joinable())
+    ioThread.join();
+  serial.close();
+}
 
 void SerialPort::startSerialIo()
 {
@@ -33,6 +57,7 @@ void SerialPort::startTimerIo()
 
 void SerialPort::autoSearch()
 {
+  char msg[100];
   std::string port;
   std::filesystem::path path {"/dev"};
   for(auto const &file : std::filesystem::directory_iterator(path))
@@ -41,15 +66,14 @@ void SerialPort::autoSearch()
     if(file.path().string().find("ttyACM") != std::string::npos)
     {
       port = file.path().string();
-      std::string msg = std::string("Serial device ") + port + std::string(" found");
-      debug(msg, 1);
+      sprintf(msg, "Serial device %s found.", port.c_str());
+      log(msg, 1);
       connect(port);
       return;
     }  
   }
-
-  std::string msg = std::string("No serial device found, try again in ") + std::to_string(kWaitSecond) + std::string(" seconds");
-  debug(msg, 1);
+  sprintf(msg, "No serial device found, try again in %s seconds.", port.c_str());
+  log(msg, 1);
   timer.expires_after(std::chrono::seconds(kWaitSecond));
   timer.async_wait(std::bind(&SerialPort::autoSearch, this));
   startTimerIo();
@@ -57,19 +81,20 @@ void SerialPort::autoSearch()
 
 void SerialPort::connect(const std::string &port)
 {
+  char msg[250];
   boost::system::error_code error;
   serial.open(port, error);
   if(error) 
   {
-    std::string msg = std::string("Serial connection throws an error: ") + std::string(error.message()) + std::string(", try again in ") + std::to_string(kWaitSecond) + std::string(" seconds.");
-    debug(msg, 3);
+    sprintf(msg, "Serial connection throws an error: %s, try again in %d seconds.", error.message().c_str(), kWaitSecond);
+    log(msg, 3);
     timer.expires_after(std::chrono::seconds(kWaitSecond));
     timer.async_wait(std::bind(&SerialPort::connect, this, port));
     startTimerIo();
     return;
   }
-  std::string msg = std::string("Serial port connected to ") + port;
-  debug(msg, 1);
+  sprintf(msg, "Serial port connected to %s", error.message().c_str(), port.c_str());
+  log(msg, 1);
   read();
   if(resetTransformOnConnected)
   {
@@ -116,8 +141,9 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
   }
   else 
   {
-    std::string msg = std::string("Serial read throws an error: ") + std::string(error.message());
-    debug(msg, 3);
+    char msg[100];
+    sprintf(msg, "Serial read throws an error: %s", error.message().c_str());
+    log(msg, 3);
     //serialService.stop();
     serial.close();
     reconnect();
@@ -127,66 +153,63 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
 void SerialPort::processReadData()
 {
   int index = 2;
-  mcuData.refreshTime = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1]);
+  robotData.refreshTime = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1]);
   index += 2;
   for(int i = 0; i < 3; i++)
   {
     uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    mcuData.transform[i] = uint32ToFloat(temp);
+    robotData.transform[i] = uint32ToFloat(temp);
     index += 4;
   }
   for(int i = 0; i < 3; i++)
   {
     uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    mcuData.forwardKinematic[i] = uint32ToFloat(temp);
+    robotData.forwardKinematic[i] = uint32ToFloat(temp);
     index += 4;
   }
-  for(int i = 0; i < mcuData.wheelCount; i++) 
+  for(int i = 0; i < robotData.wheelCount; i++) 
   {
     uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    mcuData.targetWheelVelocity[i] = uint32ToFloat(temp);
+    robotData.targetWheelVelocity[i] = uint32ToFloat(temp);
     index += 4;
   }
-  for(int i = 0; i < mcuData.wheelCount; i++) 
+  for(int i = 0; i < robotData.wheelCount; i++) 
   {
     uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    mcuData.measuredWheelVelocity[i] = uint32ToFloat(temp);
+    robotData.measuredWheelVelocity[i] = uint32ToFloat(temp);
     index += 4;
   }
-  for(int i = 0; i < mcuData.wheelCount; i++) 
+  for(int i = 0; i < robotData.wheelCount; i++) 
   {
     uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    mcuData.pConstant[i]  = uint32ToFloat(temp);
+    robotData.pConstant[i]  = uint32ToFloat(temp);
     index += 4;
   }
-  for(int i = 0; i < mcuData.wheelCount; i++) 
+  for(int i = 0; i < robotData.wheelCount; i++) 
   {
     uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    mcuData.iConstant[i]  = uint32ToFloat(temp);
+    robotData.iConstant[i]  = uint32ToFloat(temp);
     index += 4;
   }
-  for(int i = 0; i < mcuData.wheelCount; i++) 
+  for(int i = 0; i < robotData.wheelCount; i++) 
   {
     uint32_t temp = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    mcuData.dConstant[i]  = uint32ToFloat(temp);
+    robotData.dConstant[i]  = uint32ToFloat(temp);
     index += 4;
   }
   for(int i = 0; i < 2; i++) 
   {
-    mcuData.battery[i] = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1]) * 0.004;
+    robotData.battery[i] = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1]) * 0.004;
     index += 2;
   }
   uint8_t eStopByte = readBuffer[index];
   int compare = 128;
   for(int i = 0; i < 2; i++)
   {
-    mcuData.eStop[i] = (eStopByte & compare) >> (7 - i);
+    robotData.eStop[i] = (eStopByte & compare) >> (7 - i);
     compare = compare >> 1;
   }
-  if(readCallback)
-  {
-    readCallback(mcuData);
-  }
+  updateDeamon(robotData);
 }
 
 void SerialPort::resetTransformPrivate()
@@ -206,32 +229,11 @@ void SerialPort::writeHandler(boost::system::error_code error)
 { 
   if(error) 
   {
-    std::string msg = std::string("Serial write throws an error: ") + std::string(error.message());
-    debug(msg, 3);
+    char msg[100];
+    sprintf(msg, "Serial read throws an error: %s", error.message().c_str());
+    log(msg, 3);
     //reconnect();
   }
-}
-
-void SerialPort::debug(const std::string &msg, int level)
-{
-  if(debugCallback)
-    debugCallback(msg, level);
-}
-
-SerialPort::SerialPort(std::function<void(const McuData &)> read, std::function<void(const std::string&, int)> debug) : serialService(), serial(serialService), timerService(), timer(timerService), readCallback(read), debugCallback(debug)
-{
-}
-
-SerialPort::~SerialPort()
-{
-  timerService.stop();
-  if(timerThread.joinable())
-    timerThread.join();
-  timer.cancel();
-  serialService.stop();
-  if(ioThread.joinable())
-    ioThread.join();
-  serial.close();
 }
 
 void SerialPort::start(const std::string &port)
