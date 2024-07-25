@@ -32,8 +32,8 @@ class CloudAdapter
   public:
     CloudAdapter(const char *serverAddress,
       const char *rootCertPath,
-      const char *clientCertPath,
       const char *clientKeyPath,
+      const char *clientCertPath,
       std::function<void(void)> startNextExchangeCb,
       std::function<void(const RpcRespond *)> updateDaemonCb,
       std::function<void(const char *, int)> logCb,

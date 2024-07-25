@@ -14,18 +14,15 @@ class DaemonNode : public rclcpp::Node
 {
   private:
     // Cloud
+    bool robotIdle = true;
+    bool robotStopped = false;
+    lgdxrobot2_daemon::msg::AutoTask currentTask;
     std::unique_ptr<CloudAdapter> cloud;
     std::queue<CloudFunctions> cloudErrorQueue;
     rclcpp::TimerBase::SharedPtr cloudRetryTimer;
     rclcpp::TimerBase::SharedPtr cloudExchangeTimer;
-
-    // Auto Task
-    bool robotIdle = true;
-    bool robotStopped = false;
-    lgdxrobot2_daemon::msg::AutoTask currentTask;
-    rclcpp::Publisher<lgdxrobot2_daemon::msg::AutoTask>::SharedPtr autoTaskPublisher;
     rclcpp::TimerBase::SharedPtr autoTaskPublisherTimer;
-
+    rclcpp::Publisher<lgdxrobot2_daemon::msg::AutoTask>::SharedPtr autoTaskPublisher;
     rclcpp::Service<lgdxrobot2_daemon::srv::AutoTaskNext>::SharedPtr autoTaskNextService;
     rclcpp::Service<lgdxrobot2_daemon::srv::AutoTaskAbort>::SharedPtr autoTaskAbortService;
 

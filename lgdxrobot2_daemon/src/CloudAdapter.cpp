@@ -14,8 +14,8 @@
 
 CloudAdapter::CloudAdapter(const char *serverAddress,
   const char *rootCertPath,
-  const char *clientCertPath,
   const char *clientKeyPath,
+  const char *clientCertPath,
   std::function<void(void)> startNextExchangeCb,
   std::function<void(const RpcRespond *)> updateDaemonCb,
   std::function<void(const char *, int)> logCb,
@@ -26,8 +26,8 @@ CloudAdapter::CloudAdapter(const char *serverAddress,
   log = logCb;
   error = errorCb;
   std::string rootCert = readCert(rootCertPath);
-  std::string clientCert = readCert(clientCertPath);
   std::string clientKey = readCert(clientKeyPath);
+  std::string clientCert = readCert(clientCertPath);
   grpc::SslCredentialsOptions sslOptions = {rootCert, clientKey, clientCert};
 
   grpcChannel = grpc::CreateChannel(serverAddress, grpc::SslCredentials(sslOptions));
