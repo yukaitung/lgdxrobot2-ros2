@@ -12,24 +12,24 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
    */
   // Cloud
   auto cloudEnableParam = rcl_interfaces::msg::ParameterDescriptor{};
-  cloudEnableParam.description = "Enable LGDXRobot2 Cloud";
+  cloudEnableParam.description = "Enable LGDXRobot2 Cloud.";
   this->declare_parameter("cloud_enable", false, cloudEnableParam);
   auto cloudAddressParam = rcl_interfaces::msg::ParameterDescriptor{};
-  cloudAddressParam.description = "Address of LGDXRobot2 Cloud";
+  cloudAddressParam.description = "Address of LGDXRobot2 Cloud.";
   this->declare_parameter("cloud_address", "", cloudAddressParam);
   auto cloudRootCertParam = rcl_interfaces::msg::ParameterDescriptor{};
-  cloudRootCertParam.description = "Path to server root certificate, required in LGDXRobot2 Cloud";
+  cloudRootCertParam.description = "Path to server root certificate, required in LGDXRobot2 Cloud.";
   this->declare_parameter("cloud_root_cert", "", cloudRootCertParam);
   auto cloudClientKeyParam = rcl_interfaces::msg::ParameterDescriptor{};
-  cloudClientKeyParam.description = "Path to client's private key, required in LGDXRobot2 Cloud";
+  cloudClientKeyParam.description = "Path to client's private key, required in LGDXRobot2 Cloud.";
   this->declare_parameter("cloud_client_key", "", cloudClientKeyParam);
   auto cloudClientCertParam = rcl_interfaces::msg::ParameterDescriptor{};
-  cloudClientCertParam.description = "Path to client's certificate chain, required in LGDXRobot2 Cloud";
+  cloudClientCertParam.description = "Path to client's certificate chain, required in LGDXRobot2 Cloud.";
   this->declare_parameter("cloud_client_cert", "", cloudClientCertParam);
 
   // Serial Port
   auto serialPortEnableParam = rcl_interfaces::msg::ParameterDescriptor{};
-  serialPortEnableParam.description = "Enable serial port communication for MCU.";
+  serialPortEnableParam.description = "Enable serial port communication for LGDXRobot2 MCU.";
   this->declare_parameter("serial_port_enable", false, serialPortEnableParam);
   auto serialPortNameParam = rcl_interfaces::msg::ParameterDescriptor{};
   serialPortNameParam.description = "Default serial port name or (Linux only) perform automated search if the this is unspecified.";
@@ -47,7 +47,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
   serialPortTfParam.description = "Publishing tf information from the robot.";
   this->declare_parameter("serial_port_publish_tf", false, serialPortTfParam);
   auto serialPortBaseLinkParam = rcl_interfaces::msg::ParameterDescriptor{};
-  serialPortBaseLinkParam.description = "Custom base_link name.";
+  serialPortBaseLinkParam.description = "Custom `base_link` name.";
   this->declare_parameter("serial_port_base_link_name", "base_link", serialPortBaseLinkParam);
   auto serialPortExternalImuParam = rcl_interfaces::msg::ParameterDescriptor{};
   serialPortExternalImuParam.description = "Using external IMU for odometry calcuation.";

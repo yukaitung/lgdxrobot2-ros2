@@ -55,7 +55,7 @@ def launch_setup(context):
     package='robot_state_publisher',
     executable='robot_state_publisher',
     parameters=[{
-      'robot_description': Command(['xacro ', PathJoinSubstitution([package_dir, 'src', 'description', model])])
+      'robot_description': Command(['xacro ', PathJoinSubstitution([package_dir, 'description', model])])
     }],
     remappings=[
       ('/tf', namespace_str + '/tf'), 
