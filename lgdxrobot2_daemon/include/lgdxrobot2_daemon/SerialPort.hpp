@@ -31,10 +31,10 @@ class SerialPort
     char readBuffer[kReadBufferSize] = {0};
 
     // Util
-    uint32_t floatToUint32(float n){ return (uint32_t)(*(uint32_t*)&n); }
-    float uint32ToFloat(uint32_t n){ return (float)(*(float*)&n); }
-    uint32_t combineBytes(uint32_t a, uint32_t b, uint32_t c, uint32_t d) { return a << 24 | b << 16 | c << 8 | d; }
-    uint16_t combineBytes(uint16_t a, uint16_t b) { return a << 8 | b; }
+    inline uint32_t floatToUint32(float n){ return (uint32_t)(*(uint32_t*)&n); }
+    inline float uint32ToFloat(uint32_t n){ return (float)(*(float*)&n); }
+    inline uint32_t combineBytes(uint32_t a, uint32_t b, uint32_t c, uint32_t d) { return a << 24 | b << 16 | c << 8 | d; }
+    inline uint16_t combineBytes(uint16_t a, uint16_t b) { return a << 8 | b; }
 
     // io_service thread
     void startSerialIo();
@@ -51,14 +51,14 @@ class SerialPort
     void processReadData();
 
     // Write to MCU
-    void resetTransformPrivate();
+    void resetTransformInternal();
     void write(const std::vector<char> &data);
     void writeHandler(boost::system::error_code error);
-
-    void debug(const std::string &msg, int level);
   
   public:
-    SerialPort(std::function<void(const RobotData &)> updateDaemonCb,
+    SerialPort(const std::string port, // Pass by value
+      bool resetTransform,
+      std::function<void(const RobotData &)> updateDaemonCb,
       std::function<void(const char *, int)> logCb);
     ~SerialPort();
 

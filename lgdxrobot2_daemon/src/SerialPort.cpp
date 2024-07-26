@@ -4,15 +4,28 @@
 
 #include "SerialPort.hpp"
 
-SerialPort::SerialPort(std::function<void(const RobotData &)> updateDaemonCb,
+SerialPort::SerialPort(const std::string port,
+  bool resetTransform,
+  std::function<void(const RobotData &)> updateDaemonCb,
   std::function<void(const char *, int)> logCb) : 
     serialService(), 
     serial(serialService), 
     timerService(), 
     timer(timerService)
 {
+  resetTransformOnConnected = resetTransform;
   updateDeamon = updateDaemonCb;
   log = logCb;
+  if(port.empty())
+  {
+    // Perform auto search if no port specified
+    autoSearch();
+  }
+  else
+  {
+    defaultPortName = port;
+    connect(defaultPortName);
+  }
 }
 
 SerialPort::~SerialPort()
@@ -93,13 +106,13 @@ void SerialPort::connect(const std::string &port)
     startTimerIo();
     return;
   }
-  sprintf(msg, "Serial port connected to %s", error.message().c_str(), port.c_str());
+  sprintf(msg, "Serial port connected to %s", port.c_str());
   log(msg, 1);
   read();
   if(resetTransformOnConnected)
   {
     resetTransformOnConnected = false;
-    resetTransformPrivate();
+    resetTransformInternal();
   }
   startSerialIo();
 }
@@ -212,7 +225,7 @@ void SerialPort::processReadData()
   updateDeamon(robotData);
 }
 
-void SerialPort::resetTransformPrivate()
+void SerialPort::resetTransformInternal()
 {
   std::vector<char> ba(1);
   ba[0] = 'T';
@@ -232,21 +245,6 @@ void SerialPort::writeHandler(boost::system::error_code error)
     char msg[100];
     sprintf(msg, "Serial read throws an error: %s", error.message().c_str());
     log(msg, 3);
-    //reconnect();
-  }
-}
-
-void SerialPort::start(const std::string &port)
-{
-  if(port.empty())
-  {
-    // Perform auto search if no port specified
-    autoSearch();
-  }
-  else
-  {
-    defaultPortName = port;
-    connect(defaultPortName);
   }
 }
 
@@ -286,7 +284,7 @@ void SerialPort::setEstop(int enable)
 void SerialPort::resetTransform()
 {
   if(serial.is_open())
-    resetTransformPrivate();
+    resetTransformInternal();
   else
     resetTransformOnConnected = true;
 }
