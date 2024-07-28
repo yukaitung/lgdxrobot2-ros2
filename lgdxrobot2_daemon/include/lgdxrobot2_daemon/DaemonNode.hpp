@@ -6,11 +6,14 @@
 #include "CloudAdapter.hpp"
 #include "SerialPort.hpp"
 
-#include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/twist.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav2_msgs/action/navigate_through_poses.hpp"
 #include "nav_msgs/msg/odometry.hpp"
-#include "sensor_msgs/msg/joy.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
 #include "sensor_msgs/msg/imu.hpp"
+#include "sensor_msgs/msg/joy.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 
 #include "lgdxrobot2_daemon/msg/auto_task.hpp"
@@ -32,6 +35,7 @@ class DaemonNode : public rclcpp::Node
     rclcpp::Publisher<lgdxrobot2_daemon::msg::AutoTask>::SharedPtr autoTaskPublisher;
     rclcpp::Service<lgdxrobot2_daemon::srv::AutoTaskNext>::SharedPtr autoTaskNextService;
     rclcpp::Service<lgdxrobot2_daemon::srv::AutoTaskAbort>::SharedPtr autoTaskAbortService;
+    rclcpp_action::Client<nav2_msgs::action::NavigateThroughPoses>::SharedPtr navThroughPosesActionClient;
 
     // Serial Port
     std::unique_ptr<SerialPort> serialPort;
@@ -54,6 +58,12 @@ class DaemonNode : public rclcpp::Node
     void joyCallback(const sensor_msgs::msg::Joy &msg);
     void imuCallback(const sensor_msgs::msg::Imu &msg);
     void logCallback(const char *msg, int level);
+
+    void navThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> &poses);
+    void navThroughPosesGoalResponse(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr &goalHandle);
+    void navThroughPosesFeedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr, 
+      const std::shared_ptr<const nav2_msgs::action::NavigateThroughPoses::Feedback> feedback);
+    void navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::WrappedResult &result);
 
     void cloudRetry();
     void cloudGreet();

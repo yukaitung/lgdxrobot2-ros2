@@ -50,14 +50,16 @@ rosidl_get_typesupport_target(cpp_typesupport_target
 # Node
 #
 add_subdirectory(../third_party/hwinfo hwinfo)
+find_package(Boost REQUIRED)
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
+find_package(nav2_msgs REQUIRED)
+find_package(nav2_util REQUIRED)
+find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
-find_package(Boost REQUIRED)
 
 include_directories(include/${PROJECT_NAME})
 
@@ -74,7 +76,7 @@ target_link_libraries(${EXECUTABLE_NAME}
   Boost::headers
 )
 ament_target_dependencies(${EXECUTABLE_NAME}  
-  rclcpp std_msgs geometry_msgs nav_msgs sensor_msgs tf2_geometry_msgs
+  rclcpp std_msgs geometry_msgs nav_msgs sensor_msgs tf2_geometry_msgs nav2_msgs nav2_util
 )
 
 install(TARGETS ${EXECUTABLE_NAME} DESTINATION lib/${PROJECT_NAME})

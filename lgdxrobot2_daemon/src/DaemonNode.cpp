@@ -1,9 +1,11 @@
 #include <random>
+#include <vector>
 
 #include "DaemonNode.hpp"
 
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
+#include "nav2_util/geometry_utils.hpp"
 
 DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
 {
@@ -86,6 +88,26 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
           currentTask.task_progress_id = task.taskprogressid();
           currentTask.task_progress_name = task.taskprogressname();
           currentTask.next_token = task.nexttoken();
+
+          if (task.waypoints_size())
+          {
+            RCLCPP_INFO(this->get_logger(), "This AutoTask has %d waypoint", task.waypoints_size());
+            std::vector<geometry_msgs::msg::PoseStamped> poses;
+            auto pose = geometry_msgs::msg::PoseStamped();
+            pose.header.stamp = rclcpp::Clock().now();
+            pose.header.frame_id = "map";
+            pose.pose.position.z = 0.0;
+            for (int i = 0; i < task.waypoints_size(); i++)
+            {
+              const RpcRobotDof waypoint = task.waypoints(i);
+              pose.pose.position.x = waypoint.x();
+              pose.pose.position.y = waypoint.y();
+              pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(waypoint.w());
+              poses.push_back(pose);
+            }
+            navThroughPoses(poses);
+          }
+
           robotIdle = false;
         }
       },
@@ -149,6 +171,10 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
           response->success = false;
         }
       });
+
+    navThroughPosesActionClient = rclcpp_action::create_client<nav2_msgs::action::NavigateThroughPoses>(
+      this,
+      "navigate_through_poses");
   }
 
   bool serialPortEnable = this->get_parameter("serial_port_enable").as_bool();
@@ -289,6 +315,60 @@ void DaemonNode::cloudAutoTaskAbort()
     token.set_token(currentTask.next_token);
     cloud->autoTaskAbort(token);
     robotIdle = true;
+  }
+}
+
+void DaemonNode::navThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> &poses)
+{
+  using namespace std::placeholders;
+
+  if (!navThroughPosesActionClient->wait_for_action_server())
+  {
+    RCLCPP_ERROR(this->get_logger(), "navThroughPoses ActionClient not ready.");
+    return;
+  }
+
+  auto goal = nav2_msgs::action::NavigateThroughPoses::Goal();
+  goal.poses = poses;
+
+  auto goalOption = rclcpp_action::Client<nav2_msgs::action::NavigateThroughPoses>::SendGoalOptions();
+  goalOption.goal_response_callback = std::bind(&DaemonNode::navThroughPosesGoalResponse, this, _1);
+  goalOption.feedback_callback = std::bind(&DaemonNode::navThroughPosesFeedback, this, _1, _2);
+  goalOption.result_callback = std::bind(&DaemonNode::navThroughPosesResult, this, _1);
+  navThroughPosesActionClient->async_send_goal(goal, goalOption);
+}
+
+void DaemonNode::navThroughPosesGoalResponse(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr &goalHandle)
+{
+  if (!goalHandle) 
+  {
+    RCLCPP_ERROR(this->get_logger(), "navThroughPoses goal was rejected by server.");
+  }
+}
+
+void DaemonNode::navThroughPosesFeedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr, 
+  const std::shared_ptr<const nav2_msgs::action::NavigateThroughPoses::Feedback> feedback)
+{
+  RCLCPP_INFO(this->get_logger(), "navThroughPoses Feedback: ETA: %fs, Distance Remaining: %fm", 
+    rclcpp::Duration(feedback->estimated_time_remaining).seconds(),
+    feedback->distance_remaining);
+}
+
+void DaemonNode::navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::WrappedResult &result)
+{
+  switch (result.code) 
+  {
+    case rclcpp_action::ResultCode::SUCCEEDED:
+      break;
+    case rclcpp_action::ResultCode::ABORTED:
+      RCLCPP_ERROR(this->get_logger(), "navThroughPoses Goal was aborted");
+      return;
+    case rclcpp_action::ResultCode::CANCELED:
+      RCLCPP_ERROR(this->get_logger(), "navThroughPoses Goal was canceled");
+      return;
+    default:
+      RCLCPP_ERROR(this->get_logger(), "navThroughPoses Unknown result code");
+      return;
   }
 }
 
