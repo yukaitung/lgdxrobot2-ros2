@@ -235,10 +235,11 @@ void DaemonNode::cloudUpdate(const RpcRespond *respond)
     currentTask.task_progress_id = task.taskprogressid();
     currentTask.task_progress_name = task.taskprogressname();
     currentTask.next_token = task.nexttoken();
+    RCLCPP_INFO(this->get_logger(), "Received AutoTask Id: %d, Progress: %d", task.taskid(), task.taskprogressid());
 
     if (task.waypoints_size())
     {
-      RCLCPP_INFO(this->get_logger(), "Received AutoTask %d with %d waypoint(s).", task.taskid(), task.waypoints_size());
+      RCLCPP_INFO(this->get_logger(), "This task has %d waypoint(s).", task.waypoints_size());
       std::vector<geometry_msgs::msg::PoseStamped> poses;
       auto pose = geometry_msgs::msg::PoseStamped();
       pose.header.stamp = rclcpp::Clock().now();
@@ -305,6 +306,7 @@ void DaemonNode::cloudAutoTaskNext()
 {
   if (!currentTask.next_token.empty())
   {
+    RCLCPP_INFO(this->get_logger(), "AutoTask will be done.");
     RpcNextToken token;
     token.set_taskid(currentTask.task_id);
     token.set_token(currentTask.next_token);
@@ -317,6 +319,7 @@ void DaemonNode::cloudAutoTaskAbort()
 {
   if (!currentTask.next_token.empty())
   {
+    RCLCPP_INFO(this->get_logger(), "AutoTask will be abort.");
     RpcNextToken token;
     token.set_taskid(currentTask.task_id);
     token.set_token(currentTask.next_token);
@@ -343,7 +346,6 @@ void DaemonNode::navThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> &p
   goalOption.feedback_callback = std::bind(&DaemonNode::navThroughPosesFeedback, this, _1, _2);
   goalOption.result_callback = std::bind(&DaemonNode::navThroughPosesResult, this, _1);
   navThroughPosesActionClient->async_send_goal(goal, goalOption);
-  RCLCPP_ERROR(this->get_logger(), "test123");
 }
 
 void DaemonNode::navThroughPosesGoalResponse(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr &goalHandle)
