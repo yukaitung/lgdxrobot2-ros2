@@ -66,6 +66,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
   bool cloudEnable = this->get_parameter("cloud_enable").as_bool();
   if (cloudEnable)
   {
+    // Cloud
     std::string cloudAddress = this->get_parameter("cloud_address").as_string();
     std::string root = this->get_parameter("cloud_root_cert").as_string();
     std::string key = this->get_parameter("cloud_client_key").as_string();
@@ -80,36 +81,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       },
       [this](const RpcRespond *respond)
       {
-        if (respond->has_task())
-        {
-          RpcAutoTask task = respond->task();
-          currentTask.task_id = task.taskid();
-          currentTask.task_name = task.taskname();
-          currentTask.task_progress_id = task.taskprogressid();
-          currentTask.task_progress_name = task.taskprogressname();
-          currentTask.next_token = task.nexttoken();
-
-          if (task.waypoints_size())
-          {
-            RCLCPP_INFO(this->get_logger(), "This AutoTask has %d waypoint", task.waypoints_size());
-            std::vector<geometry_msgs::msg::PoseStamped> poses;
-            auto pose = geometry_msgs::msg::PoseStamped();
-            pose.header.stamp = rclcpp::Clock().now();
-            pose.header.frame_id = "map";
-            pose.pose.position.z = 0.0;
-            for (int i = 0; i < task.waypoints_size(); i++)
-            {
-              const RpcRobotDof waypoint = task.waypoints(i);
-              pose.pose.position.x = waypoint.x();
-              pose.pose.position.y = waypoint.y();
-              pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(waypoint.w());
-              poses.push_back(pose);
-            }
-            navThroughPoses(poses);
-          }
-
-          robotIdle = false;
-        }
+        cloudUpdate(respond);
       },
       [this](const char *message, int level)
       {
@@ -126,7 +98,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(1000, 6000);
     int cloudRetryWait = dis(gen);
-    RCLCPP_INFO(this->get_logger(), "LGDXRobot2 Cloud is enabled, the break for reconnection to the cloud is %d ms", cloudRetryWait);
+    RCLCPP_INFO(this->get_logger(), "LGDXRobot2 Cloud is enabled, the break for reconnection to the cloud is %d ms.", cloudRetryWait);
     cloudRetryTimer = this->create_wall_timer(std::chrono::milliseconds(cloudRetryWait), 
       std::bind(&DaemonNode::cloudRetry, this));
     cloudRetryTimer->cancel();
@@ -177,6 +149,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       "navigate_through_poses");
   }
 
+  // Serial Port
   bool serialPortEnable = this->get_parameter("serial_port_enable").as_bool();
   if (serialPortEnable)
   {
@@ -252,6 +225,40 @@ void DaemonNode::logCallback(const char *msg, int level)
   }
 }
 
+void DaemonNode::cloudUpdate(const RpcRespond *respond)
+{
+  if (respond->has_task())
+  {
+    RpcAutoTask task = respond->task();
+    currentTask.task_id = task.taskid();
+    currentTask.task_name = task.taskname();
+    currentTask.task_progress_id = task.taskprogressid();
+    currentTask.task_progress_name = task.taskprogressname();
+    currentTask.next_token = task.nexttoken();
+
+    if (task.waypoints_size())
+    {
+      RCLCPP_INFO(this->get_logger(), "Received AutoTask %d with %d waypoint(s).", task.taskid(), task.waypoints_size());
+      std::vector<geometry_msgs::msg::PoseStamped> poses;
+      auto pose = geometry_msgs::msg::PoseStamped();
+      pose.header.stamp = rclcpp::Clock().now();
+      pose.header.frame_id = "map";
+      pose.pose.position.z = 0.0;
+      for (int i = 0; i < task.waypoints_size(); i++)
+      {
+        const RpcRobotDof waypoint = task.waypoints(i);
+        pose.pose.position.x = waypoint.x();
+        pose.pose.position.y = waypoint.y();
+        pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(waypoint.w());
+        poses.push_back(pose);
+      }
+      navThroughPoses(poses);
+    }
+
+    robotIdle = false;
+  }
+}
+
 void DaemonNode::cloudRetry()
 {
   cloudRetryTimer->cancel();
@@ -324,7 +331,7 @@ void DaemonNode::navThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> &p
 
   if (!navThroughPosesActionClient->wait_for_action_server())
   {
-    RCLCPP_ERROR(this->get_logger(), "navThroughPoses ActionClient not ready.");
+    RCLCPP_ERROR(this->get_logger(), "NAV2 stack is not ready.");
     return;
   }
 
@@ -336,6 +343,7 @@ void DaemonNode::navThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> &p
   goalOption.feedback_callback = std::bind(&DaemonNode::navThroughPosesFeedback, this, _1, _2);
   goalOption.result_callback = std::bind(&DaemonNode::navThroughPosesResult, this, _1);
   navThroughPosesActionClient->async_send_goal(goal, goalOption);
+  RCLCPP_ERROR(this->get_logger(), "test123");
 }
 
 void DaemonNode::navThroughPosesGoalResponse(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr &goalHandle)
@@ -349,9 +357,9 @@ void DaemonNode::navThroughPosesGoalResponse(const rclcpp_action::ClientGoalHand
 void DaemonNode::navThroughPosesFeedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr, 
   const std::shared_ptr<const nav2_msgs::action::NavigateThroughPoses::Feedback> feedback)
 {
-  RCLCPP_INFO(this->get_logger(), "navThroughPoses Feedback: ETA: %fs, Distance Remaining: %fm", 
+  /*RCLCPP_INFO(this->get_logger(), "navThroughPoses Feedback: ETA: %fs, Distance Remaining: %fm", 
     rclcpp::Duration(feedback->estimated_time_remaining).seconds(),
-    feedback->distance_remaining);
+    feedback->distance_remaining);*/
 }
 
 void DaemonNode::navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::WrappedResult &result)
@@ -359,14 +367,18 @@ void DaemonNode::navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav
   switch (result.code) 
   {
     case rclcpp_action::ResultCode::SUCCEEDED:
+      cloudAutoTaskNext();
       break;
     case rclcpp_action::ResultCode::ABORTED:
+      cloudAutoTaskAbort();
       RCLCPP_ERROR(this->get_logger(), "navThroughPoses Goal was aborted");
       return;
     case rclcpp_action::ResultCode::CANCELED:
+      cloudAutoTaskAbort();
       RCLCPP_ERROR(this->get_logger(), "navThroughPoses Goal was canceled");
       return;
     default:
+      cloudAutoTaskAbort();
       RCLCPP_ERROR(this->get_logger(), "navThroughPoses Unknown result code");
       return;
   }

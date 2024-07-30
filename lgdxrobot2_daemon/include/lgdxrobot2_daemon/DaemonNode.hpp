@@ -65,6 +65,7 @@ class DaemonNode : public rclcpp::Node
       const std::shared_ptr<const nav2_msgs::action::NavigateThroughPoses::Feedback> feedback);
     void navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::WrappedResult &result);
 
+    void cloudUpdate(const RpcRespond *respond);
     void cloudRetry();
     void cloudGreet();
     void cloudExchange();
