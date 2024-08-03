@@ -39,7 +39,7 @@ class CloudAdapter
       std::function<void(const char *, int)> logCb,
       std::function<void(CloudFunctions)> errorCb);
     void greet();
-    void exchange(bool getTask);
+    void exchange(bool getTask, RpcRobotDof &robotPosition, RpcAutoTaskNavProgress &navProgress);
     void autoTaskNext(RpcNextToken &token);
     void autoTaskAbort(RpcNextToken &token);
 };

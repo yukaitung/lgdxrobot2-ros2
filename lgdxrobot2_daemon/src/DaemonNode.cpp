@@ -147,6 +147,9 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
     navThroughPosesActionClient = rclcpp_action::create_client<nav2_msgs::action::NavigateThroughPoses>(
       this,
       "navigate_through_poses");
+
+    tfBuffer = std::make_unique<tf2_ros::Buffer>(this->get_clock());
+    tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);
   }
 
   // Serial Port
@@ -297,8 +300,29 @@ void DaemonNode::cloudExchange()
     cloudExchangeTimer->cancel();
 
   bool getTask = robotIdle == true && robotStopped == false;
+  try
+  {
+    geometry_msgs::msg::TransformStamped t;
+    t = tfBuffer->lookupTransform("base_link", "map", tf2::TimePointZero);
 
-  cloud->exchange(getTask);
+    tf2::Quaternion q(
+      t.transform.rotation.x,
+      t.transform.rotation.y,
+      t.transform.rotation.z,
+      t.transform.rotation.w);
+    tf2::Matrix3x3 m(q);
+    double roll, pitch, yaw;
+    m.getRPY(roll, pitch, yaw);
+
+    robotPosition.set_x(-(t.transform.translation.x * cos(yaw) + t.transform.translation.y * sin(yaw)));
+    robotPosition.set_y(-(-t.transform.translation.x * sin(yaw) + t.transform.translation.y * cos(yaw)));
+    robotPosition.set_w(yaw);
+  }
+  catch (const tf2::TransformException & ex) 
+  {
+  }
+
+  cloud->exchange(getTask, robotPosition, navProgress);
   // Don't reset the cloudExchangeTimer here
 }
 
@@ -309,7 +333,7 @@ void DaemonNode::cloudAutoTaskNext()
     RCLCPP_INFO(this->get_logger(), "AutoTask will be done.");
     RpcNextToken token;
     token.set_taskid(currentTask.task_id);
-    token.set_token(currentTask.next_token);
+    token.set_nexttoken(currentTask.next_token);
     cloud->autoTaskNext(token);
     robotIdle = true;
   }
@@ -322,7 +346,7 @@ void DaemonNode::cloudAutoTaskAbort()
     RCLCPP_INFO(this->get_logger(), "AutoTask will be abort.");
     RpcNextToken token;
     token.set_taskid(currentTask.task_id);
-    token.set_token(currentTask.next_token);
+    token.set_nexttoken(currentTask.next_token);
     cloud->autoTaskAbort(token);
     robotIdle = true;
   }
@@ -359,9 +383,10 @@ void DaemonNode::navThroughPosesGoalResponse(const rclcpp_action::ClientGoalHand
 void DaemonNode::navThroughPosesFeedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr, 
   const std::shared_ptr<const nav2_msgs::action::NavigateThroughPoses::Feedback> feedback)
 {
-  /*RCLCPP_INFO(this->get_logger(), "navThroughPoses Feedback: ETA: %fs, Distance Remaining: %fm", 
-    rclcpp::Duration(feedback->estimated_time_remaining).seconds(),
-    feedback->distance_remaining);*/
+  navProgress.set_eta(rclcpp::Duration(feedback->estimated_time_remaining).seconds());
+  navProgress.set_recoveries(feedback->number_of_recoveries);
+  navProgress.set_distanceremaining(feedback->distance_remaining);
+  navProgress.set_waypointsremaining(feedback->number_of_poses_remaining);
 }
 
 void DaemonNode::navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::WrappedResult &result)
@@ -372,16 +397,9 @@ void DaemonNode::navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav
       cloudAutoTaskNext();
       break;
     case rclcpp_action::ResultCode::ABORTED:
-      cloudAutoTaskAbort();
-      RCLCPP_ERROR(this->get_logger(), "navThroughPoses Goal was aborted");
-      return;
     case rclcpp_action::ResultCode::CANCELED:
-      cloudAutoTaskAbort();
-      RCLCPP_ERROR(this->get_logger(), "navThroughPoses Goal was canceled");
-      return;
     default:
       cloudAutoTaskAbort();
-      RCLCPP_ERROR(this->get_logger(), "navThroughPoses Unknown result code");
       return;
   }
 }

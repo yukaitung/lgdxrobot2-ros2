@@ -8,6 +8,7 @@
 
 #include "geometry_msgs/msg/twist.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
 #include "nav2_msgs/action/navigate_through_poses.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -15,6 +16,8 @@
 #include "sensor_msgs/msg/imu.hpp"
 #include "sensor_msgs/msg/joy.hpp"
 #include "tf2_ros/transform_broadcaster.h"
+#include "tf2_ros/transform_listener.h"
+#include "tf2_ros/buffer.h"
 
 #include "lgdxrobot2_daemon/msg/auto_task.hpp"
 #include "lgdxrobot2_daemon/srv/auto_task_next.hpp"
@@ -36,6 +39,10 @@ class DaemonNode : public rclcpp::Node
     rclcpp::Service<lgdxrobot2_daemon::srv::AutoTaskNext>::SharedPtr autoTaskNextService;
     rclcpp::Service<lgdxrobot2_daemon::srv::AutoTaskAbort>::SharedPtr autoTaskAbortService;
     rclcpp_action::Client<nav2_msgs::action::NavigateThroughPoses>::SharedPtr navThroughPosesActionClient;
+    std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
+    std::unique_ptr<tf2_ros::Buffer> tfBuffer;
+    RpcRobotDof robotPosition;
+    RpcAutoTaskNavProgress navProgress;
 
     // Serial Port
     std::unique_ptr<SerialPort> serialPort;

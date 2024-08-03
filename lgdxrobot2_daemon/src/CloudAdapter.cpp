@@ -104,7 +104,7 @@ void CloudAdapter::greet()
   });
 }
 
-void CloudAdapter::exchange(bool getTask)
+void CloudAdapter::exchange(bool getTask, RpcRobotDof &robotPosition, RpcAutoTaskNavProgress &navProgress)
 {
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
@@ -117,15 +117,11 @@ void CloudAdapter::exchange(bool getTask)
   request->add_emergencystopsenabled(true);
   request->set_gettask(getTask);
   RpcRobotDof *position = new RpcRobotDof();
-  position->set_x(0);
-  position->set_y(0);
-  position->set_w(0);
+  *position = robotPosition;
   request->set_allocated_position(position);
-  RpcRobotDof *velocity = new RpcRobotDof();
-  velocity->set_x(0);
-  velocity->set_y(0);
-  velocity->set_w(0);
-  request->set_allocated_velocity(velocity);
+  RpcAutoTaskNavProgress *progress = new RpcAutoTaskNavProgress();
+  *progress = navProgress;
+  request->set_allocated_navprogress(progress);
 
   RpcRespond *respond = new RpcRespond();
 
