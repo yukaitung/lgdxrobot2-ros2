@@ -5,6 +5,7 @@
 
 #include "CloudAdapter.hpp"
 #include "SerialPort.hpp"
+#include "RobotStatus.hpp"
 
 #include "geometry_msgs/msg/twist.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
@@ -40,7 +41,9 @@ class DaemonNode : public rclcpp::Node
     std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tfBuffer;
     RobotClientsDof robotPosition;
+    RobotClientsRobotCriticalStatus criticalStatus;
     RobotClientsAutoTaskNavProgress navProgress;
+    RobotStatus robotStatus;
 
     // Serial Port
     std::unique_ptr<SerialPort> serialPort;

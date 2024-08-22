@@ -1,4 +1,4 @@
-#include "CloudAdapter.hpp"
+#include "lgdxrobot2_daemon/CloudAdapter.hpp"
 
 #include <cstdio>
 #include <fstream>
@@ -32,6 +32,7 @@ CloudAdapter::CloudAdapter(const char *serverAddress,
 
   grpcChannel = grpc::CreateChannel(serverAddress, grpc::SslCredentials(sslOptions));
   grpcStub = RobotClientsService::NewStub(grpcChannel);
+  accessToken = grpc::AccessTokenCredentials("");
 }
 
 std::string CloudAdapter::readCert(const char *filename)
@@ -129,7 +130,7 @@ void CloudAdapter::greet()
   {
     if (status.ok()) 
     {
-      accessToken = respond->accesstoken();
+      accessToken = grpc::AccessTokenCredentials(respond->accesstoken());
       log("Connect to the cloud, start data exchange.", 1);
       startNextExchange();
     }
@@ -153,6 +154,7 @@ void CloudAdapter::exchange(RobotClientsRobotStatus robotStatus,
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
   context->set_deadline(deadline);
+  context->set_credentials(accessToken);
 
   RobotClientsExchange *request = new RobotClientsExchange();
   request->set_robotstatus(robotStatus);
@@ -198,6 +200,7 @@ void CloudAdapter::autoTaskNext(RobotClientsNextToken &token)
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
   context->set_deadline(deadline);
+  context->set_credentials(accessToken);
 
   RobotClientsNextToken *request = new RobotClientsNextToken();
   *request = token;
@@ -226,6 +229,7 @@ void CloudAdapter::autoTaskAbort(RobotClientsNextToken &token)
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
   context->set_deadline(deadline);
+  context->set_credentials(accessToken);
 
   RobotClientsNextToken *request = new RobotClientsNextToken();
   *request = token;

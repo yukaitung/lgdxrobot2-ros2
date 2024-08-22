@@ -1,7 +1,7 @@
 #include <random>
 #include <vector>
 
-#include "DaemonNode.hpp"
+#include "lgdxrobot2_daemon/DaemonNode.hpp"
 
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
@@ -77,18 +77,22 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       cert.c_str(), 
       [this]()
       {
+        // startNextExchangeCb
         cloudExchangeTimer->reset();
       },
       [this](const RobotClientsRespond *respond)
       {
+        // updateDaemonCb
         cloudUpdate(respond);
       },
       [this](const char *message, int level)
       {
+        // logCb
         logCallback(message, level);
       },
       [this](CloudFunctions function)
       {
+        // errorCb
         cloudErrorQueue.push(function);
         if (cloudRetryTimer->is_canceled())
           cloudRetryTimer->reset();
@@ -318,8 +322,13 @@ void DaemonNode::cloudExchange()
   catch (const tf2::TransformException & ex) 
   {
   }
+  std::vector<double> batteries = std::vector<double>(11.59, 11.45);
 
-  //cloud->exchange(getTask, robotPosition, navProgress);
+  cloud->exchange(robotStatus.getRobotStatus(),
+    criticalStatus,
+    batteries,
+    robotPosition,
+    navProgress);
   // Don't reset the cloudExchangeTimer here
 }
 

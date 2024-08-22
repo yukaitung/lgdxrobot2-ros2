@@ -25,7 +25,7 @@ class CloudAdapter
     std::function<void(const RobotClientsRespond *)> updateDeamon;
     std::function<void(const char *, int)> log;
     std::function<void(CloudFunctions)> error;
-    std::string accessToken;
+    std::shared_ptr<grpc::CallCredentials> accessToken;
     RobotClientsRobotCommand robotCommand;
 
     std::string readCert(const char *filename);

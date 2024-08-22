@@ -61,13 +61,14 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
-include_directories(include/${PROJECT_NAME})
+include_directories(include)
 
 add_executable(${EXECUTABLE_NAME} 
   src/CloudAdapter.cpp
   src/DaemonNode.cpp
   src/main.cpp 
   src/SerialPort.cpp
+  src/RobotStatus.cpp
 )
 target_link_libraries(${EXECUTABLE_NAME} 
   ${PROTO_NAME}

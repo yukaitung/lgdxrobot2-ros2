@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <filesystem>
 
-#include "SerialPort.hpp"
+#include "lgdxrobot2_daemon/SerialPort.hpp"
 
 SerialPort::SerialPort(const std::string port,
   bool resetTransform,
