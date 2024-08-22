@@ -186,7 +186,7 @@ void CloudAdapter::exchange(RobotClientsRobotStatus robotStatus,
     }
     else 
     {
-      log("CloudAdapter::exchange() failed.", 3);
+      log("Data exchange failed.", 3);
       error(CloudFunctions::Exchange);
     }
     delete context;
@@ -215,7 +215,7 @@ void CloudAdapter::autoTaskNext(RobotClientsNextToken &token)
     }
     else 
     {
-      log("CloudAdapter::autoTaskNext() failed.", 3);
+      log("AutoTaskNext failed.", 3);
       error(CloudFunctions::Exchange);
     }
     delete context;
@@ -244,7 +244,7 @@ void CloudAdapter::autoTaskAbort(RobotClientsNextToken &token)
     }
     else 
     {
-      log("CloudAdapter::autoTaskAbort() failed.", 3);
+      log("AutoTaskAbort failed.", 3);
       error(CloudFunctions::AutoTaskAbort);
     }
     delete context;

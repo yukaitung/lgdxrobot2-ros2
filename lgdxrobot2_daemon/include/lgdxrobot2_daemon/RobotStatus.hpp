@@ -10,6 +10,8 @@ class RobotStatus
     RobotClientsRobotStatus previousRobotStatus = RobotClientsRobotStatus::Offline;
     bool stopTaskAssigementFlag = false;
 
+    void changeStatus(RobotClientsRobotStatus newState);
+
   public:
     RobotClientsRobotStatus getRobotStatus();
 

@@ -78,6 +78,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       [this]()
       {
         // startNextExchangeCb
+        robotStatus.connnectedCloud();
         cloudExchangeTimer->reset();
       },
       [this](const RobotClientsRespond *respond)
@@ -262,6 +263,11 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
       }
       navThroughPoses(poses);
     }
+    robotStatus.taskAssigned();
+  }
+  else
+  {
+    robotStatus.taskCompleted();
   }
 }
 

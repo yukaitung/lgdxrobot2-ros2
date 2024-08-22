@@ -5,81 +5,107 @@ RobotClientsRobotStatus RobotStatus::getRobotStatus()
   return robotStatus;
 }
 
+void RobotStatus::changeStatus(RobotClientsRobotStatus newState)
+{
+  switch (newState)
+  {
+    case RobotClientsRobotStatus::Idle:
+      if (stopTaskAssigementFlag) 
+      {
+        robotStatus = RobotClientsRobotStatus::Paused;
+        return;
+        // Exit Function
+      }
+      break;
+    default:
+      break;
+  }
+  robotStatus = newState;
+}
+
 void RobotStatus::connnectedCloud()
 {
-  robotStatus = RobotClientsRobotStatus::Idle;
+  if (robotStatus == RobotClientsRobotStatus::Offline)
+    changeStatus(RobotClientsRobotStatus::Idle);
 }
 
 void RobotStatus::startCharging()
 {
-  robotStatus = RobotClientsRobotStatus::Charging;
+  if (robotStatus == RobotClientsRobotStatus::Idle)
+    changeStatus(RobotClientsRobotStatus::Charging);
 }
 
 void RobotStatus::chargingCompleted()
 {
-  robotStatus = RobotClientsRobotStatus::Idle;
+  if (robotStatus == RobotClientsRobotStatus::Charging)
+    changeStatus(RobotClientsRobotStatus::Idle);
 }
 
 void RobotStatus::taskAssigned()
 {
-  robotStatus = RobotClientsRobotStatus::Running;
+  if (robotStatus == RobotClientsRobotStatus::Idle)
+    changeStatus(RobotClientsRobotStatus::Running);
 }
 
 void RobotStatus::taskCompleted()
 {
-  if (stopTaskAssigementFlag)
-  {
-    robotStatus = RobotClientsRobotStatus::Paused;
-  }
-  else
-  {
-    robotStatus = RobotClientsRobotStatus::Idle;
-  }
+  if (robotStatus == RobotClientsRobotStatus::Running)
+    changeStatus(RobotClientsRobotStatus::Idle);
 }
 
 void RobotStatus::navigationStuck()
 {
-  robotStatus = RobotClientsRobotStatus::Stuck;
+  if (robotStatus == RobotClientsRobotStatus::Running)
+    changeStatus(RobotClientsRobotStatus::Stuck);
 }
 
 void RobotStatus::navigationCleared()
 {
-  robotStatus = RobotClientsRobotStatus::Running;
+  if (robotStatus == RobotClientsRobotStatus::Stuck)
+    changeStatus(RobotClientsRobotStatus::Running);
 }
 
 void RobotStatus::stopTaskAssigement()
 {
+  stopTaskAssigementFlag = true;
   if (robotStatus != RobotClientsRobotStatus::Idle)
   {
-    stopTaskAssigementFlag = true;
+    // Delay this state if the robot is running
     return;
   }
-  robotStatus = RobotClientsRobotStatus::Paused;
+  changeStatus(RobotClientsRobotStatus::Paused);
 }
 
 void RobotStatus::resumeTaskAssigement()
 {
-  robotStatus = RobotClientsRobotStatus::Idle;
   stopTaskAssigementFlag = false;
+  if (robotStatus == RobotClientsRobotStatus::Paused)
+  {
+    // Change state immediately if the robot is paused
+    changeStatus(RobotClientsRobotStatus::Idle);
+  }
 }
 
 void RobotStatus::taskAborting()
 {
-  robotStatus = RobotClientsRobotStatus::Aborting;
+  if (robotStatus == RobotClientsRobotStatus::Running)
+    changeStatus(RobotClientsRobotStatus::Aborting);
 }
 
 void RobotStatus::taskAborted()
 {
-  robotStatus = RobotClientsRobotStatus::Idle;
+  if (robotStatus == RobotClientsRobotStatus::Aborting)
+    changeStatus(RobotClientsRobotStatus::Idle);
 }
 
 void RobotStatus::enterCritical()
 {
   previousRobotStatus = robotStatus;
-  robotStatus = RobotClientsRobotStatus::Critical;
+  changeStatus(RobotClientsRobotStatus::Critical);
 }
 
 void RobotStatus::exitCritical()
 {
-  robotStatus = previousRobotStatus;
+  if (robotStatus == RobotClientsRobotStatus::Critical)
+    changeStatus(previousRobotStatus);
 }
