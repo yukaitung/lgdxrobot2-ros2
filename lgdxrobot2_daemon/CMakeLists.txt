@@ -17,7 +17,7 @@ find_package(protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
 add_library(${PROTO_NAME} 
-  proto/RobotClientService.proto
+  proto/RobotClientsService.proto
 )
 target_link_libraries(${PROTO_NAME} 
   PUBLIC

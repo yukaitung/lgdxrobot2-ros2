@@ -27,8 +27,6 @@ class DaemonNode : public rclcpp::Node
 {
   private:
     // Cloud
-    bool robotIdle = true;
-    bool robotStopped = false;
     lgdxrobot2_daemon::msg::AutoTask currentTask;
     std::unique_ptr<CloudAdapter> cloud;
     std::queue<CloudFunctions> cloudErrorQueue;
@@ -41,8 +39,8 @@ class DaemonNode : public rclcpp::Node
     rclcpp_action::Client<nav2_msgs::action::NavigateThroughPoses>::SharedPtr navThroughPosesActionClient;
     std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tfBuffer;
-    RpcRobotDof robotPosition;
-    RpcAutoTaskNavProgress navProgress;
+    RobotClientsDof robotPosition;
+    RobotClientsAutoTaskNavProgress navProgress;
 
     // Serial Port
     std::unique_ptr<SerialPort> serialPort;
@@ -72,7 +70,7 @@ class DaemonNode : public rclcpp::Node
       const std::shared_ptr<const nav2_msgs::action::NavigateThroughPoses::Feedback> feedback);
     void navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::WrappedResult &result);
 
-    void cloudUpdate(const RpcRespond *respond);
+    void cloudUpdate(const RobotClientsRespond *respond);
     void cloudRetry();
     void cloudGreet();
     void cloudExchange();

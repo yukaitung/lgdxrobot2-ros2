@@ -79,7 +79,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       {
         cloudExchangeTimer->reset();
       },
-      [this](const RpcRespond *respond)
+      [this](const RobotClientsRespond *respond)
       {
         cloudUpdate(respond);
       },
@@ -228,11 +228,11 @@ void DaemonNode::logCallback(const char *msg, int level)
   }
 }
 
-void DaemonNode::cloudUpdate(const RpcRespond *respond)
+void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
 {
   if (respond->has_task())
   {
-    RpcAutoTask task = respond->task();
+    RobotClientsAutoTask task = respond->task();
     currentTask.task_id = task.taskid();
     currentTask.task_name = task.taskname();
     currentTask.task_progress_id = task.taskprogressid();
@@ -250,16 +250,14 @@ void DaemonNode::cloudUpdate(const RpcRespond *respond)
       pose.pose.position.z = 0.0;
       for (int i = 0; i < task.waypoints_size(); i++)
       {
-        const RpcRobotDof waypoint = task.waypoints(i);
+        const RobotClientsDof waypoint = task.waypoints(i);
         pose.pose.position.x = waypoint.x();
         pose.pose.position.y = waypoint.y();
-        pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(waypoint.w());
+        pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(waypoint.rotation());
         poses.push_back(pose);
       }
       navThroughPoses(poses);
     }
-
-    robotIdle = false;
   }
 }
 
@@ -299,7 +297,6 @@ void DaemonNode::cloudExchange()
   if (!cloudExchangeTimer->is_canceled())
     cloudExchangeTimer->cancel();
 
-  bool getTask = robotIdle == true && robotStopped == false;
   try
   {
     geometry_msgs::msg::TransformStamped t;
@@ -316,13 +313,13 @@ void DaemonNode::cloudExchange()
 
     robotPosition.set_x(-(t.transform.translation.x * cos(yaw) + t.transform.translation.y * sin(yaw)));
     robotPosition.set_y(-(-t.transform.translation.x * sin(yaw) + t.transform.translation.y * cos(yaw)));
-    robotPosition.set_w(yaw);
+    robotPosition.set_rotation(yaw);
   }
   catch (const tf2::TransformException & ex) 
   {
   }
 
-  cloud->exchange(getTask, robotPosition, navProgress);
+  //cloud->exchange(getTask, robotPosition, navProgress);
   // Don't reset the cloudExchangeTimer here
 }
 
@@ -331,11 +328,10 @@ void DaemonNode::cloudAutoTaskNext()
   if (!currentTask.next_token.empty())
   {
     RCLCPP_INFO(this->get_logger(), "AutoTask will be done.");
-    RpcNextToken token;
+    RobotClientsNextToken token;
     token.set_taskid(currentTask.task_id);
     token.set_nexttoken(currentTask.next_token);
     cloud->autoTaskNext(token);
-    robotIdle = true;
   }
 }
 
@@ -344,11 +340,10 @@ void DaemonNode::cloudAutoTaskAbort()
   if (!currentTask.next_token.empty())
   {
     RCLCPP_INFO(this->get_logger(), "AutoTask will be abort.");
-    RpcNextToken token;
+    RobotClientsNextToken token;
     token.set_taskid(currentTask.task_id);
     token.set_nexttoken(currentTask.next_token);
     cloud->autoTaskAbort(token);
-    robotIdle = true;
   }
 }
 
