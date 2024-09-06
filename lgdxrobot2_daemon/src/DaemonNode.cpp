@@ -59,7 +59,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
   auto simEnableParam = rcl_interfaces::msg::ParameterDescriptor{};
   simEnableParam.description = "Enable simulation for LGDXRobot2 hardware, serial port must be disable for this feature.";
   this->declare_parameter("sim_enable", false, simEnableParam);
-  
+
   /*
    * Object Init
    */
@@ -124,7 +124,10 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       [this](const std::shared_ptr<lgdxrobot2_daemon::srv::AutoTaskNext::Request> request,
         std::shared_ptr<lgdxrobot2_daemon::srv::AutoTaskNext::Response> response) 
       {
-        if (!currentTask.next_token.empty() && (request->next_token == currentTask.next_token))
+        if (robotStatus == RobotClientsRobotStatus::Running && 
+            !currentTask.next_token.empty() && 
+            request->task_id == currentTask.task_id &&
+            request->next_token == currentTask.next_token)
         {
           cloudAutoTaskNext();
           response->success = true;
@@ -138,7 +141,9 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       [this](const std::shared_ptr<lgdxrobot2_daemon::srv::AutoTaskAbort::Request> request,
         std::shared_ptr<lgdxrobot2_daemon::srv::AutoTaskAbort::Response> response)
       {
-        if (!currentTask.next_token.empty() && (request->next_token == currentTask.next_token))
+        if (!currentTask.next_token.empty() && 
+            request->task_id == currentTask.task_id &&
+            request->next_token == currentTask.next_token)
         {
           cloudAutoTaskAbort();
           response->success = true;
@@ -150,8 +155,8 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       });
 
     navThroughPosesActionClient = rclcpp_action::create_client<nav2_msgs::action::NavigateThroughPoses>(
-      this,
-      "navigate_through_poses");
+        this,
+        "navigate_through_poses");
 
     tfBuffer = std::make_unique<tf2_ros::Buffer>(this->get_clock());
     tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);
@@ -176,7 +181,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
     );
 
     std::string controlMode = this->get_parameter("serial_port_control_mode").as_string();
-    if(controlMode.empty() || controlMode == "cmd_vel")
+    if (controlMode.empty() || controlMode == "cmd_vel")
     {
       cmdVelSubscription = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 
         rclcpp::SensorDataQoS().reliable(),
@@ -193,26 +198,26 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       RCLCPP_FATAL(this->get_logger(), "Control mode is invalid, the program is terminaling");
       exit(0);
     }
-    if(this->get_parameter("serial_port_use_external_imu").as_bool())
+    if (this->get_parameter("serial_port_use_external_imu").as_bool())
     {
       imuSubscription = this->create_subscription<sensor_msgs::msg::Imu>("/daemon/ext_imu",
         rclcpp::SensorDataQoS().reliable(),
         std::bind(&DaemonNode::imuCallback, this, std::placeholders::_1));
     }
-    if(this->get_parameter("serial_port_publish_odom").as_bool())
+    if (this->get_parameter("serial_port_publish_odom").as_bool())
     {
       baseLinkName = this->get_parameter("base_link_frame").as_string();
       odomPublisher = this->create_publisher<nav_msgs::msg::Odometry>("/daemon/odom",
         rclcpp::SensorDataQoS().reliable());
     }
-    if(this->get_parameter("serial_port_publish_tf").as_bool())
+    if (this->get_parameter("serial_port_publish_tf").as_bool())
     {
       tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     }
   }
-  
+
   /*
-   * Everything Initialised 
+   * Everything Initialised
    */
   if (cloud != nullptr)
   {
@@ -222,19 +227,20 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
 
 void DaemonNode::logCallback(const char *msg, int level)
 {
-  switch(level)
+  switch (level)
   {
-    case RCLCPP_LOG_MIN_SEVERITY_INFO:
-      RCLCPP_INFO(this->get_logger(), "%s", msg);
-      break;
-    case RCLCPP_LOG_MIN_SEVERITY_ERROR:
-      RCLCPP_ERROR(this->get_logger(), "%s", msg);
-      break;
+  case RCLCPP_LOG_MIN_SEVERITY_INFO:
+    RCLCPP_INFO(this->get_logger(), "%s", msg);
+    break;
+  case RCLCPP_LOG_MIN_SEVERITY_ERROR:
+    RCLCPP_ERROR(this->get_logger(), "%s", msg);
+    break;
   }
 }
 
 void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
 {
+  // Handle AutoTask
   if (respond->has_task())
   {
     RobotClientsAutoTask task = respond->task();
@@ -243,31 +249,70 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
     currentTask.task_progress_id = task.taskprogressid();
     currentTask.task_progress_name = task.taskprogressname();
     currentTask.next_token = task.nexttoken();
-    RCLCPP_INFO(this->get_logger(), "Received AutoTask Id: %d, Progress: %d", task.taskid(), task.taskprogressid());
-
-    if (task.waypoints_size())
+    if (currentTask.task_progress_id == 3)
     {
-      RCLCPP_INFO(this->get_logger(), "This task has %d waypoint(s).", task.waypoints_size());
-      std::vector<geometry_msgs::msg::PoseStamped> poses;
-      auto pose = geometry_msgs::msg::PoseStamped();
-      pose.header.stamp = rclcpp::Clock().now();
-      pose.header.frame_id = "map";
-      pose.pose.position.z = 0.0;
-      for (int i = 0; i < task.waypoints_size(); i++)
-      {
-        const RobotClientsDof waypoint = task.waypoints(i);
-        pose.pose.position.x = waypoint.x();
-        pose.pose.position.y = waypoint.y();
-        pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(waypoint.rotation());
-        poses.push_back(pose);
-      }
-      navThroughPoses(poses);
+      RCLCPP_INFO(this->get_logger(), "AutoTask Id: %d completed.", task.taskid());
+      robotStatus.taskCompleted();
     }
-    robotStatus.taskAssigned();
+    else if (currentTask.task_progress_id == 4)
+    {
+      RCLCPP_INFO(this->get_logger(), "AutoTask Id: %d aborted.", task.taskid());
+      robotStatus.taskAborted();
+    }
+    else
+    {
+      RCLCPP_INFO(this->get_logger(), "Received AutoTask Id: %d, Progress: %d", task.taskid(), task.taskprogressid());
+      if (task.waypoints_size())
+      {
+        RCLCPP_INFO(this->get_logger(), "This task has %d waypoint(s).", task.waypoints_size());
+        std::vector<geometry_msgs::msg::PoseStamped> poses;
+        auto pose = geometry_msgs::msg::PoseStamped();
+        pose.header.stamp = rclcpp::Clock().now();
+        pose.header.frame_id = "map";
+        pose.pose.position.z = 0.0;
+        for (int i = 0; i < task.waypoints_size(); i++)
+        {
+          const RobotClientsDof waypoint = task.waypoints(i);
+          pose.pose.position.x = waypoint.x();
+          pose.pose.position.y = waypoint.y();
+          pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(waypoint.rotation());
+          poses.push_back(pose);
+        }
+        navThroughPoses(poses);
+      }
+      robotStatus.taskAssigned();
+    }
   }
-  else
+
+  // Handle Robot Command
+  if (respond->has_commands())
   {
-    robotStatus.taskCompleted();
+    auto commands = respond->commands();
+    // Abort Task
+
+    // Emergency Stop
+    if (commands.softwareemergencystop() == true && currentCommands.softwareemergencystop() == false)
+    {
+      robotStatus.enterCritical();
+      // TODO: stop motor
+    }
+    else if (commands.softwareemergencystop() == false && currentCommands.softwareemergencystop() == true)
+    {
+      robotStatus.exitCritical();
+    }
+    criticalStatus.set_softwareemergencystop(commands.softwareemergencystop());
+    currentCommands.set_softwareemergencystop(commands.softwareemergencystop());
+
+    // Pause Task Assigement
+    if (commands.pausetaskassigement() == true && currentCommands.pausetaskassigement() == false)
+    {
+      robotStatus.pauseTaskAssigement();
+    }
+    else if (commands.pausetaskassigement() == false && currentCommands.pausetaskassigement() == true)
+    {
+      robotStatus.resumeTaskAssigement();
+    }
+    currentCommands.set_pausetaskassigement(commands.pausetaskassigement());
   }
 }
 
@@ -280,18 +325,18 @@ void DaemonNode::cloudRetry()
     CloudFunctions function = cloudErrorQueue.front();
     switch (function)
     {
-      case CloudFunctions::Greet:
-        cloudGreet();
-        break;
-      case CloudFunctions::Exchange:
-        cloudExchange();
-        break;
-      case CloudFunctions::AutoTaskNext:
-        cloudAutoTaskNext();
-        break;
-      case CloudFunctions::AutoTaskAbort:
-        cloudAutoTaskAbort();
-        break;
+    case CloudFunctions::Greet:
+      cloudGreet();
+      break;
+    case CloudFunctions::Exchange:
+      cloudExchange();
+      break;
+    case CloudFunctions::AutoTaskNext:
+      cloudAutoTaskNext();
+      break;
+    case CloudFunctions::AutoTaskAbort:
+      cloudAutoTaskAbort();
+      break;
     }
     cloudErrorQueue.pop();
   }
@@ -313,10 +358,10 @@ void DaemonNode::cloudExchange()
     t = tfBuffer->lookupTransform("base_link", "map", tf2::TimePointZero);
 
     tf2::Quaternion q(
-      t.transform.rotation.x,
-      t.transform.rotation.y,
-      t.transform.rotation.z,
-      t.transform.rotation.w);
+        t.transform.rotation.x,
+        t.transform.rotation.y,
+        t.transform.rotation.z,
+        t.transform.rotation.w);
     tf2::Matrix3x3 m(q);
     double roll, pitch, yaw;
     m.getRPY(roll, pitch, yaw);
@@ -325,16 +370,16 @@ void DaemonNode::cloudExchange()
     robotPosition.set_y(-(-t.transform.translation.x * sin(yaw) + t.transform.translation.y * cos(yaw)));
     robotPosition.set_rotation(yaw);
   }
-  catch (const tf2::TransformException & ex) 
+  catch (const tf2::TransformException &ex)
   {
   }
-  std::vector<double> batteries = std::vector<double>(11.59, 11.45);
+  std::vector<double> batteries = {11.59, 11.45};
 
   cloud->exchange(robotStatus.getRobotStatus(),
-    criticalStatus,
-    batteries,
-    robotPosition,
-    navProgress);
+                  criticalStatus,
+                  batteries,
+                  robotPosition,
+                  navProgress);
   // Don't reset the cloudExchangeTimer here
 }
 
@@ -384,7 +429,7 @@ void DaemonNode::navThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> &p
 
 void DaemonNode::navThroughPosesGoalResponse(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr &goalHandle)
 {
-  if (!goalHandle) 
+  if (!goalHandle)
   {
     RCLCPP_ERROR(this->get_logger(), "navThroughPoses goal was rejected by server.");
   }
@@ -401,7 +446,7 @@ void DaemonNode::navThroughPosesFeedback(rclcpp_action::ClientGoalHandle<nav2_ms
 
 void DaemonNode::navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::WrappedResult &result)
 {
-  switch (result.code) 
+  switch (result.code)
   {
     case rclcpp_action::ResultCode::SUCCEEDED:
       cloudAutoTaskNext();
@@ -416,7 +461,7 @@ void DaemonNode::navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav
 
 void DaemonNode::serialUpdate(const RobotData& data)
 {
-  if(tfBroadcaster != nullptr || odomPublisher != nullptr) 
+  if (tfBroadcaster != nullptr || odomPublisher != nullptr)
   {
     tf2::Quaternion quaternion;
     quaternion.setRPY(0, 0, data.transform[2]);
@@ -458,21 +503,21 @@ void DaemonNode::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
   float x = msg.linear.x;
   float y = msg.linear.y;
   float w = msg.angular.z;
-  //RCLCPP_INFO(this->get_logger(), "/cmd_vel %f %f %f", x, y, w);
+  // RCLCPP_INFO(this->get_logger(), "/cmd_vel %f %f %f", x, y, w);
   serialPort->setInverseKinematics(x, y, w);
 }
 
 void DaemonNode::joyCallback(const sensor_msgs::msg::Joy &msg)
 {
   // E-Stop
-  if(lastEstopButton[0] == 0 && msg.buttons[0] == 1)
+  if (lastEstopButton[0] == 0 && msg.buttons[0] == 1)
   {
     // A = disable software E-Stop
     serialPort->setEstop(false);
     RCLCPP_INFO(this->get_logger(), "Software E-Stop Disabled");
   }
   lastEstopButton[0] = msg.buttons[0];
-  if(lastEstopButton[1] == 0 && msg.buttons[1] == 1)
+  if (lastEstopButton[1] == 0 && msg.buttons[1] == 1)
   {
     // B = enable software E-Stop
     serialPort->setEstop(true);
@@ -480,31 +525,31 @@ void DaemonNode::joyCallback(const sensor_msgs::msg::Joy &msg)
   }
   lastEstopButton[1] = msg.buttons[1];
   // Velocity Change
-  if(lastVelocityChangeButton[0] == 0 && msg.buttons[6] == 1)
+  if (lastVelocityChangeButton[0] == 0 && msg.buttons[6] == 1)
   {
     // LB = decrease max velocity
-    if(maximumVelocity >= 0.2) 
+    if (maximumVelocity >= 0.2)
     {
       maximumVelocity -= 0.1;
       RCLCPP_INFO(this->get_logger(), "Maximum velocity decreased to %.1f m/s", maximumVelocity);
     }
   }
   lastVelocityChangeButton[0] = msg.buttons[6];
-  if(lastVelocityChangeButton[1] == 0 && msg.buttons[7] == 1)
+  if (lastVelocityChangeButton[1] == 0 && msg.buttons[7] == 1)
   {
     // RB = increase max velocity
-    if(maximumVelocity < 1.0)
+    if (maximumVelocity < 1.0)
     {
       maximumVelocity += 0.1;
       RCLCPP_INFO(this->get_logger(), "Maximum velocity increased to %.1f m/s", maximumVelocity);
-    } 
+    }
   }
   lastVelocityChangeButton[1] = msg.buttons[7];
   // Control IK
   // Left Stick = XY
   float x = msg.axes[1] * maximumVelocity;
   float y = msg.axes[0] * maximumVelocity;
-  if(msg.axes[1] == 0 && msg.axes[0] == 0)
+  if (msg.axes[1] == 0 && msg.axes[0] == 0)
   {
     // Use D-pad = XY if Left Stick no input
     x = msg.axes[7] * maximumVelocity;
@@ -523,4 +568,3 @@ void DaemonNode::imuCallback(const sensor_msgs::msg::Imu &msg)
   float gz = msg.angular_velocity.z;
   serialPort->setExternalImu(ax, ay, az, gz);
 }
-

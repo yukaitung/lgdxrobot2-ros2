@@ -168,9 +168,6 @@ void CloudAdapter::exchange(RobotClientsRobotStatus robotStatus,
   RobotClientsDof *intPosition = new RobotClientsDof();
   *intPosition = position;
   request->set_allocated_position(intPosition);
-  RobotClientsRobotCommand *intCommandsack = new RobotClientsRobotCommand();
-  *intCommandsack = robotCommand;
-  request->set_allocated_commandsack(intCommandsack);
   RobotClientsAutoTaskNavProgress *intNavProgress = new RobotClientsAutoTaskNavProgress();
   *intNavProgress = navProgress;
   request->set_allocated_navprogress(intNavProgress);

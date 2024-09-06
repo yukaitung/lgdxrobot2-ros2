@@ -10,7 +10,7 @@ void RobotStatus::changeStatus(RobotClientsRobotStatus newState)
   switch (newState)
   {
     case RobotClientsRobotStatus::Idle:
-      if (stopTaskAssigementFlag) 
+      if (pauseTaskAssigementFlag) 
       {
         robotStatus = RobotClientsRobotStatus::Paused;
         return;
@@ -65,9 +65,9 @@ void RobotStatus::navigationCleared()
     changeStatus(RobotClientsRobotStatus::Running);
 }
 
-void RobotStatus::stopTaskAssigement()
+void RobotStatus::pauseTaskAssigement()
 {
-  stopTaskAssigementFlag = true;
+  pauseTaskAssigementFlag = true;
   if (robotStatus != RobotClientsRobotStatus::Idle)
   {
     // Delay this state if the robot is running
@@ -78,7 +78,7 @@ void RobotStatus::stopTaskAssigement()
 
 void RobotStatus::resumeTaskAssigement()
 {
-  stopTaskAssigementFlag = false;
+  pauseTaskAssigementFlag = false;
   if (robotStatus == RobotClientsRobotStatus::Paused)
   {
     // Change state immediately if the robot is paused

@@ -28,7 +28,6 @@ class DaemonNode : public rclcpp::Node
 {
   private:
     // Cloud
-    lgdxrobot2_daemon::msg::AutoTask currentTask;
     std::unique_ptr<CloudAdapter> cloud;
     std::queue<CloudFunctions> cloudErrorQueue;
     rclcpp::TimerBase::SharedPtr cloudRetryTimer;
@@ -41,9 +40,13 @@ class DaemonNode : public rclcpp::Node
     std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tfBuffer;
     RobotClientsDof robotPosition;
+    
+    // Cloud Robot Status
+    RobotStatus robotStatus;
+    lgdxrobot2_daemon::msg::AutoTask currentTask;
     RobotClientsRobotCriticalStatus criticalStatus;
     RobotClientsAutoTaskNavProgress navProgress;
-    RobotStatus robotStatus;
+    RobotClientsRobotCommand currentCommands;
 
     // Serial Port
     std::unique_ptr<SerialPort> serialPort;
