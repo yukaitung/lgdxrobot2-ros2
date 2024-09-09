@@ -94,7 +94,7 @@ void RobotStatus::taskAborting()
 
 void RobotStatus::taskAborted()
 {
-  if (robotStatus == RobotClientsRobotStatus::Aborting)
+  if (robotStatus == RobotClientsRobotStatus::Aborting || robotStatus == RobotClientsRobotStatus::Running)
     changeStatus(RobotClientsRobotStatus::Idle);
 }
 

@@ -124,8 +124,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       [this](const std::shared_ptr<lgdxrobot2_daemon::srv::AutoTaskNext::Request> request,
         std::shared_ptr<lgdxrobot2_daemon::srv::AutoTaskNext::Response> response) 
       {
-        if (robotStatus == RobotClientsRobotStatus::Running && 
-            !currentTask.next_token.empty() && 
+        if (!currentTask.next_token.empty() && 
             request->task_id == currentTask.task_id &&
             request->next_token == currentTask.next_token)
         {
@@ -289,6 +288,11 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
   {
     auto commands = respond->commands();
     // Abort Task
+    if (commands.aborttask() == true && currentCommands.aborttask() == false)
+    {
+      cloudAutoTaskAbort();
+    }
+    currentCommands.set_aborttask(commands.aborttask());
 
     // Emergency Stop
     if (commands.softwareemergencystop() == true && currentCommands.softwareemergencystop() == false)
@@ -399,7 +403,8 @@ void DaemonNode::cloudAutoTaskAbort()
 {
   if (!currentTask.next_token.empty())
   {
-    RCLCPP_INFO(this->get_logger(), "AutoTask will be abort.");
+    robotStatus.taskAborting();
+    RCLCPP_INFO(this->get_logger(), "AutoTask will be aborted.");
     RobotClientsNextToken token;
     token.set_taskid(currentTask.task_id);
     token.set_nexttoken(currentTask.next_token);
