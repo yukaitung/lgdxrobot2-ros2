@@ -96,18 +96,8 @@ void CloudAdapter::setSystemInfo(RobotClientsSystemInfo *info)
   }
   hwinfo::Memory memory;
   info->set_rammib(hwinfo::unit::bytes_to_MiB(memory.total_Bytes()));
-}
 
-void CloudAdapter::setChassisInfo(RobotClientsChassisInfo *info)
-{
-  info->set_mcuserialnumber("");
-  info->set_chassislx(10.0f);
-  info->set_chassisly(10.0f);
-  info->set_chassiswheelcount(4);
-  info->set_chassiswheelradius(0.1f);
-  info->set_batterycount(2);
-  info->set_batterymaxvoltage(12.0f);
-  info->set_batteryminvoltage(8.0f);
+  // TODO: Get MCU serial number
 }
 
 void CloudAdapter::greet()
@@ -120,9 +110,6 @@ void CloudAdapter::greet()
   RobotClientsSystemInfo *systemInfo = new RobotClientsSystemInfo();
   setSystemInfo(systemInfo);
   request->set_allocated_systeminfo(systemInfo);
-  RobotClientsChassisInfo *chassisInfo = new RobotClientsChassisInfo();
-  setChassisInfo(chassisInfo);
-  request->set_allocated_chassisinfo(chassisInfo);
 
   RobotClientsGreetRespond *respond = new RobotClientsGreetRespond();
   
@@ -131,6 +118,7 @@ void CloudAdapter::greet()
     if (status.ok()) 
     {
       accessToken = grpc::AccessTokenCredentials(respond->accesstoken());
+      // TODO: Store ChassisInfo
       log("Connect to the cloud, start data exchange.", 1);
       startNextExchange();
     }

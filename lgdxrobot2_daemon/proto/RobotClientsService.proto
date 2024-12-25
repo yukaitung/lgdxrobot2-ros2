@@ -23,7 +23,7 @@ message RobotClientsDof {
   double Rotation = 3;
 }
 
-message RobotClientsRobotCommand {
+message RobotClientsRobotCommands {
   bool AbortTask = 1;
   bool RenewCertificate = 2;
   bool SoftwareEmergencyStop = 3;
@@ -41,9 +41,8 @@ message RobotClientsAutoTask {
 
 message RobotClientsRespond {
   RobotClientsResultStatus Status = 1;
-  string Message = 2;
-  optional RobotClientsRobotCommand Commands = 3;
-  optional RobotClientsAutoTask Task = 4;
+  RobotClientsRobotCommands Commands = 2;
+  optional RobotClientsAutoTask Task = 3;
 }
 
 /*
@@ -58,28 +57,27 @@ message RobotClientsSystemInfo {
   string Gpu = 6;
   string Os = 7;
   bool Is32Bit = 8;
+  string McuSerialNumber = 9;
 }
 
 message RobotClientsChassisInfo {
-  string McuSerialNumber = 1;
-  double ChassisLX = 2;
-  double ChassisLY = 3;
-  int32 ChassisWheelCount = 4;
-  double ChassisWheelRadius = 5;
-  int32 BatteryCount = 6;
-  double BatteryMaxVoltage = 7;
-  double BatteryMinVoltage = 8;
+  double ChassisLX = 1;
+  double ChassisLY = 2;
+  int32 ChassisWheelCount = 3;
+  double ChassisWheelRadius = 4;
+  int32 BatteryCount = 5;
+  double BatteryMaxVoltage = 6;
+  double BatteryMinVoltage = 7;
 }
 
 message RobotClientsGreet {
   RobotClientsSystemInfo SystemInfo = 1;
-  RobotClientsChassisInfo ChassisInfo = 2;
 }
 
 message RobotClientsGreetRespond {
   RobotClientsResultStatus Status = 1;
-  string Message = 2;
-  string AccessToken = 3;
+  string AccessToken = 2;
+  optional RobotClientsChassisInfo ChassisInfo = 3;
 }
 
 /*

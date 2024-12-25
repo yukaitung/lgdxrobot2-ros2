@@ -26,14 +26,13 @@ class CloudAdapter
     std::function<void(const char *, int)> log;
     std::function<void(CloudFunctions)> error;
     std::shared_ptr<grpc::CallCredentials> accessToken;
-    RobotClientsRobotCommand robotCommand;
+    RobotClientsRobotCommands robotCommand;
 
     std::string readCert(const char *filename);
     #ifdef __linux__ 
     std::string getMotherBoardSerialNumber();
     #endif
     void setSystemInfo(RobotClientsSystemInfo *info);
-    void setChassisInfo(RobotClientsChassisInfo *info);
 
   public:
     CloudAdapter(const char *serverAddress,

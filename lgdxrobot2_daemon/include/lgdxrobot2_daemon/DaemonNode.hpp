@@ -46,7 +46,7 @@ class DaemonNode : public rclcpp::Node
     lgdxrobot2_daemon::msg::AutoTask currentTask;
     RobotClientsRobotCriticalStatus criticalStatus;
     RobotClientsAutoTaskNavProgress navProgress;
-    RobotClientsRobotCommand currentCommands;
+    RobotClientsRobotCommands currentCommands;
 
     // Serial Port
     std::unique_ptr<SerialPort> serialPort;
