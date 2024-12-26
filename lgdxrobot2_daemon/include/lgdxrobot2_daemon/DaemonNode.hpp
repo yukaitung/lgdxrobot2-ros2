@@ -7,22 +7,22 @@
 #include "SerialPort.hpp"
 #include "RobotStatus.hpp"
 
-#include "geometry_msgs/msg/twist.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
-#include "nav2_msgs/action/navigate_through_poses.hpp"
+#include "geometry_msgs/msg/twist.hpp"
+#include "lgdxrobot2_daemon/msg/auto_task.hpp"
+#include "lgdxrobot2_daemon/srv/auto_task_abort.hpp"
+#include "lgdxrobot2_daemon/srv/auto_task_next.hpp"
 #include "nav_msgs/msg/odometry.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include "nav2_msgs/action/navigate_through_poses.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 #include "sensor_msgs/msg/joy.hpp"
+#include "std_msgs/msg/bool.hpp"
+#include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2_ros/transform_listener.h"
-#include "tf2_ros/buffer.h"
-
-#include "lgdxrobot2_daemon/msg/auto_task.hpp"
-#include "lgdxrobot2_daemon/srv/auto_task_next.hpp"
-#include "lgdxrobot2_daemon/srv/auto_task_abort.hpp"
 
 class DaemonNode : public rclcpp::Node
 {
@@ -35,6 +35,7 @@ class DaemonNode : public rclcpp::Node
     rclcpp::TimerBase::SharedPtr cloudRetryTimer;
     rclcpp::TimerBase::SharedPtr cloudExchangeTimer;
     rclcpp::TimerBase::SharedPtr autoTaskPublisherTimer;
+    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr crtitcalStatusPublisher;
     rclcpp::Publisher<lgdxrobot2_daemon::msg::AutoTask>::SharedPtr autoTaskPublisher;
     rclcpp::Service<lgdxrobot2_daemon::srv::AutoTaskNext>::SharedPtr autoTaskNextService;
     rclcpp::Service<lgdxrobot2_daemon::srv::AutoTaskAbort>::SharedPtr autoTaskAbortService;

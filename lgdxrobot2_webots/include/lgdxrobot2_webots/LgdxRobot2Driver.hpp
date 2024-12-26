@@ -1,10 +1,11 @@
 #ifndef LGDXROBOT2DRIVER_HPP
 #define LGDXROBOT2DRIVER_HPP
 
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp/macros.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
+#include "rclcpp/macros.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/bool.hpp"
 #include "webots_ros2_driver/PluginInterface.hpp"
 #include "webots_ros2_driver/WebotsNode.hpp"
 
@@ -25,6 +26,9 @@ class LgdxRobot2Driver : public webots_ros2_driver::PluginInterface
     WbDeviceTag wheels[4];
     double wheelsVelocity[4] = {0};
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
+
+    bool isCrticialStatus = false;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr crticialStatusSubscription;
     
     double lastSimTime = 0;
     double motorLastPosition[4] = {0};

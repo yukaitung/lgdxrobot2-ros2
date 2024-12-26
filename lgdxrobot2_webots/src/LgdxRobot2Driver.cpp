@@ -12,13 +12,24 @@
 namespace LgdxRobot2 {
 void LgdxRobot2Driver::cmdVelCallback(const geometry_msgs::msg::Twist &msg) 
 {
-  double x = msg.linear.x;
-  double y = msg.linear.y;
-  double w = msg.angular.z;
-  wheelsVelocity[0] = (1 / WHEEL_RADIUS) * (x - y - (CHASSIS_LX + CHASSIS_LY) * w);
-  wheelsVelocity[1] = (1 / WHEEL_RADIUS) * (x + y + (CHASSIS_LX + CHASSIS_LY) * w);
-  wheelsVelocity[2] = (1 / WHEEL_RADIUS) * (x + y - (CHASSIS_LX + CHASSIS_LY) * w);
-  wheelsVelocity[3] = (1 / WHEEL_RADIUS) * (x - y + (CHASSIS_LX + CHASSIS_LY) * w);
+  if (isCrticialStatus)
+  {
+    wheelsVelocity[0] = 0;
+    wheelsVelocity[1] = 0;
+    wheelsVelocity[2] = 0;
+    wheelsVelocity[3] = 0;
+  }
+  else
+  {
+    double x = msg.linear.x;
+    double y = msg.linear.y;
+    double w = msg.angular.z;
+    wheelsVelocity[0] = (1 / WHEEL_RADIUS) * (x - y - (CHASSIS_LX + CHASSIS_LY) * w);
+    wheelsVelocity[1] = (1 / WHEEL_RADIUS) * (x + y + (CHASSIS_LX + CHASSIS_LY) * w);
+    wheelsVelocity[2] = (1 / WHEEL_RADIUS) * (x + y - (CHASSIS_LX + CHASSIS_LY) * w);
+    wheelsVelocity[3] = (1 / WHEEL_RADIUS) * (x - y + (CHASSIS_LX + CHASSIS_LY) * w);
+  }
+  
 }
 
 void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered_map<std::string, std::string> &parameters) 
@@ -47,6 +58,14 @@ void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered
     "cmd_vel", 
     rclcpp::SensorDataQoS().reliable(),
     std::bind(&LgdxRobot2Driver::cmdVelCallback, this, std::placeholders::_1)
+  );
+  crticialStatusSubscription = node->create_subscription<std_msgs::msg::Bool>(
+    "/daemon/crtitcal_status", 
+    rclcpp::SensorDataQoS().reliable(),
+    [this](const std_msgs::msg::Bool &msg)
+    {
+      isCrticialStatus = msg.data;
+    }
   );
   odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("/odom", rclcpp::SensorDataQoS().reliable());
   tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(node);

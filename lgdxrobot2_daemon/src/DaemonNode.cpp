@@ -114,10 +114,15 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
     
     autoTaskPublisher = this->create_publisher<lgdxrobot2_daemon::msg::AutoTask>("/daemon/auto_task", 
       rclcpp::SensorDataQoS().reliable());
+    crtitcalStatusPublisher = this->create_publisher<std_msgs::msg::Bool>("/daemon/crtitcal_status", 
+      rclcpp::SensorDataQoS().reliable());
     autoTaskPublisherTimer = this->create_wall_timer(std::chrono::milliseconds(100), 
       [this]()
       {
         autoTaskPublisher->publish(currentTask);
+        std_msgs::msg::Bool criticalStatus;
+        criticalStatus.data = robotStatus.getRobotStatus() == RobotClientsRobotStatus::Critical;
+        crtitcalStatusPublisher->publish(criticalStatus);
       });
 
     autoTaskNextService = this->create_service<lgdxrobot2_daemon::srv::AutoTaskNext>("auto_task_next",
@@ -315,7 +320,6 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
     if (commands.softwareemergencystop() == true && currentCommands.softwareemergencystop() == false)
     {
       robotStatus.enterCritical();
-      // TODO: stop motor
     }
     else if (commands.softwareemergencystop() == false && currentCommands.softwareemergencystop() == true)
     {
