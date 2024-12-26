@@ -256,16 +256,15 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
     else if (currentTask.task_progress_id == 4)
     {
       RCLCPP_INFO(this->get_logger(), "AutoTask Id: %d aborted.", task.taskid());
-      if (navThroughPosesGoalHandle)
+      if (navThroughPosesActionClient->wait_for_action_server())
       {
-        auto cancelResult = navThroughPosesActionClient->async_cancel_goal(
-          navThroughPosesGoalHandle,
+        // The NAV2 stack is running, cancel the goal
+        auto cancelResult = navThroughPosesActionClient->async_cancel_all_goals(
           [this](auto response)
           {
             if (response)
             {
               RCLCPP_INFO(this->get_logger(), "Navigation aborted.");
-              navThroughPosesGoalHandle.reset();
             }
             else
             {
@@ -447,25 +446,53 @@ void DaemonNode::navThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> &p
   goalOption.goal_response_callback = std::bind(&DaemonNode::navThroughPosesGoalResponse, this, _1);
   goalOption.feedback_callback = std::bind(&DaemonNode::navThroughPosesFeedback, this, _1, _2);
   goalOption.result_callback = std::bind(&DaemonNode::navThroughPosesResult, this, _1);
-  auto futureGoalHandle = navThroughPosesActionClient->async_send_goal(goal, goalOption);
-  navThroughPosesGoalHandle = futureGoalHandle.get();
+  navThroughPosesActionClient->async_send_goal(goal, goalOption);
 }
 
 void DaemonNode::navThroughPosesGoalResponse(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr &goalHandle)
 {
   if (!goalHandle)
   {
-    RCLCPP_ERROR(this->get_logger(), "navThroughPoses goal was rejected by server.");
+    RCLCPP_ERROR(this->get_logger(), "navThroughPoses goal was rejected by server, the task will be aborted.");
+    cloudAutoTaskAbort();
   }
 }
 
 void DaemonNode::navThroughPosesFeedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr, 
   const std::shared_ptr<const nav2_msgs::action::NavigateThroughPoses::Feedback> feedback)
 {
+  lastNavProgress = navProgress;
   navProgress.set_eta(rclcpp::Duration(feedback->estimated_time_remaining).seconds());
   navProgress.set_recoveries(feedback->number_of_recoveries);
   navProgress.set_distanceremaining(feedback->distance_remaining);
   navProgress.set_waypointsremaining(feedback->number_of_poses_remaining);
+  if (robotStatus.getRobotStatus() == RobotClientsRobotStatus::Running)
+  {
+    // Determine if the robot is stuck by
+    // 1. Recoveries is increasing
+    // 2. Eta is 0
+    if (navProgress.recoveries() > lastNavProgress.recoveries() && 
+        navProgress.eta() == 0)
+    {
+      robotStatus.navigationStuck();
+      RCLCPP_INFO(this->get_logger(), "The robot is stuck.");
+    }
+  }
+  else if (robotStatus.getRobotStatus() == RobotClientsRobotStatus::Stuck)
+  {
+    // Determine if the robot is cleared by
+    // 1. Recoveries is unchanged
+    // 2. Eta is not 0 and decreasing
+    // 3. distanceRemaining is decreasing
+    if (navProgress.recoveries() == lastNavProgress.recoveries() &&
+        navProgress.eta() < lastNavProgress.eta() &&
+        navProgress.eta() > 0 &&
+        navProgress.distanceremaining() < lastNavProgress.distanceremaining())
+    {
+      robotStatus.navigationCleared();
+      RCLCPP_INFO(this->get_logger(), "The robot resumed navigation.");
+    }
+  }
 }
 
 void DaemonNode::navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::WrappedResult &result)

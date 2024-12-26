@@ -49,7 +49,7 @@ void RobotStatus::taskAssigned()
 
 void RobotStatus::taskCompleted()
 {
-  if (robotStatus == RobotClientsRobotStatus::Running)
+  if (robotStatus == RobotClientsRobotStatus::Running || robotStatus == RobotClientsRobotStatus::Stuck)
     changeStatus(RobotClientsRobotStatus::Idle);
 }
 
@@ -88,7 +88,7 @@ void RobotStatus::resumeTaskAssigement()
 
 void RobotStatus::taskAborting()
 {
-  if (robotStatus == RobotClientsRobotStatus::Running)
+  if (robotStatus == RobotClientsRobotStatus::Running || robotStatus == RobotClientsRobotStatus::Stuck)
     changeStatus(RobotClientsRobotStatus::Aborting);
 }
 

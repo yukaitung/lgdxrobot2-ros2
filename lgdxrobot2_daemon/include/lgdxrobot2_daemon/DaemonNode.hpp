@@ -39,7 +39,6 @@ class DaemonNode : public rclcpp::Node
     rclcpp::Service<lgdxrobot2_daemon::srv::AutoTaskNext>::SharedPtr autoTaskNextService;
     rclcpp::Service<lgdxrobot2_daemon::srv::AutoTaskAbort>::SharedPtr autoTaskAbortService;
     rclcpp_action::Client<nav2_msgs::action::NavigateThroughPoses>::SharedPtr navThroughPosesActionClient;
-    rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr navThroughPosesGoalHandle;
     std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tfBuffer;
     RobotClientsDof robotPosition;
@@ -48,6 +47,7 @@ class DaemonNode : public rclcpp::Node
     RobotStatus robotStatus;
     lgdxrobot2_daemon::msg::AutoTask currentTask;
     RobotClientsRobotCriticalStatus criticalStatus;
+    RobotClientsAutoTaskNavProgress lastNavProgress;
     RobotClientsAutoTaskNavProgress navProgress;
     RobotClientsRobotCommands currentCommands;
 
