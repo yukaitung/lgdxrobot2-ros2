@@ -256,6 +256,24 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
     else if (currentTask.task_progress_id == 4)
     {
       RCLCPP_INFO(this->get_logger(), "AutoTask Id: %d aborted.", task.taskid());
+      if (navThroughPosesGoalHandle)
+      {
+        auto cancelResult = navThroughPosesActionClient->async_cancel_goal(
+          navThroughPosesGoalHandle,
+          [this](auto response)
+          {
+            if (response)
+            {
+              RCLCPP_INFO(this->get_logger(), "Navigation aborted.");
+              navThroughPosesGoalHandle.reset();
+            }
+            else
+            {
+              RCLCPP_ERROR(this->get_logger(), "Navigation abort failed.");
+            }
+          }
+        );
+      }
       robotStatus.taskAborted();
     }
     else
@@ -429,7 +447,8 @@ void DaemonNode::navThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> &p
   goalOption.goal_response_callback = std::bind(&DaemonNode::navThroughPosesGoalResponse, this, _1);
   goalOption.feedback_callback = std::bind(&DaemonNode::navThroughPosesFeedback, this, _1, _2);
   goalOption.result_callback = std::bind(&DaemonNode::navThroughPosesResult, this, _1);
-  navThroughPosesActionClient->async_send_goal(goal, goalOption);
+  auto futureGoalHandle = navThroughPosesActionClient->async_send_goal(goal, goalOption);
+  navThroughPosesGoalHandle = futureGoalHandle.get();
 }
 
 void DaemonNode::navThroughPosesGoalResponse(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr &goalHandle)
