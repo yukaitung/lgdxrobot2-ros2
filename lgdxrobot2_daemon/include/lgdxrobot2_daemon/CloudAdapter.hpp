@@ -50,7 +50,7 @@ class CloudAdapter
       RobotClientsDof &position,
       RobotClientsAutoTaskNavProgress &navProgress);
     void autoTaskNext(RobotClientsNextToken &token);
-    void autoTaskAbort(RobotClientsNextToken &token);
+    void autoTaskAbort(RobotClientsAbortToken &token);
 };
 
 #endif // CLOUDADAPTER_HPP

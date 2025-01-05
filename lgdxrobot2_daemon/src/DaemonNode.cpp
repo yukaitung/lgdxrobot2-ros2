@@ -149,7 +149,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
             request->task_id == currentTask.task_id &&
             request->next_token == currentTask.next_token)
         {
-          cloudAutoTaskAbort();
+          cloudAutoTaskAbort(RobotClientsAbortReason::Robot);
           response->success = true;
         }
         else
@@ -312,7 +312,7 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
     // Abort Task
     if (commands.aborttask() == true && currentCommands.aborttask() == false)
     {
-      cloudAutoTaskAbort();
+      cloudAutoTaskAbort(RobotClientsAbortReason::UserApi);
     }
     currentCommands.set_aborttask(commands.aborttask());
 
@@ -360,7 +360,7 @@ void DaemonNode::cloudRetry()
       cloudAutoTaskNext();
       break;
     case CloudFunctions::AutoTaskAbort:
-      cloudAutoTaskAbort();
+      cloudAutoTaskAbort(lastAbortReason);
       break;
     }
     cloudErrorQueue.pop();
@@ -420,15 +420,17 @@ void DaemonNode::cloudAutoTaskNext()
   }
 }
 
-void DaemonNode::cloudAutoTaskAbort()
+void DaemonNode::cloudAutoTaskAbort(RobotClientsAbortReason reason)
 {
+  lastAbortReason = reason;
   if (!currentTask.next_token.empty())
   {
     robotStatus.taskAborting();
     RCLCPP_INFO(this->get_logger(), "AutoTask will be aborted.");
-    RobotClientsNextToken token;
+    RobotClientsAbortToken token;
     token.set_taskid(currentTask.task_id);
     token.set_nexttoken(currentTask.next_token);
+    token.set_abortreason(RobotClientsAbortReason::UserApi);
     cloud->autoTaskAbort(token);
   }
 }
@@ -458,7 +460,7 @@ void DaemonNode::navThroughPosesGoalResponse(const rclcpp_action::ClientGoalHand
   if (!goalHandle)
   {
     RCLCPP_ERROR(this->get_logger(), "navThroughPoses goal was rejected by server, the task will be aborted.");
-    cloudAutoTaskAbort();
+    cloudAutoTaskAbort(RobotClientsAbortReason::NavStack);
   }
 }
 
@@ -509,7 +511,7 @@ void DaemonNode::navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav
     case rclcpp_action::ResultCode::ABORTED:
     case rclcpp_action::ResultCode::CANCELED:
     default:
-      cloudAutoTaskAbort();
+      cloudAutoTaskAbort(RobotClientsAbortReason::NavStack);
       return;
   }
 }

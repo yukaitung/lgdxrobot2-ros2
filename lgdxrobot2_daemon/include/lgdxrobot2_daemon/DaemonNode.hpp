@@ -51,6 +51,7 @@ class DaemonNode : public rclcpp::Node
     RobotClientsAutoTaskNavProgress lastNavProgress;
     RobotClientsAutoTaskNavProgress navProgress;
     RobotClientsRobotCommands currentCommands;
+    RobotClientsAbortReason lastAbortReason;
 
     // Serial Port
     std::unique_ptr<SerialPort> serialPort;
@@ -85,7 +86,7 @@ class DaemonNode : public rclcpp::Node
     void cloudGreet();
     void cloudExchange();
     void cloudAutoTaskNext();
-    void cloudAutoTaskAbort();
+    void cloudAutoTaskAbort(RobotClientsAbortReason reason);
     
   public:
     DaemonNode();

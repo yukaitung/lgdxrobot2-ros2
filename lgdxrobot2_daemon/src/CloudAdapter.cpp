@@ -209,14 +209,14 @@ void CloudAdapter::autoTaskNext(RobotClientsNextToken &token)
   });
 }
 
-void CloudAdapter::autoTaskAbort(RobotClientsNextToken &token)
+void CloudAdapter::autoTaskAbort(RobotClientsAbortToken &token)
 {
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
   context->set_deadline(deadline);
   context->set_credentials(accessToken);
 
-  RobotClientsNextToken *request = new RobotClientsNextToken();
+  RobotClientsAbortToken *request = new RobotClientsAbortToken();
   *request = token;
 
   RobotClientsRespond *respond = new RobotClientsRespond();
