@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <fstream>
 #include <chrono>
+#include <sstream>
 
 #include "hwinfo/hwinfo.h"
 #include "hwinfo/utils/unit.h"

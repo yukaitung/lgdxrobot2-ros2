@@ -21,7 +21,12 @@ XXX
 
 ### Build & Run
 
-XXX
+1. Install ROS
+2. Install Webots
+3. Install Webots ROS
+4. Install ROS NAV
+5. clone https://github.com/lfreist/hwinfo --> third-party
+6. Install packages libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc
 
 # Dev notes
 

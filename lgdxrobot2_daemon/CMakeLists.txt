@@ -12,8 +12,7 @@ endif()
 #
 # gRPC
 #
-list(APPEND CMAKE_PREFIX_PATH "../third_party/grpc") 
-find_package(protobuf CONFIG REQUIRED)
+find_package(Protobuf REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
 add_library(${PROTO_NAME} 
@@ -73,7 +72,7 @@ add_executable(${EXECUTABLE_NAME}
 target_link_libraries(${EXECUTABLE_NAME} 
   ${PROTO_NAME}
   "${cpp_typesupport_target}"
-  hwinfo::HWinfo
+  hwinfo
   Boost::headers
 )
 ament_target_dependencies(${EXECUTABLE_NAME}  
