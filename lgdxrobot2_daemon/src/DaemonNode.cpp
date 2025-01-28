@@ -66,6 +66,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
   bool cloudEnable = this->get_parameter("cloud_enable").as_bool();
   if (cloudEnable)
   {
+    robotStatus = std::make_shared<RobotStatus>();
     // Cloud
     std::string cloudAddress = this->get_parameter("cloud_address").as_string();
     std::string root = this->get_parameter("cloud_root_cert").as_string();
@@ -78,7 +79,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       [this]()
       {
         // startNextExchangeCb
-        robotStatus.connnectedCloud();
+        robotStatus->connnectedCloud();
         cloudExchangeTimer->reset();
       },
       [this](const RobotClientsRespond *respond)
@@ -121,7 +122,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       {
         autoTaskPublisher->publish(currentTask);
         std_msgs::msg::Bool criticalStatus;
-        criticalStatus.data = robotStatus.getRobotStatus() == RobotClientsRobotStatus::Critical;
+        criticalStatus.data = robotStatus->getRobotStatus() == RobotClientsRobotStatus::Critical;
         crtitcalStatusPublisher->publish(criticalStatus);
       });
 
@@ -161,6 +162,22 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
     navThroughPosesActionClient = rclcpp_action::create_client<nav2_msgs::action::NavigateThroughPoses>(
         this,
         "navigate_through_poses");
+
+    navigation = std::make_shared<Navigation>(navThroughPosesActionClient, 
+      robotStatus,
+      [this](const char *message, int level)
+      {
+        // logCb
+        logCallback(message, level);
+      },
+      [this]()
+      {
+        cloudAutoTaskAbort(RobotClientsAbortReason::NavStack);
+      },
+      [this]()
+      { 
+        cloudAutoTaskNext();
+      });
 
     tfBuffer = std::make_unique<tf2_ros::Buffer>(this->get_clock());
     tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);
@@ -256,7 +273,7 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
     if (currentTask.task_progress_id == 3)
     {
       RCLCPP_INFO(this->get_logger(), "AutoTask Id: %d completed.", task.taskid());
-      robotStatus.taskCompleted();
+      robotStatus->taskCompleted();
     }
     else if (currentTask.task_progress_id == 4)
     {
@@ -278,7 +295,7 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
           }
         );
       }
-      robotStatus.taskAborted();
+      robotStatus->taskAborted();
     }
     else
     {
@@ -299,9 +316,9 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
           pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(waypoint.rotation());
           poses.push_back(pose);
         }
-        navThroughPoses(poses);
+        navigation->navThroughPoses(poses);
       }
-      robotStatus.taskAssigned();
+      robotStatus->taskAssigned();
     }
   }
 
@@ -319,11 +336,11 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
     // Emergency Stop
     if (commands.softwareemergencystop() == true && currentCommands.softwareemergencystop() == false)
     {
-      robotStatus.enterCritical();
+      robotStatus->enterCritical();
     }
     else if (commands.softwareemergencystop() == false && currentCommands.softwareemergencystop() == true)
     {
-      robotStatus.exitCritical();
+      robotStatus->exitCritical();
     }
     criticalStatus.set_softwareemergencystop(commands.softwareemergencystop());
     currentCommands.set_softwareemergencystop(commands.softwareemergencystop());
@@ -331,11 +348,11 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
     // Pause Task Assigement
     if (commands.pausetaskassigement() == true && currentCommands.pausetaskassigement() == false)
     {
-      robotStatus.pauseTaskAssigement();
+      robotStatus->pauseTaskAssigement();
     }
     else if (commands.pausetaskassigement() == false && currentCommands.pausetaskassigement() == true)
     {
-      robotStatus.resumeTaskAssigement();
+      robotStatus->resumeTaskAssigement();
     }
     currentCommands.set_pausetaskassigement(commands.pausetaskassigement());
   }
@@ -400,7 +417,8 @@ void DaemonNode::cloudExchange()
   }
   std::vector<double> batteries = {11.59, 11.45};
 
-  cloud->exchange(robotStatus.getRobotStatus(),
+  RobotClientsAutoTaskNavProgress navProgress = navigation->getNavProgress();
+  cloud->exchange(robotStatus->getRobotStatus(),
                   criticalStatus,
                   batteries,
                   robotPosition,
@@ -425,94 +443,13 @@ void DaemonNode::cloudAutoTaskAbort(RobotClientsAbortReason reason)
   lastAbortReason = reason;
   if (!currentTask.next_token.empty())
   {
-    robotStatus.taskAborting();
+    robotStatus->taskAborting();
     RCLCPP_INFO(this->get_logger(), "AutoTask will be aborted.");
     RobotClientsAbortToken token;
     token.set_taskid(currentTask.task_id);
     token.set_nexttoken(currentTask.next_token);
     token.set_abortreason(RobotClientsAbortReason::UserApi);
     cloud->autoTaskAbort(token);
-  }
-}
-
-void DaemonNode::navThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> &poses)
-{
-  using namespace std::placeholders;
-
-  if (!navThroughPosesActionClient->wait_for_action_server())
-  {
-    RCLCPP_ERROR(this->get_logger(), "NAV2 stack is not ready.");
-    return;
-  }
-
-  auto goal = nav2_msgs::action::NavigateThroughPoses::Goal();
-  goal.poses = poses;
-
-  auto goalOption = rclcpp_action::Client<nav2_msgs::action::NavigateThroughPoses>::SendGoalOptions();
-  goalOption.goal_response_callback = std::bind(&DaemonNode::navThroughPosesGoalResponse, this, _1);
-  goalOption.feedback_callback = std::bind(&DaemonNode::navThroughPosesFeedback, this, _1, _2);
-  goalOption.result_callback = std::bind(&DaemonNode::navThroughPosesResult, this, _1);
-  navThroughPosesActionClient->async_send_goal(goal, goalOption);
-}
-
-void DaemonNode::navThroughPosesGoalResponse(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr &goalHandle)
-{
-  if (!goalHandle)
-  {
-    RCLCPP_ERROR(this->get_logger(), "navThroughPoses goal was rejected by server, the task will be aborted.");
-    cloudAutoTaskAbort(RobotClientsAbortReason::NavStack);
-  }
-}
-
-void DaemonNode::navThroughPosesFeedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr, 
-  const std::shared_ptr<const nav2_msgs::action::NavigateThroughPoses::Feedback> feedback)
-{
-  lastNavProgress = navProgress;
-  navProgress.set_eta(rclcpp::Duration(feedback->estimated_time_remaining).seconds());
-  navProgress.set_recoveries(feedback->number_of_recoveries);
-  navProgress.set_distanceremaining(feedback->distance_remaining);
-  navProgress.set_waypointsremaining(feedback->number_of_poses_remaining);
-  if (robotStatus.getRobotStatus() == RobotClientsRobotStatus::Running)
-  {
-    // Determine if the robot is stuck by
-    // 1. Recoveries is increasing
-    // 2. Eta is 0
-    if (navProgress.recoveries() > lastNavProgress.recoveries() && 
-        navProgress.eta() == 0)
-    {
-      robotStatus.navigationStuck();
-      RCLCPP_INFO(this->get_logger(), "The robot is stuck.");
-    }
-  }
-  else if (robotStatus.getRobotStatus() == RobotClientsRobotStatus::Stuck)
-  {
-    // Determine if the robot is cleared by
-    // 1. Recoveries is unchanged
-    // 2. Eta is not 0 and decreasing
-    // 3. distanceRemaining is decreasing
-    if (navProgress.recoveries() == lastNavProgress.recoveries() &&
-        navProgress.eta() < lastNavProgress.eta() &&
-        navProgress.eta() > 0 &&
-        navProgress.distanceremaining() < lastNavProgress.distanceremaining())
-    {
-      robotStatus.navigationCleared();
-      RCLCPP_INFO(this->get_logger(), "The robot resumed navigation.");
-    }
-  }
-}
-
-void DaemonNode::navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::WrappedResult &result)
-{
-  switch (result.code)
-  {
-    case rclcpp_action::ResultCode::SUCCEEDED:
-      cloudAutoTaskNext();
-      break;
-    case rclcpp_action::ResultCode::ABORTED:
-    case rclcpp_action::ResultCode::CANCELED:
-    default:
-      cloudAutoTaskAbort(RobotClientsAbortReason::NavStack);
-      return;
   }
 }
 

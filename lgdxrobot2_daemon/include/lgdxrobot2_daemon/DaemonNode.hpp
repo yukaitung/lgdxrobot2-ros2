@@ -6,6 +6,7 @@
 #include "CloudAdapter.hpp"
 #include "SerialPort.hpp"
 #include "RobotStatus.hpp"
+#include "Navigation.hpp"
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
@@ -27,8 +28,6 @@
 class DaemonNode : public rclcpp::Node
 {
   private:
-    // Cloud Client
-    using NavThroughPosesGoalHandle = rclcpp_action::Client<nav2_msgs::action::NavigateThroughPoses>;
     // Cloud
     std::unique_ptr<CloudAdapter> cloud;
     std::queue<CloudFunctions> cloudErrorQueue;
@@ -43,13 +42,14 @@ class DaemonNode : public rclcpp::Node
     std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tfBuffer;
     RobotClientsDof robotPosition;
-    
+
+    // Logic Class
+    std::shared_ptr<Navigation> navigation;
+
     // Cloud Robot Status
-    RobotStatus robotStatus;
+    std::shared_ptr<RobotStatus> robotStatus;
     lgdxrobot2_daemon::msg::AutoTask currentTask;
     RobotClientsRobotCriticalStatus criticalStatus;
-    RobotClientsAutoTaskNavProgress lastNavProgress;
-    RobotClientsAutoTaskNavProgress navProgress;
     RobotClientsRobotCommands currentCommands;
     RobotClientsAbortReason lastAbortReason;
 
@@ -74,12 +74,6 @@ class DaemonNode : public rclcpp::Node
     void joyCallback(const sensor_msgs::msg::Joy &msg);
     void imuCallback(const sensor_msgs::msg::Imu &msg);
     void logCallback(const char *msg, int level);
-
-    void navThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> &poses);
-    void navThroughPosesGoalResponse(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr &goalHandle);
-    void navThroughPosesFeedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr, 
-      const std::shared_ptr<const nav2_msgs::action::NavigateThroughPoses::Feedback> feedback);
-    void navThroughPosesResult(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::WrappedResult &result);
 
     void cloudUpdate(const RobotClientsRespond *respond);
     void cloudRetry();
