@@ -278,24 +278,7 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
     else if (currentTask.task_progress_id == 4)
     {
       RCLCPP_INFO(this->get_logger(), "AutoTask Id: %d aborted.", task.taskid());
-      if (navThroughPosesActionClient->wait_for_action_server())
-      {
-        // The NAV2 stack is running, cancel the goal
-        auto cancelResult = navThroughPosesActionClient->async_cancel_all_goals(
-          [this](auto response)
-          {
-            if (response)
-            {
-              RCLCPP_INFO(this->get_logger(), "Navigation aborted.");
-            }
-            else
-            {
-              RCLCPP_ERROR(this->get_logger(), "Navigation abort failed.");
-            }
-          }
-        );
-      }
-      robotStatus->taskAborted();
+      navigation->abortNavThroughPoses();
     }
     else
     {

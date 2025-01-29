@@ -94,6 +94,28 @@ void Navigation::navThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> &p
   navThroughPosesActionClient->async_send_goal(goal, goalOption);
 }
 
+void Navigation::abortNavThroughPoses()
+{
+  if (navThroughPosesActionClient->wait_for_action_server())
+  {
+    // The NAV2 stack is running, cancel the goal
+    auto cancelResult = navThroughPosesActionClient->async_cancel_all_goals(
+      [this](auto response)
+      {
+        if (response)
+        {
+          log("Navigation aborted.", 1);
+        }
+        else
+        {
+          log("Navigation abort failed.", 3);
+        }
+      }
+    );
+  }
+  robotStatus->taskAborted();
+}
+
 RobotClientsAutoTaskNavProgress Navigation::getNavProgress()
 {
   return navProgress;

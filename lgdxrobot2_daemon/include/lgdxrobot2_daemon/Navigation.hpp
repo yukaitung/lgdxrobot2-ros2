@@ -35,6 +35,7 @@ class Navigation
       std::function<void(void)> abortCb,
       std::function<void(void)> nextCb);
     void navThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> &poses);
+    void abortNavThroughPoses();
     RobotClientsAutoTaskNavProgress getNavProgress();
 };
 
