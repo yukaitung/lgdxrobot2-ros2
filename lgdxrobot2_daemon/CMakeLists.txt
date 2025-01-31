@@ -68,9 +68,10 @@ add_executable(${EXECUTABLE_NAME}
   src/CloudAdapter.cpp
   src/DaemonNode.cpp
   src/main.cpp 
-  src/SerialPort.cpp
-  src/RobotStatus.cpp
   src/Navigation.cpp
+  src/RealtimeExchange.cpp
+  src/RobotStatus.cpp
+  src/SerialPort.cpp
 )
 target_link_libraries(${EXECUTABLE_NAME} 
   ${PROTO_NAME}

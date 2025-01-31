@@ -3,7 +3,9 @@
 int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<DaemonNode>());
+  auto node = std::make_shared<DaemonNode>();
+  rclcpp::spin(node);
+  node->shutdown();
   rclcpp::shutdown();
   return 0;
 }

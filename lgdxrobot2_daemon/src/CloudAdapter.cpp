@@ -4,6 +4,7 @@
 #include <fstream>
 #include <chrono>
 #include <sstream>
+#include <iostream>
 
 #include "hwinfo/hwinfo.h"
 #include "hwinfo/utils/unit.h"
@@ -20,12 +21,14 @@ CloudAdapter::CloudAdapter(const char *serverAddress,
   std::function<void(void)> startNextExchangeCb,
   std::function<void(const RobotClientsRespond *)> updateDaemonCb,
   std::function<void(const char *, int)> logCb,
-  std::function<void(CloudFunctions)> errorCb)
+  std::function<void(CloudFunctions)> errorCb,
+  std::function<void(bool)> setRealtimeExchangeCb)
 {
   startNextExchange = startNextExchangeCb;
   updateDeamon = updateDaemonCb;
   log = logCb;
   error = errorCb;
+  setRealtimeExchange = setRealtimeExchangeCb;
   std::string rootCert = readCert(rootCertPath);
   std::string clientKey = readCert(clientKeyPath);
   std::string clientCert = readCert(clientCertPath);
@@ -121,6 +124,13 @@ void CloudAdapter::greet()
       accessToken = grpc::AccessTokenCredentials(respond->accesstoken());
       // TODO: Store ChassisInfo
       log("Connect to the cloud, start data exchange.", 1);
+      if (respond->isrealtimeexchange())
+      {
+        log("Data exchange is realtime.", 1);
+        grpcRealtimeStub = RobotClientsService::NewStub(grpcChannel);
+        realtimeExchange = std::make_unique<RealtimeExchange>(grpcRealtimeStub.get(), accessToken, updateDeamon, startNextExchange);
+      }
+      setRealtimeExchange(respond->isrealtimeexchange());
       startNextExchange();
     }
     else
@@ -181,6 +191,18 @@ void CloudAdapter::exchange(RobotClientsRobotStatus robotStatus,
   });
 }
 
+void CloudAdapter::exchangeStream(RobotClientsRobotStatus robotStatus,
+  RobotClientsRobotCriticalStatus &criticalStatus,
+  std::vector<double> &batteries,
+  RobotClientsDof &position,
+  RobotClientsAutoTaskNavProgress &navProgress)
+{
+  if (realtimeExchange != nullptr)
+  {
+    realtimeExchange->SendMessage(robotStatus, criticalStatus, batteries, position, navProgress);
+  }
+}
+
 void CloudAdapter::autoTaskNext(RobotClientsNextToken &token)
 {
   grpc::ClientContext *context = new grpc::ClientContext();
@@ -237,4 +259,13 @@ void CloudAdapter::autoTaskAbort(RobotClientsAbortToken &token)
     delete request;
     delete respond;
   });
+}
+
+void CloudAdapter::shutdown()
+{
+  if (realtimeExchange != nullptr)
+  {
+    realtimeExchange->Shutdown();
+    realtimeExchange->AwaitCompletion();
+  }
 }

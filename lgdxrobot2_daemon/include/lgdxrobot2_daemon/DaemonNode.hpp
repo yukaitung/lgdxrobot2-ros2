@@ -42,9 +42,8 @@ class DaemonNode : public rclcpp::Node
     std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tfBuffer;
     RobotClientsDof robotPosition;
-
-    // Logic Class
     std::shared_ptr<Navigation> navigation;
+    bool IsRealtimeExchange = false;
 
     // Cloud Robot Status
     std::shared_ptr<RobotStatus> robotStatus;
@@ -81,9 +80,10 @@ class DaemonNode : public rclcpp::Node
     void cloudExchange();
     void cloudAutoTaskNext();
     void cloudAutoTaskAbort(RobotClientsAbortReason reason);
-    
+
   public:
     DaemonNode();
+    void shutdown();
 };
 
 #endif // DAEMON_NODE_HPP

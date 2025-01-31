@@ -98,6 +98,11 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
         cloudErrorQueue.push(function);
         if (cloudRetryTimer->is_canceled())
           cloudRetryTimer->reset();
+      },
+      [this](bool isRealtimeExchange)
+      {
+        // setRealtimeExchangeCb
+        IsRealtimeExchange = isRealtimeExchange;
       });
 
     std::random_device rd;
@@ -401,11 +406,22 @@ void DaemonNode::cloudExchange()
   std::vector<double> batteries = {11.59, 11.45};
 
   RobotClientsAutoTaskNavProgress navProgress = navigation->getNavProgress();
-  cloud->exchange(robotStatus->getRobotStatus(),
-                  criticalStatus,
-                  batteries,
-                  robotPosition,
-                  navProgress);
+  if (IsRealtimeExchange)
+  {
+    cloud->exchangeStream(robotStatus->getRobotStatus(),
+      criticalStatus,
+      batteries,
+      robotPosition,
+      navProgress);
+  }
+  else
+  {
+    cloud->exchange(robotStatus->getRobotStatus(),
+      criticalStatus,
+      batteries,
+      robotPosition,
+      navProgress);
+  }
   // Don't reset the cloudExchangeTimer here
 }
 
@@ -544,4 +560,17 @@ void DaemonNode::imuCallback(const sensor_msgs::msg::Imu &msg)
   float az = msg.linear_acceleration.z;
   float gz = msg.angular_velocity.z;
   serialPort->setExternalImu(ax, ay, az, gz);
+}
+
+void DaemonNode::shutdown()
+{
+  if (cloudExchangeTimer != nullptr && !cloudExchangeTimer->is_canceled())
+  {
+    cloudExchangeTimer->cancel();
+  }
+  
+  if (cloud != nullptr)
+  {
+    cloud->shutdown();
+  }
 }
