@@ -18,6 +18,7 @@ from ament_index_python.packages import get_package_share_directory
 from webots_ros2_driver.webots_launcher import WebotsLauncher
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.wait_for_controller_connection import WaitForControllerConnection
+from launch_ros.actions import Node
 import os
 
 launch_args = [
@@ -96,10 +97,11 @@ def launch_setup(context):
   package_dir = get_package_share_directory('lgdxrobot2_bringup')
   webots_package_dir = get_package_share_directory('lgdxrobot2_webots')
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
-  nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
+  nav2_package_dir = get_package_share_directory('nav2_bringup')
   robot_description_path = os.path.join(webots_package_dir, 'resource', 'lgdxrobot2.urdf')
   profile_str = LaunchConfiguration('profile').perform(context)
   namespace = LaunchConfiguration('namespace')
+  use_namespace = 'True' if LaunchConfiguration('namespace').perform(context) != '' else 'False'
   namespace_str = LaunchConfiguration('namespace').perform(context)
   world = LaunchConfiguration('world')
   slam = LaunchConfiguration('slam')
@@ -154,21 +156,29 @@ def launch_setup(context):
     }.items(),
   )
 
-  nav2_nodes = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(nav2_package_dir, 'launch', 'nav2_base.launch.py')
-    ),
+  robot_localization_node = Node(
+    package='robot_localization',
+    executable='ekf_node',
+    name='ekf_filter_node',
+    output='screen',
+    parameters=[
+      generate_param_path_with_profile('ekf.yaml', profile_str),
+      {'use_sim_time': use_sim_time }
+    ]
+  )
+
+  ros2_nav = IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(os.path.join(nav2_package_dir, 'launch', 'bringup_launch.py')),
     launch_arguments={
       'namespace': namespace,
+      'use_namespace': use_namespace,
       'slam': slam,
       'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
-      'ekf_params_file': generate_param_path_with_profile('ekf.yaml', profile_str),
-      'nav2_params_file': generate_param_path_with_profile('nav2.yaml', profile_str),
-      'lattice_file': generate_param_path_with_profile('lattice.json', profile_str),
       'use_sim_time': use_sim_time,
+      'params_file': generate_param_path_with_profile('nav2.yaml', profile_str),
       'autostart': autostart,
       'use_composition': use_composition,
-      'use_respawn': use_respawn
+      'use_respawn': use_respawn,
     }.items(),
   )
    
@@ -185,8 +195,8 @@ def launch_setup(context):
   )
 
   waiting_nodes = WaitForControllerConnection(
-    target_driver=lgdxrobot2_driver,
-    nodes_to_start=[description_nodes] + [nav2_nodes] + [explore_node]
+    target_driver = lgdxrobot2_driver,
+    nodes_to_start = [description_nodes] + [robot_localization_node] + [ros2_nav] + [explore_node]
   )
 
   return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]

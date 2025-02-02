@@ -1,53 +1,80 @@
-amcl:
+slam_toolbox:
   ros__parameters:
-    use_sim_time: True
-    alpha1: 0.01
-    alpha2: 0.01
-    alpha3: 0.01
-    alpha4: 0.01
-    alpha5: 0.01
-    base_frame_id: "base_link"
-    beam_skip_distance: 0.5
-    beam_skip_error_threshold: 0.9
-    beam_skip_threshold: 0.3
-    do_beamskip: false
-    global_frame_id: "map"
-    lambda_short: 0.1
-    laser_likelihood_max_dist: 2.0
-    laser_max_range: 3.5
-    laser_min_range: -1.0
-    laser_model_type: "likelihood_field"
-    max_beams: 512
-    max_particles: 5000
-    min_particles: 2000
-    odom_frame_id: "odom"
-    pf_err: 0.001
-    pf_z: 0.99
-    recovery_alpha_fast: 0.001
-    recovery_alpha_slow: 0.001
-    resample_interval: 1
-    robot_model_type: "nav2_amcl::OmniMotionModel"
-    save_pose_rate: 0.5
-    sigma_hit: 0.2
-    tf_broadcast: true
-    transform_tolerance: 1.0
-    update_min_a: 0.2
-    update_min_d: 0.1
-    z_hit: 0.8
-    z_max: 0.05
-    z_rand: 0.2
-    z_short: 0.05
-    scan_topic: scan
-    set_initial_pose: True
-    initial_pose:
-      x: 0.0
-      y: 0.0
-      z: 0.0
-      yaw: 0.0
+
+    # Plugin params
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: SCHUR_JACOBI
+    ceres_trust_strategy: LEVENBERG_MARQUARDT
+    ceres_dogleg_type: TRADITIONAL_DOGLEG
+    ceres_loss_function: None
+
+    # ROS Parameters
+    odom_frame: odom
+    map_frame: map
+    base_frame: base_footprint
+    scan_topic: /scan
+    use_map_saver: true
+    mode: localization
+
+    # if you'd like to immediately start continuing a map at a given pose
+    # or at the dock, but they are mutually exclusive, if pose is given
+    # will use pose
+    #map_file_name: test_steve
+    #map_start_pose: [0.0, 0.0, 0.0]
+    #map_start_at_dock: true
+
+    debug_logging: false
+    throttle_scans: 1
+    transform_publish_period: 0.02 #if 0 never publishes odometry
+    map_update_interval: 5.0
+    resolution: 0.05
+    max_laser_range: 20.0 #for rastering images
+    minimum_time_interval: 0.5
+    transform_timeout: 0.2
+    tf_buffer_duration: 30.0
+    stack_size_to_use: 40000000 #// program needs a larger stack size to serialize large maps
+    enable_interactive_mode: True
+
+    # General Parameters
+    use_scan_matching: False
+    use_scan_barycenter: True
+    minimum_travel_distance: 0.2
+    minimum_travel_heading: 0.5
+    scan_buffer_size: 10
+    scan_buffer_maximum_scan_distance: 10.0
+    link_match_minimum_response_fine: 0.1  
+    link_scan_maximum_distance: 1.5
+    loop_search_maximum_distance: 3.0
+    do_loop_closing: true 
+    loop_match_minimum_chain_size: 10           
+    loop_match_maximum_variance_coarse: 3.0  
+    loop_match_minimum_response_coarse: 0.35    
+    loop_match_minimum_response_fine: 0.45
+
+    # Correlation Parameters - Correlation Parameters
+    correlation_search_space_dimension: 0.5
+    correlation_search_space_resolution: 0.01
+    correlation_search_space_smear_deviation: 0.1 
+
+    # Correlation Parameters - Loop Closure Parameters
+    loop_search_space_dimension: 8.0
+    loop_search_space_resolution: 0.05
+    loop_search_space_smear_deviation: 0.03
+
+    # Scan Matcher Parameters
+    distance_variance_penalty: 0.5      
+    angle_variance_penalty: 1.0    
+
+    fine_search_angle_offset: 0.00349     
+    coarse_search_angle_offset: 0.349   
+    coarse_angle_resolution: 0.0349        
+    minimum_angle_penalty: 0.9
+    minimum_distance_penalty: 0.5
+    use_response_expansion: true
 
 bt_navigator:
   ros__parameters:
-    use_sim_time: True
     global_frame: map
     robot_base_frame: base_link
     odom_topic: /odom
@@ -92,14 +119,6 @@ bt_navigator:
     - nav2_planner_selector_bt_node
     - nav2_controller_selector_bt_node
     - nav2_goal_checker_selector_bt_node
-
-bt_navigator_navigate_through_poses_rclcpp_node:
-  ros__parameters:
-    use_sim_time: True
-
-bt_navigator_navigate_to_pose_rclcpp_node:
-  ros__parameters:
-    use_sim_time: True
 
 controller_server:
   ros__parameters:
@@ -209,7 +228,6 @@ local_costmap:
       publish_frequency: 10.0
       global_frame: odom
       robot_base_frame: base_link
-      use_sim_time: True
       rolling_window: true
       width: 3
       height: 3
@@ -219,7 +237,7 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 5.0
-        inflation_radius: 0.3
+        inflation_radius: 0.35
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -275,19 +293,11 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 5.0
-        inflation_radius: 0.3
+        inflation_radius: 0.35
       always_send_full_costmap: True
-
-map_server:
-  ros__parameters:
-    use_sim_time: True
-    # Overridden in launch by the "map" launch configuration or provided default value.
-    # To use in yaml, remove the default "map" value in the tb3_simulation_launch.py file & provide full path to map below.
-    yaml_filename: ""
 
 map_saver:
   ros__parameters:
-    use_sim_time: True
     save_map_timeout: 5.0
     free_thresh_default: 0.25
     occupied_thresh_default: 0.65
@@ -297,46 +307,43 @@ planner_server:
   ros__parameters:
     planner_plugins: ['GridBased']
     GridBased:
-      plugin: 'nav2_navfn_planner/NavfnPlanner' 
+      plugin: "nav2_navfn_planner::NavfnPlanner"
       use_astar: False
       allow_unknown: True
       tolerance: 0.1
 
 behavior_server:
   ros__parameters:
-    costmap_topic: local_costmap/costmap_raw
-    footprint_topic: local_costmap/published_footprint
+    local_costmap_topic: local_costmap/costmap_raw
+    global_costmap_topic: global_costmap/costmap_raw
+    local_footprint_topic: local_costmap/published_footprint
+    global_footprint_topic: global_costmap/published_footprint
     cycle_frequency: 10.0
     behavior_plugins: ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
     spin:
       plugin: "nav2_behaviors/Spin"
     backup:
       plugin: "nav2_behaviors/BackUp"
-    drive_on_heading:
-      plugin: "nav2_behaviors/DriveOnHeading"
     wait:
       plugin: "nav2_behaviors/Wait"
+    drive_on_heading:
+      plugin: "nav2_behaviors/DriveOnHeading"
     assisted_teleop:
       plugin: "nav2_behaviors/AssistedTeleop"
-    global_frame: odom
+    local_frame: odom
+    global_frame: map
     robot_base_frame: base_link
     transform_tolerance: 0.1
-    use_sim_time: true
     simulate_ahead_time: 2.0
-    max_rotational_vel: 1.0
-    min_rotational_vel: 0.4
-    rotational_acc_lim: 3.2
-
-robot_state_publisher:
-  ros__parameters:
-    use_sim_time: True
+    max_rotational_vel: 0.25
+    min_rotational_vel: 0.1
+    rotational_acc_lim: 1.0
 
 waypoint_follower:
   ros__parameters:
-    use_sim_time: True
     loop_rate: 20
     stop_on_failure: false
-    waypoint_task_executor_plugin: "wait_at_waypoint"
+    waypoint_task_executor_plugin: "wait_at_waypoint"   
     wait_at_waypoint:
       plugin: "nav2_waypoint_follower::WaitAtWaypoint"
       enabled: True
