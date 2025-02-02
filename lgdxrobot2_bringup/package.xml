@@ -4,19 +4,17 @@
   <name>lgdxrobot2_bringup</name>
   <version>0.0.0</version>
   <description>Bringup scripts and configurations for LGDXRobot2</description>
-  <maintainer email="sam@bristolgram.uk">Kai Tung Yu</maintainer>
-  <license>TODO: License declaration</license>
+  <maintainer email="dev@bristolgram.uk">LGDXRobot</maintainer>
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-
-  <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_lint_common</test_depend>
 
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>lgdxrobot2_description</exec_depend>
   <exec_depend>lgdxrobot2_mcu</exec_depend>
   <exec_depend>lgdxrobot2_navigation</exec_depend>
   <exec_depend>lgdxrobot2_webots</exec_depend>
+  <exec_depend>nav2-bringup</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
