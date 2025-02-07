@@ -100,8 +100,6 @@ void CloudAdapter::setSystemInfo(RobotClientsSystemInfo *info)
   }
   hwinfo::Memory memory;
   info->set_rammib(hwinfo::unit::bytes_to_MiB(memory.total_Bytes()));
-
-  // TODO: Get MCU serial number
 }
 
 void CloudAdapter::greet(std::string mcuSerialNumber)
@@ -126,7 +124,6 @@ void CloudAdapter::greet(std::string mcuSerialNumber)
     if (status.ok()) 
     {
       accessToken = grpc::AccessTokenCredentials(respond->accesstoken());
-      // TODO: Store ChassisInfo
       log("Connect to the cloud, start data exchange.", 1);
       if (respond->isrealtimeexchange())
       {
