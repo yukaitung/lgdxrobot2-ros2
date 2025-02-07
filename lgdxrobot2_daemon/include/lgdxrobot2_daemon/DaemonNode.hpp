@@ -57,6 +57,7 @@ class DaemonNode : public rclcpp::Node
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
     rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joySubscription;
     rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imuSubscription;
+    std::string lastMcuSerialNumber;
 
     // Odom
     std::string baseLinkName;
@@ -76,7 +77,7 @@ class DaemonNode : public rclcpp::Node
 
     void cloudUpdate(const RobotClientsRespond *respond);
     void cloudRetry();
-    void cloudGreet();
+    void cloudGreet(std::string mcuSerialNumber);
     void cloudExchange();
     void cloudAutoTaskNext();
     void cloudAutoTaskAbort(RobotClientsAbortReason reason);

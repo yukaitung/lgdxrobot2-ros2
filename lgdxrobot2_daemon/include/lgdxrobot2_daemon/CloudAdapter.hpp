@@ -48,7 +48,7 @@ class CloudAdapter
       std::function<void(const char *, int)> logCb,
       std::function<void(CloudFunctions)> errorCb,
       std::function<void(bool)> setRealtimeExchangeCb);
-    void greet();
+    void greet(std::string mcuSerialNumber);
     void exchange(RobotClientsRobotStatus robotStatus,
       RobotClientsRobotCriticalStatus &criticalStatus,
       std::vector<double> &batteries,

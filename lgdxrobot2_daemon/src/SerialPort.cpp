@@ -7,7 +7,8 @@
 SerialPort::SerialPort(const std::string port,
   bool resetTransform,
   std::function<void(const RobotData &)> updateDaemonCb,
-  std::function<void(const char *, int)> logCb) : 
+  std::function<void(const char *, int)> logCb,
+  std::function<void(const char *)> serialNumberCb) : 
     serialService(), 
     serial(serialService), 
     timerService(), 
@@ -16,6 +17,7 @@ SerialPort::SerialPort(const std::string port,
   resetTransformOnConnected = resetTransform;
   updateDeamon = updateDaemonCb;
   log = logCb;
+  serialNumber = serialNumberCb;
   if(port.empty())
   {
     // Perform auto search if no port specified
@@ -26,6 +28,7 @@ SerialPort::SerialPort(const std::string port,
     defaultPortName = port;
     connect(defaultPortName);
   }
+  getSerialNumber();
 }
 
 SerialPort::~SerialPort()
@@ -85,7 +88,7 @@ void SerialPort::autoSearch()
       return;
     }  
   }
-  sprintf(msg, "No serial device found, try again in %s seconds.", port.c_str());
+  sprintf(msg, "No serial device found, try again in %d seconds.", kWaitSecond);
   log(msg, 1);
   timer.expires_after(std::chrono::seconds(kWaitSecond));
   timer.async_wait(std::bind(&SerialPort::autoSearch, this));
@@ -141,13 +144,17 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
       // Find the header and frame size
       if(readBuffer[0] == char(170)) // 170 = 0xAA
       {
-        int frameSize = readBuffer[1];
+        int frameSize = readBuffer[2];
         if(int(size) == frameSize)
         {
           // Process the data if received data = target size, 
           processReadData();
         }
       }
+    }
+    if(readBuffer[0] == (char) 171) // 171 = 0xAB
+    {
+      processSerialNumber();
     }
     // Read upcoming data
     read();
@@ -165,7 +172,7 @@ void SerialPort::readHandler(boost::system::error_code error, std::size_t size)
 
 void SerialPort::processReadData()
 {
-  int index = 2;
+  int index = 3;
   robotData.refreshTime = combineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1]);
   index += 2;
   for(int i = 0; i < 3; i++)
@@ -223,6 +230,31 @@ void SerialPort::processReadData()
     compare = compare >> 1;
   }
   updateDeamon(robotData);
+}
+
+void SerialPort::charArrayToHex(const char* input, size_t length, char* output) 
+{
+  const char hexChars[] = "0123456789ABCDEF";
+  for (size_t i = 0; i < length; ++i) 
+  {
+    output[i * 2] = hexChars[(input[i] >> 4) & 0xF];  
+    output[i * 2 + 1] = hexChars[input[i] & 0xF]; 
+  }
+  output[length * 2] = '\0';
+}
+
+void SerialPort::getSerialNumber()
+{
+  std::vector<char> ba(1);
+  ba[0] = 'S';
+  write(ba);
+}
+
+void SerialPort::processSerialNumber()
+{
+  char sn[30] = {0};
+  charArrayToHex(&readBuffer[1], 12, sn);
+  serialNumber(sn);
 }
 
 void SerialPort::resetTransformInternal()

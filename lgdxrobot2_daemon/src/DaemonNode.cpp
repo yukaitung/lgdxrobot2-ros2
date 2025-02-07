@@ -203,6 +203,16 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       [this](const char *message, int level)
       {
         logCallback(message, level);
+      },
+      [this](const char *serialNumber)
+      {
+        RCLCPP_INFO(this->get_logger(), "The Serial Number of MCU is %s.", serialNumber);
+        if (cloud != nullptr)
+        {
+          std::string str(serialNumber);
+          lastMcuSerialNumber = str;
+          cloudGreet(lastMcuSerialNumber);
+        }
       }
     );
 
@@ -245,9 +255,9 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
   /*
    * Everything Initialised
    */
-  if (cloud != nullptr)
+  if (cloud != nullptr && !serialPortEnable)
   {
-    cloudGreet();
+    cloudGreet("");
   }
 }
 
@@ -356,7 +366,7 @@ void DaemonNode::cloudRetry()
     switch (function)
     {
     case CloudFunctions::Greet:
-      cloudGreet();
+      cloudGreet(lastMcuSerialNumber);
       break;
     case CloudFunctions::Exchange:
       cloudExchange();
@@ -372,9 +382,9 @@ void DaemonNode::cloudRetry()
   }
 }
 
-void DaemonNode::cloudGreet()
+void DaemonNode::cloudGreet(std::string mcuSerialNumber)
 {
-  cloud->greet();
+  cloud->greet(mcuSerialNumber);
 }
 
 void DaemonNode::cloudExchange()

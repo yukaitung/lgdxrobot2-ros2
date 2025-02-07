@@ -104,7 +104,7 @@ void CloudAdapter::setSystemInfo(RobotClientsSystemInfo *info)
   // TODO: Get MCU serial number
 }
 
-void CloudAdapter::greet()
+void CloudAdapter::greet(std::string mcuSerialNumber)
 {
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
@@ -113,6 +113,10 @@ void CloudAdapter::greet()
   RobotClientsGreet *request = new RobotClientsGreet();
   RobotClientsSystemInfo *systemInfo = new RobotClientsSystemInfo();
   setSystemInfo(systemInfo);
+  if(!mcuSerialNumber.empty())
+  {
+    systemInfo->set_mcuserialnumber(mcuSerialNumber);
+  }
   request->set_allocated_systeminfo(systemInfo);
 
   RobotClientsGreetRespond *respond = new RobotClientsGreetRespond();

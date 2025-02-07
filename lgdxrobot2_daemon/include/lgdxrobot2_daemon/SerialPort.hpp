@@ -17,6 +17,7 @@ class SerialPort
     bool resetTransformOnConnected = false;
     std::function<void(const RobotData &)> updateDeamon;
     std::function<void(const char *, int)> log;
+    std::function<void(const char *)> serialNumber;
 
     RobotData robotData;
     boost::asio::io_service serialService;
@@ -49,6 +50,9 @@ class SerialPort
     void read();
     void readHandler(boost::system::error_code error, std::size_t size);
     void processReadData();
+    void charArrayToHex(const char* input, size_t length, char* output);
+    void getSerialNumber();
+    void processSerialNumber();
 
     // Write to MCU
     void resetTransformInternal();
@@ -59,7 +63,8 @@ class SerialPort
     SerialPort(const std::string port, // Pass by value
       bool resetTransform,
       std::function<void(const RobotData &)> updateDaemonCb,
-      std::function<void(const char *, int)> logCb);
+      std::function<void(const char *, int)> logCb,
+      std::function<void(const char *)> serialNumberCb);
     ~SerialPort();
 
     void start(const std::string &port);
