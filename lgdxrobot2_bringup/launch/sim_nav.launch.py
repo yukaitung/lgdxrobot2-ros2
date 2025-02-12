@@ -5,7 +5,7 @@ Usage:
 cd lgdx_ws # The location of the source code
 . install/setup.bash
 ros2 launch lgdxrobot2_bringup sim_nav.launch.py use_explore_lite:=True
-ros2 launch lgdxrobot2_bringup sim_nav.launch.py slam:=False profile:='sim-loc'
+ros2 launch lgdxrobot2_bringup sim_nav.launch.py profile:='sim-loc'
 """
 
 from launch.conditions import IfCondition
@@ -39,8 +39,13 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='slam',
-    default_value='True',
+    default_value='False',
     description='Whether run a SLAM.'
+  ),
+  DeclareLaunchArgument(
+    name='use_localization', 
+    default_value='True',
+    description='Whether to enable localization or not'
   ),
   DeclareLaunchArgument(
     name='map',
@@ -105,6 +110,7 @@ def launch_setup(context):
   namespace_str = LaunchConfiguration('namespace').perform(context)
   world = LaunchConfiguration('world')
   slam = LaunchConfiguration('slam')
+  use_localization = LaunchConfiguration('use_localization')
   map = LaunchConfiguration('map')
   use_sim_time = LaunchConfiguration('use_sim_time')
   autostart = LaunchConfiguration('autostart')
@@ -173,6 +179,7 @@ def launch_setup(context):
       'namespace': namespace,
       'use_namespace': use_namespace,
       'slam': slam,
+      'use_localization': use_localization,
       'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
       'use_sim_time': use_sim_time,
       'params_file': generate_param_path_with_profile('nav2.yaml', profile_str),
