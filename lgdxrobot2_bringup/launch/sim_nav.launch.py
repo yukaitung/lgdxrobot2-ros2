@@ -11,14 +11,23 @@ ros2 launch lgdxrobot2_bringup sim_nav.launch.py profile:='sim-loc'
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+from launch.actions import (
+  DeclareLaunchArgument, 
+  GroupAction,
+  IncludeLaunchDescription,
+  OpaqueFunction,
+  SetEnvironmentVariable
+)
 from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from ament_index_python.packages import get_package_share_directory
 from webots_ros2_driver.webots_launcher import WebotsLauncher
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.wait_for_controller_connection import WaitForControllerConnection
-from launch_ros.actions import Node
+from launch_ros.actions import Node, PushROSNamespace
+from launch_ros.descriptions import ParameterFile
+from nav2_common.launch import RewrittenYaml
 import os
 
 launch_args = [
@@ -86,6 +95,11 @@ launch_args = [
     name='use_explore_lite', 
     default_value='False',
     description='Launch explore_lite to explore the map automatically.'
+  ),
+  DeclareLaunchArgument(
+    name='log_level', 
+    default_value='info',
+    description='Log levely.'
   )
 ]
 
@@ -99,6 +113,8 @@ def generate_param_path_with_profile(file_name, profile):
       
 
 def launch_setup(context):
+  stdout_linebuf_envvar = SetEnvironmentVariable('RCUTILS_LOGGING_BUFFERED_STREAM', '1')
+  
   package_dir = get_package_share_directory('lgdxrobot2_bringup')
   webots_package_dir = get_package_share_directory('lgdxrobot2_webots')
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
@@ -119,6 +135,19 @@ def launch_setup(context):
   use_rviz = LaunchConfiguration('use_rviz')
   rviz_config = LaunchConfiguration('rviz_config')
   use_explore_lite = LaunchConfiguration('use_explore_lite')
+  log_level = LaunchConfiguration('log_level')
+  
+  nav2_remappings = [('/tf', 'tf'), ('/tf_static', 'tf_static')]
+  nav2_param_file = generate_param_path_with_profile('nav2.yaml', profile_str)
+  nav2_configured_params = ParameterFile(
+    RewrittenYaml(
+      source_file=nav2_param_file,
+      root_key=namespace,
+      param_rewrites={},
+      convert_types=True,
+    ),
+    allow_substs=True,
+  )
   
   webots = WebotsLauncher(
     world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
@@ -173,21 +202,57 @@ def launch_setup(context):
     ]
   )
 
-  ros2_nav = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(os.path.join(nav2_package_dir, 'launch', 'bringup_launch.py')),
-    launch_arguments={
-      'namespace': namespace,
-      'use_namespace': use_namespace,
-      'slam': slam,
-      'use_localization': use_localization,
-      'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
-      'use_sim_time': use_sim_time,
-      'params_file': generate_param_path_with_profile('nav2.yaml', profile_str),
-      'autostart': autostart,
-      'use_composition': use_composition,
-      'use_respawn': use_respawn,
-    }.items(),
-  )
+  ros2_nav = GroupAction(
+  [
+    PushROSNamespace(condition=IfCondition(use_namespace), namespace=namespace),
+    Node(
+      condition=IfCondition(use_composition),
+      name='nav2_container',
+      package='rclcpp_components',
+      executable='component_container_isolated',
+      parameters=[nav2_configured_params, {'autostart': autostart}],
+      arguments=['--ros-args', '--log-level', log_level],
+      remappings=nav2_remappings,
+      output='screen',
+    ),
+    IncludeLaunchDescription(
+      PythonLaunchDescriptionSource(os.path.join(nav2_package_dir, 'launch', 'slam_launch.py')),
+      condition=IfCondition(PythonExpression([slam, ' and ', use_localization])),
+      launch_arguments={
+        'namespace': namespace,
+        'use_sim_time': use_sim_time,
+        'autostart': autostart,
+        'use_respawn': use_respawn,
+        'params_file': nav2_param_file,
+      }.items(),
+    ),
+    IncludeLaunchDescription(
+      PythonLaunchDescriptionSource(os.path.join(nav2_package_dir, 'launch', 'localization_launch.py')),
+      condition=IfCondition(PythonExpression(['not ', slam, ' and ', use_localization])),
+      launch_arguments={
+        'namespace': namespace,
+        'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
+        'use_sim_time': use_sim_time,
+        'autostart': autostart,
+        'params_file': nav2_param_file,
+        'use_composition': use_composition,
+        'use_respawn': use_respawn,
+        'container_name': 'nav2_container',
+      }.items(),
+    ),
+    IncludeLaunchDescription(
+      PythonLaunchDescriptionSource(os.path.join(nav2_package_dir, 'launch', 'navigation_launch.py')),
+      launch_arguments={
+        'namespace': namespace,
+        'use_sim_time': use_sim_time,
+        'autostart': autostart,
+        'params_file': nav2_param_file,
+        'use_composition': use_composition,
+        'use_respawn': use_respawn,
+        'container_name': 'nav2_container',
+      }.items(),
+    ),
+  ])
    
   explore_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
