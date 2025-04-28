@@ -4,7 +4,8 @@ This script initalises LGDXRobot2 Webots simulation, RViz visualision and ROS2 N
 Usage: 
 cd lgdx_ws # The location of the source code
 . install/setup.bash
-ros2 launch lgdxrobot2_bringup sim_nav.launch.py use_explore_lite:=True
+ros2 launch lgdxrobot2_bringup sim_nav.launch.py slam:=True
+ros2 launch lgdxrobot2_bringup sim_nav.launch.py slam:=True use_explore_lite:=True
 ros2 launch lgdxrobot2_bringup sim_nav.launch.py profile:='sim-loc'
 """
 
@@ -88,7 +89,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='rviz_config', 
-    default_value='nav.rviz',
+    default_value='',
     description='The absolute path for the RViz config file.'
   ),
   DeclareLaunchArgument(
@@ -133,7 +134,9 @@ def launch_setup(context):
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
   use_rviz = LaunchConfiguration('use_rviz')
-  rviz_config = LaunchConfiguration('rviz_config')
+  rviz_config = LaunchConfiguration('rviz_config').perform(context)
+  if not rviz_config:
+    rviz_config = os.path.join(package_dir, 'rviz', profile_str) + '.rviz'
   use_explore_lite = LaunchConfiguration('use_explore_lite')
   log_level = LaunchConfiguration('log_level')
   
@@ -178,16 +181,16 @@ def launch_setup(context):
     respawn=True
   )
 
-  description_nodes = IncludeLaunchDescription(
+  description_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
       os.path.join(description_package_dir, 'launch', 'display.launch.py')
     ),
     launch_arguments={
       'namespace': namespace,
       'use_sim_time': use_sim_time,
-      'model': 'lgdxrobot2_simulation.urdf',
+      'model': 'lgdxrobot2_sim_description.urdf',
       'use_rviz': use_rviz,
-      'rviz_config': PathJoinSubstitution([package_dir, 'rviz', rviz_config]),
+      'rviz_config': rviz_config,
     }.items(),
   )
 
@@ -268,7 +271,7 @@ def launch_setup(context):
 
   waiting_nodes = WaitForControllerConnection(
     target_driver = lgdxrobot2_driver,
-    nodes_to_start = [description_nodes] + [robot_localization_node] + [ros2_nav] + [explore_node]
+    nodes_to_start = [description_node] + [robot_localization_node] + [ros2_nav] + [explore_node]
   )
 
   return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]
