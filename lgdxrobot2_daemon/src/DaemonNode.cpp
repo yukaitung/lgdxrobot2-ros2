@@ -242,7 +242,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
     }
     if (this->get_parameter("serial_port_publish_odom").as_bool())
     {
-      baseLinkName = this->get_parameter("base_link_frame").as_string();
+      baseLinkName = this->get_parameter("serial_port_base_link_name").as_string();
       odomPublisher = this->create_publisher<nav_msgs::msg::Odometry>("/daemon/odom",
         rclcpp::SensorDataQoS().reliable());
     }
