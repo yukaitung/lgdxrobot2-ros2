@@ -30,6 +30,7 @@ This project is developed under ROS2 Jazzy and Ubuntu 24.04. The ROS2 packages f
 #### Build the Project
 After installing all dependencies, clone the project and run:
 ```bash
+git clone --recurse-submodules https://gitlab.com/yukaitung/lgdxrobot2-ros2
 colcon build
 ```
 
