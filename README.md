@@ -18,13 +18,11 @@ This project is developed under ROS2 Jazzy and Ubuntu 24.04. The ROS2 packages f
 2. Install Webots
 3. Install Webots ROS
 4. Install ROS NAV
-5. Clone the repository and put it under `third-party` in LGDXRobot2-ROS2:  
-   ```bash
-   git clone https://github.com/lfreist/hwinfo third-party
-   ```
-6. Install required packages:  
+5. Install required packages:  
    ```bash
    sudo apt install libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc
+   sudo apt install ros-jazzy-rtabmap-ros
+   sudo apt install ros-jazzy-imu-transformer
    ```
 
 #### Build the Project
