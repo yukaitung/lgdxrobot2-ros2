@@ -7,6 +7,7 @@
       profile: 1280x720x30
     pointcloud:
       enable: true
+      pointcloud_qos: SENSOR_DATA
     enable_accel: true
     enable_color: true
     enable_depth: true
