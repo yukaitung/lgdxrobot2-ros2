@@ -1,4 +1,4 @@
-/camera/camera:
+/camera:
   ros__parameters:
     align_depth:
       enable: true
@@ -7,12 +7,11 @@
       profile: 1280x720x30
     pointcloud:
       enable: true
-      pointcloud_qos: SENSOR_DATA
     enable_accel: true
     enable_color: true
     enable_depth: true
     enable_gyro: true
     enable_sync: true
-    enable_rgbd: true
+    enable_rgbd: false
     gyro_qos: SYSTEM_DEFAULT
     unite_imu_method: 2

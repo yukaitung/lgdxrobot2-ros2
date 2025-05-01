@@ -9,13 +9,12 @@ ros2 launch lgdxrobot2_bringup nav_rtabmap.launch.py
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch_ros.actions import Node, PushROSNamespace, ComposableNodeContainer
-from launch_ros.descriptions import ParameterFile, ComposableNode
+from launch_ros.actions import Node, ComposableNodeContainer
+from launch_ros.descriptions import ComposableNode
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, OpaqueFunction, GroupAction, SetEnvironmentVariable
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration, PythonExpression
-from nav2_common.launch import RewrittenYaml
 import os
 import yaml
 
@@ -47,7 +46,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='use_localization', 
-    default_value='True',
+    default_value='False',
     description='Whether to enable localization or not'
   ),
   DeclareLaunchArgument(
@@ -106,8 +105,6 @@ def generate_param_path_with_profile(file_name, profile):
     return os.path.join(package_dir, "param", file_name)
   
 def launch_setup(context):
-  stdout_linebuf_envvar = SetEnvironmentVariable('RCUTILS_LOGGING_BUFFERED_STREAM', '1')
-
   profile = "nav-rtabmap"
   description_pkg_share = get_package_share_directory('lgdxrobot2_description')
   package_dir = get_package_share_directory('lgdxrobot2_bringup')
@@ -126,18 +123,6 @@ def launch_setup(context):
   if not rviz_config_path:
     rviz_config_path = os.path.join(package_dir, 'rviz', 'sim-loc') + '.rviz'
   log_level = LaunchConfiguration('log_level')
-
-  nav2_remappings = [('/tf', 'tf'), ('/tf_static', 'tf_static')]
-  nav2_param_file = generate_param_path_with_profile('nav2.yaml', profile)
-  nav2_configured_params = ParameterFile(
-    RewrittenYaml(
-      source_file=nav2_param_file,
-      root_key=namespace,
-      param_rewrites={},
-      convert_types=True,
-    ),
-    allow_substs=True,
-  )
 
   # Robot visualisation
   robot_state_publisher_node = Node(
@@ -158,6 +143,7 @@ def launch_setup(context):
     output='screen',
     arguments=['-d', rviz_config_path],
   )
+  
   # LGDX Core
   lgdxrobot2_mcu_node = Node(
     package='lgdxrobot2_daemon',
@@ -166,6 +152,7 @@ def launch_setup(context):
     parameters=[generate_param_path_with_profile("lgdxrobot2_daemon_node.yaml", profile)],
     remappings=[('/daemon/ext_imu', '/imu/data')]
   )
+  
   # Camera, IMU filter
   realsense2_camera_node = ComposableNodeContainer(
     name='camera_container',
@@ -175,7 +162,7 @@ def launch_setup(context):
     composable_node_descriptions=[
       ComposableNode(
         package='realsense2_camera',
-        namespace='camera',
+        namespace='',
         plugin='realsense2_camera::RealSenseNodeFactory',
         name='camera',
         parameters=[generate_param_path_with_profile("realsense2_camera.yaml", profile)],
@@ -189,7 +176,7 @@ def launch_setup(context):
     package='imu_transformer',
     executable='imu_transformer_node',
     output='screen',
-    remappings=[('/imu_in', '/camera/camera/imu')]
+    remappings=[('/imu_in', '/camera/imu')]
   )
   imu_filter_madgwick_node = Node(
     package='imu_filter_madgwick',
@@ -198,11 +185,13 @@ def launch_setup(context):
     remappings=[('/imu/data_raw', '/imu_out')],
     parameters=[generate_param_path_with_profile("imu_filter_madgwick.yaml", profile)]
   )
+  
   # Rtabmap
   rtabmap_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(os.path.join(get_package_share_directory("rtabmap_launch"), 'launch', 'rtabmap.launch.py')),
     launch_arguments=yaml.load(open(generate_param_path_with_profile("rtabmap.yaml", profile)), Loader=yaml.FullLoader).items()
   )
+  
   # State Estimation Nodes
   robot_localization_node = Node(
     package='robot_localization',
@@ -211,36 +200,28 @@ def launch_setup(context):
     output='screen',
     parameters=[
       generate_param_path_with_profile("ekf.yaml", profile),
-      {'use_sim_time': False }
+      {'use_sim_time': use_sim_time }
     ]
   )
-  # NAV2
-  ros2_nav = GroupAction(
-  [
-    PushROSNamespace(condition=IfCondition(use_namespace), namespace=namespace),
-    Node(
-      condition=IfCondition(use_composition),
-      name='nav2_container',
-      package='rclcpp_components',
-      executable='component_container_isolated',
-      parameters=[nav2_configured_params, {'autostart': autostart}],
-      arguments=['--ros-args', '--log-level', log_level],
-      remappings=nav2_remappings,
-      output='screen',
+  
+  # Nav2
+  ros2_nav = IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(
+      os.path.join(nav2_package_dir, 'launch', 'bringup_launch.py')
     ),
-    IncludeLaunchDescription(
-      PythonLaunchDescriptionSource(os.path.join(nav2_package_dir, 'launch', 'navigation_launch.py')),
-      launch_arguments={
-        'namespace': namespace,
-        'use_sim_time': use_sim_time,
-        'autostart': autostart,
-        'params_file': nav2_param_file,
-        'use_composition': use_composition,
-        'use_respawn': use_respawn,
-        'container_name': 'nav2_container',
-      }.items(),
-    ),
-  ])
+    launch_arguments={
+      'namespace': namespace,
+      'use_namespace': use_namespace,
+      'slam': slam,
+      'use_localization': use_localization,
+      'use_sim_time': use_sim_time,
+      'params_file': generate_param_path_with_profile('nav2.yaml', profile),
+      'autostart': autostart,
+      'use_composition': use_composition,
+      'use_respawn': use_respawn,
+    }.items(),
+  )
+
 
   return [robot_state_publisher_node, joint_state_publisher_node, rviz_node, lgdxrobot2_mcu_node, realsense2_camera_node, imu_transformer, imu_filter_madgwick_node, rtabmap_node, robot_localization_node, ros2_nav]
     
