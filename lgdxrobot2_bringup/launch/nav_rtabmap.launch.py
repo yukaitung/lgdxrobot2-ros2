@@ -229,31 +229,6 @@ def launch_setup(context):
       output='screen',
     ),
     IncludeLaunchDescription(
-      PythonLaunchDescriptionSource(os.path.join(nav2_package_dir, 'launch', 'slam_launch.py')),
-      condition=IfCondition(PythonExpression([slam, ' and ', use_localization])),
-      launch_arguments={
-        'namespace': namespace,
-        'use_sim_time': use_sim_time,
-        'autostart': autostart,
-        'use_respawn': use_respawn,
-        'params_file': nav2_param_file,
-      }.items(),
-    ),
-    IncludeLaunchDescription(
-      PythonLaunchDescriptionSource(os.path.join(nav2_package_dir, 'launch', 'localization_launch.py')),
-      condition=IfCondition(PythonExpression(['not ', slam, ' and ', use_localization])),
-      launch_arguments={
-        'namespace': namespace,
-        'map': '',
-        'use_sim_time': use_sim_time,
-        'autostart': autostart,
-        'params_file': nav2_param_file,
-        'use_composition': use_composition,
-        'use_respawn': use_respawn,
-        'container_name': 'nav2_container',
-      }.items(),
-    ),
-    IncludeLaunchDescription(
       PythonLaunchDescriptionSource(os.path.join(nav2_package_dir, 'launch', 'navigation_launch.py')),
       launch_arguments={
         'namespace': namespace,
@@ -267,7 +242,7 @@ def launch_setup(context):
     ),
   ])
 
-  return [robot_state_publisher_node, joint_state_publisher_node, rviz_node, lgdxrobot2_mcu_node, realsense2_camera_node, imu_transformer, imu_filter_madgwick_node, rtabmap_node, robot_localization_node]
+  return [robot_state_publisher_node, joint_state_publisher_node, rviz_node, lgdxrobot2_mcu_node, realsense2_camera_node, imu_transformer, imu_filter_madgwick_node, rtabmap_node, robot_localization_node, ros2_nav]
     
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)

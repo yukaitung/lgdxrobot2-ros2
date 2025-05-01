@@ -7,28 +7,22 @@ cd lgdx_ws # The location of the source code
 ros2 launch lgdxrobot2_bringup sim_nav.launch.py slam:=True
 ros2 launch lgdxrobot2_bringup sim_nav.launch.py slam:=True use_explore_lite:=True
 ros2 launch lgdxrobot2_bringup sim_nav.launch.py profile:='sim-loc'
+
+ros2 launch lgdxrobot2_bringup sim_nav.launch.py slam:=True profile:='sim-slam-mynamespace' namespace:='mynamespace' use_rviz:='False'
 """
 
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
-from launch.actions import (
-  DeclareLaunchArgument, 
-  GroupAction,
-  IncludeLaunchDescription,
-  OpaqueFunction,
-  SetEnvironmentVariable
-)
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
 from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 from webots_ros2_driver.webots_launcher import WebotsLauncher
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.wait_for_controller_connection import WaitForControllerConnection
-from launch_ros.actions import Node, PushROSNamespace
-from launch_ros.descriptions import ParameterFile
-from nav2_common.launch import RewrittenYaml
+from launch_ros.actions import Node
 import os
 
 launch_args = [
@@ -112,19 +106,16 @@ def generate_param_path_with_profile(file_name, profile):
   else:
     return os.path.join(package_dir, "param", file_name)
       
-
 def launch_setup(context):
-  stdout_linebuf_envvar = SetEnvironmentVariable('RCUTILS_LOGGING_BUFFERED_STREAM', '1')
-  
   package_dir = get_package_share_directory('lgdxrobot2_bringup')
   webots_package_dir = get_package_share_directory('lgdxrobot2_webots')
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
   nav2_package_dir = get_package_share_directory('nav2_bringup')
   robot_description_path = os.path.join(webots_package_dir, 'resource', 'lgdxrobot2.urdf')
+  
   profile_str = LaunchConfiguration('profile').perform(context)
-  namespace = LaunchConfiguration('namespace')
-  use_namespace = 'True' if LaunchConfiguration('namespace').perform(context) != '' else 'False'
-  namespace_str = LaunchConfiguration('namespace').perform(context)
+  namespace = LaunchConfiguration('namespace').perform(context)
+  use_namespace = 'True' if namespace != '' else 'False'
   world = LaunchConfiguration('world')
   slam = LaunchConfiguration('slam')
   use_localization = LaunchConfiguration('use_localization')
@@ -138,27 +129,15 @@ def launch_setup(context):
   if not rviz_config:
     rviz_config = os.path.join(package_dir, 'rviz', profile_str) + '.rviz'
   use_explore_lite = LaunchConfiguration('use_explore_lite')
-  log_level = LaunchConfiguration('log_level')
   
-  nav2_remappings = [('/tf', 'tf'), ('/tf_static', 'tf_static')]
-  nav2_param_file = generate_param_path_with_profile('nav2.yaml', profile_str)
-  nav2_configured_params = ParameterFile(
-    RewrittenYaml(
-      source_file=nav2_param_file,
-      root_key=namespace,
-      param_rewrites={},
-      convert_types=True,
-    ),
-    allow_substs=True,
-  )
-  
+  # Webots Simulator
   webots = WebotsLauncher(
     world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
     ros2_supervisor=True
   )
-
   lgdxrobot2_driver = WebotsController(
     robot_name='LGDXRobot2',
+    namespace=namespace,
     parameters=[
       {
         'robot_description': robot_description_path,
@@ -166,21 +145,25 @@ def launch_setup(context):
       },
     ],
     remappings=[
-      ('/cmd_vel', namespace_str + '/cmd_vel'), 
-      ('/odom', namespace_str + '/odom'), 
-      ('/tf', namespace_str + '/tf'), 
-      ('/tf_static', namespace_str + '/tf_static'),
-      ('/camera/color/camera_info', namespace_str + '/camera/color/camera_info'),
-      ('/camera/color/image_color', namespace_str + '/camera/color/image_color'),
-      ('/camera/depth/camera_info', namespace_str + '/camera/depth/camera_info'),
-      ('/camera/depth/image', namespace_str + '/camera/depth/image'),
-      ('/camera/depth/point_cloud', namespace_str + '/camera/depth/point_cloud'),
-      ('/scan', namespace_str + '/scan'),
-      ('/scan/point_cloud', namespace_str + '/scan/point_cloud'),
+      ('/cmd_vel', 'cmd_vel'), 
+      ('/odom', 'odom'), 
+      ('/tf', 'tf'), 
+      ('/tf_static', 'tf_static'),
+      ('/camera/color/camera_info', 'camera/color/camera_info'),
+      ('/camera/color/image_color', 'camera/color/image_color'),
+      ('/camera/depth/camera_info', 'camera/depth/camera_info'),
+      ('/camera/depth/image', 'camera/depth/image'),
+      ('/camera/depth/point_cloud', 'camera/depth/point_cloud'),
+      ('/scan', 'scan'),
+      ('/scan/point_cloud', 'scan/point_cloud'),
+      ('/imu/data', 'imu/data'),
+      ('/daemon/crtitcal_status', 'daemon/crtitcal_status'),
+      ('/remove_urdf_robot', 'remove_urdf_robot')
     ],
     respawn=True
   )
-
+  
+  # Robot Description
   description_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
       os.path.join(description_package_dir, 'launch', 'display.launch.py')
@@ -193,70 +176,42 @@ def launch_setup(context):
       'rviz_config': rviz_config,
     }.items(),
   )
-
   robot_localization_node = Node(
     package='robot_localization',
     executable='ekf_node',
     name='ekf_filter_node',
+    namespace=namespace,
     output='screen',
     parameters=[
       generate_param_path_with_profile('ekf.yaml', profile_str),
       {'use_sim_time': use_sim_time }
+    ],
+    remappings=[
+      ('/tf', 'tf'), 
+      ('/tf_static', 'tf_static')
     ]
   )
 
-  ros2_nav = GroupAction(
-  [
-    PushROSNamespace(condition=IfCondition(use_namespace), namespace=namespace),
-    Node(
-      condition=IfCondition(use_composition),
-      name='nav2_container',
-      package='rclcpp_components',
-      executable='component_container_isolated',
-      parameters=[nav2_configured_params, {'autostart': autostart}],
-      arguments=['--ros-args', '--log-level', log_level],
-      remappings=nav2_remappings,
-      output='screen',
+  # Nav2
+  ros2_nav = IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(
+      os.path.join(nav2_package_dir, 'launch', 'bringup_launch.py')
     ),
-    IncludeLaunchDescription(
-      PythonLaunchDescriptionSource(os.path.join(nav2_package_dir, 'launch', 'slam_launch.py')),
-      condition=IfCondition(PythonExpression([slam, ' and ', use_localization])),
-      launch_arguments={
-        'namespace': namespace,
-        'use_sim_time': use_sim_time,
-        'autostart': autostart,
-        'use_respawn': use_respawn,
-        'params_file': nav2_param_file,
-      }.items(),
-    ),
-    IncludeLaunchDescription(
-      PythonLaunchDescriptionSource(os.path.join(nav2_package_dir, 'launch', 'localization_launch.py')),
-      condition=IfCondition(PythonExpression(['not ', slam, ' and ', use_localization])),
-      launch_arguments={
-        'namespace': namespace,
-        'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
-        'use_sim_time': use_sim_time,
-        'autostart': autostart,
-        'params_file': nav2_param_file,
-        'use_composition': use_composition,
-        'use_respawn': use_respawn,
-        'container_name': 'nav2_container',
-      }.items(),
-    ),
-    IncludeLaunchDescription(
-      PythonLaunchDescriptionSource(os.path.join(nav2_package_dir, 'launch', 'navigation_launch.py')),
-      launch_arguments={
-        'namespace': namespace,
-        'use_sim_time': use_sim_time,
-        'autostart': autostart,
-        'params_file': nav2_param_file,
-        'use_composition': use_composition,
-        'use_respawn': use_respawn,
-        'container_name': 'nav2_container',
-      }.items(),
-    ),
-  ])
-   
+    launch_arguments={
+      'namespace': namespace,
+      'use_namespace': use_namespace,
+      'slam': slam,
+      'use_localization': use_localization,
+      'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
+      'use_sim_time': use_sim_time,
+      'params_file': generate_param_path_with_profile('nav2.yaml', profile_str),
+      'autostart': autostart,
+      'use_composition': use_composition,
+      'use_respawn': use_respawn,
+    }.items(),
+  )
+
+  # Explore for Nav2
   explore_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
       os.path.join(package_dir, 'launch', 'explore.launch.py')
@@ -271,7 +226,7 @@ def launch_setup(context):
 
   waiting_nodes = WaitForControllerConnection(
     target_driver = lgdxrobot2_driver,
-    nodes_to_start = [description_node] + [robot_localization_node]  + [explore_node]
+    nodes_to_start = [description_node] + [robot_localization_node]  + [explore_node] + [ros2_nav]
   )
 
   return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]
