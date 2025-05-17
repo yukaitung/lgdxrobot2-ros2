@@ -1,4 +1,4 @@
 explore/*
-lgdxrobot2_webots/worlds/.apartment.jpg
-lgdxrobot2_webots/worlds/.apartment.wbproj
+lgdxrobot2_webots/worlds/.*.jpg
+lgdxrobot2_webots/worlds/*.wbproj
 third_party/*
