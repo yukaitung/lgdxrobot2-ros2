@@ -1,4 +1,7 @@
 """\
+For LGDXRobot2 Development
+Make sure all certificates are stored in correct place
+  
 Usage: 
 cd lgdx_ws 
 . install/setup.bash
@@ -13,6 +16,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 from webots_ros2_driver.webots_launcher import WebotsLauncher
+from launch_ros.actions import Node
 import os
 
 launch_args = [
@@ -84,6 +88,46 @@ def launch_setup(context):
     ros2_supervisor=True
   )
   
+  lgdxrobot2_mcu_node1 = Node(
+    package='lgdxrobot2_daemon',
+    executable='lgdxrobot2_daemon_node',
+    namespace='robot1',
+    output='screen',
+    parameters=[{
+      'cloud_enable': True,
+      'cloud_address': '192.168.1.10:5162',
+      'cloud_root_cert': '/home/user/key/rootCA.crt',
+      'cloud_client_key': '/home/user/key/Robot1.key',
+      'cloud_client_cert': '/home/user/key/Robot1.crt',
+    }],
+    remappings=[
+      ('/tf', 'tf'), 
+      ('/tf_static', 'tf_static'),
+      ('/daemon/auto_task', 'daemon/auto_task'), 
+      ('/daemon/crtitcal_status', 'daemon/crtitcal_status'), 
+    ],
+  )
+  
+  lgdxrobot2_mcu_node2 = Node(
+    package='lgdxrobot2_daemon',
+    executable='lgdxrobot2_daemon_node',
+    namespace='robot2',
+    output='screen',
+    parameters=[{
+      'cloud_enable': True,
+      'cloud_address': '192.168.1.10:5162',
+      'cloud_root_cert': '/home/user/key/rootCA.crt',
+      'cloud_client_key': '/home/user/key/Robot2.key',
+      'cloud_client_cert': '/home/user/key/Robot2.crt',
+    }],
+    remappings=[
+      ('/tf', 'tf'), 
+      ('/tf_static', 'tf_static'),
+      ('/daemon/auto_task', 'daemon/auto_task'), 
+      ('/daemon/crtitcal_status', 'daemon/crtitcal_status'), 
+    ],
+  )
+  
   robot1 = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
       os.path.join(package_dir, 'launch', 'simulation_robot.launch.py')
@@ -118,7 +162,7 @@ def launch_setup(context):
     }.items(),
   )
 
-  return [webots, webots._supervisor, robot1, robot2]
+  return [webots, webots._supervisor, robot1, robot2, lgdxrobot2_mcu_node1, lgdxrobot2_mcu_node2]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)

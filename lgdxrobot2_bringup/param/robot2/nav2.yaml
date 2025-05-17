@@ -40,7 +40,7 @@ amcl:
     scan_topic: /robot2/scan
     set_initial_pose: True
     initial_pose:
-      x: 0.0
+      x: 3.0
       y: 0.0
       z: 0.0
       yaw: 0.0
