@@ -43,6 +43,8 @@ class DaemonNode : public rclcpp::Node
     std::unique_ptr<tf2_ros::Buffer> tfBuffer;
     RobotClientsDof robotPosition;
     std::shared_ptr<Navigation> navigation;
+    std::vector<RobotClientsPath> navigationPaths;
+    std::size_t navigationProgress = 0;
     bool IsRealtimeExchange = false;
 
     // Cloud Robot Status
@@ -75,6 +77,7 @@ class DaemonNode : public rclcpp::Node
     void imuCallback(const sensor_msgs::msg::Imu &msg);
     void logCallback(const char *msg, int level);
 
+    void handleNavigation();
     void cloudUpdate(const RobotClientsRespond *respond);
     void cloudRetry();
     void cloudGreet(std::string mcuSerialNumber);

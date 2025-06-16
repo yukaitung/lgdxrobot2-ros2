@@ -181,7 +181,7 @@ DaemonNode::DaemonNode() : Node("lgdxrobot2_daemon_node")
       },
       [this]()
       { 
-        cloudAutoTaskNext();
+        handleNavigation();
       });
 
     tfBuffer = std::make_unique<tf2_ros::Buffer>(this->get_clock());
@@ -274,6 +274,32 @@ void DaemonNode::logCallback(const char *msg, int level)
   }
 }
 
+void DaemonNode::handleNavigation()
+{
+  if (navigationProgress < navigationPaths.size())
+  {
+    std::vector<geometry_msgs::msg::PoseStamped> poses;
+    auto pose = geometry_msgs::msg::PoseStamped();
+    pose.header.stamp = rclcpp::Clock().now();
+    pose.header.frame_id = "map";
+    pose.pose.position.z = 0.0;
+    for (int i = 0; i < navigationPaths.at(navigationProgress).waypoints_size(); i++)
+    {
+      const RobotClientsDof waypoint = navigationPaths.at(navigationProgress).waypoints(i);
+      pose.pose.position.x = waypoint.x();
+      pose.pose.position.y = waypoint.y();
+      pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(waypoint.rotation());
+      poses.push_back(pose);
+    }
+    navigation->navThroughPoses(poses);
+    navigationProgress++;
+  }
+  else
+  {
+    cloudAutoTaskNext();
+  }
+}
+
 void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
 {
   // Handle AutoTask
@@ -298,23 +324,13 @@ void DaemonNode::cloudUpdate(const RobotClientsRespond *respond)
     else
     {
       RCLCPP_INFO(this->get_logger(), "Received AutoTask Id: %d, Progress: %d", task.taskid(), task.taskprogressid());
-      if (task.waypoints_size())
+      if (task.paths_size())
       {
-        RCLCPP_INFO(this->get_logger(), "This task has %d waypoint(s).", task.waypoints_size());
-        std::vector<geometry_msgs::msg::PoseStamped> poses;
-        auto pose = geometry_msgs::msg::PoseStamped();
-        pose.header.stamp = rclcpp::Clock().now();
-        pose.header.frame_id = "map";
-        pose.pose.position.z = 0.0;
-        for (int i = 0; i < task.waypoints_size(); i++)
-        {
-          const RobotClientsDof waypoint = task.waypoints(i);
-          pose.pose.position.x = waypoint.x();
-          pose.pose.position.y = waypoint.y();
-          pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(waypoint.rotation());
-          poses.push_back(pose);
-        }
-        navigation->navThroughPoses(poses);
+        RCLCPP_INFO(this->get_logger(), "This task has %d waypoint(s).", task.paths_size());
+        navigationPaths.clear();
+        navigationPaths.assign(task.paths().begin(), task.paths().end());
+        navigationProgress = 0;
+        handleNavigation();
       }
       robotStatus->taskAssigned();
     }

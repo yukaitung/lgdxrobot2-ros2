@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "LGDXRobot2Cloud.Protos";
+option csharp_namespace = "LGDXRobotCloud.Protos";
 
 service RobotClientsService {
   rpc Greet (RobotClientsGreet) returns (RobotClientsGreetRespond);
@@ -16,6 +16,10 @@ service RobotClientsService {
 enum RobotClientsResultStatus {
   Success = 0;
   Failed = 1;
+}
+
+message RobotClientsPath {
+  repeated RobotClientsDof Waypoints = 1;
 }
 
 message RobotClientsDof {
@@ -36,7 +40,7 @@ message RobotClientsAutoTask {
   string TaskName = 2;
   int32 TaskProgressId = 3;
   string TaskProgressName = 4;
-  repeated RobotClientsDof Waypoints = 5;
+  repeated RobotClientsPath Paths = 5;
   string NextToken = 6;
 }
 
