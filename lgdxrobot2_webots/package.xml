@@ -4,7 +4,7 @@
   <name>lgdxrobot2_webots</name>
   <version>1.0.0</version>
   <description>LGDXRobot2 configuration for Webots simulation.</description>
-  <maintainer email="dev@bristolgram.uk">LGDXRobot</maintainer>
+  <maintainer email="dev@bristolgram.uk">LGDXRobotics</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
