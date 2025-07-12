@@ -1,0 +1,4 @@
+int32 task_id
+string next_token
+---
+bool success
