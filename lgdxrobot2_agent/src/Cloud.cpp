@@ -39,58 +39,10 @@ Cloud::Cloud(rclcpp::Node::SharedPtr node,
   std::uniform_int_distribution<> dis(1000, 6000);
   int cloudRetryWait = dis(gen);
   RCLCPP_INFO(logger_, "LGDXRobot Cloud is enabled, the break for reconnection to the cloud is %d ms.", cloudRetryWait);
-  //cloudRetryTimer = node->create_wall_timer(std::chrono::milliseconds(cloudRetryWait), 
-  //  std::bind(&DaemonNode::cloudRetry, this));
-  //cloudRetryTimer->cancel();
+  cloudRetryTimer = node->create_wall_timer(std::chrono::milliseconds(cloudRetryWait), 
+    std::bind(&Cloud::HandleError, this));
+  cloudRetryTimer->cancel();
   
-  autoTaskPublisher = node->create_publisher<lgdxrobot2_agent::msg::AutoTask>("/agent/auto_task", 
-    rclcpp::SensorDataQoS().reliable());
-  crtitcalStatusPublisher = node->create_publisher<std_msgs::msg::Bool>("/agent/crtitcal_status", 
-    rclcpp::SensorDataQoS().reliable());
-  /*autoTaskPublisherTimer = node->create_wall_timer(std::chrono::milliseconds(100), 
-    [this]()
-    {
-      autoTaskPublisher->publish(currentTask);
-      std_msgs::msg::Bool criticalStatus;
-      criticalStatus.data = robotStatus->getRobotStatus() == RobotClientsRobotStatus::Critical;
-      crtitcalStatusPublisher->publish(criticalStatus);
-    });*/
-
-  /*
-  autoTaskNextService = node->create_service<lgdxrobot2_agent::srv::AutoTaskNext>("auto_task_next",
-    [this](const std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskNext::Request> request,
-      std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskNext::Response> response) 
-    {
-      if (!currentTask.next_token.empty() && 
-          request->task_id == currentTask.task_id &&
-          request->next_token == currentTask.next_token)
-      {
-        cloudAutoTaskNext();
-        response->success = true;
-      }
-      else
-      {
-        response->success = false;
-      }
-    });*/
-    /*
-  autoTaskAbortService = node->create_service<lgdxrobot2_agent::srv::AutoTaskAbort>("auto_task_abort",
-    [this](const std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskAbort::Request> request,
-      std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskAbort::Response> response)
-    {
-      if (!currentTask.next_token.empty() && 
-          request->task_id == currentTask.task_id &&
-          request->next_token == currentTask.next_token)
-      {
-        cloudAutoTaskAbort(RobotClientsAbortReason::Robot);
-        response->success = true;
-      }
-      else
-      {
-        response->success = false;
-      }
-    });*/
-
   // Connect to Cloud
   std::string serverAddress = node->get_parameter("cloud_address").as_string();
   std::string rootCertPath = node->get_parameter("cloud_root_cert").as_string();
@@ -207,7 +159,7 @@ void Cloud::ExchangePolling(RobotClientsRobotCriticalStatus &criticalStatus,
     else 
     {
       RCLCPP_ERROR(logger_, "Data exchange failed.");
-      //error(CloudFunctions::Exchange);
+      Error(CloudFunctions::Exchange);
     }
     delete context;
     delete request;
@@ -226,7 +178,41 @@ void Cloud::ExchangeStream(RobotClientsRobotCriticalStatus &criticalStatus,
   }
 }
 
-void Cloud::Greet(std::string mcuSerialNumber)
+void Cloud::Error(CloudFunctions function)
+{
+  cloudErrorQueue.push(function);
+  if (cloudRetryTimer->is_canceled())
+    cloudRetryTimer->reset();
+}
+
+void Cloud::HandleError()
+{
+  cloudRetryTimer->cancel();
+  // Avoid inf loop if the queue increases
+  Greet(cloudErrorRetryData.mcuSerialNumber);
+  for (int i = 0, size = cloudErrorQueue.size(); i < size; i++)
+  {
+    CloudFunctions function = cloudErrorQueue.front();
+    switch (function)
+    {
+    case CloudFunctions::Greet:
+      // Do nothing
+      break;
+    case CloudFunctions::Exchange:
+      cloudSignals->NextExchange();
+      break;
+    case CloudFunctions::AutoTaskNext:
+      AutoTaskNext(cloudErrorRetryData.nextToken);
+      break;
+    case CloudFunctions::AutoTaskAbort:
+      AutoTaskAbort(cloudErrorRetryData.abortToken);
+      break;
+    }
+    cloudErrorQueue.pop();
+  }
+}
+
+void Cloud::Greet(std::string mcuSN)
 {
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
@@ -235,13 +221,15 @@ void Cloud::Greet(std::string mcuSerialNumber)
   RobotClientsGreet *request = new RobotClientsGreet();
   RobotClientsSystemInfo *systemInfo = new RobotClientsSystemInfo();
   SetSystemInfo(systemInfo);
-  if(!mcuSerialNumber.empty())
+  if(!mcuSN.empty())
   {
-    systemInfo->set_mcuserialnumber(mcuSerialNumber);
+    systemInfo->set_mcuserialnumber(mcuSN);
   }
   request->set_allocated_systeminfo(systemInfo);
 
   RobotClientsGreetRespond *respond = new RobotClientsGreetRespond();
+
+  cloudErrorRetryData.mcuSerialNumber = mcuSN;
   
   grpcStub->async()->Greet(context, request, respond, [context, request, respond, this](grpc::Status status)
   {
@@ -263,7 +251,7 @@ void Cloud::Greet(std::string mcuSerialNumber)
     else
     {
       RCLCPP_ERROR(logger_, "Unable to connect the cloud, will try again later.");
-      //error(CloudFunctions::Greet);
+      Error(CloudFunctions::Greet);
     }
     delete context;
     delete request;
@@ -298,6 +286,8 @@ void Cloud::AutoTaskNext(RobotClientsNextToken &token)
 
   RobotClientsRespond *respond = new RobotClientsRespond();
 
+  cloudErrorRetryData.nextToken = token;
+
   grpcStub->async()->AutoTaskNext(context, request, respond, [context, request, respond, this](grpc::Status status)
   {
     if (status.ok()) 
@@ -307,7 +297,7 @@ void Cloud::AutoTaskNext(RobotClientsNextToken &token)
     else 
     {
       RCLCPP_ERROR(logger_, "AutoTaskNext failed.");
-      //error(CloudFunctions::Exchange);
+      Error(CloudFunctions::Exchange);
     }
     delete context;
     delete request;
@@ -327,6 +317,8 @@ void Cloud::AutoTaskAbort(RobotClientsAbortToken &token)
 
   RobotClientsRespond *respond = new RobotClientsRespond();
 
+  cloudErrorRetryData.abortToken = token;
+
   grpcStub->async()->AutoTaskAbort(context, request, respond, [context, request, respond, this](grpc::Status status)
   {
     if (status.ok()) 
@@ -336,7 +328,7 @@ void Cloud::AutoTaskAbort(RobotClientsAbortToken &token)
     else 
     {
       RCLCPP_ERROR(logger_, "AutoTaskAbort failed.");
-      //error(CloudFunctions::AutoTaskAbort);
+      Error(CloudFunctions::AutoTaskAbort);
     }
     delete context;
     delete request;

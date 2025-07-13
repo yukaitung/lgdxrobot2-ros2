@@ -71,7 +71,7 @@ void Agent::CloudExchangeReady()
 
   RobotClientsAutoTaskNavProgress navProgress = navigation->GetNavProgress();
   
-  cloud->exchange(criticalStatus,
+  cloud->Exchange(criticalStatus,
     batteries,
     robotPosition,
     navProgress);

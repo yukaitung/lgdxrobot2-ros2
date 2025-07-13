@@ -1,6 +1,8 @@
 #ifndef CLOUD_HPP
 #define CLOUD_HPP
 
+#include <queue>
+
 #include "CloudExchangeStream.hpp"
 #include "proto/RobotClientsService.grpc.pb.h"
 #include "RobotStatus.hpp"
@@ -20,16 +22,17 @@ enum class CloudFunctions
   AutoTaskAbort
 };
 
+struct CloudErrorRetryData
+{
+  std::string mcuSerialNumber;
+  RobotClientsNextToken nextToken;
+  RobotClientsAbortToken abortToken;
+};
+
 class Cloud
 {
   private:
     rclcpp::Logger logger_;
-
-    rclcpp::Publisher<lgdxrobot2_agent::msg::AutoTask>::SharedPtr autoTaskPublisher;
-    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr crtitcalStatusPublisher;
-    rclcpp::Service<lgdxrobot2_agent::srv::AutoTaskAbort>::SharedPtr autoTaskAbortService;
-    rclcpp::Service<lgdxrobot2_agent::srv::AutoTaskNext>::SharedPtr autoTaskNextService;
-    rclcpp::TimerBase::SharedPtr autoTaskPublisherTimer;
     rclcpp::TimerBase::SharedPtr cloudRetryTimer;
 
     const int kGrpcWaitSec = 5;
@@ -40,6 +43,8 @@ class Cloud
     std::unique_ptr<RobotClientsService::Stub> grpcStub;
 
     bool isRealtimeExchange = false;
+    std::queue<CloudFunctions> cloudErrorQueue;
+    CloudErrorRetryData cloudErrorRetryData;
     std::shared_ptr<grpc::CallCredentials> accessToken;
     RobotClientsRobotCommands robotCommand;
     std::shared_ptr<RobotStatus> robotStatus;
@@ -60,11 +65,14 @@ class Cloud
       RobotClientsDof &position,
       RobotClientsAutoTaskNavProgress &navProgress);
 
+    void Error(CloudFunctions function);
+    void HandleError();
+
   public:
     Cloud(rclcpp::Node::SharedPtr node,
       std::shared_ptr<CloudSignals> cloudSignalsPtr,
       std::shared_ptr<RobotStatus> robotStatusPtr);
-    void Greet(std::string mcuSerialNumber);
+    void Greet(std::string mcuSN);
     void Exchange(RobotClientsRobotCriticalStatus &criticalStatus,
       std::vector<double> &batteries,
       RobotClientsDof &position,

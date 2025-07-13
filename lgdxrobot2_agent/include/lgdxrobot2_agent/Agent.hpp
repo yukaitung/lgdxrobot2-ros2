@@ -14,7 +14,6 @@
 class Agent : public rclcpp::Node
 {
   private:
-    std::shared_ptr<RobotStatus> robotStatus;
     std::unique_ptr<Cloud> cloud;
     std::unique_ptr<Mcu> mcu;
     std::unique_ptr<Navigation> navigation;
@@ -28,6 +27,9 @@ class Agent : public rclcpp::Node
     std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tfBuffer;
     RobotClientsDof robotPosition;
+
+    std::shared_ptr<RobotStatus> robotStatus;
+    RobotClientsRobotCriticalStatus criticalStatus;
 
   public:
     Agent();

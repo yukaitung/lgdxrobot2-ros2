@@ -79,6 +79,7 @@
     "variant": "cpp",
     "strstream": "cpp",
     "cfenv": "cpp",
-    "stdfloat": "cpp"
+    "stdfloat": "cpp",
+    "queue": "cpp"
   }
 }
