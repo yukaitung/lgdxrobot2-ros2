@@ -66,6 +66,8 @@ add_executable(${EXECUTABLE_NAME}
   src/Agent.cpp
   src/main.cpp
   src/Mcu.cpp
+  src/Navigation.cpp
+  src/RobotStatus.cpp
   src/Sensors.cpp
 )
 target_link_libraries(${EXECUTABLE_NAME} 
