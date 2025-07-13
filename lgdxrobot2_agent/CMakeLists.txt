@@ -64,7 +64,8 @@ include_directories(include)
 
 add_executable(${EXECUTABLE_NAME} 
   src/Agent.cpp
-  src/main.cpp 
+  src/main.cpp
+  src/Mcu.cpp
 )
 target_link_libraries(${EXECUTABLE_NAME} 
   ${PROTO_NAME}
