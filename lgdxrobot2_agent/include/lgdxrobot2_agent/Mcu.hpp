@@ -16,11 +16,16 @@ class Mcu
     boost::asio::serial_port serial;
     std::thread ioThread;
 
-    RobotData robotData;
-    std::string portName;
+    // Constants
     int kWaitSecond = 3;
-    bool resetTransformOnConnected = false;
     static const int kReadBufferSize = 2048;
+
+    // Settings
+    std::string portName;
+    bool resetTransformOnConnected = false;
+
+    // Data
+    RobotData robotData;
     char readBuffer[kReadBufferSize] = {0};
 
     // Util

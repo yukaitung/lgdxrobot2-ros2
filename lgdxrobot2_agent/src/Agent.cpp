@@ -14,5 +14,6 @@ void Agent::Initalise()
   if (1)
   {
     mcu = std::make_unique<Mcu>(shared_from_this());
+    sensors = std::make_unique<Sensors>(shared_from_this());
   }
 }

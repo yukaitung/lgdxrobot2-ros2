@@ -66,6 +66,7 @@ add_executable(${EXECUTABLE_NAME}
   src/Agent.cpp
   src/main.cpp
   src/Mcu.cpp
+  src/Sensors.cpp
 )
 target_link_libraries(${EXECUTABLE_NAME} 
   ${PROTO_NAME}
