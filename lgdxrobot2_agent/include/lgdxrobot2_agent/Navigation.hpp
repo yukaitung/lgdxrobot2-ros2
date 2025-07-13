@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "RobotStatus.hpp"
+#include "Structs/NavigationSignals.hpp"
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
@@ -16,6 +17,7 @@ class Navigation
   private:
     rclcpp::Logger logger_;
 
+    std::shared_ptr<NavigationSignals> navigationSignals;
     RobotClientsAutoTaskNavProgress lastNavProgress;
     RobotClientsAutoTaskNavProgress navProgress;
     std::shared_ptr<RobotStatus> robotStatus;
@@ -28,6 +30,7 @@ class Navigation
 
   public:
     Navigation(rclcpp::Node::SharedPtr node,
+      std::shared_ptr<NavigationSignals> navigationSignalsPtr,
       std::shared_ptr<RobotStatus> robotStatusPtr);
     void Start(std::vector<geometry_msgs::msg::PoseStamped> &poses);
     void Abort();

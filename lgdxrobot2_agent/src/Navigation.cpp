@@ -1,8 +1,11 @@
 #include "lgdxrobot2_agent/Navigation.hpp"
 
 Navigation::Navigation(rclcpp::Node::SharedPtr node, 
-  std::shared_ptr<RobotStatus> robotStatusPtr) : logger_(node->get_logger())
+    std::shared_ptr<NavigationSignals> navigationSignalsPtr,
+    std::shared_ptr<RobotStatus> robotStatusPtr
+ ) : logger_(node->get_logger())
 {
+
   navThroughPosesActionClient = rclcpp_action::create_client<nav2_msgs::action::NavigateThroughPoses>(
     node,
     "navigate_through_poses");
@@ -14,7 +17,7 @@ void Navigation::Response(const rclcpp_action::ClientGoalHandle<nav2_msgs::actio
   if (!goalHandle)
   {
     RCLCPP_ERROR(logger_, "navThroughPoses goal was rejected by server, the task will be aborted.");
-    //abort();
+    navigationSignals->Abort(RobotClientsAbortReason::NavStack);
   }
 }
 
@@ -60,12 +63,12 @@ void Navigation::Result(const rclcpp_action::ClientGoalHandle<nav2_msgs::action:
   switch (result.code)
   {
     case rclcpp_action::ResultCode::SUCCEEDED:
-      //next();
+      navigationSignals->NextNavigation();
       break;
     case rclcpp_action::ResultCode::ABORTED:
     case rclcpp_action::ResultCode::CANCELED:
     default:
-      //abort();
+      navigationSignals->Abort(RobotClientsAbortReason::NavStack);
       return;
   }
 }

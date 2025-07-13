@@ -70,6 +70,7 @@ add_executable(${EXECUTABLE_NAME}
   src/main.cpp
   src/Mcu.cpp
   src/Navigation.cpp
+  src/RobotController.cpp
   src/RobotStatus.cpp
   src/Sensors.cpp
 )
