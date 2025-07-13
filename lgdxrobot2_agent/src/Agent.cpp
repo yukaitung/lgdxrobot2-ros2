@@ -17,7 +17,8 @@ void Agent::Initalise()
   if (cloudEnable)
   {
     robotStatus = std::make_shared<RobotStatus>();
-    navigation = std::make_shared<Navigation>(shared_from_this(), robotStatus);
+    cloud = std::make_unique<Cloud>(shared_from_this(), robotStatus);
+    navigation = std::make_unique<Navigation>(shared_from_this(), robotStatus);
   }
 
   // MCU

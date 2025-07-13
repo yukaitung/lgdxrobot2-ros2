@@ -64,6 +64,8 @@ include_directories(include)
 
 add_executable(${EXECUTABLE_NAME} 
   src/Agent.cpp
+  src/Cloud.cpp
+  src/CloudExchangeStream.cpp
   src/main.cpp
   src/Mcu.cpp
   src/Navigation.cpp
