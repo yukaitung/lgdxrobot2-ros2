@@ -89,6 +89,30 @@ void Agent::Initalise()
     mcu = std::make_unique<Mcu>(shared_from_this(), mcuSignals);
     sensors = std::make_unique<Sensors>(shared_from_this(), sensorSignals);
   }
+
+  // Signals
+  if (cloudEnable)
+  {
+    cloudSignals->NextExchange.connect([this](){
+      // Initalise the timer for sending exchange
+      cloudExchangeTimer->reset();
+    });
+    cloudSignals->HandleExchange.connect(boost::bind(&Agent::CloudExchange, this));
+  }
+  if (mcuEnable)
+  {
+    mcuSignals->UpdateRobotData.connect(boost::bind(&Sensors::PublishOdom, sensors.get(), boost::placeholders::_1));
+    if (cloudEnable)
+    {
+      // Start connection if MCU serial number obtained
+      mcuSignals->UpdateSerialNumber.connect(boost::bind(&Cloud::Greet, cloud.get(), boost::placeholders::_1));
+    }
+    sensorSignals->SetEstop.connect(boost::bind(&Mcu::SetEstop, mcu.get(), boost::placeholders::_1));
+    sensorSignals->SetInverseKinematics.connect(boost::bind(&Mcu::SetInverseKinematics, mcu.get(), 
+      boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
+    sensorSignals->SetExternalImu.connect(boost::bind(&Mcu::SetExternalImu, mcu.get(), 
+      boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4));
+  }
 }
 
 void Agent::CloudExchange()

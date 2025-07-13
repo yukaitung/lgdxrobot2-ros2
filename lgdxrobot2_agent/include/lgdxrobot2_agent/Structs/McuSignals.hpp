@@ -8,7 +8,7 @@
 struct McuSignals
 {
   boost::signals2::signal<void(const RobotData &)> UpdateRobotData;
-  boost::signals2::signal<void(const char *)> UpdateSerialNumber;
+  boost::signals2::signal<void(std::string)> UpdateSerialNumber;
 };
 
 #endif // MCUSIGNALS_HPP
