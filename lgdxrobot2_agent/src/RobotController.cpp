@@ -12,59 +12,69 @@ RobotController::RobotController(rclcpp::Node::SharedPtr node,
   robotStatus = robotStatusPtr;
   navProgress = navProgressPtr;
 
-  cloudExchangeTimer = node->create_wall_timer(std::chrono::milliseconds(500), 
-    std::bind(&RobotController::CloudExchange, this));
-  cloudExchangeTimer->cancel();
-  
-  tfBuffer = std::make_unique<tf2_ros::Buffer>(node->get_clock());
-  tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);
+  bool cloudEnable = node->get_parameter("cloud_enable").as_bool();
+  if (cloudEnable)
+  {
+    tfBuffer = std::make_unique<tf2_ros::Buffer>(node->get_clock());
+    tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);
 
+    cloudExchangeTimer = node->create_wall_timer(std::chrono::milliseconds(500), 
+      std::bind(&RobotController::CloudExchange, this));
+    cloudExchangeTimer->cancel();
+
+    // Topics
+    autoTaskPublisher = node->create_publisher<lgdxrobot2_agent::msg::AutoTask>("/agent/auto_task", 
+      rclcpp::SensorDataQoS().reliable());
+    autoTaskPublisherTimer = node->create_wall_timer(std::chrono::milliseconds(100), 
+      [this]()
+      {
+        autoTaskPublisher->publish(currentTask);
+      });
+
+    // Services
+    autoTaskNextService = node->create_service<lgdxrobot2_agent::srv::AutoTaskNext>("auto_task_next",
+      [this](const std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskNext::Request> request,
+        std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskNext::Response> response) 
+      {
+        if (!currentTask.next_token.empty() && 
+            request->task_id == currentTask.task_id &&
+            request->next_token == currentTask.next_token)
+        {
+          CloudAutoTaskNext();
+          response->success = true;
+        }
+        else
+        {
+          response->success = false;
+        }
+      });
+    autoTaskAbortService = node->create_service<lgdxrobot2_agent::srv::AutoTaskAbort>("auto_task_abort",
+      [this](const std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskAbort::Request> request,
+        std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskAbort::Response> response)
+      {
+        if (!currentTask.next_token.empty() && 
+            request->task_id == currentTask.task_id &&
+            request->next_token == currentTask.next_token)
+        {
+          CloudAutoTaskAbort(RobotClientsAbortReason::Robot);
+          response->success = true;
+        }
+        else
+        {
+          response->success = false;
+        }
+      });
+  }
+  
   // Topics
-  autoTaskPublisher = node->create_publisher<lgdxrobot2_agent::msg::AutoTask>("/agent/auto_task", 
-    rclcpp::SensorDataQoS().reliable());
-  autoTaskPublisherTimer = node->create_wall_timer(std::chrono::milliseconds(100), 
+  robotDataPublisherTimer = node->create_wall_timer(std::chrono::milliseconds(100), 
     [this]()
     {
-      autoTaskPublisher->publish(currentTask);
       robotData.robot_status = static_cast<int>(robotStatus->GetStatus());
       robotDataPublisher->publish(robotData);
     });
   robotDataPublisher = node->create_publisher<lgdxrobot2_agent::msg::RobotData>("/agent/robot_data", 
     rclcpp::SensorDataQoS().reliable());
-
-  // Services
-  autoTaskNextService = node->create_service<lgdxrobot2_agent::srv::AutoTaskNext>("auto_task_next",
-    [this](const std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskNext::Request> request,
-      std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskNext::Response> response) 
-    {
-      if (!currentTask.next_token.empty() && 
-          request->task_id == currentTask.task_id &&
-          request->next_token == currentTask.next_token)
-      {
-        CloudAutoTaskNext();
-        response->success = true;
-      }
-      else
-      {
-        response->success = false;
-      }
-    });
-  autoTaskAbortService = node->create_service<lgdxrobot2_agent::srv::AutoTaskAbort>("auto_task_abort",
-    [this](const std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskAbort::Request> request,
-      std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskAbort::Response> response)
-    {
-      if (!currentTask.next_token.empty() && 
-          request->task_id == currentTask.task_id &&
-          request->next_token == currentTask.next_token)
-      {
-        CloudAutoTaskAbort(RobotClientsAbortReason::Robot);
-        response->success = true;
-      }
-      else
-      {
-        response->success = false;
-      }
-    });
 }
 
 void RobotController::CloudExchange()
