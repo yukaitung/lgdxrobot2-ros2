@@ -36,6 +36,7 @@ protobuf_generate(TARGET ${PROTO_NAME} LANGUAGE grpc GENERATE_EXTENSIONS .grpc.p
 find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/AutoTask.msg"
+  "msg/RobotData.msg"
   "srv/AutoTaskNext.srv"
   "srv/AutoTaskAbort.srv"
 )
