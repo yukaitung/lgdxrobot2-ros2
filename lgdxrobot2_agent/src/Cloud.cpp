@@ -243,7 +243,7 @@ void Cloud::Greet(std::string mcuSN)
         isRealtimeExchange = true;
         RCLCPP_INFO(logger_, "Data exchange is realtime.");
         grpcRealtimeStub = RobotClientsService::NewStub(grpcChannel);
-        cloudExchangeStream = std::make_unique<CloudExchangeStream>(grpcRealtimeStub.get(), accessToken);
+        cloudExchangeStream = std::make_unique<CloudExchangeStream>(grpcRealtimeStub.get(), accessToken, cloudSignals);
       }
       // Start the timer to exchange data
       cloudSignals->NextExchange();

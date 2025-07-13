@@ -13,6 +13,7 @@ void Agent::Initalise()
   this->declare_parameter("mcu_enable", false, mcuEnableParam);
 
   // Signals
+  cloudSignals = std::make_shared<CloudSignals>();
   mcuSignals = std::make_shared<McuSignals>();
   sensorSignals = std::make_shared<SensorSignals>();
 
@@ -21,7 +22,7 @@ void Agent::Initalise()
   if (cloudEnable)
   {
     robotStatus = std::make_shared<RobotStatus>();
-    cloud = std::make_unique<Cloud>(shared_from_this(), robotStatus);
+    cloud = std::make_unique<Cloud>(shared_from_this(), cloudSignals, robotStatus);
     navigation = std::make_unique<Navigation>(shared_from_this(), robotStatus);
 
     tfBuffer = std::make_unique<tf2_ros::Buffer>(this->get_clock());
@@ -34,7 +35,7 @@ void Agent::Initalise()
 
   // MCU
   bool mcuEnable = this->get_parameter("mcu_enable").as_bool();
-  if (1)
+  if (mcuEnable)
   {
     mcu = std::make_unique<Mcu>(shared_from_this(), mcuSignals);
     sensors = std::make_unique<Sensors>(shared_from_this(), sensorSignals);

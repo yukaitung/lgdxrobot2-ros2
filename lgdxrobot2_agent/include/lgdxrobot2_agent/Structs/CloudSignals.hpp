@@ -2,6 +2,7 @@
 #define CLOUDSIGNALS_HPP
 
 #include <boost/signals2/signal.hpp>
+#include "proto/RobotClientsService.grpc.pb.h"
 
 struct CloudSignals
 {

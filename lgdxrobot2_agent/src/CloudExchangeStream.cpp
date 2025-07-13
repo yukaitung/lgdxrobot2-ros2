@@ -1,8 +1,10 @@
 #include "lgdxrobot2_agent/CloudExchangeStream.hpp"
 
 CloudExchangeStream::CloudExchangeStream(RobotClientsService::Stub *stub, 
-  std::shared_ptr<grpc::CallCredentials> accessToken)
+  std::shared_ptr<grpc::CallCredentials> accessToken,
+  std::shared_ptr<CloudSignals> cloudSignalsPtr)
 {
+  cloudSignals = cloudSignalsPtr;
   context.set_credentials(accessToken);
   stub->async()->ExchangeStream(&context, this);
   StartRead(&respond);
@@ -13,7 +15,7 @@ void CloudExchangeStream::OnWriteDone(bool ok)
 {
   if (ok)
   {
-    //startNextExchange();
+    cloudSignals->NextExchange();
     if (requestPtr != nullptr)
     {
       delete requestPtr;
@@ -26,7 +28,7 @@ void CloudExchangeStream::OnReadDone(bool ok)
 {
   if (ok && !isShutdown)
   {
-    //updateDeamon(&respond);    
+    cloudSignals->HandleExchange(&respond); 
     StartRead(&respond);
   }
 }

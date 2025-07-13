@@ -19,6 +19,7 @@ class Agent : public rclcpp::Node
     std::unique_ptr<Navigation> navigation;
     std::unique_ptr<Sensors> sensors;
 
+    std::shared_ptr<CloudSignals> cloudSignals;
     std::shared_ptr<McuSignals> mcuSignals;
     std::shared_ptr<SensorSignals> sensorSignals;
 
