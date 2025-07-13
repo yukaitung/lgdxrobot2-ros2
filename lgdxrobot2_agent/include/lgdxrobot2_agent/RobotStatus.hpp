@@ -10,24 +10,24 @@ class RobotStatus
     RobotClientsRobotStatus previousRobotStatus = RobotClientsRobotStatus::Offline;
     bool pauseTaskAssigementFlag = false;
 
-    void changeStatus(RobotClientsRobotStatus newState);
+    void ChangeStatus(RobotClientsRobotStatus newState);
 
   public:
-    RobotClientsRobotStatus getRobotStatus();
+    RobotClientsRobotStatus GetStatus();
 
-    void connnectedCloud();
-    void startCharging();
-    void chargingCompleted();
-    void taskAssigned();
-    void taskCompleted();
-    void navigationStuck();
-    void navigationCleared();
-    void pauseTaskAssigement();
-    void resumeTaskAssigement();
-    void taskAborting();
-    void taskAborted();
-    void enterCritical();
-    void exitCritical();
+    void ConnnectedCloud();
+    void StartCharging();
+    void ChargingCompleted();
+    void TaskAssigned();
+    void TaskCompleted();
+    void NavigationStuck();
+    void NavigationCleared();
+    void PauseTaskAssigement();
+    void ResumeTaskAssigement();
+    void TaskAborting();
+    void TaskAborted();
+    void EnterCritical();
+    void ExitCritical();
 };
 
 #endif // ROBOTSTATUS_HPP

@@ -2,6 +2,8 @@
 #define AGENT_HPP
 
 #include "rclcpp/rclcpp.hpp"
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/transform_listener.h"
 
 #include "Cloud.hpp"
 #include "Mcu.hpp"
@@ -18,9 +20,19 @@ class Agent : public rclcpp::Node
     std::unique_ptr<Navigation> navigation;
     std::unique_ptr<Sensors> sensors;
 
+    std::shared_ptr<McuSignals> mcuSignals;
+    std::shared_ptr<SensorSignals> sensorSignals;
+
+    rclcpp::TimerBase::SharedPtr cloudExchangeTimer;
+
+    std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
+    std::unique_ptr<tf2_ros::Buffer> tfBuffer;
+    RobotClientsDof robotPosition;
+
   public:
     Agent();
     void Initalise();
+    void CloudExchangeReady();
 };
 
 #endif // AGENT_HPP

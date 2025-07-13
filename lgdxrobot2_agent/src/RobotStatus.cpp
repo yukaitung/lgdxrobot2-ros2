@@ -1,11 +1,11 @@
 #include "lgdxrobot2_agent/RobotStatus.hpp"
 
-RobotClientsRobotStatus RobotStatus::getRobotStatus()
+RobotClientsRobotStatus RobotStatus::GetStatus()
 {
   return robotStatus;
 }
 
-void RobotStatus::changeStatus(RobotClientsRobotStatus newState)
+void RobotStatus::ChangeStatus(RobotClientsRobotStatus newState)
 {
   switch (newState)
   {
@@ -23,49 +23,49 @@ void RobotStatus::changeStatus(RobotClientsRobotStatus newState)
   robotStatus = newState;
 }
 
-void RobotStatus::connnectedCloud()
+void RobotStatus::ConnnectedCloud()
 {
   if (robotStatus == RobotClientsRobotStatus::Offline)
-    changeStatus(RobotClientsRobotStatus::Idle);
+    ChangeStatus(RobotClientsRobotStatus::Idle);
 }
 
-void RobotStatus::startCharging()
+void RobotStatus::StartCharging()
 {
   if (robotStatus == RobotClientsRobotStatus::Idle)
-    changeStatus(RobotClientsRobotStatus::Charging);
+    ChangeStatus(RobotClientsRobotStatus::Charging);
 }
 
-void RobotStatus::chargingCompleted()
+void RobotStatus::ChargingCompleted()
 {
   if (robotStatus == RobotClientsRobotStatus::Charging)
-    changeStatus(RobotClientsRobotStatus::Idle);
+    ChangeStatus(RobotClientsRobotStatus::Idle);
 }
 
-void RobotStatus::taskAssigned()
+void RobotStatus::TaskAssigned()
 {
   if (robotStatus == RobotClientsRobotStatus::Idle)
-    changeStatus(RobotClientsRobotStatus::Running);
+    ChangeStatus(RobotClientsRobotStatus::Running);
 }
 
-void RobotStatus::taskCompleted()
+void RobotStatus::TaskCompleted()
 {
   if (robotStatus == RobotClientsRobotStatus::Running || robotStatus == RobotClientsRobotStatus::Stuck)
-    changeStatus(RobotClientsRobotStatus::Idle);
+    ChangeStatus(RobotClientsRobotStatus::Idle);
 }
 
-void RobotStatus::navigationStuck()
+void RobotStatus::NavigationStuck()
 {
   if (robotStatus == RobotClientsRobotStatus::Running)
-    changeStatus(RobotClientsRobotStatus::Stuck);
+    ChangeStatus(RobotClientsRobotStatus::Stuck);
 }
 
-void RobotStatus::navigationCleared()
+void RobotStatus::NavigationCleared()
 {
   if (robotStatus == RobotClientsRobotStatus::Stuck)
-    changeStatus(RobotClientsRobotStatus::Running);
+    ChangeStatus(RobotClientsRobotStatus::Running);
 }
 
-void RobotStatus::pauseTaskAssigement()
+void RobotStatus::PauseTaskAssigement()
 {
   pauseTaskAssigementFlag = true;
   if (robotStatus != RobotClientsRobotStatus::Idle)
@@ -73,39 +73,39 @@ void RobotStatus::pauseTaskAssigement()
     // Delay this state if the robot is running
     return;
   }
-  changeStatus(RobotClientsRobotStatus::Paused);
+  ChangeStatus(RobotClientsRobotStatus::Paused);
 }
 
-void RobotStatus::resumeTaskAssigement()
+void RobotStatus::ResumeTaskAssigement()
 {
   pauseTaskAssigementFlag = false;
   if (robotStatus == RobotClientsRobotStatus::Paused)
   {
     // Change state immediately if the robot is paused
-    changeStatus(RobotClientsRobotStatus::Idle);
+    ChangeStatus(RobotClientsRobotStatus::Idle);
   }
 }
 
-void RobotStatus::taskAborting()
+void RobotStatus::TaskAborting()
 {
   if (robotStatus == RobotClientsRobotStatus::Running || robotStatus == RobotClientsRobotStatus::Stuck)
-    changeStatus(RobotClientsRobotStatus::Aborting);
+    ChangeStatus(RobotClientsRobotStatus::Aborting);
 }
 
-void RobotStatus::taskAborted()
+void RobotStatus::TaskAborted()
 {
   if (robotStatus == RobotClientsRobotStatus::Aborting || robotStatus == RobotClientsRobotStatus::Running)
-    changeStatus(RobotClientsRobotStatus::Idle);
+    ChangeStatus(RobotClientsRobotStatus::Idle);
 }
 
-void RobotStatus::enterCritical()
+void RobotStatus::EnterCritical()
 {
   previousRobotStatus = robotStatus;
-  changeStatus(RobotClientsRobotStatus::Critical);
+  ChangeStatus(RobotClientsRobotStatus::Critical);
 }
 
-void RobotStatus::exitCritical()
+void RobotStatus::ExitCritical()
 {
   if (robotStatus == RobotClientsRobotStatus::Critical)
-    changeStatus(previousRobotStatus);
+    ChangeStatus(previousRobotStatus);
 }

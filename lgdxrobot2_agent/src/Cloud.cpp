@@ -12,8 +12,11 @@
 #include "grpcpp/security/credentials.h"
 
 Cloud::Cloud(rclcpp::Node::SharedPtr node,
-  std::shared_ptr<RobotStatus> robotStatusPtr) : logger_(node->get_logger())
+    std::shared_ptr<CloudSignals> cloudSignalsPtr,
+    std::shared_ptr<RobotStatus> robotStatusPtr
+  ) : logger_(node->get_logger())
 {
+  cloudSignals = cloudSignalsPtr;
   robotStatus = robotStatusPtr;
 
   // Parameters
@@ -39,10 +42,6 @@ Cloud::Cloud(rclcpp::Node::SharedPtr node,
   //cloudRetryTimer = node->create_wall_timer(std::chrono::milliseconds(cloudRetryWait), 
   //  std::bind(&DaemonNode::cloudRetry, this));
   //cloudRetryTimer->cancel();
-  
-  //cloudExchangeTimer = node->create_wall_timer(std::chrono::milliseconds(500), 
-  //  std::bind(&DaemonNode::cloudExchange, this));
-  //cloudExchangeTimer->cancel();
   
   autoTaskPublisher = node->create_publisher<lgdxrobot2_agent::msg::AutoTask>("/agent/auto_task", 
     rclcpp::SensorDataQoS().reliable());
@@ -91,9 +90,6 @@ Cloud::Cloud(rclcpp::Node::SharedPtr node,
         response->success = false;
       }
     });*/
-
-  tfBuffer = std::make_unique<tf2_ros::Buffer>(node->get_clock());
-  tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);
 
   // Connect to Cloud
   std::string serverAddress = node->get_parameter("cloud_address").as_string();
@@ -173,32 +169,186 @@ void Cloud::SetSystemInfo(RobotClientsSystemInfo *info)
   info->set_rammib(hwinfo::unit::bytes_to_MiB(memory.total_Bytes()));
 }
 
-void Cloud::Greet()
+void Cloud::ExchangePolling(RobotClientsRobotCriticalStatus &criticalStatus,
+  std::vector<double> &batteries,
+  RobotClientsDof &position,
+  RobotClientsAutoTaskNavProgress &navProgress)
 {
+  grpc::ClientContext *context = new grpc::ClientContext();
+  auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
+  context->set_deadline(deadline);
+  context->set_credentials(accessToken);
 
+  RobotClientsExchange *request = new RobotClientsExchange();
+  request->set_robotstatus(robotStatus->GetStatus());
+  RobotClientsRobotCriticalStatus *intCriticalStatus = new RobotClientsRobotCriticalStatus();
+  *intCriticalStatus = criticalStatus;
+  request->set_allocated_criticalstatus(intCriticalStatus);
+  for (auto &battery : batteries)
+  {
+    request->add_batteries(battery);
+  }
+  RobotClientsDof *intPosition = new RobotClientsDof();
+  *intPosition = position;
+  request->set_allocated_position(intPosition);
+  RobotClientsAutoTaskNavProgress *intNavProgress = new RobotClientsAutoTaskNavProgress();
+  *intNavProgress = navProgress;
+  request->set_allocated_navprogress(intNavProgress);
+
+  RobotClientsRespond *respond = new RobotClientsRespond();
+
+  grpcStub->async()->Exchange(context, request, respond, [context, request, respond, this](grpc::Status status)
+  {
+    if (status.ok()) 
+    {
+      cloudSignals->HandleExchange(respond);
+      cloudSignals->NextExchange();
+    }
+    else 
+    {
+      RCLCPP_ERROR(logger_, "Data exchange failed.");
+      //error(CloudFunctions::Exchange);
+    }
+    delete context;
+    delete request;
+    delete respond;
+  });
 }
 
-void Cloud::Exchange()
+void Cloud::ExchangeStream(RobotClientsRobotCriticalStatus &criticalStatus,
+  std::vector<double> &batteries,
+  RobotClientsDof &position,
+  RobotClientsAutoTaskNavProgress &navProgress)
 {
-
+  if (cloudExchangeStream != nullptr)
+  {
+    cloudExchangeStream->SendMessage(robotStatus->GetStatus(), criticalStatus, batteries, position, navProgress);
+  }
 }
 
-void Cloud::ExchangeStream()
+void Cloud::Greet(std::string mcuSerialNumber)
 {
+  grpc::ClientContext *context = new grpc::ClientContext();
+  auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
+  context->set_deadline(deadline);
 
+  RobotClientsGreet *request = new RobotClientsGreet();
+  RobotClientsSystemInfo *systemInfo = new RobotClientsSystemInfo();
+  SetSystemInfo(systemInfo);
+  if(!mcuSerialNumber.empty())
+  {
+    systemInfo->set_mcuserialnumber(mcuSerialNumber);
+  }
+  request->set_allocated_systeminfo(systemInfo);
+
+  RobotClientsGreetRespond *respond = new RobotClientsGreetRespond();
+  
+  grpcStub->async()->Greet(context, request, respond, [context, request, respond, this](grpc::Status status)
+  {
+    if (status.ok()) 
+    {
+      accessToken = grpc::AccessTokenCredentials(respond->accesstoken());
+      RCLCPP_INFO(logger_, "Connect to the cloud, start data exchange.");
+      robotStatus->ConnnectedCloud();
+      if (respond->isrealtimeexchange())
+      {
+        isRealtimeExchange = true;
+        RCLCPP_INFO(logger_, "Data exchange is realtime.");
+        grpcRealtimeStub = RobotClientsService::NewStub(grpcChannel);
+        cloudExchangeStream = std::make_unique<CloudExchangeStream>(grpcRealtimeStub.get(), accessToken);
+      }
+      // Start the timer to exchange data
+      cloudSignals->NextExchange();
+    }
+    else
+    {
+      RCLCPP_ERROR(logger_, "Unable to connect the cloud, will try again later.");
+      //error(CloudFunctions::Greet);
+    }
+    delete context;
+    delete request;
+    delete respond;
+  });
+}
+
+void Cloud::Exchange(RobotClientsRobotCriticalStatus &criticalStatus,
+  std::vector<double> &batteries,
+  RobotClientsDof &position,
+  RobotClientsAutoTaskNavProgress &navProgress)
+{
+  if (isRealtimeExchange)
+  {
+    ExchangeStream(criticalStatus, batteries, position, navProgress);
+  }
+  else
+  {
+    ExchangePolling(criticalStatus, batteries, position, navProgress);
+  }
 }
 
 void Cloud::AutoTaskNext(RobotClientsNextToken &token)
 {
+  grpc::ClientContext *context = new grpc::ClientContext();
+  auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
+  context->set_deadline(deadline);
+  context->set_credentials(accessToken);
 
+  RobotClientsNextToken *request = new RobotClientsNextToken();
+  *request = token;
+
+  RobotClientsRespond *respond = new RobotClientsRespond();
+
+  grpcStub->async()->AutoTaskNext(context, request, respond, [context, request, respond, this](grpc::Status status)
+  {
+    if (status.ok()) 
+    {
+      cloudSignals->HandleExchange(respond);
+    }
+    else 
+    {
+      RCLCPP_ERROR(logger_, "AutoTaskNext failed.");
+      //error(CloudFunctions::Exchange);
+    }
+    delete context;
+    delete request;
+    delete respond;
+  });
 }
 
 void Cloud::AutoTaskAbort(RobotClientsAbortToken &token)
 {
+  grpc::ClientContext *context = new grpc::ClientContext();
+  auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
+  context->set_deadline(deadline);
+  context->set_credentials(accessToken);
 
+  RobotClientsAbortToken *request = new RobotClientsAbortToken();
+  *request = token;
+
+  RobotClientsRespond *respond = new RobotClientsRespond();
+
+  grpcStub->async()->AutoTaskAbort(context, request, respond, [context, request, respond, this](grpc::Status status)
+  {
+    if (status.ok()) 
+    {
+      cloudSignals->HandleExchange(respond);
+    }
+    else 
+    {
+      RCLCPP_ERROR(logger_, "AutoTaskAbort failed.");
+      //error(CloudFunctions::AutoTaskAbort);
+    }
+    delete context;
+    delete request;
+    delete respond;
+  });
 }
 
 void Cloud::Shutdown()
 {
-
+  if (cloudExchangeStream != nullptr)
+  {
+    cloudExchangeStream->Shutdown();
+    cloudExchangeStream->AwaitCompletion();
+  }
 }

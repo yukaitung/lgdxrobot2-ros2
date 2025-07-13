@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 
 #include "rclcpp/rclcpp.hpp"
+#include "Structs/McuSignals.hpp"
 #include "Structs/RobotData.hpp"
 
 class Mcu
@@ -15,6 +16,8 @@ class Mcu
     boost::asio::io_service serialService;
     boost::asio::serial_port serial;
     std::thread ioThread;
+
+    std::shared_ptr<McuSignals> mcuSignals;
 
     // Constants
     int kWaitSecond = 3;
@@ -56,7 +59,7 @@ class Mcu
     void OnWriteComplete(boost::system::error_code error);
 
   public:
-    Mcu(rclcpp::Node::SharedPtr node);
+    Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr);
     ~Mcu();
 
     void SetInverseKinematics(float x, float y, float w);

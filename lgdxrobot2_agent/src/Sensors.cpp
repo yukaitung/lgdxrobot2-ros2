@@ -2,10 +2,12 @@
 
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
-Sensors::Sensors(rclcpp::Node::SharedPtr node) :
+Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> sensorSignalsPtr) :
   clock_(node->get_clock()),
   logger_(node->get_logger())
 {
+  sensorSignals = sensorSignalsPtr;
+
   // Parameters
   auto mcuControlModeParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuControlModeParam.description = "Robot control mode, using `joy` for joystick or `cmd_vel` for ROS nav stack.";
@@ -66,8 +68,8 @@ void Sensors::CmdVelCallback(const geometry_msgs::msg::Twist &msg)
   float x = msg.linear.x;
   float y = msg.linear.y;
   float w = msg.angular.z;
-  // RCLCPP_INFO(this->get_logger(), "/cmd_vel %f %f %f", x, y, w);
-  //serialPort->setInverseKinematics(x, y, w);
+  // RCLCPP_INFO(node->get_logger(), "/cmd_vel %f %f %f", x, y, w);
+  sensorSignals->SetInverseKinematics(x, y, w);
 }
 
 void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
@@ -76,14 +78,14 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
   if (lastEstopButton[0] == 0 && msg.buttons[0] == 1)
   {
     // A = disable software E-Stop
-    //serialPort->setEstop(false);
+    sensorSignals->SetEstop(false);
     RCLCPP_INFO(logger_, "Software E-Stop Disabled");
   }
   lastEstopButton[0] = msg.buttons[0];
   if (lastEstopButton[1] == 0 && msg.buttons[1] == 1)
   {
     // B = enable software E-Stop
-    //serialPort->setEstop(true);
+    sensorSignals->SetEstop(true);
     RCLCPP_INFO(logger_, "Software E-Stop Enabled");
   }
   lastEstopButton[1] = msg.buttons[1];
@@ -120,7 +122,7 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
   }
   // LT = w left, RT = w right
   float w = (((msg.axes[4] - 1) / 2) - ((msg.axes[5] - 1) / 2)) * maximumVelocity;
-  //serialPort->setInverseKinematics(x, y, w);
+  sensorSignals->SetInverseKinematics(x, y, w);
 }
 
 void Sensors::ImuCallback(const sensor_msgs::msg::Imu &msg)
@@ -129,7 +131,7 @@ void Sensors::ImuCallback(const sensor_msgs::msg::Imu &msg)
   float ay = msg.linear_acceleration.y;
   float az = msg.linear_acceleration.z;
   float gz = msg.angular_velocity.z;
-  //serialPort->setExternalImu(ax, ay, az, gz);
+  sensorSignals->SetExternalImu(ax, ay, az, gz);
 }
 
 void Sensors::PublishOdom(const RobotData& data)

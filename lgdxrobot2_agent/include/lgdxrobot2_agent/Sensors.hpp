@@ -2,6 +2,7 @@
 #define SENSORS_HPP
 
 #include "Structs/RobotData.hpp"
+#include "Structs/SensorSignals.hpp"
 
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
@@ -30,6 +31,7 @@ class Sensors
     int lastVelocityChangeButton[2] = {0}; // 0: LB, 1: RB
     int lastEstopButton[2] = {0}; // 0: A, 1: B
 
+    std::shared_ptr<SensorSignals> sensorSignals;
     bool needPublishOdom = false;
 
     void CmdVelCallback(const geometry_msgs::msg::Twist &msg);
@@ -37,7 +39,7 @@ class Sensors
     void ImuCallback(const sensor_msgs::msg::Imu &msg);
 
   public:
-    Sensors(rclcpp::Node::SharedPtr node);
+    Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> sensorSignalsPtr);
     void PublishOdom(const RobotData &robotData);
 };
 

@@ -2,11 +2,13 @@
 
 #include "lgdxrobot2_agent/Mcu.hpp"
 
-Mcu::Mcu(rclcpp::Node::SharedPtr node) : 
+Mcu::Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr) :
   logger_(node->get_logger()),
   serialService(), 
   serial(serialService)
 {
+  mcuSignals = mcuSignalsPtr;
+
   // ROS
   serialPortReconnectTimer = node->create_wall_timer(std::chrono::seconds(kWaitSecond), std::bind(&Mcu::AutoSearch, this));
   serialPortReconnectTimer->cancel();
@@ -202,7 +204,7 @@ void Mcu::ProcessRobotData()
     robotData.eStop[i] = (eStopByte & compare) >> (7 - i);
     compare = compare >> 1;
   }
-  //updateDeamon(robotData);
+  mcuSignals->UpdateRobotData(robotData);
 }
 
 void Mcu::CharArrayToHex(const char* input, size_t length, char* output) 
@@ -227,7 +229,7 @@ void Mcu::ProcessSerialNumber()
 {
   char sn[30] = {0};
   CharArrayToHex(&readBuffer[1], 12, sn);
-  //serialNumber(sn);
+  mcuSignals->UpdateSerialNumber(sn);
 }
 
 void Mcu::ResetTransformInternal()

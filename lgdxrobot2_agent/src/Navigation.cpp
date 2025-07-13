@@ -26,7 +26,7 @@ void Navigation::Feedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::Nav
   navProgress.set_recoveries(feedback->number_of_recoveries);
   navProgress.set_distanceremaining(feedback->distance_remaining);
   navProgress.set_waypointsremaining(feedback->number_of_poses_remaining);
-  if (robotStatus->getRobotStatus() == RobotClientsRobotStatus::Running)
+  if (robotStatus->GetStatus() == RobotClientsRobotStatus::Running)
   {
     // Determine if the robot is stuck by
     // 1. Recoveries is increasing
@@ -34,11 +34,11 @@ void Navigation::Feedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::Nav
     if (navProgress.recoveries() > lastNavProgress.recoveries() && 
         navProgress.eta() == 0)
     {
-      robotStatus->navigationStuck();
+      robotStatus->NavigationStuck();
       RCLCPP_INFO(logger_, "The robot is stuck.");
     }
   }
-  else if (robotStatus->getRobotStatus() == RobotClientsRobotStatus::Stuck)
+  else if (robotStatus->GetStatus() == RobotClientsRobotStatus::Stuck)
   {
     // Determine if the robot is cleared by
     // 1. Recoveries is unchanged
@@ -49,7 +49,7 @@ void Navigation::Feedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::Nav
         navProgress.eta() > 0 &&
         navProgress.distanceremaining() < lastNavProgress.distanceremaining())
     {
-      robotStatus->navigationCleared();
+      robotStatus->NavigationCleared();
       RCLCPP_INFO(logger_, "The robot is cleared.");
     }
   }
@@ -109,7 +109,7 @@ void Navigation::Abort()
       }
     );
   }
-  robotStatus->taskAborted();
+  robotStatus->TaskAborted();
 }
 
 RobotClientsAutoTaskNavProgress Navigation::GetNavProgress()
