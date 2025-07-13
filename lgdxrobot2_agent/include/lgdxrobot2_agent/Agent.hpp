@@ -42,10 +42,12 @@ class Agent : public rclcpp::Node
     RobotClientsRobotCommands currentCommands;
     std::size_t navigationProgress = 0;
     std::shared_ptr<RobotStatus> robotStatus;
+    std::vector<double> batteries = {0.0, 0.0};
 
     RobotClientsRobotCriticalStatus criticalStatus;
 
   private:
+    void OnRobotDataReceived(const RobotData &robotData);
     void CloudExchange();
     void OnCloudExchangeDone(const RobotClientsRespond *respond);
     void HandleNavigation();

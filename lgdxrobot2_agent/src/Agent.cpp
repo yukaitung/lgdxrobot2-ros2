@@ -13,6 +13,9 @@ void Agent::Initalise()
   auto mcuEnableParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuEnableParam.description = "Enable LGDXRobot2 MCU.";
   this->declare_parameter("mcu_enable", false, mcuEnableParam);
+  auto simEnableParam = rcl_interfaces::msg::ParameterDescriptor{};
+  simEnableParam.description = "Enable simulation for LGDXRobot2 hardware, MCU must be disable for this feature.";
+  this->declare_parameter("sim_enable", false, simEnableParam);
 
   // Signals
   cloudSignals = std::make_shared<CloudSignals>();
@@ -90,6 +93,13 @@ void Agent::Initalise()
     sensors = std::make_unique<Sensors>(shared_from_this(), sensorSignals);
   }
 
+  bool simEnable = this->get_parameter("sim_enable").as_bool();
+  if (mcuEnable && simEnable)
+  {
+    RCLCPP_FATAL(this->get_logger(), "Simulation and MCU cannot be enabled at the same time.");
+    exit(0);
+  }
+
   // Signals
   if (cloudEnable)
   {
@@ -101,6 +111,7 @@ void Agent::Initalise()
   }
   if (mcuEnable)
   {
+    mcuSignals->UpdateRobotData.connect(boost::bind(&Agent::OnRobotDataReceived, this, boost::placeholders::_1));
     mcuSignals->UpdateRobotData.connect(boost::bind(&Sensors::PublishOdom, sensors.get(), boost::placeholders::_1));
     if (cloudEnable)
     {
@@ -113,6 +124,20 @@ void Agent::Initalise()
     sensorSignals->SetExternalImu.connect(boost::bind(&Mcu::SetExternalImu, mcu.get(), 
       boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4));
   }
+
+  if (simEnable && cloudEnable)
+  {
+    batteries[0] = 12.1;
+    batteries[1] = 12.2;
+    // Start the connection now for simulation
+    cloud->Greet("");
+  }
+}
+
+void Agent::OnRobotDataReceived(const RobotData &robotData)
+{
+  batteries[0] = robotData.battery[0];
+  batteries[1] = robotData.battery[1];
 }
 
 void Agent::CloudExchange()
@@ -141,7 +166,6 @@ void Agent::CloudExchange()
   catch (const tf2::TransformException &ex)
   {
   }
-  std::vector<double> batteries = {12.00, 12.00};
 
   RobotClientsAutoTaskNavProgress navProgress = navigation->GetNavProgress();
   
