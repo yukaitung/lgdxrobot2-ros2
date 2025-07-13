@@ -56,7 +56,7 @@ class Agent : public rclcpp::Node
   public:
     Agent();
     void Initalise();
-    
+    void Shutdown();
 };
 
 #endif // AGENT_HPP

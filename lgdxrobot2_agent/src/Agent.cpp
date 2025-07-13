@@ -251,3 +251,16 @@ void Agent::CloudAutoTaskAbort(RobotClientsAbortReason reason)
     cloud->AutoTaskAbort(token);
   }
 }
+
+void Agent::Shutdown()
+{
+  if (cloudExchangeTimer != nullptr && !cloudExchangeTimer->is_canceled())
+  {
+    cloudExchangeTimer->cancel();
+  }
+  
+  if (cloud != nullptr)
+  {
+    cloud->Shutdown();
+  }
+}
