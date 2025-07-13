@@ -19,7 +19,7 @@ class Navigation
 
     std::shared_ptr<NavigationSignals> navigationSignals;
     RobotClientsAutoTaskNavProgress lastNavProgress;
-    RobotClientsAutoTaskNavProgress navProgress;
+    std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgress;
     std::shared_ptr<RobotStatus> robotStatus;
     rclcpp_action::Client<nav2_msgs::action::NavigateThroughPoses>::SharedPtr navThroughPosesActionClient;
 
@@ -31,10 +31,10 @@ class Navigation
   public:
     Navigation(rclcpp::Node::SharedPtr node,
       std::shared_ptr<NavigationSignals> navigationSignalsPtr,
-      std::shared_ptr<RobotStatus> robotStatusPtr);
+      std::shared_ptr<RobotStatus> robotStatusPtr,
+      std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgressPtr);
     void Start(std::vector<geometry_msgs::msg::PoseStamped> &poses);
     void Abort();
-    RobotClientsAutoTaskNavProgress GetNavProgress();
 };
 
 #endif // NAV_THROUGH_POSES_HPP

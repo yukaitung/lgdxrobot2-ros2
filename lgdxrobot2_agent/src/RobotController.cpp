@@ -4,10 +4,20 @@
 
 RobotController::RobotController(rclcpp::Node::SharedPtr node,
     std::shared_ptr<RobotControllerSignals> robotControllerSignalsPtr,
-    std::shared_ptr<RobotStatus> robotStatusPtr
+    std::shared_ptr<RobotStatus> robotStatusPtr,
+    std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgressPtr
   ) : logger_(node->get_logger())
 {
+  robotControllerSignals = robotControllerSignalsPtr;
   robotStatus = robotStatusPtr;
+  navProgress = navProgressPtr;
+
+  cloudExchangeTimer = node->create_wall_timer(std::chrono::milliseconds(500), 
+    std::bind(&RobotController::CloudExchange, this));
+  cloudExchangeTimer->cancel();
+  
+  tfBuffer = std::make_unique<tf2_ros::Buffer>(node->get_clock());
+  tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);
 
   // Topics
   autoTaskPublisher = node->create_publisher<lgdxrobot2_agent::msg::AutoTask>("/agent/auto_task", 
@@ -16,7 +26,11 @@ RobotController::RobotController(rclcpp::Node::SharedPtr node,
     [this]()
     {
       autoTaskPublisher->publish(currentTask);
+      robotData.robot_status = static_cast<int>(robotStatus->GetStatus());
+      robotDataPublisher->publish(robotData);
     });
+  robotDataPublisher = node->create_publisher<lgdxrobot2_agent::msg::RobotData>("/agent/robot_data", 
+    rclcpp::SensorDataQoS().reliable());
 
   // Services
   autoTaskNextService = node->create_service<lgdxrobot2_agent::srv::AutoTaskNext>("auto_task_next",
@@ -51,6 +65,49 @@ RobotController::RobotController(rclcpp::Node::SharedPtr node,
         response->success = false;
       }
     });
+}
+
+void RobotController::CloudExchange()
+{
+  if (!cloudExchangeTimer->is_canceled())
+    cloudExchangeTimer->cancel();
+
+  try
+  {
+    geometry_msgs::msg::TransformStamped t;
+    t = tfBuffer->lookupTransform("base_link", "map", tf2::TimePointZero);
+
+    tf2::Quaternion q(
+        t.transform.rotation.x,
+        t.transform.rotation.y,
+        t.transform.rotation.z,
+        t.transform.rotation.w);
+    tf2::Matrix3x3 m(q);
+    double roll, pitch, yaw;
+    m.getRPY(roll, pitch, yaw);
+
+    robotPosition.set_x(-(t.transform.translation.x * cos(yaw) + t.transform.translation.y * sin(yaw)));
+    robotPosition.set_y(-(-t.transform.translation.x * sin(yaw) + t.transform.translation.y * cos(yaw)));
+    robotPosition.set_rotation(yaw);
+  }
+  catch (const tf2::TransformException &ex)
+  {
+  }
+  batteries[0] = robotData.battery[0];
+  batteries[1] = robotData.battery[1];
+
+  RobotClientsAutoTaskNavProgress np = *navProgress;
+  
+  robotControllerSignals->CloudExchange(criticalStatus,
+    batteries,
+    robotPosition,
+    np);
+  // Don't reset the cloudExchangeTimer here
+}
+
+void RobotController::StatCloudExchange()
+{
+  cloudExchangeTimer->reset();
 }
 
 void RobotController::OnCloudExchangeDone(const RobotClientsRespond *respond)
@@ -125,6 +182,40 @@ void RobotController::OnCloudExchangeDone(const RobotClientsRespond *respond)
   }
 }
 
+void RobotController::OnRobotDataReceived(const RobotData &rd)
+{
+  robotData.transform[0] = rd.transform[0];
+  robotData.transform[1] = rd.transform[1];
+  robotData.transform[2] = rd.transform[2];
+  robotData.forward_kinematic[0] = rd.forwardKinematic[0];
+  robotData.forward_kinematic[1] = rd.forwardKinematic[1];
+  robotData.forward_kinematic[2] = rd.forwardKinematic[2];
+  robotData.target_wheel_velocity[0] = rd.targetWheelVelocity[0];
+  robotData.target_wheel_velocity[1] = rd.targetWheelVelocity[1];
+  robotData.target_wheel_velocity[2] = rd.targetWheelVelocity[2];
+  robotData.target_wheel_velocity[3] = rd.targetWheelVelocity[3];
+  robotData.measured_wheel_velocity[0] = rd.measuredWheelVelocity[0];
+  robotData.measured_wheel_velocity[1] = rd.measuredWheelVelocity[1];
+  robotData.measured_wheel_velocity[2] = rd.measuredWheelVelocity[2];
+  robotData.measured_wheel_velocity[3] = rd.measuredWheelVelocity[3];
+  robotData.p_constant[0] = rd.pConstant[0];
+  robotData.p_constant[1] = rd.pConstant[1];
+  robotData.p_constant[2] = rd.pConstant[2];
+  robotData.p_constant[3] = rd.pConstant[3];
+  robotData.i_constant[0] = rd.iConstant[0];
+  robotData.i_constant[1] = rd.iConstant[1];
+  robotData.i_constant[2] = rd.iConstant[2];
+  robotData.i_constant[3] = rd.iConstant[3];
+  robotData.d_constant[0] = rd.dConstant[0];
+  robotData.d_constant[1] = rd.dConstant[1];
+  robotData.d_constant[2] = rd.dConstant[2];
+  robotData.d_constant[3] = rd.dConstant[3];
+  robotData.battery[0] = rd.battery[0];
+  robotData.battery[1] = rd.battery[1];
+  robotData.e_stop[0] = rd.eStop[0];
+  robotData.e_stop[1] = rd.eStop[1];
+}
+
 void RobotController::NavigationStart()
 {
   if (navigationProgress < navigationPaths.size())
@@ -177,7 +268,10 @@ void RobotController::CloudAutoTaskAbort(RobotClientsAbortReason reason)
   }
 }
 
-const RobotClientsRobotCriticalStatus RobotController::GetCriticalStatus()
+void RobotController::Shutdown()
 {
-  return criticalStatus;
+  if (cloudExchangeTimer != nullptr && !cloudExchangeTimer->is_canceled())
+  {
+    cloudExchangeTimer->cancel();
+  }
 }

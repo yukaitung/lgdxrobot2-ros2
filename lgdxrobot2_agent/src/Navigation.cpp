@@ -2,14 +2,17 @@
 
 Navigation::Navigation(rclcpp::Node::SharedPtr node, 
     std::shared_ptr<NavigationSignals> navigationSignalsPtr,
-    std::shared_ptr<RobotStatus> robotStatusPtr
+    std::shared_ptr<RobotStatus> robotStatusPtr,
+    std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgressPtr
  ) : logger_(node->get_logger())
 {
+  navigationSignals = navigationSignalsPtr;
+  robotStatus = robotStatusPtr;
+  navProgress = navProgressPtr;
 
   navThroughPosesActionClient = rclcpp_action::create_client<nav2_msgs::action::NavigateThroughPoses>(
     node,
     "navigate_through_poses");
-  robotStatus = robotStatusPtr;
 }
 
 void Navigation::Response(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr &goalHandle)
@@ -24,18 +27,18 @@ void Navigation::Response(const rclcpp_action::ClientGoalHandle<nav2_msgs::actio
 void Navigation::Feedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr, 
   const std::shared_ptr<const nav2_msgs::action::NavigateThroughPoses::Feedback> feedback)
 {
-  lastNavProgress = navProgress;
-  navProgress.set_eta(rclcpp::Duration(feedback->estimated_time_remaining).seconds());
-  navProgress.set_recoveries(feedback->number_of_recoveries);
-  navProgress.set_distanceremaining(feedback->distance_remaining);
-  navProgress.set_waypointsremaining(feedback->number_of_poses_remaining);
+  lastNavProgress = *navProgress;
+  navProgress->set_eta(rclcpp::Duration(feedback->estimated_time_remaining).seconds());
+  navProgress->set_recoveries(feedback->number_of_recoveries);
+  navProgress->set_distanceremaining(feedback->distance_remaining);
+  navProgress->set_waypointsremaining(feedback->number_of_poses_remaining);
   if (robotStatus->GetStatus() == RobotClientsRobotStatus::Running)
   {
     // Determine if the robot is stuck by
     // 1. Recoveries is increasing
     // 2. Eta is 0
-    if (navProgress.recoveries() > lastNavProgress.recoveries() && 
-        navProgress.eta() == 0)
+    if (navProgress->recoveries() > lastNavProgress.recoveries() && 
+        navProgress->eta() == 0)
     {
       robotStatus->NavigationStuck();
       RCLCPP_INFO(logger_, "The robot is stuck.");
@@ -47,10 +50,10 @@ void Navigation::Feedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::Nav
     // 1. Recoveries is unchanged
     // 2. Eta is not 0 and decreasing
     // 3. distanceRemaining is decreasing
-    if (navProgress.recoveries() == lastNavProgress.recoveries() &&
-        navProgress.eta() < lastNavProgress.eta() &&
-        navProgress.eta() > 0 &&
-        navProgress.distanceremaining() < lastNavProgress.distanceremaining())
+    if (navProgress->recoveries() == lastNavProgress.recoveries() &&
+        navProgress->eta() < lastNavProgress.eta() &&
+        navProgress->eta() > 0 &&
+        navProgress->distanceremaining() < lastNavProgress.distanceremaining())
     {
       robotStatus->NavigationCleared();
       RCLCPP_INFO(logger_, "The robot is cleared.");
@@ -113,9 +116,4 @@ void Navigation::Abort()
     );
   }
   robotStatus->TaskAborted();
-}
-
-RobotClientsAutoTaskNavProgress Navigation::GetNavProgress()
-{
-  return navProgress;
 }
