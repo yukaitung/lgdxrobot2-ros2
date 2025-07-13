@@ -8,9 +8,6 @@
 #include "RobotStatus.hpp"
 #include "Structs/CloudSignals.hpp"
 
-#include "lgdxrobot2_agent/msg/auto_task.hpp"
-#include "lgdxrobot2_agent/srv/auto_task_abort.hpp"
-#include "lgdxrobot2_agent/srv/auto_task_next.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/bool.hpp"
 

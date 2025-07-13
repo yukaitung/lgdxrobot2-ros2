@@ -1,5 +1,7 @@
 #include "lgdxrobot2_agent/Agent.hpp"
 
+#include "nav2_util/geometry_utils.hpp"
+
 Agent::Agent() : Node("lgdxrobot2_agent_node")
 {}
 
@@ -25,12 +27,59 @@ void Agent::Initalise()
     cloud = std::make_unique<Cloud>(shared_from_this(), cloudSignals, robotStatus);
     navigation = std::make_unique<Navigation>(shared_from_this(), robotStatus);
 
+    cloudExchangeTimer = this->create_wall_timer(std::chrono::milliseconds(500), 
+      std::bind(&Agent::CloudExchange, this));
+    cloudExchangeTimer->cancel();
+
+    autoTaskPublisher = this->create_publisher<lgdxrobot2_agent::msg::AutoTask>("/agent/auto_task", 
+      rclcpp::SensorDataQoS().reliable());
+    crtitcalStatusPublisher = this->create_publisher<std_msgs::msg::Bool>("/agent/crtitcal_status", 
+      rclcpp::SensorDataQoS().reliable());
+    autoTaskPublisherTimer = this->create_wall_timer(std::chrono::milliseconds(100), 
+      [this]()
+      {
+        autoTaskPublisher->publish(currentTask);
+        /*
+        std_msgs::msg::Bool criticalStatus;
+        criticalStatus.data = robotStatus->getRobotStatus() == RobotClientsRobotStatus::Critical;
+        crtitcalStatusPublisher->publish(criticalStatus);*/
+      });
+
+    autoTaskNextService = this->create_service<lgdxrobot2_agent::srv::AutoTaskNext>("auto_task_next",
+      [this](const std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskNext::Request> request,
+        std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskNext::Response> response) 
+      {
+        if (!currentTask.next_token.empty() && 
+            request->task_id == currentTask.task_id &&
+            request->next_token == currentTask.next_token)
+        {
+          CloudAutoTaskNext();
+          response->success = true;
+        }
+        else
+        {
+          response->success = false;
+        }
+      });
+    autoTaskAbortService = this->create_service<lgdxrobot2_agent::srv::AutoTaskAbort>("auto_task_abort",
+      [this](const std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskAbort::Request> request,
+        std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskAbort::Response> response)
+      {
+        if (!currentTask.next_token.empty() && 
+            request->task_id == currentTask.task_id &&
+            request->next_token == currentTask.next_token)
+        {
+          CloudAutoTaskAbort(RobotClientsAbortReason::Robot);
+          response->success = true;
+        }
+        else
+        {
+          response->success = false;
+        }
+      });
+
     tfBuffer = std::make_unique<tf2_ros::Buffer>(this->get_clock());
     tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);
-
-    cloudExchangeTimer = this->create_wall_timer(std::chrono::milliseconds(500), 
-      std::bind(&Agent::CloudExchangeReady, this));
-    cloudExchangeTimer->cancel();
   }
 
   // MCU
@@ -42,7 +91,7 @@ void Agent::Initalise()
   }
 }
 
-void Agent::CloudExchangeReady()
+void Agent::CloudExchange()
 {
   if (!cloudExchangeTimer->is_canceled())
     cloudExchangeTimer->cancel();
@@ -77,4 +126,128 @@ void Agent::CloudExchangeReady()
     robotPosition,
     navProgress);
   // Don't reset the cloudExchangeTimer here
+}
+
+void Agent::OnCloudExchangeDone(const RobotClientsRespond *respond)
+{
+  // Handle AutoTask
+  if (respond->has_task())
+  {
+    RobotClientsAutoTask task = respond->task();
+    currentTask.task_id = task.taskid();
+    currentTask.task_name = task.taskname();
+    currentTask.task_progress_id = task.taskprogressid();
+    currentTask.task_progress_name = task.taskprogressname();
+    currentTask.next_token = task.nexttoken();
+    if (currentTask.task_progress_id == 3)
+    {
+      RCLCPP_INFO(this->get_logger(), "AutoTask Id: %d completed.", task.taskid());
+      robotStatus->TaskCompleted();
+    }
+    else if (currentTask.task_progress_id == 4)
+    {
+      RCLCPP_INFO(this->get_logger(), "AutoTask Id: %d aborted.", task.taskid());
+      navigation->Abort();
+    }
+    else
+    {
+      RCLCPP_INFO(this->get_logger(), "Received AutoTask Id: %d, Progress: %d", task.taskid(), task.taskprogressid());
+      if (task.paths_size())
+      {
+        RCLCPP_INFO(this->get_logger(), "This task has %d waypoint(s).", task.paths_size());
+        navigationPaths.clear();
+        navigationPaths.assign(task.paths().begin(), task.paths().end());
+        navigationProgress = 0;
+        HandleNavigation();
+      }
+      robotStatus->TaskAssigned();
+    }
+  }
+
+  // Handle Robot Command
+  if (respond->has_commands())
+  {
+    auto commands = respond->commands();
+    // Abort Task
+    if (commands.aborttask() == true && currentCommands.aborttask() == false)
+    {
+      CloudAutoTaskAbort(RobotClientsAbortReason::UserApi);
+    }
+    currentCommands.set_aborttask(commands.aborttask());
+
+    // Emergency Stop
+    if (commands.softwareemergencystop() == true && currentCommands.softwareemergencystop() == false)
+    {
+      robotStatus->EnterCritical();
+    }
+    else if (commands.softwareemergencystop() == false && currentCommands.softwareemergencystop() == true)
+    {
+      robotStatus->ExitCritical();
+    }
+    criticalStatus.set_softwareemergencystop(commands.softwareemergencystop());
+    currentCommands.set_softwareemergencystop(commands.softwareemergencystop());
+
+    // Pause Task Assigement
+    if (commands.pausetaskassigement() == true && currentCommands.pausetaskassigement() == false)
+    {
+      robotStatus->PauseTaskAssigement();
+    }
+    else if (commands.pausetaskassigement() == false && currentCommands.pausetaskassigement() == true)
+    {
+      robotStatus->ResumeTaskAssigement();
+    }
+    currentCommands.set_pausetaskassigement(commands.pausetaskassigement());
+  }
+}
+
+void Agent::HandleNavigation()
+{
+  if (navigationProgress < navigationPaths.size())
+  {
+    std::vector<geometry_msgs::msg::PoseStamped> poses;
+    auto pose = geometry_msgs::msg::PoseStamped();
+    pose.header.stamp = rclcpp::Clock().now();
+    pose.header.frame_id = "map";
+    pose.pose.position.z = 0.0;
+    for (int i = 0; i < navigationPaths.at(navigationProgress).waypoints_size(); i++)
+    {
+      const RobotClientsDof waypoint = navigationPaths.at(navigationProgress).waypoints(i);
+      pose.pose.position.x = waypoint.x();
+      pose.pose.position.y = waypoint.y();
+      pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(waypoint.rotation());
+      poses.push_back(pose);
+    }
+    navigation->Start(poses);
+    navigationProgress++;
+  }
+  else
+  {
+    CloudAutoTaskNext();
+  }
+}
+
+void Agent::CloudAutoTaskNext()
+{
+  if (!currentTask.next_token.empty())
+  {
+    RCLCPP_INFO(this->get_logger(), "AutoTask advances to next progress.");
+    RobotClientsNextToken token;
+    token.set_taskid(currentTask.task_id);
+    token.set_nexttoken(currentTask.next_token);
+    cloud->AutoTaskNext(token);
+  }
+}
+
+void Agent::CloudAutoTaskAbort(RobotClientsAbortReason reason)
+{
+  if (!currentTask.next_token.empty())
+  {
+    robotStatus->TaskAborting();
+    RCLCPP_INFO(this->get_logger(), "AutoTask will be aborted.");
+    RobotClientsAbortToken token;
+    token.set_taskid(currentTask.task_id);
+    token.set_nexttoken(currentTask.next_token);
+    token.set_abortreason(reason);
+    cloud->AutoTaskAbort(token);
+  }
 }
