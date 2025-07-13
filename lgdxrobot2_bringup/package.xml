@@ -2,9 +2,9 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>lgdxrobot2_bringup</name>
-  <version>0.0.0</version>
+  <version>1.0.0</version>
   <description>Bringup scripts and configurations for LGDXRobot2</description>
-  <maintainer email="dev@bristolgram.uk">LGDXRobotics</maintainer>
+  <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

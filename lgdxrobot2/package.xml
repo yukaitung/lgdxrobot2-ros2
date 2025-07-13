@@ -3,8 +3,8 @@
 <package format="3">
   <name>lgdxrobot2</name>
   <version>1.0.0</version>
-  <description>ROS2 packages for LGDXRobot2.</description>
-  <maintainer email="dev@bristolgram.uk">LGDXRobot</maintainer>
+  <description>LGDXRobot2 ROS2 packages.</description>
+  <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <license>MIT</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
   <export>
