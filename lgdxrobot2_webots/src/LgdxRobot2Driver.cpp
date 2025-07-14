@@ -59,12 +59,12 @@ void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered
     rclcpp::SensorDataQoS().reliable(),
     std::bind(&LgdxRobot2Driver::cmdVelCallback, this, std::placeholders::_1)
   );
-  crticialStatusSubscription = node->create_subscription<std_msgs::msg::Bool>(
-    "/daemon/crtitcal_status", 
+  robotStatusSubscription = node->create_subscription<lgdxrobot2_agent::msg::RobotData>(
+    "/agent/robot_data",
     rclcpp::SensorDataQoS().reliable(),
-    [this](const std_msgs::msg::Bool &msg)
+    [this](const lgdxrobot2_agent::msg::RobotData &msg)
     {
-      isCrticialStatus = msg.data;
+      isCrticialStatus = msg.robot_status == 5; // 5 = Critical
     }
   );
   odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("/odom", rclcpp::SensorDataQoS().reliable());
