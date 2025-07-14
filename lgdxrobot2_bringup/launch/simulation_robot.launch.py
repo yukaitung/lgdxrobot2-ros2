@@ -109,7 +109,7 @@ def launch_setup(context):
       ('/scan', 'scan'),
       ('/scan/point_cloud', 'scan/point_cloud'),
       ('/imu/data', 'imu/data'),
-      ('/daemon/crtitcal_status', 'daemon/crtitcal_status'),
+      ('/agent/robot_data', 'agent/robot_data'),
       ('/remove_urdf_robot', 'remove_urdf_robot')
     ],
     respawn=True

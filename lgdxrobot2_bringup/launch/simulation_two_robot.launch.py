@@ -89,8 +89,8 @@ def launch_setup(context):
   )
   
   lgdxrobot2_mcu_node1 = Node(
-    package='lgdxrobot2_daemon',
-    executable='lgdxrobot2_daemon_node',
+    package='lgdxrobot2_agent',
+    executable='lgdxrobot2_agent_node',
     namespace='robot1',
     output='screen',
     parameters=[{
@@ -99,18 +99,19 @@ def launch_setup(context):
       'cloud_root_cert': '/home/user/key/rootCA.crt',
       'cloud_client_key': '/home/user/key/Robot1.key',
       'cloud_client_cert': '/home/user/key/Robot1.crt',
+      'sim_enable': True,
     }],
     remappings=[
       ('/tf', 'tf'), 
       ('/tf_static', 'tf_static'),
-      ('/daemon/auto_task', 'daemon/auto_task'), 
-      ('/daemon/crtitcal_status', 'daemon/crtitcal_status'), 
+      ('/agent/auto_task', 'agent/auto_task'),
+      ('/agent/robot_data', 'agent/robot_data'),
     ],
   )
   
   lgdxrobot2_mcu_node2 = Node(
-    package='lgdxrobot2_daemon',
-    executable='lgdxrobot2_daemon_node',
+    package='lgdxrobot2_agent',
+    executable='lgdxrobot2_agent_node',
     namespace='robot2',
     output='screen',
     parameters=[{
@@ -119,12 +120,13 @@ def launch_setup(context):
       'cloud_root_cert': '/home/user/key/rootCA.crt',
       'cloud_client_key': '/home/user/key/Robot2.key',
       'cloud_client_cert': '/home/user/key/Robot2.crt',
+      'sim_enable': True,
     }],
     remappings=[
       ('/tf', 'tf'), 
       ('/tf_static', 'tf_static'),
-      ('/daemon/auto_task', 'daemon/auto_task'), 
-      ('/daemon/crtitcal_status', 'daemon/crtitcal_status'), 
+      ('/agent/auto_task', 'agent/auto_task'),
+      ('/agent/robot_data', 'agent/robot_data'),
     ],
   )
   
