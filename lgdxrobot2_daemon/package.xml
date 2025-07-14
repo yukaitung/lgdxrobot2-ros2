@@ -4,7 +4,7 @@
   <name>lgdxrobot2_daemon</name>
   <version>1.0.0</version>
   <description>LGDXRobot2 middleware for ROS2.</description>
-  <maintainer email="dev@bristolgram.uk">LGDXRobot</maintainer>
+  <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>libprotobuf</buildtool_depend>
