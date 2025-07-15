@@ -335,7 +335,7 @@ global_costmap:
           #   * User chosen topic is `scan`.
           #   * Topic will be remapped to `/tb4/scan` without `global_costmap`.
           #   * Use global topic `/scan` if you do not wish the node namespace to apply
-          topic: /<ROS_NAMESPACE>/scan
+          topic: <ROS_NAMESPACE>/scan
           max_obstacle_height: 2.0
           clearing: True
           marking: True

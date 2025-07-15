@@ -1,5 +1,6 @@
 """\
-  
+Base launch file for LGDXRobot2 Webots simulation and ROS2 Nav2 stack for multiple robots.
+Refer to lgdxrobot2_bringup/launch/simulation_two_robots.launch.py for more details.
 """
 
 from launch.substitutions import LaunchConfiguration
@@ -19,7 +20,7 @@ from lgdxrobot2_bringup.utils import get_param_path
 launch_args = [
   DeclareLaunchArgument(
     name='profile',
-    default_value='sim-slam',
+    default_value='sim-loc',
     description='Parameters profile.'
   ),
   DeclareLaunchArgument(
@@ -62,6 +63,26 @@ launch_args = [
     default_value='False',
     description='Whether to respawn if a node crashes.'
   ),
+  DeclareLaunchArgument(
+    name='initial_pose_x',
+    default_value='0.0',
+    description='Initial pose x'
+  ),
+  DeclareLaunchArgument(
+    name='initial_pose_y',
+    default_value='0.0',
+    description='Initial pose y'
+  ),
+  DeclareLaunchArgument(
+    name='initial_pose_z',
+    default_value='0.0',
+    description='Initial pose z'
+  ),
+  DeclareLaunchArgument(
+    name='initial_pose_yaw',
+    default_value='0.0',
+    description='Initial pose yaw'
+  )
 ]
     
 def launch_setup(context):
@@ -80,6 +101,10 @@ def launch_setup(context):
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
+  initial_pose_x = LaunchConfiguration('initial_pose_x').perform(context)
+  initial_pose_y = LaunchConfiguration('initial_pose_y').perform(context)
+  initial_pose_z = LaunchConfiguration('initial_pose_z').perform(context)
+  initial_pose_yaw = LaunchConfiguration('initial_pose_yaw').perform(context)
   
   lgdxrobot2_driver = WebotsController(
     robot_name=namespace,
@@ -151,7 +176,7 @@ def launch_setup(context):
       'use_localization': use_localization,
       'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
       'use_sim_time': use_sim_time,
-      'params_file': get_param_path('nav2.yaml', profile_str, namespace),
+      'params_file': get_param_path('nav2.yaml', profile_str, namespace, initial_pose_x, initial_pose_y, initial_pose_z, initial_pose_yaw),
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,

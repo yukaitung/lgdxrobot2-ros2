@@ -5,7 +5,7 @@ Make sure all certificates are stored in correct place
 Usage: 
 cd lgdx_ws 
 . install/setup.bash
-ros2 launch lgdxrobot2_bringup simulation_two_robot.launch.py
+ros2 launch lgdxrobot2_bringup simulation_two_robots.launch.py
 """
 
 from launch.substitutions import LaunchConfiguration
@@ -124,10 +124,9 @@ def launch_setup(context):
   
   robot1 = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
-      os.path.join(package_dir, 'launch', 'sim_multi_base.launch.py')
+      os.path.join(package_dir, 'launch', 'simulation_multi_robots_base.launch.py')
     ),
     launch_arguments={
-      'profile': 'robot1',
       'namespace': 'robot1',
       'slam': slam,
       'use_localization': use_localization,
@@ -141,10 +140,9 @@ def launch_setup(context):
   
   robot2 = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
-      os.path.join(package_dir, 'launch', 'sim_multi_base.launch.py')
+      os.path.join(package_dir, 'launch', 'simulation_multi_robots_base.launch.py')
     ),
     launch_arguments={
-      'profile': 'robot2',
       'namespace': 'robot2',
       'slam': slam,
       'use_localization': use_localization,
@@ -153,6 +151,7 @@ def launch_setup(context):
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,
+      'initial_pose_x': '3.0',
     }.items(),
   )
 
