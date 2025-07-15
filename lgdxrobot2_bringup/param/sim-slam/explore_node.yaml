@@ -1,4 +1,4 @@
-explore_node:
+<ROS_NAMESPACE>/explore_node:
   ros__parameters:
     robot_base_frame: base_link
     return_to_init: False

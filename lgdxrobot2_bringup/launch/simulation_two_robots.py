@@ -62,14 +62,6 @@ launch_args = [
   )
 ]
 
-def generate_param_path_with_profile(file_name, profile):
-  package_dir = get_package_share_directory('lgdxrobot2_bringup')
-  path = os.path.join(package_dir, "param", profile, file_name)
-  if os.path.exists(path):
-    return path
-  else:
-    return os.path.join(package_dir, "param", file_name)
-      
 def launch_setup(context):
   package_dir = get_package_share_directory('lgdxrobot2_bringup')
   webots_package_dir = get_package_share_directory('lgdxrobot2_webots')
@@ -132,7 +124,7 @@ def launch_setup(context):
   
   robot1 = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
-      os.path.join(package_dir, 'launch', 'simulation_robot.launch.py')
+      os.path.join(package_dir, 'launch', 'sim_multi_base.launch.py')
     ),
     launch_arguments={
       'profile': 'robot1',
@@ -149,7 +141,7 @@ def launch_setup(context):
   
   robot2 = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
-      os.path.join(package_dir, 'launch', 'simulation_robot.launch.py')
+      os.path.join(package_dir, 'launch', 'sim_multi_base.launch.py')
     ),
     launch_arguments={
       'profile': 'robot2',

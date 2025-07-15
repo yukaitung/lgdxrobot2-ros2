@@ -1,6 +1,15 @@
 """\
+This script initalises LGDXRobot2 Webots simulation, RViz visualision and ROS2 Nav2 stack.
+
+Usage: 
+cd lgdx_ws # The location of the source code
+. install/setup.bash
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True use_explore_lite:=True
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py profile:='sim-loc'
 """
 
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
@@ -8,10 +17,11 @@ from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
+from webots_ros2_driver.webots_launcher import WebotsLauncher
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.wait_for_controller_connection import WaitForControllerConnection
 from launch_ros.actions import Node
-from launch.substitutions import Command
+from lgdxrobot2_bringup.utils import get_param_path
 import os
 
 launch_args = [
@@ -24,6 +34,11 @@ launch_args = [
     name='namespace',
     default_value='',
     description='Namespace for the robot.'
+  ),
+  DeclareLaunchArgument(
+    name='world',
+    default_value='apartment.wbt',
+    description='World file in `lgdxrobot2_webots` package.'
   ),
   DeclareLaunchArgument(
     name='slam',
@@ -60,17 +75,30 @@ launch_args = [
     default_value='False',
     description='Whether to respawn if a node crashes.'
   ),
+  DeclareLaunchArgument(
+    name='use_rviz',
+    default_value='True',
+    description='Launch RViz2.'
+  ),
+  DeclareLaunchArgument(
+    name='rviz_config', 
+    default_value='',
+    description='The absolute path for the RViz config file.'
+  ),
+  DeclareLaunchArgument(
+    name='use_explore_lite', 
+    default_value='False',
+    description='Launch explore_lite to explore the map automatically.'
+  ),
+  DeclareLaunchArgument(
+    name='log_level', 
+    default_value='info',
+    description='Log levely.'
+  )
 ]
-
-def generate_param_path_with_profile(file_name, profile):
-  package_dir = get_package_share_directory('lgdxrobot2_bringup')
-  path = os.path.join(package_dir, "param", profile, file_name)
-  if os.path.exists(path):
-    return path
-  else:
-    return os.path.join(package_dir, "param", file_name)
       
 def launch_setup(context):
+  package_dir = get_package_share_directory('lgdxrobot2_bringup')
   webots_package_dir = get_package_share_directory('lgdxrobot2_webots')
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
   nav2_package_dir = get_package_share_directory('nav2_bringup')
@@ -79,6 +107,7 @@ def launch_setup(context):
   profile_str = LaunchConfiguration('profile').perform(context)
   namespace = LaunchConfiguration('namespace').perform(context)
   use_namespace = 'True' if namespace != '' else 'False'
+  world = LaunchConfiguration('world')
   slam = LaunchConfiguration('slam')
   use_localization = LaunchConfiguration('use_localization')
   map = LaunchConfiguration('map')
@@ -86,9 +115,19 @@ def launch_setup(context):
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
+  use_rviz = LaunchConfiguration('use_rviz')
+  rviz_config = LaunchConfiguration('rviz_config').perform(context)
+  if not rviz_config:
+    rviz_config = os.path.join(package_dir, 'rviz', profile_str) + '.rviz'
+  use_explore_lite = LaunchConfiguration('use_explore_lite')
   
+  # Webots Simulator
+  webots = WebotsLauncher(
+    world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
+    ros2_supervisor=True
+  )
   lgdxrobot2_driver = WebotsController(
-    robot_name=namespace,
+    robot_name='LGDXRobot2',
     namespace=namespace,
     parameters=[
       {
@@ -116,19 +155,18 @@ def launch_setup(context):
   )
   
   # Robot Description
-  robot_state_publisher_node = Node(
-    package='robot_state_publisher',
-    executable='robot_state_publisher',
-    namespace=namespace,
-    parameters=[
-      {'robot_description': Command(['xacro ', os.path.join(description_package_dir, 'description', 'lgdxrobot2_sim_description.urdf')])}
-    ],
-    remappings=[
-      ('/tf', 'tf'), 
-      ('/tf_static', 'tf_static')
-    ]
+  description_node = IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(
+      os.path.join(description_package_dir, 'launch', 'display.launch.py')
+    ),
+    launch_arguments={
+      'namespace': namespace,
+      'use_sim_time': use_sim_time,
+      'model': 'lgdxrobot2_sim_description.urdf',
+      'use_rviz': use_rviz,
+      'rviz_config': rviz_config,
+    }.items(),
   )
-  
   robot_localization_node = Node(
     package='robot_localization',
     executable='ekf_node',
@@ -136,7 +174,7 @@ def launch_setup(context):
     namespace=namespace,
     output='screen',
     parameters=[
-      generate_param_path_with_profile('ekf.yaml', profile_str),
+      get_param_path('ekf.yaml', profile_str, namespace),
       {'use_sim_time': use_sim_time }
     ],
     remappings=[
@@ -144,7 +182,7 @@ def launch_setup(context):
       ('/tf_static', 'tf_static')
     ]
   )
-  
+
   # Nav2
   ros2_nav = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
@@ -157,19 +195,32 @@ def launch_setup(context):
       'use_localization': use_localization,
       'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
       'use_sim_time': use_sim_time,
-      'params_file': generate_param_path_with_profile('nav2.yaml', profile_str),
+      'params_file': get_param_path('nav2.yaml', profile_str, namespace),
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,
     }.items(),
   )
 
-  waiting_nodes = WaitForControllerConnection(
-    target_driver = lgdxrobot2_driver,
-    nodes_to_start = [robot_localization_node] + [robot_state_publisher_node] + [ros2_nav]
+  # Explore for Nav2
+  explore_node = IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(
+      os.path.join(package_dir, 'launch', 'explore.launch.py')
+    ),
+    condition=IfCondition(use_explore_lite),
+    launch_arguments={
+      'config': get_param_path('explore_node.yaml', profile_str, namespace),
+      'namespace': namespace,
+      'use_sim_time': use_sim_time
+    }.items()
   )
 
-  return [lgdxrobot2_driver, waiting_nodes]
+  waiting_nodes = WaitForControllerConnection(
+    target_driver = lgdxrobot2_driver,
+    nodes_to_start = [description_node] + [robot_localization_node]  + [explore_node] + [ros2_nav]
+  )
+
+  return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)

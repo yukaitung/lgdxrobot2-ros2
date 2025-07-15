@@ -3,7 +3,7 @@ bt_navigator:
   ros__parameters:
     global_frame: map
     robot_base_frame: base_link
-    odom_topic: odom
+    odom_topic: <ROS_NAMESPACE>/odom
     bt_loop_duration: 10
     default_server_timeout: 20
     wait_for_service_timeout: 1000
@@ -172,7 +172,7 @@ local_costmap:
         mark_threshold: 0
         observation_sources: pointcloud
         pointcloud:  # no frame set, uses frame from message
-          topic: /camera/depth/color/points
+          topic: <ROS_NAMESPACE>/camera/depth/color/points
           max_obstacle_height: 2.0
           min_obstacle_height: 0.0
           obstacle_max_range: 2.5
@@ -200,7 +200,7 @@ global_costmap:
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       observation_sources: pointcloud
       pointcloud:  # no frame set, uses frame from message
-        topic: /camera/depth/color/points
+        topic: <ROS_NAMESPACE>/camera/depth/color/points
         max_obstacle_height: 2.0
         min_obstacle_height: 0.0
         obstacle_max_range: 2.5
@@ -253,10 +253,10 @@ smoother_server:
 
 behavior_server:
   ros__parameters:
-    local_costmap_topic: local_costmap/costmap_raw
-    global_costmap_topic: global_costmap/costmap_raw
-    local_footprint_topic: local_costmap/published_footprint
-    global_footprint_topic: global_costmap/published_footprint
+    local_costmap_topic: <ROS_NAMESPACE>/local_costmap/costmap_raw
+    global_costmap_topic: <ROS_NAMESPACE>/global_costmap/costmap_raw
+    local_footprint_topic: <ROS_NAMESPACE>/local_costmap/published_footprint
+    global_footprint_topic: <ROS_NAMESPACE>/global_costmap/published_footprint
     cycle_frequency: 10.0
     behavior_plugins: ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
     spin:
@@ -304,7 +304,7 @@ velocity_smoother:
     min_velocity: [-0.5, 0.0, -2.0]
     max_accel: [2.5, 0.0, 3.2]
     max_decel: [-2.5, 0.0, -3.2]
-    odom_topic: "odom"
+    odom_topic: "<ROS_NAMESPACE>/odom"
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
     velocity_timeout: 1.0
@@ -313,9 +313,9 @@ collision_monitor:
   ros__parameters:
     base_frame_id: "base_footprint"
     odom_frame_id: "odom"
-    cmd_vel_in_topic: "cmd_vel_smoothed"
-    cmd_vel_out_topic: "cmd_vel"
-    state_topic: "collision_monitor_state"
+    cmd_vel_in_topic: "<ROS_NAMESPACE>/cmd_vel_smoothed"
+    cmd_vel_out_topic: "<ROS_NAMESPACE>/cmd_vel"
+    state_topic: "<ROS_NAMESPACE>/collision_monitor_state"
     transform_tolerance: 0.5
     source_timeout: 0.0
     base_shift_correction: True
@@ -326,7 +326,7 @@ collision_monitor:
     FootprintApproach:
       type: "polygon"
       action_type: "approach"
-      footprint_topic: "local_costmap/published_footprint"
+      footprint_topic: "<ROS_NAMESPACE>/local_costmap/published_footprint"
       time_before_collision: 1.75
       simulation_time_step: 0.1
       min_points: 6
@@ -335,7 +335,7 @@ collision_monitor:
     observation_sources: ["pointcloud"]
     pointcloud:
       type: "pointcloud"
-      topic: "/camera/depth/color/points"
+      topic: "<ROS_NAMESPACE>/camera/depth/color/points"
       min_height: 0.1
       max_height: 0.5
       enabled: True
@@ -386,8 +386,8 @@ docking_server:
       v_linear_min: 0.15
       v_linear_max: 0.15
       use_collision_detection: true
-      costmap_topic: "/local_costmap/costmap_raw"
-      footprint_topic: "/local_costmap/published_footprint"
+      costmap_topic: "<ROS_NAMESPACE>/local_costmap/costmap_raw"
+      footprint_topic: "<ROS_NAMESPACE>/local_costmap/published_footprint"
       transform_tolerance: 0.1
       projection_time: 5.0
       simulation_step: 0.1
