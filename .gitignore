@@ -2,3 +2,6 @@ explore/*
 lgdxrobot2_webots/worlds/.*.jpg
 lgdxrobot2_webots/worlds/*.wbproj
 third_party/*
+build/*
+install/*
+log/*

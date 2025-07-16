@@ -6,12 +6,13 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(lgdxrobot2_agent REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(nav_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
-find_package(pluginlib REQUIRED)
 find_package(webots_ros2_driver REQUIRED)
 
 # Export the plugin configuration file
@@ -26,12 +27,13 @@ add_library(
 )
 ament_target_dependencies(
   ${PROJECT_NAME}
+  geometry_msgs
+  lgdxrobot2_agent
+  nav_msgs
+  pluginlib
   rclcpp
   std_msgs
-  geometry_msgs
-  nav_msgs
   tf2_geometry_msgs
-  pluginlib
   webots_ros2_driver
 )
 

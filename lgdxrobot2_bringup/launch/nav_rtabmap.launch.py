@@ -11,10 +11,11 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node, ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, OpaqueFunction, GroupAction, SetEnvironmentVariable
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, OpaqueFunction
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, LaunchConfiguration, PythonExpression
+from launch.substitutions import Command, LaunchConfiguration
+from lgdxrobot2_bringup.utils import get_param_path
 import os
 import yaml
 
@@ -96,14 +97,6 @@ launch_args = [
   )
 ]
 
-def generate_param_path_with_profile(file_name, profile):
-  package_dir = get_package_share_directory('lgdxrobot2_bringup')
-  path = os.path.join(package_dir, "param", profile, file_name)
-  if os.path.exists(path):
-    return path
-  else:
-    return os.path.join(package_dir, "param", file_name)
-  
 def launch_setup(context):
   profile = "nav-rtabmap"
   description_pkg_share = get_package_share_directory('lgdxrobot2_description')
@@ -149,7 +142,7 @@ def launch_setup(context):
     package='lgdxrobot2_daemon',
     executable='lgdxrobot2_daemon_node',
     output='screen',
-    parameters=[generate_param_path_with_profile("lgdxrobot2_daemon_node.yaml", profile)],
+    parameters=[get_param_path("lgdxrobot2_agent_node.yaml", profile, namespace)],
     remappings=[('/daemon/ext_imu', '/imu/data')]
   )
   
@@ -165,7 +158,7 @@ def launch_setup(context):
         namespace='',
         plugin='realsense2_camera::RealSenseNodeFactory',
         name='camera',
-        parameters=[generate_param_path_with_profile("realsense2_camera.yaml", profile)],
+        parameters=[get_param_path("realsense2_camera.yaml", profile, namespace)],
         extra_arguments=[{'use_intra_process_comms': True}])
       ],
     output='screen',
@@ -183,13 +176,13 @@ def launch_setup(context):
     executable='imu_filter_madgwick_node',
     output='screen',
     remappings=[('/imu/data_raw', '/imu_out')],
-    parameters=[generate_param_path_with_profile("imu_filter_madgwick.yaml", profile)]
+    parameters=[get_param_path("imu_filter_madgwick.yaml", profile, namespace)]
   )
   
   # Rtabmap
   rtabmap_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(os.path.join(get_package_share_directory("rtabmap_launch"), 'launch', 'rtabmap.launch.py')),
-    launch_arguments=yaml.load(open(generate_param_path_with_profile("rtabmap.yaml", profile)), Loader=yaml.FullLoader).items()
+    launch_arguments=yaml.load(open(get_param_path("rtabmap.yaml", profile)), Loader=yaml.FullLoader).items()
   )
   
   # State Estimation Nodes
@@ -199,7 +192,7 @@ def launch_setup(context):
     name='ekf_filter_node',
     output='screen',
     parameters=[
-      generate_param_path_with_profile("ekf.yaml", profile),
+      get_param_path("ekf.yaml", profile, namespace),
       {'use_sim_time': use_sim_time }
     ]
   )
@@ -215,7 +208,7 @@ def launch_setup(context):
       'slam': slam,
       'use_localization': use_localization,
       'use_sim_time': use_sim_time,
-      'params_file': generate_param_path_with_profile('nav2.yaml', profile),
+      'params_file': get_param_path('nav2.yaml', profile, namespace),
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,

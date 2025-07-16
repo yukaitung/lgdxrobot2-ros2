@@ -1,9 +1,0 @@
-lgdxrobot2_daemon_node:
-  ros__parameters:
-    serial_port_enable: true
-    serial_port_control_mode: "cmd_vel"
-    serial_port_reset_transform: true
-    serial_port_publish_odom: true
-    serial_port_publish_tf: false
-    serial_port_base_link_name: base_link
-    serial_port_use_external_imu: true
