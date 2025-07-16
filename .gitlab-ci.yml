@@ -61,7 +61,7 @@ build-arm64:
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     - docker pull $SUPPORT_IMAGE_TAG
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64 -f Dockerfile.amd64 .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64 -f Dockerfile.arm64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64
     
 release_job:
