@@ -1,4 +1,4 @@
-FROM ros:jazzy
+FROM registry.gitlab.com/yukaitung/lgdxrobot2-ros2/arm64support:latest
 
 RUN apt update && \
       apt upgrade -y && \  
