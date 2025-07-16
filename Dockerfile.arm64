@@ -2,20 +2,7 @@ FROM registry.gitlab.com/yukaitung/lgdxrobot2-ros2/arm64support:latest
 
 RUN apt update && \
       apt upgrade -y && \  
-      apt install -y git ros-dev-tools ros-jazzy-navigation2 ros-jazzy-nav2-bringup libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc && \
       rm -rf /var/lib/apt/lists/*
-
-# Webots ROS2
-WORKDIR /home/user/webots_ws/src
-RUN git clone --recurse-submodules https://github.com/cyberbotics/webots_ros2.git
-
-WORKDIR /home/user/webots_ws
-RUN apt update && \
-      rosdep update && \
-      rosdep install --from-paths src --ignore-src --rosdistro $ROS_DISTRO -y && \
-      rm -rf /var/lib/apt/lists/*
-RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-      colcon build --symlink-install
 
 # LGDXRobot2 ROS2
 WORKDIR /home/user/lgdx_ws/src
@@ -31,3 +18,8 @@ WORKDIR /home/user/lgdx_ws
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
       . /home/user/webots_ws/install/setup.sh && \
       colcon build
+
+COPY ./ros_entrypoint.sh /
+
+ENTRYPOINT ["/ros_entrypoint.sh"]
+CMD ["bash"]
