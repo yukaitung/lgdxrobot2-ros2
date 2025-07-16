@@ -1,0 +1,28 @@
+FROM ros:jazzy
+
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=1 
+ENV WEBOTS_ALLOW_MODIFY_INSTALLATION=1
+ENV WEBOTS_HOME=/home/user/webots
+ENV PATH=/home/user/.local/bin:$PATH
+
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH=$VIRTUAL_ENV/bin:$PATH
+
+# Build Webots
+WORKDIR /home/user
+RUN apt update && \
+      apt upgrade -y && \
+      apt install -y git xvfb python3.12-venv default-jdk && \
+      rm -rf /var/lib/apt/lists/*
+RUN git clone --recurse-submodules --depth 10 https://github.com/yukaitung/webots.git
+
+WORKDIR /home/user/webots
+RUN rm -rf .git
+RUN rm -rf .github
+RUN apt update && \
+      scripts/install/linux_compilation_dependencies.sh && \
+      scripts/install/linux_runtime_dependencies.sh && \
+      rm -rf /var/lib/apt/lists/*
+RUN python3 -m venv $VIRTUAL_ENV
+RUN make -j$(nproc)
