@@ -94,8 +94,10 @@ release_job:
     - export APP_VERSION=$(xmllint --xpath "//package/version/text()" lgdxrobot2/package.xml)
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2:latest --amend $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64 --amend $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2:$APP_VERSION --amend $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64 --amend $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64
+    - docker pull $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64
+    - docker pull $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2:latest --amend lgdxrobot2:dev-amd64 --amend lgdxrobot2:dev-arm64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2:$APP_VERSION --amend lgdxrobot2:dev-amd64 --amend lgdxrobot2:dev-arm64
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:latest
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:$APP_VERSION
   release:
