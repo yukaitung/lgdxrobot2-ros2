@@ -1,11 +1,14 @@
 FROM ros:jazzy
 
-# Webots ROS2
+WORKDIR /etc/apt/keyrings
+RUN sudo wget -q https://cyberbotics.com/Cyberbotics.asc
+RUN echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/Cyberbotics.asc] https://cyberbotics.com/debian binary-amd64/" | sudo tee /etc/apt/sources.list.d/Cyberbotics.list
 RUN apt update && \
       apt upgrade -y && \  
-      apt install --no-install-recommends -y git ros-dev-tools ros-jazzy-navigation2 ros-jazzy-nav2-bringup libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc && \
+      apt install --no-install-recommends -y git ros-dev-tools ros-jazzy-navigation2 ros-jazzy-nav2-bringup libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc webots ros-jazzy-webots-ros && \
       rm -rf /var/lib/apt/lists/*
 
+# Webots ROS2
 WORKDIR /home/user/webots_ws/src
 RUN git clone --recurse-submodules https://github.com/cyberbotics/webots_ros2.git
 
@@ -19,7 +22,8 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
 
 # LGDXRobot2 ROS2 (Third Party)
 WORKDIR /home/user/lgdx_ws/src
-COPY .git .
+COPY . .
+RUN rm -rf lgdxrobot2*
 RUN git submodule init
 RUN git submodule update
 RUN apt update && \

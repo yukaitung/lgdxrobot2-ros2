@@ -5,3 +5,4 @@ third_party/*
 build/*
 install/*
 log/*
+.DS_Store
