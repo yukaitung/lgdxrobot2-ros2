@@ -93,16 +93,17 @@ release_job:
     - apk add libxml2-utils
     - export APP_VERSION=$(xmllint --xpath "//package/version/text()" lgdxrobot2/package.xml)
   script:
+    - echo $APP_VERSION
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2:latest --amend $EXT_USER/lgdxrobot2:dev-amd64 --amend $EXT_USER/lgdxrobot2:dev-arm64
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2:$APP_VERSION --amend $EXT_USER/lgdxrobot2:dev-amd64 --amend $EXT_USER/lgdxrobot2:dev-arm64
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:latest
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:$APP_VERSION
   release:
-    name : 'Release $APP_VERSION'
-    tag_name: '$APP_VERSION'
-    description: '$APP_VERSION'
-    ref: '$CI_COMMIT_SHA'
+    name : Release $APP_VERSION
+    tag_name: $APP_VERSION
+    description: $APP_VERSION
+    ref: $CI_COMMIT_SHA
     assets:
       links:
         - name: 'Docker Images for LGDXRobot2'
