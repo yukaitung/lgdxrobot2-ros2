@@ -14,7 +14,7 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
       colcon build
 
 COPY ./ros_entrypoint.sh /
-RUN chmod +x /home/user/lgdx_ws/ros_entrypoint.sh
+RUN chmod +x /ros_entrypoint.sh
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]
