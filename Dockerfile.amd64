@@ -7,14 +7,9 @@ RUN apt update && \
 # LGDXRobot2 ROS2
 WORKDIR /home/user/lgdx_ws/src
 COPY . .
-RUN apt update && \
-      rosdep update && \
-      rosdep install --from-paths third_party/m-explore-ros2 --ignore-src --rosdistro $ROS_DISTRO -y && \
-      rm -rf /var/lib/apt/lists/*
-
 WORKDIR /home/user/lgdx_ws
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-      . /home/user/webots_ws/install/setup.sh && \
+      #. /home/user/webots_ws/install/setup.sh && \
       colcon build
 
 COPY ./ros_entrypoint.sh /
