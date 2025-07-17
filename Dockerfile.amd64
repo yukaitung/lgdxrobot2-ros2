@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/yukaitung/lgdxrobot2-ros2/amd64support:latest
+FROM yukaitung/lgdxrobot2.support:amd64
 
 RUN apt update && \
       apt upgrade -y && \  

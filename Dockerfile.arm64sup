@@ -39,9 +39,6 @@ ENV WEBOTS_ALLOW_MODIFY_INSTALLATION=1
 ENV WEBOTS_HOME=/home/user/webots
 ENV PATH=/home/user/.local/bin:$PATH
 
-ENV VIRTUAL_ENV=/opt/venv
-ENV PATH=$VIRTUAL_ENV/bin:$PATH
-
 WORKDIR /home/user
 RUN apt update && \
       apt install -y --no-install-recommends git xvfb python3.12-venv default-jdk && \
@@ -55,5 +52,6 @@ RUN apt update && \
       scripts/install/linux_compilation_dependencies.sh && \
       scripts/install/linux_runtime_dependencies.sh && \
       rm -rf /var/lib/apt/lists/*
-RUN python3 -m venv $VIRTUAL_ENV
+RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED /usr/lib/python3.12/EXTERNALLY-MANAGED.old
 RUN make -j$(nproc)
+RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED.old /usr/lib/python3.12/EXTERNALLY-MANAGED

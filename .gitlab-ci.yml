@@ -26,9 +26,9 @@ build-sup-amd64:
   services:
     - docker:24.0.5-dind
   script:
-    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker build -f Dockerfile.amd64sup -t $SUPPORT_IMAGE_TAG_AMD64 .
-    - docker push $SUPPORT_IMAGE_TAG_AMD64
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    - docker build -f Dockerfile.amd64sup -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64 .
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64
 
 build-sup-arm64:
   stage: build-sup
@@ -39,13 +39,13 @@ build-sup-arm64:
   when: manual
   image: docker:24.0.5-git
   tags:
-    - lgdx-arm64
+    - saas-linux-small-arm64
   services:
     - docker:24.0.5-dind
   script:
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker build -f Dockerfile.arm64sup -t $SUPPORT_IMAGE_TAG_ARM64 .
-    - docker push $SUPPORT_IMAGE_TAG_ARM64
+    - docker build -f Dockerfile.arm64sup -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64 .
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64
 
 build-amd64:
   stage: build
@@ -59,8 +59,6 @@ build-amd64:
   services:
     - docker:24.0.5-dind
   script:
-    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker pull $SUPPORT_IMAGE_TAG_AMD64
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64 -f Dockerfile.amd64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64
@@ -77,8 +75,6 @@ build-arm64:
   services:
     - docker:24.0.5-dind
   script:
-    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker pull $SUPPORT_IMAGE_TAG_ARM64
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64 -f Dockerfile.arm64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64
