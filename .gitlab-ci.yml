@@ -3,7 +3,6 @@
 # $EXT_REGISTRY: Registry URL (e.g. docker.io)
 # $EXT_USER: Username for the registry
 # $EXT_PAT: PAT for the registry (https://docs.docker.com/security/for-developers/access-tokens/)
-# $BUILD_SUPPORT: Build Support Image (true/false)
 
 variables:
   SUPPORT_IMAGE_TAG_ARM64: $CI_REGISTRY_IMAGE/arm64support:latest
@@ -41,6 +40,7 @@ build-sup-arm64:
   image: docker:24.0.5-git
   tags:
     - lgdx-arm64
+    - saas-linux-small-arm64 
   services:
     - docker:24.0.5-dind
   script:
