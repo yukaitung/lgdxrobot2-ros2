@@ -1,12 +1,12 @@
-# LGDXRobot Cloud GitLab CI/CD
+# LGDXRobot2 ROS2 GitLab CI/CD
 # Variables Needed
 # $EXT_REGISTRY: Registry URL (e.g. docker.io)
 # $EXT_USER: Username for the registry
 # $EXT_PAT: PAT for the registry (https://docs.docker.com/security/for-developers/access-tokens/)
 
 variables:
-  SUPPORT_IMAGE_TAG_ARM64: $CI_REGISTRY_IMAGE/arm64support:latest
   SUPPORT_IMAGE_TAG_AMD64: $CI_REGISTRY_IMAGE/amd64support:latest
+  SUPPORT_IMAGE_TAG_ARM64: $CI_REGISTRY_IMAGE/arm64support:latest
 
 stages:
   - build-sup
@@ -21,8 +21,8 @@ build-sup-amd64:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   when: manual
   image: docker:24.0.5-git
-  #tags:
-    #- lgdx-amd64
+  tags:
+    - lgdx-amd64
   services:
     - docker:24.0.5-dind
   script:
@@ -74,7 +74,7 @@ build-arm64:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   image: docker:24.0.5-git
   tags:
-    - saas-linux-small-arm64 
+    - saas-linux-small-arm64
     - lgdx-arm64
   services:
     - docker:24.0.5-dind
