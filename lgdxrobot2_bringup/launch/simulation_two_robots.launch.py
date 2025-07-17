@@ -8,7 +8,7 @@ cd lgdx_ws
 ros2 launch lgdxrobot2_bringup simulation_two_robots.launch.py
 
 # With different address
-ros2 launch lgdxrobot2_bringup simulation_two_robots.launch.py cloud_address:='192.168.1.10'
+ros2 launch lgdxrobot2_bringup simulation_two_robots.launch.py cloud_address:='192.168.1.10:5162'
 """
 
 from launch.substitutions import LaunchConfiguration
@@ -65,7 +65,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='cloud_address',
-    default_value='host.docker.internal',
+    default_value='host.docker.internal:5162',
     description='Address of LGDXRobot Cloud.'
   )
 ]
@@ -97,7 +97,7 @@ def launch_setup(context):
     parameters=[{
       'cloud_enable': True,
       'cloud_address': cloud_address,
-      'cloud_root_cert': '/home/user/keys/rootCA.crt',
+      'cloud_root_cert': '/home/user/keys/root.crt',
       'cloud_client_key': '/home/user/keys/Robot1.key',
       'cloud_client_cert': '/home/user/keys/Robot1.crt',
       'sim_enable': True,
@@ -118,7 +118,7 @@ def launch_setup(context):
     parameters=[{
       'cloud_enable': True,
       'cloud_address': cloud_address,
-      'cloud_root_cert': '/home/user/keys/rootCA.crt',
+      'cloud_root_cert': '/home/user/keys/root.crt',
       'cloud_client_key': '/home/user/keys/Robot2.key',
       'cloud_client_cert': '/home/user/keys/Robot2.crt',
       'sim_enable': True,
