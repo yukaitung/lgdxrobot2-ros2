@@ -6,6 +6,9 @@ Usage:
 cd lgdx_ws 
 . install/setup.bash
 ros2 launch lgdxrobot2_bringup simulation_two_robots.launch.py
+
+# With different address
+ros2 launch lgdxrobot2_bringup simulation_two_robots.launch.py cloud_address:='192.168.1.10'
 """
 
 from launch.substitutions import LaunchConfiguration
@@ -59,6 +62,11 @@ launch_args = [
     name='use_respawn',
     default_value='False',
     description='Whether to respawn if a node crashes.'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_address',
+    default_value='host.docker.internal',
+    description='Address of LGDXRobot Cloud.'
   )
 ]
 
@@ -74,6 +82,7 @@ def launch_setup(context):
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
+  cloud_address = LaunchConfiguration('cloud_address').perform(context)
   
   webots = WebotsLauncher(
     world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
@@ -87,10 +96,10 @@ def launch_setup(context):
     output='screen',
     parameters=[{
       'cloud_enable': True,
-      'cloud_address': '192.168.1.10:5162',
-      'cloud_root_cert': '/home/user/key/rootCA.crt',
-      'cloud_client_key': '/home/user/key/Robot1.key',
-      'cloud_client_cert': '/home/user/key/Robot1.crt',
+      'cloud_address': cloud_address,
+      'cloud_root_cert': '/home/user/keys/rootCA.crt',
+      'cloud_client_key': '/home/user/keys/Robot1.key',
+      'cloud_client_cert': '/home/user/keys/Robot1.crt',
       'sim_enable': True,
     }],
     remappings=[
@@ -108,10 +117,10 @@ def launch_setup(context):
     output='screen',
     parameters=[{
       'cloud_enable': True,
-      'cloud_address': '192.168.1.10:5162',
-      'cloud_root_cert': '/home/user/key/rootCA.crt',
-      'cloud_client_key': '/home/user/key/Robot2.key',
-      'cloud_client_cert': '/home/user/key/Robot2.crt',
+      'cloud_address': cloud_address,
+      'cloud_root_cert': '/home/user/keys/rootCA.crt',
+      'cloud_client_key': '/home/user/keys/Robot2.key',
+      'cloud_client_cert': '/home/user/keys/Robot2.crt',
       'sim_enable': True,
     }],
     remappings=[
