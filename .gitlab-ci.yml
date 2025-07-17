@@ -44,7 +44,7 @@ build-sup-arm64:
   services:
     - docker:24.0.5-dind
   script:
-    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker build -f Dockerfile.arm64sup -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64
 
