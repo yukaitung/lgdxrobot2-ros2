@@ -5,9 +5,26 @@
 # $EXT_PAT: PAT for the registry (https://docs.docker.com/security/for-developers/access-tokens/)
 
 stages:
+  - prepare
  # - build-sup
 #  - build
   - release
+
+prepare:
+  stage: prepare
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: alpine:latest
+  tags:
+    - lgdx-amd64
+  script:
+    - apk add libxml2-utils
+    - echo "APP_VERSION=$(xmllint --xpath "//package/version/text()" lgdxrobot2/package.xml)" >> variables.env
+  artifacts:
+    reports:
+      dotenv: variables.env
 
 #build-sup-amd64:
 #  stage: build-sup
@@ -85,25 +102,25 @@ release_job:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   tags:
     - lgdx-amd64
+  needs:
+    - job: prepare
+      artifacts: true
   services:
     - docker:24.0.5-dind
   before_script:
     - apk add glab
-    - apk add gitlab-release-cli
-    - apk add libxml2-utils
-    - export APP_VERSION=$(xmllint --xpath "//package/version/text()" lgdxrobot2/package.xml)
+    - apk add gitlab-release-cli    
   script:
-    - echo $APP_VERSION
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2:latest --amend $EXT_USER/lgdxrobot2:dev-amd64 --amend $EXT_USER/lgdxrobot2:dev-arm64
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2:$APP_VERSION --amend $EXT_USER/lgdxrobot2:dev-amd64 --amend $EXT_USER/lgdxrobot2:dev-arm64
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:latest
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:$APP_VERSION
   release:
-    name : Release $APP_VERSION
-    tag_name: $APP_VERSION
-    description: $APP_VERSION
-    ref: $CI_COMMIT_SHA
+    name : 'Release $APP_VERSION'
+    tag_name: '$APP_VERSION'
+    description: '$APP_VERSION'
+    ref: '$CI_COMMIT_SHA'
     assets:
       links:
         - name: 'Docker Images for LGDXRobot2'
