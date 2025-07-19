@@ -1,39 +1,8 @@
-#
-# Build Webots
-#
-FROM ghcr.io/linuxserver/baseimage-ubuntu:arm64v8-noble AS webots
-ENV JAVA_HOME=/usr/lib/jvm/default-java
-ENV WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=1 
-ENV WEBOTS_ALLOW_MODIFY_INSTALLATION=1
-ENV WEBOTS_HOME=/home/user/webots
-ENV PATH=/home/user/.local/bin:$PATH
+FROM lgdxrobot2.support:arm64 AS support
 
-WORKDIR /home/user
-RUN apt update && \
-      apt install -y --no-install-recommends git xvfb default-jdk && \
-      rm -rf /var/lib/apt/lists/*
-RUN git clone --recurse-submodules --depth 10 https://github.com/yukaitung/webots.git
-
-WORKDIR /home/user/webots
-RUN rm -rf .git
-RUN rm -rf .github
-RUN apt update && \
-      scripts/install/linux_compilation_dependencies.sh && \
-      #scripts/install/linux_runtime_dependencies.sh && \
-      rm -rf /var/lib/apt/lists/*
-RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED /usr/lib/python3.12/EXTERNALLY-MANAGED.old
-RUN make -j$(nproc)
-RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED.old /usr/lib/python3.12/EXTERNALLY-MANAGED
-
-#
-# Build Support Image
-#
 FROM ghcr.io/linuxserver/baseimage-selkies:ubuntunoble
 
-#
 # Install ROS2
-#
-# install packages
 RUN apt update && apt install -q -y --no-install-recommends \
 			dirmngr \
 			gnupg2 \
@@ -51,7 +20,6 @@ RUN set -eux; \
 
 # setup sources.list
 RUN echo "deb [ signed-by=/usr/share/keyrings/ros2-testing-archive-keyring.gpg ] http://packages.ros.org/ros2-testing/ubuntu noble main" > /etc/apt/sources.list.d/ros2-testing.list
-
 ENV ROS_DISTRO=jazzy
 
 # install bootstrap tools
@@ -89,35 +57,17 @@ RUN apt update && apt install -y --no-install-recommends \
 			protobuf-compiler-grpc \
 			&& rm -rf /var/lib/apt/lists/*
 
-# Install Webots
-ENV JAVA_HOME=/usr/lib/jvm/default-java
-ENV WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=1 
-ENV WEBOTS_ALLOW_MODIFY_INSTALLATION=1
-ENV WEBOTS_HOME=/home/user/webots
-ENV PATH=/home/user/.local/bin:$PATH
-COPY --from=webots /home/user/webots /home/user/webots
-RUN apt update && \
-      /home/user/webots/scripts/install/linux_runtime_dependencies.sh && \
-      rm -rf /var/lib/apt/lists/*
-
 # Webots ROS2
-WORKDIR /home/user/webots_ws/src
-RUN git clone --recurse-submodules https://github.com/cyberbotics/webots_ros2.git
-
+COPY --from=support /home/user/webots_ws /home/user/webots_ws
 WORKDIR /home/user/webots_ws
 RUN apt update && \
       rosdep update && \
       rosdep install --from-paths src --ignore-src --rosdistro $ROS_DISTRO -y && \
       rm -rf /var/lib/apt/lists/*
-RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-      colcon build --symlink-install
 
 # LGDXRobot2 ROS2 (Third Party)
+COPY --from=support /home/user/lgdx_ws /home/user/lgdx_ws
 WORKDIR /home/user/lgdx_ws/src
-COPY . .
-RUN rm -rf lgdxrobot2*
-RUN git submodule init
-RUN git submodule update
 RUN apt update && \
       rosdep update && \
       rosdep install --from-paths third_party/m-explore-ros2 --ignore-src --rosdistro $ROS_DISTRO -y && \

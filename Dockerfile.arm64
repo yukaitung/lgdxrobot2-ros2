@@ -1,7 +1,20 @@
+FROM lgdxrobot2.support:arm64supwebots AS webots
+
 FROM yukaitung/lgdxrobot2.support:arm64
 
 RUN apt update && \
       apt upgrade -y && \  
+      rm -rf /var/lib/apt/lists/*
+
+# Install Webots
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=1 
+ENV WEBOTS_ALLOW_MODIFY_INSTALLATION=1
+ENV WEBOTS_HOME=/home/user/webots
+ENV PATH=/home/user/.local/bin:$PATH
+COPY --from=webots /home/user/webots /home/user/webots
+RUN apt update && \
+      /home/user/webots/scripts/install/linux_runtime_dependencies.sh && \
       rm -rf /var/lib/apt/lists/*
 
 # LGDXRobot2 ROS2
