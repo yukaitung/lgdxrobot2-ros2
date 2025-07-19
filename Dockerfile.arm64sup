@@ -1,8 +1,49 @@
+#
+# Build Webots
+#
+FROM ros:jazzy AS webots
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=1 
+ENV WEBOTS_ALLOW_MODIFY_INSTALLATION=1
+ENV WEBOTS_HOME=/home/user/webots
+ENV PATH=/home/user/.local/bin:$PATH
+
+WORKDIR /home/user
+RUN apt update && \
+      apt install -y --no-install-recommends git xvfb default-jdk && \
+      rm -rf /var/lib/apt/lists/*
+RUN git clone --recurse-submodules --depth 10 https://github.com/yukaitung/webots.git
+
+WORKDIR /home/user/webots
+RUN rm -rf .git
+RUN rm -rf .github
+RUN apt update && \
+      scripts/install/linux_compilation_dependencies.sh && \
+      #scripts/install/linux_runtime_dependencies.sh && \
+      rm -rf /var/lib/apt/lists/*
+RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED /usr/lib/python3.12/EXTERNALLY-MANAGED.old
+RUN make -j$(nproc)
+RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED.old /usr/lib/python3.12/EXTERNALLY-MANAGED
+
+#
+# Build Support Image
+#
 FROM ros:jazzy
 
 RUN apt update && \
       apt upgrade -y && \  
       apt install --no-install-recommends -y git ros-dev-tools ros-jazzy-navigation2 ros-jazzy-nav2-bringup libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc && \
+      rm -rf /var/lib/apt/lists/*
+
+# Install Webots
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=1 
+ENV WEBOTS_ALLOW_MODIFY_INSTALLATION=1
+ENV WEBOTS_HOME=/home/user/webots
+ENV PATH=/home/user/.local/bin:$PATH
+COPY --from=webots /home/user/webots /home/user/webots
+RUN apt update && \
+      /home/user/webots/scripts/install/linux_runtime_dependencies.sh && \
       rm -rf /var/lib/apt/lists/*
 
 # Webots ROS2
@@ -31,27 +72,3 @@ RUN apt update && \
 WORKDIR /home/user/lgdx_ws
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
       colcon build
-
-# Build Webots
-ENV JAVA_HOME=/usr/lib/jvm/default-java
-ENV WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=1 
-ENV WEBOTS_ALLOW_MODIFY_INSTALLATION=1
-ENV WEBOTS_HOME=/home/user/webots
-ENV PATH=/home/user/.local/bin:$PATH
-
-WORKDIR /home/user
-RUN apt update && \
-      apt install -y --no-install-recommends git xvfb python3.12-venv default-jdk && \
-      rm -rf /var/lib/apt/lists/*
-RUN git clone --recurse-submodules --depth 10 https://github.com/yukaitung/webots.git
-
-WORKDIR /home/user/webots
-RUN rm -rf .git
-RUN rm -rf .github
-RUN apt update && \
-      scripts/install/linux_compilation_dependencies.sh && \
-      scripts/install/linux_runtime_dependencies.sh && \
-      rm -rf /var/lib/apt/lists/*
-RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED /usr/lib/python3.12/EXTERNALLY-MANAGED.old
-RUN make -j$(nproc)
-RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED.old /usr/lib/python3.12/EXTERNALLY-MANAGED

@@ -35,13 +35,15 @@ build-sup-amd64:
   when: manual
   image: docker:24.0.5-git
   #tags:
-    #- lgdx-amd64
+  #  - lgdx-amd64
   services:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker build -f Dockerfile.amd64sup -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64 .
+    - docker build -f Dockerfile.amd64desktop -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64desktop .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64desktop
 
 build-sup-arm64:
   stage: build-sup
@@ -59,7 +61,9 @@ build-sup-arm64:
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker build -f Dockerfile.arm64sup -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64 .
+    - docker build -f Dockerfile.arm64desktop -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64desktop .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64desktop
 
 build-amd64:
   stage: build
@@ -75,7 +79,9 @@ build-amd64:
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64 -f Dockerfile.amd64 .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-amd64 -f Dockerfile.amd64desktop .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-amd64
     
 build-arm64:
   stage: build
@@ -91,7 +97,9 @@ build-arm64:
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64 -f Dockerfile.arm64 .
+    - docker build -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-arm64 -f Dockerfile.arm64desktop .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64
+    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-arm64
     
 release_job:
   stage: release
@@ -116,6 +124,10 @@ release_job:
     - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2:$APP_VERSION --amend $EXT_USER/lgdxrobot2:dev-amd64 --amend $EXT_USER/lgdxrobot2:dev-arm64
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:latest
     - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:$APP_VERSION
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:latest --amend $EXT_USER/lgdxrobot2.desktop:dev-amd64 --amend $EXT_USER/lgdxrobot2.desktop:dev-arm64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:$APP_VERSION --amend $EXT_USER/lgdxrobot2.desktop:dev-amd64 --amend $EXT_USER/lgdxrobot2.desktop:dev-arm64
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:latest
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:$APP_VERSION
   release:
     name : 'Release $APP_VERSION'
     tag_name: '$APP_VERSION'
@@ -125,5 +137,7 @@ release_job:
       links:
         - name: 'Docker Images for LGDXRobot2'
           url: 'https://hub.docker.com/v2/repositories/yukaitung/lgdxrobot2/tags/$APP_VERSION'
+        - name: 'Docker Images for LGDXRobot2 Desktop'
+          url: 'https://hub.docker.com/v2/repositories/yukaitung/lgdxrobot2.desktop/tags/$APP_VERSION'
 
 
