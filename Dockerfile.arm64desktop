@@ -2,10 +2,6 @@ FROM lgdxrobot2.support:arm64supwebots AS webots
 
 FROM yukaitung/lgdxrobot2.support:arm64-desktop
 
-RUN apt update && \
-      apt upgrade -y && \  
-      rm -rf /var/lib/apt/lists/*
-
 # Install Webots
 ENV JAVA_HOME=/usr/lib/jvm/default-java
 ENV WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=1 

@@ -73,10 +73,6 @@ RUN apt update && \
       rosdep install --from-paths third_party/m-explore-ros2 --ignore-src --rosdistro $ROS_DISTRO -y && \
       rm -rf /var/lib/apt/lists/*
 
-WORKDIR /home/user/lgdx_ws
-RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-      colcon build
-
 # Remove unnecessary appliocations
 RUN apt purge -y \
 			containerd.io \
