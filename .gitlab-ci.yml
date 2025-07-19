@@ -41,7 +41,7 @@ build-sup-amd64:
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker build -f Dockerfile.amd64sup -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64 .
-    - docker build -f Dockerfile.amd64desktop -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64desktop .
+    - docker build -f Dockerfile.amd64supdesktop -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64desktop .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64desktop
 
@@ -61,7 +61,7 @@ build-sup-arm64:
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     - docker build -f Dockerfile.arm64sup -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64 .
-    - docker build -f Dockerfile.arm64desktop -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64desktop .
+    - docker build -f Dockerfile.arm64supdesktop -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64desktop .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64desktop
 
