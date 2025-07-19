@@ -78,7 +78,6 @@ RUN mkdir -p /config/.ros
 RUN chmod 777 -R /config/.ros
 RUN mkdir -p /config/.colcon
 RUN chmod 777 -R /config/.ros
-RUN chmod 777 -R /home/user
 
 # setup entrypoint
 COPY /root /

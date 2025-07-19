@@ -1,12 +1,6 @@
-#
-# Build Support Image
-#
 FROM ghcr.io/linuxserver/baseimage-selkies:ubuntunoble
 
-#
 # Install ROS2
-#
-# install packages
 RUN apt update && apt install -q -y --no-install-recommends \
 			dirmngr \
 			gnupg2 \
@@ -67,15 +61,6 @@ RUN apt update && \
       apt install --no-install-recommends -y git ros-dev-tools ros-jazzy-navigation2 ros-jazzy-nav2-bringup libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc wget && \
       rm -rf /var/lib/apt/lists/*
 
-# Install Webots
-WORKDIR /etc/apt/keyrings
-RUN sudo wget -q https://cyberbotics.com/Cyberbotics.asc
-RUN echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/Cyberbotics.asc] https://cyberbotics.com/debian binary-amd64/" | sudo tee /etc/apt/sources.list.d/Cyberbotics.list
-
-RUN apt update && \
-      apt install --no-install-recommends -y webots && \
-      rm -rf /var/lib/apt/lists/*
-
 # Webots ROS2
 WORKDIR /home/user/webots_ws/src
 RUN git clone --recurse-submodules https://github.com/cyberbotics/webots_ros2.git
@@ -108,7 +93,6 @@ RUN mkdir -p /config/.ros
 RUN chmod 777 -R /config/.ros
 RUN mkdir -p /config/.colcon
 RUN chmod 777 -R /config/.ros
-RUN chmod 777 -R /home/user
 
 # setup entrypoint
 COPY /root /
