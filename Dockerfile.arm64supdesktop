@@ -72,17 +72,6 @@ RUN apt update && \
       rosdep update && \
       rosdep install --from-paths third_party/m-explore-ros2 --ignore-src --rosdistro $ROS_DISTRO -y && \
       rm -rf /var/lib/apt/lists/*
-
-# Remove unnecessary applications
-RUN apt purge -y \
-			containerd.io \
-			docker-buildx-plugin \
-			docker-ce \
-			docker-ce-cli \
-			docker-compose-plugin \
-			x11-apps \
-			xterm \
-			stterm
 			
 # configure permissions
 RUN mkdir -p /config/.ros

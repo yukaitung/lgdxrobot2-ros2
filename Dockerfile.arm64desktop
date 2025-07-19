@@ -1,6 +1,6 @@
-FROM lgdxrobot2.support:arm64supwebots AS webots
+FROM yukaitung/lgdxrobot2.support:arm64supwebots AS webots
 
-FROM yukaitung/lgdxrobot2.support:arm64-desktop
+FROM yukaitung/lgdxrobot2.support:arm64desktop
 
 # Install Webots
 ENV JAVA_HOME=/usr/lib/jvm/default-java

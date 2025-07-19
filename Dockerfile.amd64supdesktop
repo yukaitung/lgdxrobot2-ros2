@@ -103,17 +103,6 @@ WORKDIR /home/user/lgdx_ws
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
       colcon build
 
-# Remove unnecessary appliocations
-RUN apt purge -y \
-			containerd.io \
-			docker-buildx-plugin \
-			docker-ce \
-			docker-ce-cli \
-			docker-compose-plugin \
-			x11-apps \
-			xterm \
-			stterm
-
 # configure permissions
 RUN mkdir -p /config/.ros
 RUN chmod 777 -R /config/.ros

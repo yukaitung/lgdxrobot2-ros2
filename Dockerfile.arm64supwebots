@@ -17,6 +17,6 @@ WORKDIR /home/user/webots
 RUN apt update && \
       scripts/install/linux_compilation_dependencies.sh && \
       rm -rf /var/lib/apt/lists/*
-RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED /usr/lib/python3.12/EXTERNALLY-MANAGED.old
-RUN make -j$(nproc)
-RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED.old /usr/lib/python3.12/EXTERNALLY-MANAGED
+RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED /usr/lib/python3.12/EXTERNALLY-MANAGED.old && \
+      make -j$(nproc) && \
+      mv /usr/lib/python3.12/EXTERNALLY-MANAGED.old /usr/lib/python3.12/EXTERNALLY-MANAGED

@@ -1,4 +1,4 @@
-FROM yukaitung/lgdxrobot2.support:amd64-desktop
+FROM yukaitung/lgdxrobot2.support:amd64desktop
 
 RUN apt update && \
       apt upgrade -y && \  
