@@ -1,0 +1,153 @@
+#
+# Build Webots
+#
+FROM ghcr.io/linuxserver/baseimage-ubuntu:arm64v8-noble AS webots
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=1 
+ENV WEBOTS_ALLOW_MODIFY_INSTALLATION=1
+ENV WEBOTS_HOME=/home/user/webots
+ENV PATH=/home/user/.local/bin:$PATH
+
+WORKDIR /home/user
+RUN apt update && \
+      apt install -y --no-install-recommends git xvfb default-jdk && \
+      rm -rf /var/lib/apt/lists/*
+RUN git clone --recurse-submodules --depth 10 https://github.com/yukaitung/webots.git
+
+WORKDIR /home/user/webots
+RUN rm -rf .git
+RUN rm -rf .github
+RUN apt update && \
+      scripts/install/linux_compilation_dependencies.sh && \
+      #scripts/install/linux_runtime_dependencies.sh && \
+      rm -rf /var/lib/apt/lists/*
+RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED /usr/lib/python3.12/EXTERNALLY-MANAGED.old
+RUN make -j$(nproc)
+RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED.old /usr/lib/python3.12/EXTERNALLY-MANAGED
+
+#
+# Build Support Image
+#
+FROM ghcr.io/linuxserver/baseimage-selkies:ubuntunoble
+
+#
+# Install ROS2
+#
+# install packages
+RUN apt update && apt install -q -y --no-install-recommends \
+			dirmngr \
+			gnupg2 \
+			&& rm -rf /var/lib/apt/lists/*
+
+# setup keys
+RUN set -eux; \
+			key='C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654'; \
+			export GNUPGHOME="$(mktemp -d)"; \
+			gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
+			mkdir -p /usr/share/keyrings; \
+			gpg --batch --export "$key" > /usr/share/keyrings/ros2-testing-archive-keyring.gpg; \
+			gpgconf --kill all; \
+			rm -rf "$GNUPGHOME"
+
+# setup sources.list
+RUN echo "deb [ signed-by=/usr/share/keyrings/ros2-testing-archive-keyring.gpg ] http://packages.ros.org/ros2-testing/ubuntu noble main" > /etc/apt/sources.list.d/ros2-testing.list
+
+ENV ROS_DISTRO=jazzy
+
+# install bootstrap tools
+RUN apt update && apt install --no-install-recommends -y \
+			build-essential \
+			git \
+			python3-colcon-common-extensions \
+			python3-colcon-mixin \
+			python3-rosdep \
+			python3-vcstool \
+			&& rm -rf /var/lib/apt/lists/*
+
+# bootstrap rosdep
+RUN rosdep init && \
+  rosdep update --rosdistro $ROS_DISTRO
+
+# setup colcon mixin and metadata
+RUN colcon mixin add default \
+				https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml && \
+			colcon mixin update && \
+			colcon metadata add default \
+				https://raw.githubusercontent.com/colcon/colcon-metadata-repository/master/index.yaml && \
+			colcon metadata update
+
+# install packages
+RUN apt update && apt install -y --no-install-recommends \
+			ros-dev-tools \
+			ros-jazzy-ros-base=0.11.0-1* \
+			ros-jazzy-desktop=0.11.0-1* \
+			xfce4-terminal \
+			ros-jazzy-navigation2 \
+			ros-jazzy-nav2-bringup \
+			libprotobuf-dev \
+			libgrpc++-dev \
+			protobuf-compiler-grpc \
+			&& rm -rf /var/lib/apt/lists/*
+
+# Install Webots
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=1 
+ENV WEBOTS_ALLOW_MODIFY_INSTALLATION=1
+ENV WEBOTS_HOME=/home/user/webots
+ENV PATH=/home/user/.local/bin:$PATH
+COPY --from=webots /home/user/webots /home/user/webots
+RUN apt update && \
+      /home/user/webots/scripts/install/linux_runtime_dependencies.sh && \
+      rm -rf /var/lib/apt/lists/*
+
+# Webots ROS2
+WORKDIR /home/user/webots_ws/src
+RUN git clone --recurse-submodules https://github.com/cyberbotics/webots_ros2.git
+
+WORKDIR /home/user/webots_ws
+RUN apt update && \
+      rosdep update && \
+      rosdep install --from-paths src --ignore-src --rosdistro $ROS_DISTRO -y && \
+      rm -rf /var/lib/apt/lists/*
+RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
+      colcon build --symlink-install
+
+# LGDXRobot2 ROS2 (Third Party)
+WORKDIR /home/user/lgdx_ws/src
+COPY . .
+RUN rm -rf lgdxrobot2*
+RUN git submodule init
+RUN git submodule update
+RUN apt update && \
+      rosdep update && \
+      rosdep install --from-paths third_party/m-explore-ros2 --ignore-src --rosdistro $ROS_DISTRO -y && \
+      rm -rf /var/lib/apt/lists/*
+
+WORKDIR /home/user/lgdx_ws
+RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
+      colcon build
+
+# Remove unnecessary appliocations
+RUN apt purge -y \
+			containerd.io \
+			docker-buildx-plugin \
+			docker-ce \
+			docker-ce-cli \
+			docker-compose-plugin \
+			x11-apps \
+			xterm \
+			stterm
+			
+# configure permissions
+RUN mkdir -p /config/.ros
+RUN chmod 777 -R /config/.ros
+RUN mkdir -p /config/.colcon
+RUN chmod 777 -R /config/.ros
+RUN chmod 777 -R /home/user
+
+# setup entrypoint
+COPY /root /
+
+# configure branding
+ENV TITLE="LGDXRobot2 Workspace"
+RUN mv -f /favicon.png /usr/share/selkies/www/icon.png
