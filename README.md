@@ -30,37 +30,34 @@ docker run --rm -it \
 
 Visit [http://localhost:3000](http://localhost:3000) to access the web interface. If the terminal is closed, you can right-click the desktop to relaunch it from the menu.
 
+The Docker image has ROS 2 and Webots installed, along with the this LGDXRobot2 packages.
+
 ### Build from Source
 
-1. [Install ROS2 Jazzy](https://docs.ros.org/en/jazzy/Installation.html)
+1. [Install ROS2](https://docs.ros.org/en/jazzy/Installation.html)
 2. [Install NAV2](https://docs.nav2.org/getting_started/index.html)
+
+```bash
+sudo apt install ros-jazzy-navigation2
+sudo apt install ros-jazzy-nav2-bringup
+```
+
 3. [Install Webots](https://cyberbotics.com/doc/guide/installation-procedure)
 4. [Install Webots ROS2 Interface](https://github.com/cyberbotics/webots_ros2/wiki/Getting-Started)
 5. Install the following packages:
 
 ```bash
-sudo apt install libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc
-```
-
-6. Build the project:
-
-```bash
-mkdir -p ~/lgdx_ws/src
-cd ~/lgdx_ws/src
-git clone --recurse-submodules https://gitlab.com/yukaitung/lgdxrobot2-ros2
-cd ..
-colcon build
+sudo apt install libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc 
+sudo apt install ros-jazzy-rtabmap-ros ros-jazzy-imu-transformer # Optional for physical robot
 ```
 
 [More documentation](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/)
 
 ## Notes About Docker
 
-This project has 2 Docker images:
-
 - `yukaitung/lgdxrobot2`: A pre-built image for simulation.
 - `yukaitung/lgdxrobot2.desktop`: A pre-built image for simulation with desktop interface.
-- `yukaitung/lgdxrobot2.support`: A support image with all dependencies included, it can be used as base image for other ROS2 projects.
+- `yukaitung/lgdxrobot2.support`: Support images with all dependencies included, it can be used as base image for other ROS2 projects.
 
 To pull `yukaitung/lgdxrobot2` or `yukaitung/lgdxrobot2.desktop` from Docker Hub, you can either use the latest tag or specify a particular version number, such as 1.0.0. Please refer to the [releases](https://gitlab.com/yukaitung/lgdxrobot2-ros2/-/releases) page for the version history. All images support both amd64 and arm64 architectures.
 
@@ -70,8 +67,8 @@ This project is licensed under the MIT Licence.
 
 ## Credits
 
-* [Building Webots on Arm64 Linux](https://github.com/up200707458/webots)
-* [Build Docker images for Selkies](https://github.com/linuxserver/docker-baseimage-selkies/)
+* [Building Webots on arm64 Linux](https://github.com/up200707458/webots)
+* [Docker images for Selkies](https://github.com/linuxserver/docker-baseimage-selkies/)
 
 ## Acknowledgements
 
