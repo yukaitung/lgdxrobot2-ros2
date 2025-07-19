@@ -1,4 +1,4 @@
-FROM lgdxrobot2.support:arm64 AS support
+FROM yukaitung/lgdxrobot2.support:arm64 AS support
 
 FROM ghcr.io/linuxserver/baseimage-selkies:ubuntunoble
 
@@ -73,7 +73,7 @@ RUN apt update && \
       rosdep install --from-paths third_party/m-explore-ros2 --ignore-src --rosdistro $ROS_DISTRO -y && \
       rm -rf /var/lib/apt/lists/*
 
-# Remove unnecessary appliocations
+# Remove unnecessary applications
 RUN apt purge -y \
 			containerd.io \
 			docker-buildx-plugin \

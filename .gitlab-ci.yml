@@ -72,14 +72,14 @@ build-sup-arm64:
   when: manual
   image: docker:24.0.5-git
   tags:
-    #- saas-linux-small-arm64
-    - lgdx-arm64
+    - saas-linux-small-arm64
+    #- lgdx-arm64
   services:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker build -f Dockerfile.arm64sup -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64 .
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64
+    #- docker build -f Dockerfile.arm64sup -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64 .
+    #- docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64
     - docker build -f Dockerfile.arm64supdesktop -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64desktop .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64desktop
 

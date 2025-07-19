@@ -9,11 +9,11 @@ WORKDIR /home/user
 RUN apt update && \
       apt install -y --no-install-recommends git xvfb default-jdk && \
       rm -rf /var/lib/apt/lists/*
-RUN git clone --recurse-submodules --depth 10 https://github.com/yukaitung/webots.git
+RUN git clone --recurse-submodules --depth 10 https://github.com/yukaitung/webots.git && \
+      rm -rf webots/.git && \
+      rm -rf webots/.github
 
 WORKDIR /home/user/webots
-RUN rm -rf .git
-RUN rm -rf .github
 RUN apt update && \
       scripts/install/linux_compilation_dependencies.sh && \
       rm -rf /var/lib/apt/lists/*
