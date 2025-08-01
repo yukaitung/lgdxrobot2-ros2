@@ -30,7 +30,7 @@ docker run --rm -it \
 
 Visit [http://localhost:3000](http://localhost:3000) to access the web interface. If the terminal is closed, you can right-click the desktop to relaunch it from the menu.
 
-The Docker image has ROS 2 and Webots installed, along with the this LGDXRobot2 packages.
+The Docker image has ROS2 and Webots installed, along with the this LGDXRobot2 packages.
 
 ### Build from Source
 
@@ -48,18 +48,25 @@ sudo apt install ros-jazzy-nav2-bringup
 
 ```bash
 sudo apt install libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc 
-sudo apt install ros-jazzy-rtabmap-ros ros-jazzy-imu-transformer # Optional for physical robot
+sudo apt install ros-jazzy-rtabmap-ros ros-jazzy-imu-transformer # Optional for simulation
 ```
 
 [More documentation](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/)
 
 ## Notes About Docker
 
-- `yukaitung/lgdxrobot2`: A pre-built image for simulation.
-- `yukaitung/lgdxrobot2.desktop`: A pre-built image for simulation with desktop interface.
-- `yukaitung/lgdxrobot2.support`: Support images with all dependencies included, it can be used as base image for other ROS2 projects.
+The Docker images provide a ready-to-use environment for running LGDXRobot2 on your local machine. They also offer flexibility in the choice of pre-installed packages. The two main repositories are:
 
-To pull `yukaitung/lgdxrobot2` or `yukaitung/lgdxrobot2.desktop` from Docker Hub, you can either use the latest tag or specify a particular version number, such as 1.0.0. Please refer to the [releases](https://gitlab.com/yukaitung/lgdxrobot2-ros2/-/releases) page for the version history. All images support both amd64 and arm64 architectures.
+- `yukaitung/lgdxrobot2`: A pre-built image for simulation.
+- `yukaitung/lgdxrobot2.desktop`: A pre-built image for simulation with a desktop interface accessible via a web browser.
+
+To pull these images from Docker Hub, you can either use the `latest` tag or specify a particular version number, such as `1.0.0`. You can also use the `latest-lite` tag or `<version>-lite` to pull images without Webots installed, you can run Webots on your host computer instead. Please refer to the [releases](https://gitlab.com/yukaitung/lgdxrobot2-ros2/-/releases) page for version history. All images support both amd64 and arm64 architectures.
+
+There are also additional repositories that include dependencies, which can be used as base images for other ROS2 projects:
+
+- `yukaitung/lgdxrobot2.support`
+- `yukaitung/lgdxrobot2.supportdesktop`
+- `yukaitung/lgdxrobot2.webots`: An unofficial image for running Webots on arm64 Linux.
 
 ## License
 
