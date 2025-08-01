@@ -34,8 +34,6 @@ build-sup-amd64:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   when: manual
   image: docker:24.0.5-git
-  #tags:
-  #  - lgdx-amd64
   services:
     - docker:24.0.5-dind
   script:
@@ -71,8 +69,7 @@ build-sup-arm64:
   when: manual
   image: docker:24.0.5-git
   tags:
-    - saas-linux-small-arm64
-    #- lgdx-arm64
+    - lgdx-arm64
   services:
     - docker:24.0.5-dind
   script:
