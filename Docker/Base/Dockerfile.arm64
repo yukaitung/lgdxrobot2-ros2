@@ -1,6 +1,6 @@
 FROM yukaitung/lgdxrobot2.webots:latest AS webots
 
-FROM yukaitung/lgdxrobot2.lgdxrobot2:dev-arm64-lite
+FROM yukaitung/lgdxrobot2:dev-arm64-lite
 
 # Install Webots
 ENV JAVA_HOME=/usr/lib/jvm/default-java

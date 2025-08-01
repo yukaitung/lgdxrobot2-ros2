@@ -1,4 +1,4 @@
-FROM yukaitung/lgdxrobot2.lgdxrobot2:dev-amd64-lite
+FROM yukaitung/lgdxrobot2:dev-amd64-lite
 
 # Install Webots
 WORKDIR /etc/apt/keyrings
