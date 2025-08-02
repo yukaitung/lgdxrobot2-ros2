@@ -13,6 +13,9 @@ Navigation::Navigation(rclcpp::Node::SharedPtr node,
   navThroughPosesActionClient = rclcpp_action::create_client<nav2_msgs::action::NavigateThroughPoses>(
     node,
     "navigate_through_poses");
+	planSubscription = node->create_subscription<nav_msgs::msg::Path>("plan",
+		rclcpp::SensorDataQoS().reliable(),
+    std::bind(&Navigation::PlanCallback, this, std::placeholders::_1));
 }
 
 void Navigation::Response(const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateThroughPoses>::SharedPtr &goalHandle)
@@ -73,6 +76,26 @@ void Navigation::Result(const rclcpp_action::ClientGoalHandle<nav2_msgs::action:
     default:
       navigationSignals->Abort(RobotClientsAbortReason::NavStack);
       return;
+  }
+	// Clear Plan
+	navProgress->clear_plan();
+}
+
+void Navigation::PlanCallback(const nav_msgs::msg::Path &msg)
+{
+  navProgress->clear_plan();
+  int size = msg.poses.size();
+	for (int i = 0; i < size; i += kPlanSample)
+	{
+		auto *item = navProgress->add_plan();
+		item->set_x(msg.poses[i].pose.position.x);
+		item->set_y(msg.poses[i].pose.position.y);
+	}
+  if (size % (kPlanSample + 1) != 0)
+  {
+    auto *item = navProgress->add_plan();
+    item->set_x(msg.poses[size - 1].pose.position.x);
+    item->set_y(msg.poses[size - 1].pose.position.y);
   }
 }
 
