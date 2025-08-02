@@ -18,7 +18,7 @@ class Navigation
   private:
     rclcpp::Logger logger_;
 
-    const int kPlanSample = 5;
+    const int kPlanSample = 10;
     std::shared_ptr<NavigationSignals> navigationSignals;
     RobotClientsAutoTaskNavProgress lastNavProgress;
     std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgress;
