@@ -18,11 +18,6 @@ void SlamExchangeStream::OnWriteDone(bool ok)
   if (ok)
   {
     cloudSignals->NextExchange();
-    if (requestPtr != nullptr)
-    {
-      delete requestPtr;
-      requestPtr = nullptr;
-    }
   }
 }
 

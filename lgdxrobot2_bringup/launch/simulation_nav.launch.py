@@ -9,6 +9,9 @@ cd lgdx_ws # The location of the source code
 ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True profile:='sim-slam'
 ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True use_explore_lite:=True profile:='sim-slam'
 
+# With cloud
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True use_cloud:=True profile:='sim-slam' cloud_address:='192.168.1.10:5162'
+
 # NAV2 Localisation
 ros2 launch lgdxrobot2_bringup simulation_nav.launch.py
 """
@@ -98,6 +101,16 @@ launch_args = [
     name='log_level', 
     default_value='info',
     description='Log levely.'
+  ),
+  DeclareLaunchArgument(
+    name='use_cloud',
+    default_value='False',
+    description='Whether to enable cloud.'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_address',
+    default_value='host.docker.internal:5162',
+    description='Address of LGDXRobot Cloud.'
   )
 ]
       
@@ -124,6 +137,8 @@ def launch_setup(context):
   if not rviz_config:
     rviz_config = os.path.join(package_dir, 'rviz', profile_str) + '.rviz'
   use_explore_lite = LaunchConfiguration('use_explore_lite')
+  use_cloud = LaunchConfiguration('use_cloud')
+  cloud_address = LaunchConfiguration('cloud_address').perform(context)
   
   # Webots Simulator
   webots = WebotsLauncher(
@@ -218,10 +233,33 @@ def launch_setup(context):
       'use_sim_time': use_sim_time
     }.items()
   )
+  
+  lgdxrobot2_agent_node = Node(
+    package='lgdxrobot2_agent',
+    executable='lgdxrobot2_agent_node',
+    namespace=namespace,
+    output='screen',
+    condition=IfCondition(use_cloud),
+    parameters=[{
+      'cloud_enable': True,
+      'cloud_address': cloud_address,
+      'cloud_root_cert': '/home/user/keys/root.crt',
+      'cloud_client_key': '/home/user/keys/Robot1.key',
+      'cloud_client_cert': '/home/user/keys/Robot1.crt',
+      'cloud_slam_enable': True,
+      'sim_enable': True,
+    }],
+    remappings=[
+      ('/tf', 'tf'), 
+      ('/tf_static', 'tf_static'),
+      ('/agent/auto_task', 'agent/auto_task'),
+      ('/agent/robot_data', 'agent/robot_data'),
+    ],
+  )
 
   waiting_nodes = WaitForControllerConnection(
     target_driver = lgdxrobot2_driver,
-    nodes_to_start = [description_node] + [robot_localization_node]  + [explore_node] + [ros2_nav]
+    nodes_to_start = [description_node] + [robot_localization_node]  + [explore_node] + [ros2_nav] + [lgdxrobot2_agent_node]
   )
 
   return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]
