@@ -6,6 +6,7 @@
 #include "CloudExchangeStream.hpp"
 #include "proto/RobotClientsService.grpc.pb.h"
 #include "RobotStatus.hpp"
+#include "SlamExchangeStream.hpp"
 #include "Structs/CloudSignals.hpp"
 
 #include "rclcpp/rclcpp.hpp"
@@ -36,10 +37,12 @@ class Cloud
 
     std::shared_ptr<grpc::Channel> grpcChannel;
     std::unique_ptr<CloudExchangeStream> cloudExchangeStream;
+    std::unique_ptr<SlamExchangeStream> slamExchangeStream;
     std::unique_ptr<RobotClientsService::Stub> grpcRealtimeStub;
     std::unique_ptr<RobotClientsService::Stub> grpcStub;
 
     bool isRealtimeExchange = false;
+    bool isCloudSlam = false;
     std::queue<CloudFunctions> cloudErrorQueue;
     CloudErrorRetryData cloudErrorRetryData;
     std::shared_ptr<grpc::CallCredentials> accessToken;
@@ -68,7 +71,8 @@ class Cloud
   public:
     Cloud(rclcpp::Node::SharedPtr node,
       std::shared_ptr<CloudSignals> cloudSignalsPtr,
-      std::shared_ptr<RobotStatus> robotStatusPtr);
+      std::shared_ptr<RobotStatus> robotStatusPtr,
+      bool cloudSlamEnable);
     void Greet(std::string mcuSN);
     void Exchange(RobotClientsRobotCriticalStatus &criticalStatus,
       std::vector<double> &batteries,
@@ -76,6 +80,11 @@ class Cloud
       RobotClientsAutoTaskNavProgress &navProgress);
     void AutoTaskNext(RobotClientsNextToken &token);
     void AutoTaskAbort(RobotClientsAbortToken &token);
+    void SlamExchange(RobotClientsRealtimeNavResults status,
+      RobotClientsExchange &exchange);
+    void SlamExchange(RobotClientsRealtimeNavResults status,
+      RobotClientsExchange &exchange,
+      RobotClientsMapData &mapData);
     void Shutdown();
 };
 

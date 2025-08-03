@@ -15,6 +15,9 @@ void Agent::Initalise()
   auto simEnableParam = rcl_interfaces::msg::ParameterDescriptor{};
   simEnableParam.description = "Enable simulation for LGDXRobot2 hardware, MCU must be disable for this feature.";
   this->declare_parameter("sim_enable", false, simEnableParam);
+  auto cloudSlamEnableParam = rcl_interfaces::msg::ParameterDescriptor{};
+  cloudSlamEnableParam.description = "Enable LGDXRobot Cloud SLAM Mode.";
+  this->declare_parameter("cloud_slam_enable", false, cloudSlamEnableParam);
 
   // Signals
   cloudSignals = std::make_shared<CloudSignals>();
@@ -22,17 +25,26 @@ void Agent::Initalise()
   navigationSignals = std::make_shared<NavigationSignals>();
   robotControllerSignals = std::make_shared<RobotControllerSignals>();
   sensorSignals = std::make_shared<SensorSignals>();
+  slamControllerSignals = std::make_shared<SlamControllerSignals>();
 
   // Main Controller
   robotStatus = std::make_shared<RobotStatus>();
   navProgress = std::make_shared<RobotClientsAutoTaskNavProgress>();
-  robotController = std::make_unique<RobotController>(shared_from_this(), robotControllerSignals, robotStatus, navProgress);
+  bool cloudSlamEnable = this->get_parameter("cloud_slam_enable").as_bool();
+  if (cloudSlamEnable)
+  {
+    slamController = std::make_unique<SlamController>(shared_from_this(), slamControllerSignals, robotStatus, navProgress);
+  }
+  else
+  {
+    robotController = std::make_unique<RobotController>(shared_from_this(), robotControllerSignals, robotStatus, navProgress);
+  }
 
   // Cloud
   bool cloudEnable = this->get_parameter("cloud_enable").as_bool();
   if (cloudEnable)
   {
-    cloud = std::make_unique<Cloud>(shared_from_this(), cloudSignals, robotStatus);
+    cloud = std::make_unique<Cloud>(shared_from_this(), cloudSignals, robotStatus, cloudSlamEnable);
     navigation = std::make_unique<Navigation>(shared_from_this(), navigationSignals, robotStatus, navProgress);
   }
 
@@ -54,22 +66,45 @@ void Agent::Initalise()
   // Signals
   if (cloudEnable)
   {
-    // Initalise the timer for sending exchange
-    cloudSignals->NextExchange.connect(boost::bind(&RobotController::StatCloudExchange, robotController.get()));
-    cloudSignals->HandleExchange.connect(boost::bind(&RobotController::OnCloudExchangeDone, robotController.get(), boost::placeholders::_1));
-    robotControllerSignals->CloudExchange.connect(boost::bind(&Cloud::Exchange, cloud.get(), 
-      boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4));
-    robotControllerSignals->NavigationStart.connect(boost::bind(&Navigation::Start, navigation.get(), boost::placeholders::_1));
-    robotControllerSignals->NavigationAbort.connect(boost::bind(&Navigation::Abort, navigation.get()));
-    robotControllerSignals->AutoTaskNext.connect(boost::bind(&Cloud::AutoTaskNext, cloud.get(), boost::placeholders::_1));
-    robotControllerSignals->AutoTaskAbort.connect(boost::bind(&Cloud::AutoTaskAbort, cloud.get(), boost::placeholders::_1));
-    navigationSignals->NextNavigation.connect(boost::bind(&RobotController::NavigationStart, robotController.get()));
-    navigationSignals->Abort.connect(boost::bind(&RobotController::CloudAutoTaskAbort, robotController.get(), boost::placeholders::_1));
+    if (cloudSlamEnable)
+    {
+      cloudSignals->NextExchange.connect(boost::bind(&SlamController::StatSlamExchange, slamController.get()));
+      cloudSignals->HandleSlamExchange.connect(boost::bind(&SlamController::OnSlamExchangeDone, slamController.get(), boost::placeholders::_1));
+      slamControllerSignals->SlamExchange2.connect(boost::bind(&Cloud::SlamExchange, cloud.get(), 
+        boost::placeholders::_1, boost::placeholders::_2));
+      slamControllerSignals->SlamExchange3.connect(boost::bind(&Cloud::SlamExchange, cloud.get(), 
+        boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
+      slamControllerSignals->NavigationStart.connect(boost::bind(&Navigation::Start, navigation.get(), boost::placeholders::_1));
+      slamControllerSignals->NavigationAbort.connect(boost::bind(&Navigation::Abort, navigation.get()));
+      navigationSignals->NextNavigation.connect(boost::bind(&SlamController::OnNavigationDone, slamController.get()));
+      navigationSignals->Abort.connect(boost::bind(&SlamController::OnNavigationAborted, slamController.get(), boost::placeholders::_1));
+    }
+    else
+    {
+      cloudSignals->NextExchange.connect(boost::bind(&RobotController::StatCloudExchange, robotController.get()));
+      cloudSignals->HandleExchange.connect(boost::bind(&RobotController::OnCloudExchangeDone, robotController.get(), boost::placeholders::_1));
+      robotControllerSignals->CloudExchange.connect(boost::bind(&Cloud::Exchange, cloud.get(), 
+        boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4));
+      robotControllerSignals->NavigationStart.connect(boost::bind(&Navigation::Start, navigation.get(), boost::placeholders::_1));
+      robotControllerSignals->NavigationAbort.connect(boost::bind(&Navigation::Abort, navigation.get()));
+      robotControllerSignals->AutoTaskNext.connect(boost::bind(&Cloud::AutoTaskNext, cloud.get(), boost::placeholders::_1));
+      robotControllerSignals->AutoTaskAbort.connect(boost::bind(&Cloud::AutoTaskAbort, cloud.get(), boost::placeholders::_1));
+      navigationSignals->NextNavigation.connect(boost::bind(&RobotController::NavigationStart, robotController.get()));
+      navigationSignals->Abort.connect(boost::bind(&RobotController::CloudAutoTaskAbort, robotController.get(), boost::placeholders::_1));
+    }
+
   }
   if (mcuEnable)
   {
     mcuSignals->UpdateRobotData.connect(boost::bind(&Sensors::PublishOdom, sensors.get(), boost::placeholders::_1));
-    mcuSignals->UpdateRobotData.connect(boost::bind(&RobotController::OnRobotDataReceived, robotController.get(), boost::placeholders::_1));
+    if (cloudSlamEnable)
+    {
+      mcuSignals->UpdateRobotData.connect(boost::bind(&SlamController::OnRobotDataReceived, slamController.get(), boost::placeholders::_1));
+    }
+    else
+    {
+      mcuSignals->UpdateRobotData.connect(boost::bind(&RobotController::OnRobotDataReceived, robotController.get(), boost::placeholders::_1));
+    }
     if (cloudEnable)
     {
       // Start connection if MCU serial number obtained

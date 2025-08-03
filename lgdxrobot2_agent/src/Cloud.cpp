@@ -13,11 +13,13 @@
 
 Cloud::Cloud(rclcpp::Node::SharedPtr node,
     std::shared_ptr<CloudSignals> cloudSignalsPtr,
-    std::shared_ptr<RobotStatus> robotStatusPtr
+    std::shared_ptr<RobotStatus> robotStatusPtr,
+    bool cloudSlamEnable
   ) : logger_(node->get_logger())
 {
   cloudSignals = cloudSignalsPtr;
   robotStatus = robotStatusPtr;
+  isCloudSlam = cloudSlamEnable;
 
   // Parameters
   auto cloudAddressParam = rcl_interfaces::msg::ParameterDescriptor{};
@@ -236,14 +238,23 @@ void Cloud::Greet(std::string mcuSN)
     if (status.ok()) 
     {
       accessToken = grpc::AccessTokenCredentials(respond->accesstoken());
-      RCLCPP_INFO(logger_, "Connect to the cloud, start data exchange.");
-      robotStatus->ConnnectedCloud();
-      if (respond->isrealtimeexchange())
+      if (isCloudSlam)
       {
-        isRealtimeExchange = true;
-        RCLCPP_INFO(logger_, "Data exchange is realtime.");
+        RCLCPP_INFO(logger_, "Connect to the cloud, start SLAM data exchange.");
         grpcRealtimeStub = RobotClientsService::NewStub(grpcChannel);
-        cloudExchangeStream = std::make_unique<CloudExchangeStream>(grpcRealtimeStub.get(), accessToken, cloudSignals);
+        slamExchangeStream = std::make_unique<SlamExchangeStream>(grpcRealtimeStub.get(), accessToken, cloudSignals);
+      }
+      else
+      {
+        RCLCPP_INFO(logger_, "Connect to the cloud, start data exchange.");
+        robotStatus->ConnnectedCloud();
+        if (respond->isrealtimeexchange())
+        {
+          isRealtimeExchange = true;
+          RCLCPP_INFO(logger_, "Data exchange is realtime.");
+          grpcRealtimeStub = RobotClientsService::NewStub(grpcChannel);
+          cloudExchangeStream = std::make_unique<CloudExchangeStream>(grpcRealtimeStub.get(), accessToken, cloudSignals);
+        }
       }
       // Start the timer to exchange data
       cloudSignals->NextExchange();
@@ -336,11 +347,35 @@ void Cloud::AutoTaskAbort(RobotClientsAbortToken &token)
   });
 }
 
+void Cloud::SlamExchange(RobotClientsRealtimeNavResults status,
+  RobotClientsExchange &exchange)
+{
+  if (slamExchangeStream != nullptr)
+  {
+    slamExchangeStream->SendMessage(status, exchange);
+  }
+}
+
+void Cloud::SlamExchange(RobotClientsRealtimeNavResults status,
+  RobotClientsExchange &exchange,
+  RobotClientsMapData &mapData)
+{
+  if (slamExchangeStream != nullptr)
+  {
+    slamExchangeStream->SendMessage(status, exchange, mapData);
+  }
+}
+
 void Cloud::Shutdown()
 {
   if (cloudExchangeStream != nullptr)
   {
     cloudExchangeStream->Shutdown();
     cloudExchangeStream->AwaitCompletion();
+  }
+  if (slamExchangeStream != nullptr)
+  {
+    slamExchangeStream->Shutdown();
+    slamExchangeStream->AwaitCompletion();
   }
 }

@@ -8,6 +8,7 @@ struct CloudSignals
 {
   boost::signals2::signal<void()> NextExchange;
   boost::signals2::signal<void(const RobotClientsRespond *respond)> HandleExchange;
+  boost::signals2::signal<void(const RobotClientsSlamRespond *respond)> HandleSlamExchange;
 };
 
 #endif // CLOUDSIGNALS_HPP
