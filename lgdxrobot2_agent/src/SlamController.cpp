@@ -16,7 +16,7 @@ SlamController::SlamController(rclcpp::Node::SharedPtr node,
   tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);
 
   slamExchangeTimer = node->create_wall_timer(std::chrono::milliseconds(500), 
-    std::bind(&SlamController::SlamExchange, this));
+    std::bind(&SlamController::SlamExchange2, this));
   slamExchangeTimer->cancel();
 
   // Topics
@@ -28,20 +28,70 @@ SlamController::SlamController(rclcpp::Node::SharedPtr node,
     });
   robotDataPublisher = node->create_publisher<lgdxrobot2_agent::msg::RobotData>("/agent/robot_data", 
     rclcpp::SensorDataQoS().reliable());
+
+  mapSubscription = node->create_subscription<nav_msgs::msg::OccupancyGrid>("map", 
+    rclcpp::SensorDataQoS().reliable(), 
+    std::bind(&SlamController::MapCallback, this, std::placeholders::_1));
 }
 
-void SlamController::SlamExchange()
+void SlamController::MapCallback(const nav_msgs::msg::OccupancyGrid &msg)
 {
-  if (!slamExchangeTimer->is_canceled())
-    slamExchangeTimer->cancel();
+  // Compare the map with the current map
+  if ((int)msg.data.size() == mapData.data_size())
+  {
+    for (size_t i = 0; i < msg.data.size(); i++)
+    {
+      bool same = true;
+      if (msg.data[i] != mapData.data(i))
+      {
+        same = false;
+        break;
+      }
+      if (same)
+      {
+        return;
+      }
+    }
+  }
 
+  // Update the map
+  mapData.set_resolution(msg.info.resolution);
+  mapData.set_width(msg.info.width);
+  mapData.set_height(msg.info.height);
+  // Origin
+  auto origin = mapData.mutable_origin();
+  origin->set_x(msg.info.origin.position.x);
+  origin->set_y(msg.info.origin.position.y);
+  tf2::Quaternion q(
+    msg.info.origin.orientation.x,
+    msg.info.origin.orientation.y,
+    msg.info.origin.orientation.z,
+    msg.info.origin.orientation.w);
+  tf2::Matrix3x3 m(q);
+  double roll, pitch, yaw;
+  m.getRPY(roll, pitch, yaw);
+  origin->set_rotation(yaw);
+  // Map Data
+  auto md = mapData.mutable_data();
+  md->Clear();
+  md->Reserve(msg.data.size());
+  for (size_t i = 0; i < msg.data.size(); i++)
+  {
+    md->AddAlreadyReserved(msg.data[i]);
+  }
+  slamControllerSignals->SlamExchange3(status, exchange, mapData);
+}
+
+void SlamController::UpdateExchange()
+{
   exchange.set_robotstatus(RobotClientsRobotStatus::Paused);
   exchange.mutable_criticalstatus()->CopyFrom(criticalStatus);
   auto exchangeBatteries = exchange.mutable_batteries();
   exchangeBatteries->Clear();
-  for (int i = 0; i < batteries.size(); i++)
+  exchangeBatteries->Reserve(batteries.size());
+  for (size_t i = 0; i < batteries.size(); i++)
   {
-    exchangeBatteries->Add(batteries[i]);
+    exchangeBatteries->AddAlreadyReserved(batteries[i]);
   }
   try
   {
@@ -63,7 +113,14 @@ void SlamController::SlamExchange()
   }
   catch (const tf2::TransformException &ex) {}
   exchange.mutable_navprogress()->CopyFrom(*navProgress);
+}
 
+void SlamController::SlamExchange2()
+{
+  if (!slamExchangeTimer->is_canceled())
+    slamExchangeTimer->cancel();
+
+  UpdateExchange();
   slamControllerSignals->SlamExchange2(status, exchange);
   // Don't reset the slamExchangeTimer here
 }

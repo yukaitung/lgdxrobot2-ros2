@@ -71,8 +71,7 @@ class Cloud
   public:
     Cloud(rclcpp::Node::SharedPtr node,
       std::shared_ptr<CloudSignals> cloudSignalsPtr,
-      std::shared_ptr<RobotStatus> robotStatusPtr,
-      bool cloudSlamEnable);
+      std::shared_ptr<RobotStatus> robotStatusPtr);
     void Greet(std::string mcuSN);
     void Exchange(RobotClientsRobotCriticalStatus &criticalStatus,
       std::vector<double> &batteries,

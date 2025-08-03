@@ -7,6 +7,7 @@
 #include "Structs/RobotData.hpp"
 #include "Structs/SlamControllerSignals.hpp"
 
+#include "nav_msgs/msg/occupancy_grid.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
@@ -20,6 +21,8 @@ class SlamController
     rclcpp::TimerBase::SharedPtr slamExchangeTimer;
 
     rclcpp::Publisher<lgdxrobot2_agent::msg::RobotData>::SharedPtr robotDataPublisher;
+
+    rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr mapSubscription;
     
     std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tfBuffer;
@@ -37,7 +40,9 @@ class SlamController
     RobotClientsRobotCriticalStatus criticalStatus;
     std::vector<double> batteries = {0.0, 0.0};
 
-    void SlamExchange();
+    void MapCallback(const nav_msgs::msg::OccupancyGrid &msg);
+    void UpdateExchange();
+    void SlamExchange2();
 
   public:
     SlamController(rclcpp::Node::SharedPtr node,

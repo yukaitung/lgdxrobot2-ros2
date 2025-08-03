@@ -13,13 +13,12 @@
 
 Cloud::Cloud(rclcpp::Node::SharedPtr node,
     std::shared_ptr<CloudSignals> cloudSignalsPtr,
-    std::shared_ptr<RobotStatus> robotStatusPtr,
-    bool cloudSlamEnable
+    std::shared_ptr<RobotStatus> robotStatusPtr
   ) : logger_(node->get_logger())
 {
   cloudSignals = cloudSignalsPtr;
   robotStatus = robotStatusPtr;
-  isCloudSlam = cloudSlamEnable;
+  isCloudSlam = node->get_parameter("cloud_slam_enable").as_bool();
 
   // Parameters
   auto cloudAddressParam = rcl_interfaces::msg::ParameterDescriptor{};

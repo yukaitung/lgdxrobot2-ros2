@@ -44,7 +44,7 @@ void Agent::Initalise()
   bool cloudEnable = this->get_parameter("cloud_enable").as_bool();
   if (cloudEnable)
   {
-    cloud = std::make_unique<Cloud>(shared_from_this(), cloudSignals, robotStatus, cloudSlamEnable);
+    cloud = std::make_unique<Cloud>(shared_from_this(), cloudSignals, robotStatus);
     navigation = std::make_unique<Navigation>(shared_from_this(), navigationSignals, robotStatus, navProgress);
   }
 
