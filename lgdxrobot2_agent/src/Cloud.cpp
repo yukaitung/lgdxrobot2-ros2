@@ -197,6 +197,7 @@ void Cloud::HandleError()
     switch (function)
     {
     case CloudFunctions::Greet:
+    case CloudFunctions::SlamExchange:
       // Do nothing
       break;
     case CloudFunctions::Exchange:
@@ -240,7 +241,10 @@ void Cloud::Greet(std::string mcuSN)
       if (isCloudSlam)
       {
         RCLCPP_INFO(logger_, "Connect to the cloud, start SLAM data exchange.");
-        grpcRealtimeStub = RobotClientsService::NewStub(grpcChannel);
+        if (grpcRealtimeStub == nullptr)
+        {
+          grpcRealtimeStub = RobotClientsService::NewStub(grpcChannel);
+        }
         slamExchangeStream = std::make_unique<SlamExchangeStream>(grpcRealtimeStub.get(), accessToken, cloudSignals);
       }
       else

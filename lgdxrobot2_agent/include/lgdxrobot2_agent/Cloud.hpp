@@ -12,14 +12,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/bool.hpp"
 
-enum class CloudFunctions
-{
-  Greet = 0,
-  Exchange,
-  AutoTaskNext,
-  AutoTaskAbort
-};
-
 struct CloudErrorRetryData
 {
   std::string mcuSerialNumber;
@@ -64,8 +56,6 @@ class Cloud
       std::vector<double> &batteries,
       RobotClientsDof &position,
       RobotClientsAutoTaskNavProgress &navProgress);
-
-    void Error(CloudFunctions function);
     void HandleError();
 
   public:
@@ -85,6 +75,7 @@ class Cloud
       RobotClientsExchange &exchange,
       RobotClientsMapData &mapData);
     void Shutdown();
+    void Error(CloudFunctions function);
 };
 
 #endif // CLOUD_HPP

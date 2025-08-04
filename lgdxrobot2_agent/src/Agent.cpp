@@ -92,7 +92,7 @@ void Agent::Initalise()
       navigationSignals->NextNavigation.connect(boost::bind(&RobotController::NavigationStart, robotController.get()));
       navigationSignals->Abort.connect(boost::bind(&RobotController::CloudAutoTaskAbort, robotController.get(), boost::placeholders::_1));
     }
-
+    cloudSignals->StreamError.connect(boost::bind(&Cloud::Error, cloud.get(), boost::placeholders::_1));
   }
   if (mcuEnable)
   {

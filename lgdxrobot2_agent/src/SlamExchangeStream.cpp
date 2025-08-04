@@ -1,4 +1,5 @@
 #include "lgdxrobot2_agent/SlamExchangeStream.hpp"
+#include <iostream>
 
 SlamExchangeStream::SlamExchangeStream(RobotClientsService::Stub *stub, 
   std::shared_ptr<grpc::CallCredentials> accessToken,
@@ -13,9 +14,18 @@ SlamExchangeStream::SlamExchangeStream(RobotClientsService::Stub *stub,
   StartCall();
 }
 
+SlamExchangeStream::~SlamExchangeStream()
+{
+  if (requestPtr != nullptr)
+  {
+    delete requestPtr;
+    requestPtr = nullptr;
+  }
+}
+
 void SlamExchangeStream::OnWriteDone(bool ok)
 {
-  if (ok)
+  if (ok && !isShutdown)
   {
     cloudSignals->NextExchange();
   }
@@ -32,6 +42,12 @@ void SlamExchangeStream::OnReadDone(bool ok)
 
 void SlamExchangeStream::OnDone(const grpc::Status& status)
 {
+  if (!status.ok())
+  {
+    isShutdown = true;
+    cloudSignals->StreamError(CloudFunctions::SlamExchange);
+    return;
+  }
   std::lock_guard<std::mutex> lock(mutex);
   finalStatus = status;
   done = true;
@@ -45,11 +61,9 @@ void SlamExchangeStream::SendMessage(RobotClientsRealtimeNavResults status,
   {
     return;
   }
-
   requestPtr->set_status(status);
   requestPtr->mutable_exchange()->CopyFrom(exchange);
   requestPtr->mutable_mapdata()->Clear();
-
   StartWrite(requestPtr);
 }
 
@@ -61,11 +75,9 @@ void SlamExchangeStream::SendMessage(RobotClientsRealtimeNavResults status,
   {
     return;
   }
-
   requestPtr->set_status(status);
   requestPtr->mutable_exchange()->CopyFrom(exchange);
   requestPtr->mutable_mapdata()->CopyFrom(mapData);
-
   StartWrite(requestPtr);
 }
 
@@ -73,12 +85,6 @@ void SlamExchangeStream::Shutdown()
 {
   isShutdown = true;
   StartWritesDone();
-
-  if (requestPtr != nullptr)
-  {
-    delete requestPtr;
-    requestPtr = nullptr;
-  }
 }
 
 grpc::Status SlamExchangeStream::AwaitCompletion()
