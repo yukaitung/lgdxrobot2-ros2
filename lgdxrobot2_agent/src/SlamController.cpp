@@ -111,7 +111,12 @@ void SlamController::UpdateExchange()
     exchange.mutable_position()->set_y(-(-t.transform.translation.x * sin(yaw) + t.transform.translation.y * cos(yaw)));
     exchange.mutable_position()->set_rotation(yaw);
   }
-  catch (const tf2::TransformException &ex) {}
+  catch (const tf2::TransformException &ex) 
+  {
+    exchange.mutable_position()->set_x(0.0);
+    exchange.mutable_position()->set_y(0.0);
+    exchange.mutable_position()->set_rotation(0.0);
+  }
   exchange.mutable_navprogress()->CopyFrom(*navProgress);
 }
 
