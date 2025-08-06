@@ -1,3 +1,6 @@
+#include <csignal>
+#include <thread>
+
 #include "lgdxrobot2_agent/SlamController.hpp"
 
 #include "nav2_util/geometry_utils.hpp"
@@ -40,18 +43,18 @@ void SlamController::MapCallback(const nav_msgs::msg::OccupancyGrid &msg)
   int incomingSize = (int)msg.data.size();
   if (incomingSize == mapData.data_size())
   {
+    bool same = true;
     for (size_t i = 0; i < msg.data.size(); i++)
     {
-      bool same = true;
-      if (msg.data[i] != mapData.data(i))
+      if ((int32_t)msg.data[i] != mapData.data(i))
       {
         same = false;
         break;
       }
-      if (same)
-      {
-        return;
-      }
+    }
+    if (same)
+    {
+      return;
     }
   }
 
@@ -149,10 +152,14 @@ void SlamController::OnSlamExchangeDone(const RobotClientsSlamCommands *respond)
 {
   if (respond->has_setgoal())
   {
+    if (status == RobotClientsSlamStatus::SlamRunning)
+    {
+      overwriteGoal = true;
+    }
     double x = respond->setgoal().x();
     double y = respond->setgoal().y();
     double rotation = respond->setgoal().rotation();
-    RCLCPP_INFO(logger_, "Slam set goal: %f, %f, %f", x, y, rotation);
+    RCLCPP_INFO(logger_, "A new goal is set: %fm, %fm, %frad", x, y, rotation);
     std::vector<geometry_msgs::msg::PoseStamped> poses;
     auto pose = geometry_msgs::msg::PoseStamped();
     pose.header.stamp = rclcpp::Clock().now();
@@ -167,33 +174,40 @@ void SlamController::OnSlamExchangeDone(const RobotClientsSlamCommands *respond)
   }
   if (respond->has_abortgoal())
   {
-    RCLCPP_INFO(logger_, "Slam abort goal");
+    RCLCPP_INFO(logger_, "Aborting the current goal");
     slamControllerSignals->NavigationAbort();
   }
   if (respond->has_softwareemergencystopenable() && respond->softwareemergencystopenable() == true)
   {
-    RCLCPP_INFO(logger_, "Slam emergency stop enable");
+    RCLCPP_INFO(logger_, "Enabling software emergency stop");
     robotStatus->EnterCritical();
   }
   if (respond->has_softwareemergencystopdisable() && respond->softwareemergencystopdisable() == true)
   {
-    RCLCPP_INFO(logger_, "Slam emergency stop disable");
+    RCLCPP_INFO(logger_, "Disabling software emergency stop");
     robotStatus->ExitCritical();
   }
   if (respond->has_savemap() && respond->savemap() == true)
   {
-    RCLCPP_INFO(logger_, "Slam save map");
+    RCLCPP_INFO(logger_, "Saving the map");
     slamControllerSignals->SaveMap();
   }
   if (respond->has_refreshmap() && respond->refreshmap() == true)
   {
-    RCLCPP_INFO(logger_, "Slam refresh map");
+    RCLCPP_INFO(logger_, "Refreshing the map");
     mapHasUpdated = true;
   }
-  if (respond->has_stopslam() && respond->stopslam() == true)
+  if (respond->has_abortslam() && respond->abortslam() == true)
   {
-    RCLCPP_INFO(logger_, "Slam stop slam");
-    slamControllerSignals->NavigationAbort();
+    RCLCPP_INFO(logger_, "Aborting the current SLAM");
+    std::raise(SIGTERM);
+  }
+  if (respond->has_completeslam() && respond->completeslam() == true)
+  {
+    RCLCPP_INFO(logger_, "Completing the current SLAM and saving the map with 5 seconds blocking");
+    slamControllerSignals->SaveMap();
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    std::raise(SIGTERM);
   }
 }
 
@@ -204,7 +218,15 @@ void SlamController::OnNavigationDone()
 
 void SlamController::OnNavigationAborted(RobotClientsAbortReason)
 {
-  status = RobotClientsSlamStatus::SlamAborted;
+  if (overwriteGoal)
+  {
+    // Not showing aborted because the goal was overwritten
+    overwriteGoal = false;
+  }
+  else
+  {
+    status = RobotClientsSlamStatus::SlamAborted;
+  }
 }
 
 void SlamController::OnRobotDataReceived(const RobotData &rd)

@@ -135,4 +135,8 @@ void Agent::Shutdown()
   {
     robotController->Shutdown();
   }
+  if (slamController != nullptr)
+  {
+    slamController->Shutdown();
+  }
 }

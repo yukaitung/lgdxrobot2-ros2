@@ -31,6 +31,7 @@ class SlamController
 
     // Robot Data
     bool mapHasUpdated = false;
+    bool overwriteGoal = false;
     std::shared_ptr<RobotStatus> robotStatus;
     std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgress;
 

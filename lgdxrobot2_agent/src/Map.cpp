@@ -11,6 +11,7 @@ Map::Map(rclcpp::Node::SharedPtr node) : logger_(node->get_logger())
 
 void Map::OnResult(rclcpp::Client<nav2_msgs::srv::SaveMap>::SharedFuture future)
 {
+  saveMapTimer->cancel();
   auto status = future.get();
   if (status->result == true) 
   {
