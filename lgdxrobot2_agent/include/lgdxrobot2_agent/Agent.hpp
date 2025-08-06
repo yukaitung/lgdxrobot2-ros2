@@ -4,6 +4,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "Cloud.hpp"
+#include "Map.hpp"
 #include "Mcu.hpp"
 #include "Navigation.hpp"
 #include "RobotController.hpp"
@@ -15,6 +16,7 @@ class Agent : public rclcpp::Node
 {
   private:
     std::unique_ptr<Cloud> cloud;
+    std::unique_ptr<Map> map;
     std::unique_ptr<Mcu> mcu;
     std::unique_ptr<Navigation> navigation;
     std::unique_ptr<RobotController> robotController;

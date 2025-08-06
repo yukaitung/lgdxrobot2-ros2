@@ -68,6 +68,7 @@ add_executable(${EXECUTABLE_NAME}
   src/Cloud.cpp
   src/CloudExchangeStream.cpp
   src/main.cpp
+  src/Map.cpp
   src/Mcu.cpp
   src/Navigation.cpp
   src/RobotController.cpp

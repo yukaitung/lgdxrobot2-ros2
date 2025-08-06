@@ -16,7 +16,7 @@ SlamController::SlamController(rclcpp::Node::SharedPtr node,
   tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);
 
   slamExchangeTimer = node->create_wall_timer(std::chrono::milliseconds(500), 
-    std::bind(&SlamController::SlamExchange2, this));
+    std::bind(&SlamController::SlamExchange, this));
   slamExchangeTimer->cancel();
 
   // Topics
@@ -26,7 +26,7 @@ SlamController::SlamController(rclcpp::Node::SharedPtr node,
       robotData.robot_status = static_cast<int>(robotStatus->GetStatus());
       robotDataPublisher->publish(robotData);
     });
-  robotDataPublisher = node->create_publisher<lgdxrobot2_agent::msg::RobotData>("/agent/robot_data", 
+  robotDataPublisher = node->create_publisher<lgdxrobot2_agent::msg::RobotData>("agent/robot_data", 
     rclcpp::SensorDataQoS().reliable());
 
   mapSubscription = node->create_subscription<nav_msgs::msg::OccupancyGrid>("map", 
@@ -37,7 +37,8 @@ SlamController::SlamController(rclcpp::Node::SharedPtr node,
 void SlamController::MapCallback(const nav_msgs::msg::OccupancyGrid &msg)
 {
   // Compare the map with the current map
-  if ((int)msg.data.size() == mapData.data_size())
+  int incomingSize = (int)msg.data.size();
+  if (incomingSize == mapData.data_size())
   {
     for (size_t i = 0; i < msg.data.size(); i++)
     {
@@ -74,12 +75,12 @@ void SlamController::MapCallback(const nav_msgs::msg::OccupancyGrid &msg)
   // Map Data
   auto md = mapData.mutable_data();
   md->Clear();
-  md->Reserve(msg.data.size());
-  for (size_t i = 0; i < msg.data.size(); i++)
+  md->Reserve(incomingSize);
+  for (int i = 0; i < incomingSize; i++)
   {
     md->AddAlreadyReserved(msg.data[i]);
   }
-  slamControllerSignals->SlamExchange3(status, exchange, mapData);
+  mapHasUpdated = true;
 }
 
 void SlamController::UpdateExchange()
@@ -120,13 +121,22 @@ void SlamController::UpdateExchange()
   exchange.mutable_navprogress()->CopyFrom(*navProgress);
 }
 
-void SlamController::SlamExchange2()
+void SlamController::SlamExchange()
 {
   if (!slamExchangeTimer->is_canceled())
     slamExchangeTimer->cancel();
 
   UpdateExchange();
-  slamControllerSignals->SlamExchange2(status, exchange);
+
+  if (mapHasUpdated)
+  {
+    slamControllerSignals->SlamExchange3(status, exchange, mapData);
+    mapHasUpdated = false;
+  }
+  else
+  {
+    slamControllerSignals->SlamExchange2(status, exchange);
+  }
   // Don't reset the slamExchangeTimer here
 }
 
@@ -135,50 +145,66 @@ void SlamController::StatSlamExchange()
   slamExchangeTimer->reset();
 }
 
-void SlamController::OnSlamExchangeDone(const RobotClientsSlamRespond *respond)
+void SlamController::OnSlamExchangeDone(const RobotClientsSlamCommands *respond)
 {
-  if (respond->has_goal())
+  if (respond->has_setgoal())
   {
+    double x = respond->setgoal().x();
+    double y = respond->setgoal().y();
+    double rotation = respond->setgoal().rotation();
+    RCLCPP_INFO(logger_, "Slam set goal: %f, %f, %f", x, y, rotation);
     std::vector<geometry_msgs::msg::PoseStamped> poses;
     auto pose = geometry_msgs::msg::PoseStamped();
     pose.header.stamp = rclcpp::Clock().now();
     pose.header.frame_id = "map";
     pose.pose.position.z = 0.0;
-    pose.pose.position.x = respond->goal().x();
-    pose.pose.position.y = respond->goal().y();
-    pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(respond->goal().rotation());
+    pose.pose.position.x = x;
+    pose.pose.position.y = y;
+    pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(rotation);
     poses.push_back(pose);
     slamControllerSignals->NavigationStart(poses);
+    status = RobotClientsSlamStatus::SlamRunning;
   }
-  if (respond->has_commands())
+  if (respond->has_abortgoal())
   {
-    if (respond->commands().has_abortgoal() && respond->commands().abortgoal() == true)
-    {
-      slamControllerSignals->NavigationAbort();
-    }
-    if (respond->commands().has_softwareemergencystop() && respond->commands().softwareemergencystop() == true)
-    {
-      robotStatus->EnterCritical();
-    }
-    else if (respond->commands().has_softwareemergencystop() && respond->commands().softwareemergencystop() == false)
-    {
-      robotStatus->ExitCritical();
-    }
-    if (respond->commands().has_getmap() && respond->commands().getmap() == true)
-    {
-      slamControllerSignals->SlamExchange3(status, exchange, mapData);
-    }
+    RCLCPP_INFO(logger_, "Slam abort goal");
+    slamControllerSignals->NavigationAbort();
+  }
+  if (respond->has_softwareemergencystopenable() && respond->softwareemergencystopenable() == true)
+  {
+    RCLCPP_INFO(logger_, "Slam emergency stop enable");
+    robotStatus->EnterCritical();
+  }
+  if (respond->has_softwareemergencystopdisable() && respond->softwareemergencystopdisable() == true)
+  {
+    RCLCPP_INFO(logger_, "Slam emergency stop disable");
+    robotStatus->ExitCritical();
+  }
+  if (respond->has_savemap() && respond->savemap() == true)
+  {
+    RCLCPP_INFO(logger_, "Slam save map");
+    slamControllerSignals->SaveMap();
+  }
+  if (respond->has_refreshmap() && respond->refreshmap() == true)
+  {
+    RCLCPP_INFO(logger_, "Slam refresh map");
+    mapHasUpdated = true;
+  }
+  if (respond->has_stopslam() && respond->stopslam() == true)
+  {
+    RCLCPP_INFO(logger_, "Slam stop slam");
+    slamControllerSignals->NavigationAbort();
   }
 }
 
 void SlamController::OnNavigationDone()
 {
-  status = RobotClientsRealtimeNavResults::SlamSuccess;
+  status = RobotClientsSlamStatus::SlamSuccess;
 }
 
-void SlamController::OnNavigationAborted(RobotClientsAbortReason reason)
+void SlamController::OnNavigationAborted(RobotClientsAbortReason)
 {
-  status = RobotClientsRealtimeNavResults::SlamAborted;
+  status = RobotClientsSlamStatus::SlamAborted;
 }
 
 void SlamController::OnRobotDataReceived(const RobotData &rd)

@@ -8,13 +8,13 @@
 #include "Structs/CloudSignals.hpp"
 #include "proto/RobotClientsService.grpc.pb.h"
 
-class SlamExchangeStream : public grpc::ClientBidiReactor<RobotClientsSlamExchange, RobotClientsSlamRespond>
+class SlamExchangeStream : public grpc::ClientBidiReactor<RobotClientsSlamExchange, RobotClientsSlamCommands>
 {
   private:
     std::shared_ptr<CloudSignals> cloudSignals;
     grpc::ClientContext context;
     RobotClientsSlamExchange *requestPtr;
-    RobotClientsSlamRespond respond;
+    RobotClientsSlamCommands respond;
     std::mutex mutex;
     std::condition_variable cv;
     grpc::Status finalStatus;
@@ -30,9 +30,9 @@ class SlamExchangeStream : public grpc::ClientBidiReactor<RobotClientsSlamExchan
       std::shared_ptr<grpc::CallCredentials> accessToken,
       std::shared_ptr<CloudSignals> cloudSignalsPtr);
     ~SlamExchangeStream();
-    void SendMessage(RobotClientsRealtimeNavResults status,
+    void SendMessage(RobotClientsSlamStatus status,
       RobotClientsExchange &exchange);
-    void SendMessage(RobotClientsRealtimeNavResults status,
+    void SendMessage(RobotClientsSlamStatus status,
       RobotClientsExchange &exchange,
       RobotClientsMapData &mapData);
     void Shutdown();

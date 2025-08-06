@@ -17,7 +17,7 @@ struct CloudSignals
 {
   boost::signals2::signal<void()> NextExchange;
   boost::signals2::signal<void(const RobotClientsRespond *respond)> HandleExchange;
-  boost::signals2::signal<void(const RobotClientsSlamRespond *respond)> HandleSlamExchange;
+  boost::signals2::signal<void(const RobotClientsSlamCommands *respond)> HandleSlamExchange;
   boost::signals2::signal<void(CloudFunctions)> StreamError;
 };
 

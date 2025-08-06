@@ -9,13 +9,14 @@
 
 struct SlamControllerSignals
 {
-  boost::signals2::signal<void(RobotClientsRealtimeNavResults,
+  boost::signals2::signal<void(RobotClientsSlamStatus,
     RobotClientsExchange &)> SlamExchange2;
-  boost::signals2::signal<void(RobotClientsRealtimeNavResults,
+  boost::signals2::signal<void(RobotClientsSlamStatus,
     RobotClientsExchange &, 
     RobotClientsMapData &)> SlamExchange3;
   boost::signals2::signal<void(std::vector<geometry_msgs::msg::PoseStamped> &)> NavigationStart;
   boost::signals2::signal<void()> NavigationAbort;
+  boost::signals2::signal<void()> SaveMap;
 };
 
 #endif // SLAM_CONTROLLER_SIGNALS_HPP

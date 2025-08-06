@@ -54,7 +54,7 @@ void SlamExchangeStream::OnDone(const grpc::Status& status)
   cv.notify_one();
 }
 
-void SlamExchangeStream::SendMessage(RobotClientsRealtimeNavResults status,
+void SlamExchangeStream::SendMessage(RobotClientsSlamStatus status,
   RobotClientsExchange &exchange)
 {
   if (isShutdown)
@@ -67,7 +67,7 @@ void SlamExchangeStream::SendMessage(RobotClientsRealtimeNavResults status,
   StartWrite(requestPtr);
 }
 
-void SlamExchangeStream::SendMessage(RobotClientsRealtimeNavResults status,
+void SlamExchangeStream::SendMessage(RobotClientsSlamStatus status,
   RobotClientsExchange &exchange,
   RobotClientsMapData &mapData)
 {

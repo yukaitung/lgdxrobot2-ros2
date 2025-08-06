@@ -1,6 +1,5 @@
 #include "lgdxrobot2_agent/Agent.hpp"
 
-
 Agent::Agent() : Node("lgdxrobot2_agent_node")
 {}
 
@@ -34,6 +33,7 @@ void Agent::Initalise()
   if (cloudSlamEnable)
   {
     slamController = std::make_unique<SlamController>(shared_from_this(), slamControllerSignals, robotStatus, navProgress);
+    map = std::make_unique<Map>(shared_from_this());
   }
   else
   {
@@ -78,6 +78,7 @@ void Agent::Initalise()
       slamControllerSignals->NavigationAbort.connect(boost::bind(&Navigation::Abort, navigation.get()));
       navigationSignals->NextNavigation.connect(boost::bind(&SlamController::OnNavigationDone, slamController.get()));
       navigationSignals->Abort.connect(boost::bind(&SlamController::OnNavigationAborted, slamController.get(), boost::placeholders::_1));
+      slamControllerSignals->SaveMap.connect(boost::bind(&Map::Save, map.get()));
     }
     else
     {

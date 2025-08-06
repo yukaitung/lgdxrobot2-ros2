@@ -30,19 +30,20 @@ class SlamController
     std::shared_ptr<SlamControllerSignals> slamControllerSignals;
 
     // Robot Data
+    bool mapHasUpdated = false;
     std::shared_ptr<RobotStatus> robotStatus;
     std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgress;
 
     lgdxrobot2_agent::msg::RobotData robotData;
     RobotClientsExchange exchange;
     RobotClientsMapData mapData;
-    RobotClientsRealtimeNavResults status = RobotClientsRealtimeNavResults::SlamIdle;
+    RobotClientsSlamStatus status = RobotClientsSlamStatus::SlamIdle;
     RobotClientsRobotCriticalStatus criticalStatus;
     std::vector<double> batteries = {0.0, 0.0};
 
     void MapCallback(const nav_msgs::msg::OccupancyGrid &msg);
     void UpdateExchange();
-    void SlamExchange2();
+    void SlamExchange();
 
   public:
     SlamController(rclcpp::Node::SharedPtr node,
@@ -50,7 +51,7 @@ class SlamController
       std::shared_ptr<RobotStatus> robotStatusPtr,
       std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgressPtr);
     void StatSlamExchange();
-    void OnSlamExchangeDone(const RobotClientsSlamRespond *respond);
+    void OnSlamExchangeDone(const RobotClientsSlamCommands *respond);
     void OnNavigationDone();
     void OnNavigationAborted(RobotClientsAbortReason reason);
     void OnRobotDataReceived(const RobotData &rd);

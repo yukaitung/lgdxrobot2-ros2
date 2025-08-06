@@ -350,7 +350,7 @@ void Cloud::AutoTaskAbort(RobotClientsAbortToken &token)
   });
 }
 
-void Cloud::SlamExchange(RobotClientsRealtimeNavResults status,
+void Cloud::SlamExchange(RobotClientsSlamStatus status,
   RobotClientsExchange &exchange)
 {
   if (slamExchangeStream != nullptr)
@@ -359,7 +359,7 @@ void Cloud::SlamExchange(RobotClientsRealtimeNavResults status,
   }
 }
 
-void Cloud::SlamExchange(RobotClientsRealtimeNavResults status,
+void Cloud::SlamExchange(RobotClientsSlamStatus status,
   RobotClientsExchange &exchange,
   RobotClientsMapData &mapData)
 {

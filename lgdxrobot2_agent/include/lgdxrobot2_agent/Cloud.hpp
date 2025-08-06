@@ -69,9 +69,9 @@ class Cloud
       RobotClientsAutoTaskNavProgress &navProgress);
     void AutoTaskNext(RobotClientsNextToken &token);
     void AutoTaskAbort(RobotClientsAbortToken &token);
-    void SlamExchange(RobotClientsRealtimeNavResults status,
+    void SlamExchange(RobotClientsSlamStatus status,
       RobotClientsExchange &exchange);
-    void SlamExchange(RobotClientsRealtimeNavResults status,
+    void SlamExchange(RobotClientsSlamStatus status,
       RobotClientsExchange &exchange,
       RobotClientsMapData &mapData);
     void Shutdown();
