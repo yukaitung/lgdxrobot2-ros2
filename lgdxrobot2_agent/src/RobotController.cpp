@@ -77,11 +77,18 @@ RobotController::RobotController(rclcpp::Node::SharedPtr node,
     rclcpp::SensorDataQoS().reliable());
 }
 
-void RobotController::CloudExchange()
+void RobotController::UpdateExchange()
 {
-  if (!cloudExchangeTimer->is_canceled())
-    cloudExchangeTimer->cancel();
-
+  //exchange.set_robotstatus(robotStatus->GetStatus() == RobotClientsRobotStatus::Critical ? RobotClientsRobotStatus::Critical : RobotClientsRobotStatus::Paused);
+  exchange.set_robotstatus(robotStatus->GetStatus());
+  exchange.mutable_criticalstatus()->CopyFrom(criticalStatus);
+  auto exchangeBatteries = exchange.mutable_batteries();
+  exchangeBatteries->Clear();
+  exchangeBatteries->Reserve(batteries.size());
+  for (size_t i = 0; i < batteries.size(); i++)
+  {
+    exchangeBatteries->AddAlreadyReserved(batteries[i]);
+  }
   try
   {
     geometry_msgs::msg::TransformStamped t;
@@ -96,22 +103,25 @@ void RobotController::CloudExchange()
     double roll, pitch, yaw;
     m.getRPY(roll, pitch, yaw);
 
-    robotPosition.set_x(-(t.transform.translation.x * cos(yaw) + t.transform.translation.y * sin(yaw)));
-    robotPosition.set_y(-(-t.transform.translation.x * sin(yaw) + t.transform.translation.y * cos(yaw)));
-    robotPosition.set_rotation(yaw);
+    exchange.mutable_position()->set_x(-(t.transform.translation.x * cos(yaw) + t.transform.translation.y * sin(yaw)));
+    exchange.mutable_position()->set_y(-(-t.transform.translation.x * sin(yaw) + t.transform.translation.y * cos(yaw)));
+    exchange.mutable_position()->set_rotation(yaw);
   }
-  catch (const tf2::TransformException &ex)
+  catch (const tf2::TransformException &ex) 
   {
+    exchange.mutable_position()->set_x(0.0);
+    exchange.mutable_position()->set_y(0.0);
+    exchange.mutable_position()->set_rotation(0.0);
   }
-  batteries[0] = robotData.battery[0];
-  batteries[1] = robotData.battery[1];
+  exchange.mutable_navprogress()->CopyFrom(*navProgress);
+}
 
-  RobotClientsAutoTaskNavProgress np = *navProgress;
-  
-  robotControllerSignals->CloudExchange(criticalStatus,
-    batteries,
-    robotPosition,
-    np);
+void RobotController::CloudExchange()
+{
+  if (!cloudExchangeTimer->is_canceled())
+    cloudExchangeTimer->cancel();
+
+  robotControllerSignals->CloudExchange(exchange);
   // Don't reset the cloudExchangeTimer here
 }
 

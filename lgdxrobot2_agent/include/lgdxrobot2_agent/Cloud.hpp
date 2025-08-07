@@ -33,13 +33,11 @@ class Cloud
     std::unique_ptr<RobotClientsService::Stub> grpcRealtimeStub;
     std::unique_ptr<RobotClientsService::Stub> grpcStub;
 
-    bool isRealtimeExchange = false;
     bool isCloudSlam = false;
     std::queue<CloudFunctions> cloudErrorQueue;
     CloudErrorRetryData cloudErrorRetryData;
     std::shared_ptr<grpc::CallCredentials> accessToken;
     RobotClientsRobotCommands robotCommand;
-    std::shared_ptr<RobotStatus> robotStatus;
     std::shared_ptr<CloudSignals> cloudSignals;
 
     std::string ReadCertificate(const char *filename);
@@ -47,35 +45,22 @@ class Cloud
     std::string GetMotherBoardSerialNumber();
     #endif
     void SetSystemInfo(RobotClientsSystemInfo *info);
-
-    void ExchangePolling(RobotClientsRobotCriticalStatus &criticalStatus,
-      std::vector<double> &batteries,
-      RobotClientsDof &position,
-      RobotClientsAutoTaskNavProgress &navProgress);
-    void ExchangeStream(RobotClientsRobotCriticalStatus &criticalStatus,
-      std::vector<double> &batteries,
-      RobotClientsDof &position,
-      RobotClientsAutoTaskNavProgress &navProgress);
     void HandleError();
 
   public:
     Cloud(rclcpp::Node::SharedPtr node,
-      std::shared_ptr<CloudSignals> cloudSignalsPtr,
-      std::shared_ptr<RobotStatus> robotStatusPtr);
+      std::shared_ptr<CloudSignals> cloudSignalsPtr);
     void Greet(std::string mcuSN);
-    void Exchange(RobotClientsRobotCriticalStatus &criticalStatus,
-      std::vector<double> &batteries,
-      RobotClientsDof &position,
-      RobotClientsAutoTaskNavProgress &navProgress);
     void AutoTaskNext(RobotClientsNextToken &token);
     void AutoTaskAbort(RobotClientsAbortToken &token);
+    void Exchange(RobotClientsExchange &exchange);
     void SlamExchange(RobotClientsSlamStatus status,
       RobotClientsExchange &exchange);
     void SlamExchange(RobotClientsSlamStatus status,
       RobotClientsExchange &exchange,
       RobotClientsMapData &mapData);
-    void Shutdown();
     void Error(CloudFunctions function);
+    void Shutdown();
 };
 
 #endif // CLOUD_HPP

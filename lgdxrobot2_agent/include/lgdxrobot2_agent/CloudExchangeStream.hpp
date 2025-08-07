@@ -29,11 +29,8 @@ class CloudExchangeStream : public grpc::ClientBidiReactor<RobotClientsExchange,
     CloudExchangeStream(RobotClientsService::Stub *stub, 
       std::shared_ptr<grpc::CallCredentials> accessToken,
       std::shared_ptr<CloudSignals> cloudSignalsPtr);
-    void SendMessage(RobotClientsRobotStatus robotStatus,
-      RobotClientsRobotCriticalStatus &criticalStatus,
-      std::vector<double> &batteries,
-      RobotClientsDof &position,
-      RobotClientsAutoTaskNavProgress &navProgress);
+    ~CloudExchangeStream();
+    void SendMessage(RobotClientsExchange &exchange);
     void Shutdown();
     grpc::Status AwaitCompletion();
 };

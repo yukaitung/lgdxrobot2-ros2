@@ -41,6 +41,7 @@ class RobotController
     std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgress;
 
     // Exchange
+    RobotClientsExchange exchange;
     RobotClientsDof robotPosition;
     std::vector<double> batteries = {0.0, 0.0};
     RobotClientsRobotCriticalStatus criticalStatus;
@@ -50,6 +51,7 @@ class RobotController
     std::vector<RobotClientsPath> navigationPaths;
     std::size_t navigationProgress = 0;
 
+    void UpdateExchange();
     void CloudExchange();
 
   public:

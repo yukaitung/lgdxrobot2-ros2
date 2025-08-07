@@ -44,7 +44,7 @@ void Agent::Initalise()
   bool cloudEnable = this->get_parameter("cloud_enable").as_bool();
   if (cloudEnable)
   {
-    cloud = std::make_unique<Cloud>(shared_from_this(), cloudSignals, robotStatus);
+    cloud = std::make_unique<Cloud>(shared_from_this(), cloudSignals);
     navigation = std::make_unique<Navigation>(shared_from_this(), navigationSignals, navProgress);
   }
 
@@ -85,8 +85,7 @@ void Agent::Initalise()
     {
       cloudSignals->NextExchange.connect(boost::bind(&RobotController::OnNextCloudChange, robotController.get()));
       cloudSignals->HandleExchange.connect(boost::bind(&RobotController::OnHandleClouldExchange, robotController.get(), boost::placeholders::_1));
-      robotControllerSignals->CloudExchange.connect(boost::bind(&Cloud::Exchange, cloud.get(), 
-        boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4));
+      robotControllerSignals->CloudExchange.connect(boost::bind(&Cloud::Exchange, cloud.get(), boost::placeholders::_1));
       robotControllerSignals->NavigationStart.connect(boost::bind(&Navigation::Start, navigation.get(), boost::placeholders::_1));
       robotControllerSignals->NavigationAbort.connect(boost::bind(&Navigation::Abort, navigation.get()));
       robotControllerSignals->AutoTaskNext.connect(boost::bind(&Cloud::AutoTaskNext, cloud.get(), boost::placeholders::_1));
