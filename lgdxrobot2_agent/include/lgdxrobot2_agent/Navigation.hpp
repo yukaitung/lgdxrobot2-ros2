@@ -19,10 +19,11 @@ class Navigation
     rclcpp::Logger logger_;
 
     const int kPlanSample = 10;
+    bool isStuck = false;
     std::shared_ptr<NavigationSignals> navigationSignals;
     RobotClientsAutoTaskNavProgress lastNavProgress;
     std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgress;
-    std::shared_ptr<RobotStatus> robotStatus;
+
     rclcpp_action::Client<nav2_msgs::action::NavigateThroughPoses>::SharedPtr navThroughPosesActionClient;
     rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr planSubscription;
 
@@ -35,7 +36,6 @@ class Navigation
   public:
     Navigation(rclcpp::Node::SharedPtr node,
       std::shared_ptr<NavigationSignals> navigationSignalsPtr,
-      std::shared_ptr<RobotStatus> robotStatusPtr,
       std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgressPtr);
     void Start(std::vector<geometry_msgs::msg::PoseStamped> &poses);
     void Abort();

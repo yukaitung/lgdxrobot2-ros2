@@ -5,7 +5,9 @@
 
 struct NavigationSignals
 {
-  boost::signals2::signal<void()> NextNavigation;
+  boost::signals2::signal<void()> Next;
+  boost::signals2::signal<void()> Stuck;
+  boost::signals2::signal<void()> Cleared;
   boost::signals2::signal<void(RobotClientsAbortReason reason)> Abort;
 };
 

@@ -45,7 +45,7 @@ void Agent::Initalise()
   if (cloudEnable)
   {
     cloud = std::make_unique<Cloud>(shared_from_this(), cloudSignals, robotStatus);
-    navigation = std::make_unique<Navigation>(shared_from_this(), navigationSignals, robotStatus, navProgress);
+    navigation = std::make_unique<Navigation>(shared_from_this(), navigationSignals, navProgress);
   }
 
   // MCU
@@ -76,22 +76,24 @@ void Agent::Initalise()
         boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
       slamControllerSignals->NavigationStart.connect(boost::bind(&Navigation::Start, navigation.get(), boost::placeholders::_1));
       slamControllerSignals->NavigationAbort.connect(boost::bind(&Navigation::Abort, navigation.get()));
-      navigationSignals->NextNavigation.connect(boost::bind(&SlamController::OnNavigationDone, slamController.get()));
+      navigationSignals->Next.connect(boost::bind(&SlamController::OnNavigationDone, slamController.get()));
       navigationSignals->Abort.connect(boost::bind(&SlamController::OnNavigationAborted, slamController.get(), boost::placeholders::_1));
       slamControllerSignals->SaveMap.connect(boost::bind(&Map::Save, map.get()));
       slamControllerSignals->Shutdown.connect(boost::bind(&Agent::Shutdown, this));
     }
     else
     {
-      cloudSignals->NextExchange.connect(boost::bind(&RobotController::StatCloudExchange, robotController.get()));
-      cloudSignals->HandleExchange.connect(boost::bind(&RobotController::OnCloudExchangeDone, robotController.get(), boost::placeholders::_1));
+      cloudSignals->NextExchange.connect(boost::bind(&RobotController::OnNextCloudChange, robotController.get()));
+      cloudSignals->HandleExchange.connect(boost::bind(&RobotController::OnHandleClouldExchange, robotController.get(), boost::placeholders::_1));
       robotControllerSignals->CloudExchange.connect(boost::bind(&Cloud::Exchange, cloud.get(), 
         boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4));
       robotControllerSignals->NavigationStart.connect(boost::bind(&Navigation::Start, navigation.get(), boost::placeholders::_1));
       robotControllerSignals->NavigationAbort.connect(boost::bind(&Navigation::Abort, navigation.get()));
       robotControllerSignals->AutoTaskNext.connect(boost::bind(&Cloud::AutoTaskNext, cloud.get(), boost::placeholders::_1));
       robotControllerSignals->AutoTaskAbort.connect(boost::bind(&Cloud::AutoTaskAbort, cloud.get(), boost::placeholders::_1));
-      navigationSignals->NextNavigation.connect(boost::bind(&RobotController::NavigationStart, robotController.get()));
+      navigationSignals->Next.connect(boost::bind(&RobotController::OnNavigationStart, robotController.get()));
+      navigationSignals->Stuck.connect(boost::bind(&RobotController::OnNavigationStuck, robotController.get()));
+      navigationSignals->Cleared.connect(boost::bind(&RobotController::OnNavigationCleared, robotController.get()));
       navigationSignals->Abort.connect(boost::bind(&RobotController::CloudAutoTaskAbort, robotController.get(), boost::placeholders::_1));
     }
     cloudSignals->StreamError.connect(boost::bind(&Cloud::Error, cloud.get(), boost::placeholders::_1));

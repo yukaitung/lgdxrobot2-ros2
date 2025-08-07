@@ -57,14 +57,18 @@ class RobotController
       std::shared_ptr<RobotControllerSignals> robotControllerSignalsPtr,
       std::shared_ptr<RobotStatus> robotStatusPtr,
       std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgressPtr);
-    void StatCloudExchange();
-    void OnCloudExchangeDone(const RobotClientsRespond *respond);
+
     void OnRobotDataReceived(const RobotData &rd);
     
-    void NavigationStart();
     void CloudAutoTaskNext();
     void CloudAutoTaskAbort(RobotClientsAbortReason reason);
+    void OnNextCloudChange();
+    void OnHandleClouldExchange(const RobotClientsRespond *respond);
 
+    void OnNavigationStart();
+    void OnNavigationStuck();
+    void OnNavigationCleared();
+    
     void Shutdown();
 };
 
