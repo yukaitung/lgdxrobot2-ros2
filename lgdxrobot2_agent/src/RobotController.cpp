@@ -19,7 +19,7 @@ RobotController::RobotController(rclcpp::Node::SharedPtr node,
   
     if (isSlam)
     {
-      cloudExchangeTimer = node->create_wall_timer(std::chrono::milliseconds(500), 
+      cloudExchangeTimer = node->create_wall_timer(std::chrono::milliseconds(100), 
         std::bind(&RobotController::SlamExchange, this));
       cloudExchangeTimer->cancel();
 
