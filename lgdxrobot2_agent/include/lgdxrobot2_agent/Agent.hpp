@@ -21,7 +21,6 @@ class Agent : public rclcpp::Node
     std::unique_ptr<Navigation> navigation;
     std::unique_ptr<RobotController> robotController;
     std::unique_ptr<Sensors> sensors;
-    std::unique_ptr<SlamController> slamController;
 
     std::shared_ptr<CloudSignals> cloudSignals;
     std::shared_ptr<McuSignals> mcuSignals;
@@ -30,7 +29,6 @@ class Agent : public rclcpp::Node
     std::shared_ptr<SensorSignals> sensorSignals;
     std::shared_ptr<SlamControllerSignals> slamControllerSignals;
 
-    std::shared_ptr<RobotStatus> robotStatus;
     std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgress;
 
   public:

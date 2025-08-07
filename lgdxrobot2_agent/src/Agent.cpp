@@ -27,18 +27,8 @@ void Agent::Initalise()
   slamControllerSignals = std::make_shared<SlamControllerSignals>();
 
   // Main Controller
-  robotStatus = std::make_shared<RobotStatus>();
   navProgress = std::make_shared<RobotClientsAutoTaskNavProgress>();
-  bool cloudSlamEnable = this->get_parameter("cloud_slam_enable").as_bool();
-  if (cloudSlamEnable)
-  {
-    slamController = std::make_unique<SlamController>(shared_from_this(), slamControllerSignals, robotStatus, navProgress);
-    map = std::make_unique<Map>(shared_from_this());
-  }
-  else
-  {
-    robotController = std::make_unique<RobotController>(shared_from_this(), robotControllerSignals, robotStatus, navProgress);
-  }
+  robotController = std::make_unique<RobotController>(shared_from_this(), robotControllerSignals, navProgress);
 
   // Cloud
   bool cloudEnable = this->get_parameter("cloud_enable").as_bool();
@@ -46,6 +36,11 @@ void Agent::Initalise()
   {
     cloud = std::make_unique<Cloud>(shared_from_this(), cloudSignals);
     navigation = std::make_unique<Navigation>(shared_from_this(), navigationSignals, navProgress);
+  }
+  bool cloudSlamEnable = this->get_parameter("cloud_slam_enable").as_bool();
+  if (cloudSlamEnable)
+  {
+    map = std::make_unique<Map>(shared_from_this());
   }
 
   // MCU
@@ -66,48 +61,41 @@ void Agent::Initalise()
   // Signals
   if (cloudEnable)
   {
+    robotControllerSignals->NavigationStart.connect(boost::bind(&Navigation::Start, navigation.get(), boost::placeholders::_1));
+    robotControllerSignals->NavigationAbort.connect(boost::bind(&Navigation::Abort, navigation.get()));
+    robotControllerSignals->AutoTaskNext.connect(boost::bind(&Cloud::AutoTaskNext, cloud.get(), boost::placeholders::_1));
+    robotControllerSignals->AutoTaskAbort.connect(boost::bind(&Cloud::AutoTaskAbort, cloud.get(), boost::placeholders::_1));
+
+    navigationSignals->Done.connect(boost::bind(&RobotController::OnNavigationDone, robotController.get()));
+    navigationSignals->Stuck.connect(boost::bind(&RobotController::OnNavigationStuck, robotController.get()));
+    navigationSignals->Cleared.connect(boost::bind(&RobotController::OnNavigationCleared, robotController.get()));
+    navigationSignals->Abort.connect(boost::bind(&RobotController::OnNavigationAborted, robotController.get()));
+
+    cloudSignals->StreamError.connect(boost::bind(&Cloud::Error, cloud.get(), boost::placeholders::_1));
     if (cloudSlamEnable)
     {
-      cloudSignals->NextExchange.connect(boost::bind(&SlamController::StatSlamExchange, slamController.get()));
-      cloudSignals->HandleSlamExchange.connect(boost::bind(&SlamController::OnSlamExchangeDone, slamController.get(), boost::placeholders::_1));
-      slamControllerSignals->SlamExchange2.connect(boost::bind(&Cloud::SlamExchange, cloud.get(), 
+      robotControllerSignals->SlamExchange2.connect(boost::bind(&Cloud::SlamExchange, cloud.get(), 
         boost::placeholders::_1, boost::placeholders::_2));
-      slamControllerSignals->SlamExchange3.connect(boost::bind(&Cloud::SlamExchange, cloud.get(), 
+      robotControllerSignals->SlamExchange3.connect(boost::bind(&Cloud::SlamExchange, cloud.get(), 
         boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
-      slamControllerSignals->NavigationStart.connect(boost::bind(&Navigation::Start, navigation.get(), boost::placeholders::_1));
-      slamControllerSignals->NavigationAbort.connect(boost::bind(&Navigation::Abort, navigation.get()));
-      navigationSignals->Next.connect(boost::bind(&SlamController::OnNavigationDone, slamController.get()));
-      navigationSignals->Abort.connect(boost::bind(&SlamController::OnNavigationAborted, slamController.get(), boost::placeholders::_1));
-      slamControllerSignals->SaveMap.connect(boost::bind(&Map::Save, map.get()));
-      slamControllerSignals->Shutdown.connect(boost::bind(&Agent::Shutdown, this));
+      robotControllerSignals->SaveMap.connect(boost::bind(&Map::Save, map.get()));
+      robotControllerSignals->Shutdown.connect(boost::bind(&Agent::Shutdown, this));
+
+      cloudSignals->NextExchange.connect(boost::bind(&RobotController::OnNextSlamExchange, robotController.get()));
+      cloudSignals->HandleSlamExchange.connect(boost::bind(&RobotController::OnHandleSlamExchange, robotController.get(), boost::placeholders::_1));
     }
     else
     {
+      robotControllerSignals->CloudExchange.connect(boost::bind(&Cloud::Exchange, cloud.get(), boost::placeholders::_1));
+
       cloudSignals->NextExchange.connect(boost::bind(&RobotController::OnNextCloudChange, robotController.get()));
       cloudSignals->HandleExchange.connect(boost::bind(&RobotController::OnHandleClouldExchange, robotController.get(), boost::placeholders::_1));
-      robotControllerSignals->CloudExchange.connect(boost::bind(&Cloud::Exchange, cloud.get(), boost::placeholders::_1));
-      robotControllerSignals->NavigationStart.connect(boost::bind(&Navigation::Start, navigation.get(), boost::placeholders::_1));
-      robotControllerSignals->NavigationAbort.connect(boost::bind(&Navigation::Abort, navigation.get()));
-      robotControllerSignals->AutoTaskNext.connect(boost::bind(&Cloud::AutoTaskNext, cloud.get(), boost::placeholders::_1));
-      robotControllerSignals->AutoTaskAbort.connect(boost::bind(&Cloud::AutoTaskAbort, cloud.get(), boost::placeholders::_1));
-      navigationSignals->Next.connect(boost::bind(&RobotController::OnNavigationStart, robotController.get()));
-      navigationSignals->Stuck.connect(boost::bind(&RobotController::OnNavigationStuck, robotController.get()));
-      navigationSignals->Cleared.connect(boost::bind(&RobotController::OnNavigationCleared, robotController.get()));
-      navigationSignals->Abort.connect(boost::bind(&RobotController::CloudAutoTaskAbort, robotController.get(), boost::placeholders::_1));
     }
-    cloudSignals->StreamError.connect(boost::bind(&Cloud::Error, cloud.get(), boost::placeholders::_1));
   }
   if (mcuEnable)
   {
     mcuSignals->UpdateRobotData.connect(boost::bind(&Sensors::PublishOdom, sensors.get(), boost::placeholders::_1));
-    if (cloudSlamEnable)
-    {
-      mcuSignals->UpdateRobotData.connect(boost::bind(&SlamController::OnRobotDataReceived, slamController.get(), boost::placeholders::_1));
-    }
-    else
-    {
-      mcuSignals->UpdateRobotData.connect(boost::bind(&RobotController::OnRobotDataReceived, robotController.get(), boost::placeholders::_1));
-    }
+    mcuSignals->UpdateRobotData.connect(boost::bind(&RobotController::OnRobotDataReceived, robotController.get(), boost::placeholders::_1));
     if (cloudEnable)
     {
       // Start connection if MCU serial number obtained
@@ -137,10 +125,6 @@ void Agent::Shutdown()
   if (robotController != nullptr)
   {
     robotController->Shutdown();
-  }
-  if (slamController != nullptr)
-  {
-    slamController->Shutdown();
   }
   rclcpp::shutdown();
   exit(0);

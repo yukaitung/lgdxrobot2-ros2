@@ -167,24 +167,19 @@ void Cloud::Greet(std::string mcuSN)
     if (status.ok()) 
     {
       accessToken = grpc::AccessTokenCredentials(respond->accesstoken());
+      if (grpcRealtimeStub == nullptr)
+      {
+        grpcRealtimeStub = RobotClientsService::NewStub(grpcChannel);
+      }
       if (isCloudSlam)
       {
         RCLCPP_INFO(logger_, "Connect to the cloud, start SLAM data exchange.");
-        if (grpcRealtimeStub == nullptr)
-        {
-          grpcRealtimeStub = RobotClientsService::NewStub(grpcChannel);
-        }
         slamExchangeStream = std::make_unique<SlamExchangeStream>(grpcRealtimeStub.get(), accessToken, cloudSignals);
       }
       else
       {
         RCLCPP_INFO(logger_, "Connect to the cloud, start data exchange.");
         cloudSignals->Connected();
-        if (grpcRealtimeStub == nullptr)
-        {
-          grpcRealtimeStub = RobotClientsService::NewStub(grpcChannel);
-        }
-        grpcRealtimeStub = RobotClientsService::NewStub(grpcChannel);
         cloudExchangeStream = std::make_unique<CloudExchangeStream>(grpcRealtimeStub.get(), accessToken, cloudSignals);
       }
       // Start the timer to exchange data

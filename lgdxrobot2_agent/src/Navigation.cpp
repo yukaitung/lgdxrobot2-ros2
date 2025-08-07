@@ -21,7 +21,7 @@ void Navigation::Response(const rclcpp_action::ClientGoalHandle<nav2_msgs::actio
   if (!goalHandle)
   {
     RCLCPP_ERROR(logger_, "navThroughPoses goal was rejected by server, the task will be aborted.");
-    navigationSignals->Abort(RobotClientsAbortReason::NavStack);
+    navigationSignals->Abort();
   }
 }
 
@@ -71,12 +71,12 @@ void Navigation::Result(const rclcpp_action::ClientGoalHandle<nav2_msgs::action:
   switch (result.code)
   {
     case rclcpp_action::ResultCode::SUCCEEDED:
-      navigationSignals->Next();
+      navigationSignals->Done();
       break;
     case rclcpp_action::ResultCode::ABORTED:
     case rclcpp_action::ResultCode::CANCELED:
     default:
-      navigationSignals->Abort(RobotClientsAbortReason::NavStack);
+      navigationSignals->Abort();
       return;
   }
 	navProgress->clear_plan();
@@ -140,7 +140,7 @@ void Navigation::Abort()
       }
     );
   }
-  navigationSignals->Abort(RobotClientsAbortReason::NavStack);
+  navigationSignals->Abort();
   navProgress->clear_plan();
   isStuck = false;
 }

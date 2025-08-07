@@ -10,6 +10,7 @@
 #include "Structs/RobotControllerSignals.hpp"
 #include "Structs/RobotData.hpp"
 
+#include "nav_msgs/msg/occupancy_grid.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
@@ -28,6 +29,8 @@ class RobotController
 
     rclcpp::Service<lgdxrobot2_agent::srv::AutoTaskNext>::SharedPtr autoTaskNextService;
     rclcpp::Service<lgdxrobot2_agent::srv::AutoTaskAbort>::SharedPtr autoTaskAbortService;
+
+    rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr mapSubscription;
     
     std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tfBuffer;
@@ -35,10 +38,16 @@ class RobotController
     std::shared_ptr<RobotControllerSignals> robotControllerSignals;
 
     // Robot Data
-    std::shared_ptr<RobotStatus> robotStatus;
+    bool isSlam = false;
+    RobotStatus robotStatus;
     lgdxrobot2_agent::msg::RobotData robotData;
     RobotClientsRobotCommands currentCommands;
     std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgress;
+    // Robot Data: SLAM
+    bool mapHasUpdated = false;
+    bool overwriteGoal = false;
+    RobotClientsMapData mapData;
+    RobotClientsSlamStatus slamStatus = RobotClientsSlamStatus::SlamIdle;
 
     // Exchange
     RobotClientsExchange exchange;
@@ -54,10 +63,12 @@ class RobotController
     void UpdateExchange();
     void CloudExchange();
 
+    void SlamExchange();
+    void OnSlamMapUpdate(const nav_msgs::msg::OccupancyGrid &msg);
+
   public:
     RobotController(rclcpp::Node::SharedPtr node,
       std::shared_ptr<RobotControllerSignals> robotControllerSignalsPtr,
-      std::shared_ptr<RobotStatus> robotStatusPtr,
       std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgressPtr);
 
     void OnRobotDataReceived(const RobotData &rd);
@@ -68,8 +79,13 @@ class RobotController
     void OnHandleClouldExchange(const RobotClientsRespond *respond);
 
     void OnNavigationStart();
+    void OnNavigationDone();
+    void OnNavigationAborted();
     void OnNavigationStuck();
     void OnNavigationCleared();
+
+    void OnNextSlamExchange();
+    void OnHandleSlamExchange(const RobotClientsSlamCommands *respond);
     
     void Shutdown();
 };

@@ -5,10 +5,10 @@
 
 struct NavigationSignals
 {
-  boost::signals2::signal<void()> Next;
+  boost::signals2::signal<void()> Done;
   boost::signals2::signal<void()> Stuck;
   boost::signals2::signal<void()> Cleared;
-  boost::signals2::signal<void(RobotClientsAbortReason reason)> Abort;
+  boost::signals2::signal<void()> Abort;
 };
 
 #endif // NAVIGATION_SIGNALS_HPP
