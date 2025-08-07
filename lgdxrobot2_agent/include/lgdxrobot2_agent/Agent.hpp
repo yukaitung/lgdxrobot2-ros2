@@ -10,7 +10,6 @@
 #include "RobotController.hpp"
 #include "RobotStatus.hpp"
 #include "Sensors.hpp"
-#include "SlamController.hpp"
 
 class Agent : public rclcpp::Node
 {
@@ -27,7 +26,6 @@ class Agent : public rclcpp::Node
     std::shared_ptr<NavigationSignals> navigationSignals;
     std::shared_ptr<RobotControllerSignals> robotControllerSignals;
     std::shared_ptr<SensorSignals> sensorSignals;
-    std::shared_ptr<SlamControllerSignals> slamControllerSignals;
 
     std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgress;
 

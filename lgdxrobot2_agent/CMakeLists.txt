@@ -74,7 +74,6 @@ add_executable(${EXECUTABLE_NAME}
   src/RobotController.cpp
   src/RobotStatus.cpp
   src/Sensors.cpp
-  src/SlamController.cpp
   src/SlamExchangeStream.cpp
 )
 target_link_libraries(${EXECUTABLE_NAME} 

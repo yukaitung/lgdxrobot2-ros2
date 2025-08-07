@@ -15,8 +15,7 @@ struct RobotControllerSignals
   boost::signals2::signal<void(RobotClientsNextToken &)> AutoTaskNext;
   boost::signals2::signal<void(RobotClientsAbortToken &)> AutoTaskAbort;
 
-  boost::signals2::signal<void(RobotClientsSlamStatus, RobotClientsExchange &)> SlamExchange2;
-  boost::signals2::signal<void(RobotClientsSlamStatus, RobotClientsExchange &, RobotClientsMapData &)> SlamExchange3;
+  boost::signals2::signal<void(RobotClientsSlamExchange &)> SlamExchange;
   boost::signals2::signal<void()> SaveMap;
   boost::signals2::signal<void()> Shutdown;
 };

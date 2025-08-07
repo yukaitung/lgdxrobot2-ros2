@@ -46,6 +46,7 @@ class RobotController
     // Robot Data: SLAM
     bool mapHasUpdated = false;
     bool overwriteGoal = false;
+    RobotClientsSlamExchange slamExchange;
     RobotClientsMapData mapData;
     RobotClientsSlamStatus slamStatus = RobotClientsSlamStatus::SlamIdle;
 

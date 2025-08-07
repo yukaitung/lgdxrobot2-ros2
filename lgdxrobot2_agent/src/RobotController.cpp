@@ -148,19 +148,19 @@ void RobotController::CloudExchange()
 void RobotController::SlamExchange()
 {
   if (!cloudExchangeTimer->is_canceled())
-    cloudExchangeTimer->cancel();
+  cloudExchangeTimer->cancel();
 
   UpdateExchange();
 
+  slamExchange.clear_mapdata();
+  slamExchange.set_status(slamStatus);
+  slamExchange.mutable_exchange()->CopyFrom(exchange);
   if (mapHasUpdated)
   {
-    robotControllerSignals->SlamExchange3(slamStatus, exchange, mapData);
+    slamExchange.mutable_mapdata()->CopyFrom(mapData);
     mapHasUpdated = false;
   }
-  else
-  {
-    robotControllerSignals->SlamExchange2(slamStatus, exchange);
-  }
+  robotControllerSignals->SlamExchange(slamExchange);
   // Don't reset the slamExchangeTimer here
 }
 
@@ -272,7 +272,6 @@ void RobotController::CloudAutoTaskAbort(RobotClientsAbortReason reason)
     robotControllerSignals->AutoTaskAbort(token);
   }
 }
-
 
 void RobotController::OnNextCloudChange()
 {
@@ -423,21 +422,7 @@ void RobotController::OnNavigationAborted()
 
 void RobotController::OnNextSlamExchange()
 {
-  if (!cloudExchangeTimer->is_canceled())
-  cloudExchangeTimer->cancel();
-
-  UpdateExchange();
-
-  if (mapHasUpdated)
-  {
-    robotControllerSignals->SlamExchange3(slamStatus, exchange, mapData);
-    mapHasUpdated = false;
-  }
-  else
-  {
-    robotControllerSignals->SlamExchange2(slamStatus, exchange);
-  }
-  // Don't reset the slamExchangeTimer here
+  cloudExchangeTimer->reset();
 }
 
 void RobotController::OnHandleSlamExchange(const RobotClientsSlamCommands *respond)

@@ -54,30 +54,13 @@ void SlamExchangeStream::OnDone(const grpc::Status& status)
   cv.notify_one();
 }
 
-void SlamExchangeStream::SendMessage(RobotClientsSlamStatus status,
-  RobotClientsExchange &exchange)
+void SlamExchangeStream::SendMessage(RobotClientsSlamExchange &data)
 {
   if (isShutdown)
   {
     return;
   }
-  requestPtr->set_status(status);
-  requestPtr->mutable_exchange()->CopyFrom(exchange);
-  requestPtr->mutable_mapdata()->Clear();
-  StartWrite(requestPtr);
-}
-
-void SlamExchangeStream::SendMessage(RobotClientsSlamStatus status,
-  RobotClientsExchange &exchange,
-  RobotClientsMapData &mapData)
-{
-  if (isShutdown)
-  {
-    return;
-  }
-  requestPtr->set_status(status);
-  requestPtr->mutable_exchange()->CopyFrom(exchange);
-  requestPtr->mutable_mapdata()->CopyFrom(mapData);
+  *requestPtr = data;
   StartWrite(requestPtr);
 }
 

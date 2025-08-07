@@ -266,22 +266,11 @@ void Cloud::Exchange(RobotClientsExchange &exchange)
   }
 }
 
-void Cloud::SlamExchange(RobotClientsSlamStatus status,
-  RobotClientsExchange &exchange)
+void Cloud::SlamExchange(RobotClientsSlamExchange &data)
 {
   if (slamExchangeStream != nullptr)
   {
-    slamExchangeStream->SendMessage(status, exchange);
-  }
-}
-
-void Cloud::SlamExchange(RobotClientsSlamStatus status,
-  RobotClientsExchange &exchange,
-  RobotClientsMapData &mapData)
-{
-  if (slamExchangeStream != nullptr)
-  {
-    slamExchangeStream->SendMessage(status, exchange, mapData);
+    slamExchangeStream->SendMessage(data);
   }
 }
 

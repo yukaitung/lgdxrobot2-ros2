@@ -24,7 +24,6 @@ void Agent::Initalise()
   navigationSignals = std::make_shared<NavigationSignals>();
   robotControllerSignals = std::make_shared<RobotControllerSignals>();
   sensorSignals = std::make_shared<SensorSignals>();
-  slamControllerSignals = std::make_shared<SlamControllerSignals>();
 
   // Main Controller
   navProgress = std::make_shared<RobotClientsAutoTaskNavProgress>();
@@ -74,10 +73,7 @@ void Agent::Initalise()
     cloudSignals->StreamError.connect(boost::bind(&Cloud::Error, cloud.get(), boost::placeholders::_1));
     if (cloudSlamEnable)
     {
-      robotControllerSignals->SlamExchange2.connect(boost::bind(&Cloud::SlamExchange, cloud.get(), 
-        boost::placeholders::_1, boost::placeholders::_2));
-      robotControllerSignals->SlamExchange3.connect(boost::bind(&Cloud::SlamExchange, cloud.get(), 
-        boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
+      robotControllerSignals->SlamExchange.connect(boost::bind(&Cloud::SlamExchange, cloud.get(), boost::placeholders::_1));
       robotControllerSignals->SaveMap.connect(boost::bind(&Map::Save, map.get()));
       robotControllerSignals->Shutdown.connect(boost::bind(&Agent::Shutdown, this));
 

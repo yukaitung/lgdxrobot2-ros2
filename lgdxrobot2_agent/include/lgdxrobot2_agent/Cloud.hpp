@@ -54,11 +54,7 @@ class Cloud
     void AutoTaskNext(RobotClientsNextToken &token);
     void AutoTaskAbort(RobotClientsAbortToken &token);
     void Exchange(RobotClientsExchange &exchange);
-    void SlamExchange(RobotClientsSlamStatus status,
-      RobotClientsExchange &exchange);
-    void SlamExchange(RobotClientsSlamStatus status,
-      RobotClientsExchange &exchange,
-      RobotClientsMapData &mapData);
+    void SlamExchange(RobotClientsSlamExchange &data);
     void Error(CloudFunctions function);
     void Shutdown();
 };

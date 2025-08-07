@@ -30,11 +30,7 @@ class SlamExchangeStream : public grpc::ClientBidiReactor<RobotClientsSlamExchan
       std::shared_ptr<grpc::CallCredentials> accessToken,
       std::shared_ptr<CloudSignals> cloudSignalsPtr);
     ~SlamExchangeStream();
-    void SendMessage(RobotClientsSlamStatus status,
-      RobotClientsExchange &exchange);
-    void SendMessage(RobotClientsSlamStatus status,
-      RobotClientsExchange &exchange,
-      RobotClientsMapData &mapData);
+    void SendMessage(RobotClientsSlamExchange &data);
     void Shutdown();
     grpc::Status AwaitCompletion();
 };
