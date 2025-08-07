@@ -60,7 +60,7 @@ void Agent::Initalise()
   if (mcuEnable && simEnable)
   {
     RCLCPP_FATAL(this->get_logger(), "Simulation and MCU cannot be enabled at the same time.");
-    exit(0);
+    Shutdown();
   }
 
   // Signals
@@ -79,6 +79,7 @@ void Agent::Initalise()
       navigationSignals->NextNavigation.connect(boost::bind(&SlamController::OnNavigationDone, slamController.get()));
       navigationSignals->Abort.connect(boost::bind(&SlamController::OnNavigationAborted, slamController.get(), boost::placeholders::_1));
       slamControllerSignals->SaveMap.connect(boost::bind(&Map::Save, map.get()));
+      slamControllerSignals->Shutdown.connect(boost::bind(&Agent::Shutdown, this));
     }
     else
     {
@@ -127,6 +128,7 @@ void Agent::Initalise()
 
 void Agent::Shutdown()
 {
+  RCLCPP_INFO(this->get_logger(), "Shutting down agent");
   if (cloud != nullptr)
   {
     cloud->Shutdown();
@@ -139,4 +141,6 @@ void Agent::Shutdown()
   {
     slamController->Shutdown();
   }
+  rclcpp::shutdown();
+  exit(0);
 }

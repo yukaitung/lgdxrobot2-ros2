@@ -88,7 +88,7 @@ void SlamController::MapCallback(const nav_msgs::msg::OccupancyGrid &msg)
 
 void SlamController::UpdateExchange()
 {
-  exchange.set_robotstatus(RobotClientsRobotStatus::Paused);
+  exchange.set_robotstatus(robotStatus->GetStatus() == RobotClientsRobotStatus::Critical ? RobotClientsRobotStatus::Critical : RobotClientsRobotStatus::Paused);
   exchange.mutable_criticalstatus()->CopyFrom(criticalStatus);
   auto exchangeBatteries = exchange.mutable_batteries();
   exchangeBatteries->Clear();
@@ -200,14 +200,16 @@ void SlamController::OnSlamExchangeDone(const RobotClientsSlamCommands *respond)
   if (respond->has_abortslam() && respond->abortslam() == true)
   {
     RCLCPP_INFO(logger_, "Aborting the current SLAM");
-    std::raise(SIGTERM);
+    slamControllerSignals->NavigationAbort();
+    slamControllerSignals->Shutdown();
   }
   if (respond->has_completeslam() && respond->completeslam() == true)
   {
+    slamControllerSignals->NavigationAbort();
     RCLCPP_INFO(logger_, "Completing the current SLAM and saving the map with 5 seconds blocking");
     slamControllerSignals->SaveMap();
     std::this_thread::sleep_for(std::chrono::seconds(5));
-    std::raise(SIGTERM);
+    slamControllerSignals->Shutdown();
   }
 }
 

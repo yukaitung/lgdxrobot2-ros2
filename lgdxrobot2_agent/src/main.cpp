@@ -6,7 +6,5 @@ int main(int argc, char **argv)
   auto node = std::make_shared<Agent>();
   node->Initalise();
   rclcpp::spin(node);
-  node->Shutdown();
-  rclcpp::shutdown();
   return 0;
 }

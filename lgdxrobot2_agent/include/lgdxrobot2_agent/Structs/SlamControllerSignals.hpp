@@ -17,6 +17,7 @@ struct SlamControllerSignals
   boost::signals2::signal<void(std::vector<geometry_msgs::msg::PoseStamped> &)> NavigationStart;
   boost::signals2::signal<void()> NavigationAbort;
   boost::signals2::signal<void()> SaveMap;
+  boost::signals2::signal<void()> Shutdown;
 };
 
 #endif // SLAM_CONTROLLER_SIGNALS_HPP
