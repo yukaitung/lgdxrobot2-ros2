@@ -1,0 +1,203 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "../protos/LGDXRobot2.proto"
+
+WorldInfo {
+  contactProperties [
+    ContactProperties {
+      material1 "InteriorWheelMat"
+      coulombFriction [
+        0, 2, 0
+      ]
+      frictionRotation -0.785398 0
+      bounce 0
+      forceDependentSlip [
+        10, 0
+      ]
+    }
+    ContactProperties {
+      material1 "ExteriorWheelMat"
+      coulombFriction [
+        0, 2, 0
+      ]
+      frictionRotation 0.785398 0
+      bounce 0
+      forceDependentSlip [
+        10, 0
+      ]
+    }
+  ]
+}
+Viewpoint {
+  orientation -0.0005166228011171463 -0.999999738450129 0.0005061625774955911 4.69193504568437
+  position 0.3859889238295248 -0.10023077553875381 20.70697552352775
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 10 10
+  wallHeight 0.5
+}
+LGDXRobot2 {
+  translation -4.13 -3.98 0
+  rotation 0 0 -1 -5.307179586466759e-06
+  controller "<extern>"
+  name "LGDXRobot2"
+}
+Solid {
+  translation 2.5 3.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf1"
+  boundingObject Box {
+    size 3 1 1
+  }
+}
+Solid {
+  translation -2.5 3.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf2"
+  boundingObject Box {
+    size 3 1 1
+  }
+}
+Solid {
+  translation -2.5 1.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf3"
+  boundingObject Box {
+    size 3 1 1
+  }
+}
+Solid {
+  translation 2.5 1.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf6"
+  boundingObject Box {
+    size 3 1 1
+  }
+}
+Solid {
+  translation -2.5 -0.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf4"
+  boundingObject Box {
+    size 3 1 1
+  }
+}
+Solid {
+  translation 2.5 -0.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf7"
+  boundingObject Box {
+    size 3 1 1
+  }
+}
+Solid {
+  translation -2.5 -2.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf5"
+  boundingObject Box {
+    size 3 1 1
+  }
+}
+Solid {
+  translation 2.5 -2.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf8"
+  boundingObject Box {
+    size 3 1 1
+  }
+}

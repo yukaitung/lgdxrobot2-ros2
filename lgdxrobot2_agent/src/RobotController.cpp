@@ -268,7 +268,8 @@ void RobotController::CloudAutoTaskAbort(RobotClientsAbortReason reason)
 {
   if (!currentTask.next_token.empty())
   {
-    robotStatus.TaskAborting();
+    //robotStatus.TaskAborting();
+    robotStatus.TaskCompleted();
     RCLCPP_INFO(logger_, "AutoTask will be aborted.");
     RobotClientsAbortToken token;
     token.set_taskid(currentTask.task_id);

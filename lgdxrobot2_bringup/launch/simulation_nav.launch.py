@@ -249,7 +249,7 @@ def launch_setup(context):
       'cloud_root_cert': '/home/user/keys/root.crt',
       'cloud_client_key': '/home/user/keys/Robot1.key',
       'cloud_client_cert': '/home/user/keys/Robot1.crt',
-      'cloud_slam_enable': True,
+      'cloud_slam_enable': False,
       'sim_enable': True,
     }],
     remappings=[
