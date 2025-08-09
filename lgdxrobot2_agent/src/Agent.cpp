@@ -84,6 +84,7 @@ void Agent::Initalise()
     {
       robotControllerSignals->CloudExchange.connect(boost::bind(&Cloud::Exchange, cloud.get(), boost::placeholders::_1));
 
+      cloudSignals->Connected.connect(boost::bind(&RobotController::OnConnectedCloud, robotController.get()));
       cloudSignals->NextExchange.connect(boost::bind(&RobotController::OnNextCloudChange, robotController.get()));
       cloudSignals->HandleExchange.connect(boost::bind(&RobotController::OnHandleClouldExchange, robotController.get(), boost::placeholders::_1));
     }

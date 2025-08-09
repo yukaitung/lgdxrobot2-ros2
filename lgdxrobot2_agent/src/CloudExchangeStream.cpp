@@ -8,7 +8,7 @@ CloudExchangeStream::CloudExchangeStream(RobotClientsService::Stub *stub,
 
   cloudSignals = cloudSignalsPtr;
   context.set_credentials(accessToken);
-  stub->async()->ExchangeStream(&context, this);
+  stub->async()->Exchange(&context, this);
   StartRead(&respond);
   StartCall();
 }

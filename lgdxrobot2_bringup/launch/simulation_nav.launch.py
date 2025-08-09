@@ -9,11 +9,14 @@ cd lgdx_ws # The location of the source code
 ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True profile:='sim-slam'
 ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True use_explore_lite:=True profile:='sim-slam'
 
-# With cloud
+# NAV2 SLAM With cloud
 ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True use_cloud:=True profile:='sim-slam' cloud_address:='192.168.1.10:5162'
 
 # NAV2 Localisation
 ros2 launch lgdxrobot2_bringup simulation_nav.launch.py
+
+# NAV2 Localisation With cloud
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py use_cloud:=True cloud_address:='192.168.1.10:5162'
 """
 
 from launch.conditions import IfCondition

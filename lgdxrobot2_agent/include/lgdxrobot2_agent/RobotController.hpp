@@ -74,6 +74,7 @@ class RobotController
 
     void OnRobotDataReceived(const RobotData &rd);
     
+    void OnConnectedCloud();
     void CloudAutoTaskNext();
     void CloudAutoTaskAbort(RobotClientsAbortReason reason);
     void OnNextCloudChange();

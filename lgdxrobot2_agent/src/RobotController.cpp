@@ -19,7 +19,7 @@ RobotController::RobotController(rclcpp::Node::SharedPtr node,
   
     if (isSlam)
     {
-      cloudExchangeTimer = node->create_wall_timer(std::chrono::milliseconds(100), 
+      cloudExchangeTimer = node->create_wall_timer(std::chrono::milliseconds(200), 
         std::bind(&RobotController::SlamExchange, this));
       cloudExchangeTimer->cancel();
 
@@ -245,6 +245,11 @@ void RobotController::OnRobotDataReceived(const RobotData &rd)
   robotData.battery[1] = rd.battery[1];
   robotData.e_stop[0] = rd.eStop[0];
   robotData.e_stop[1] = rd.eStop[1];
+}
+
+void RobotController::OnConnectedCloud()
+{
+  robotStatus.ConnnectedCloud();
 }
 
 void RobotController::CloudAutoTaskNext()
