@@ -62,18 +62,18 @@ void Agent::Initalise()
   {
     robotControllerSignals->NavigationStart.connect(boost::bind(&Navigation::Start, navigation.get(), boost::placeholders::_1));
     robotControllerSignals->NavigationAbort.connect(boost::bind(&Navigation::Abort, navigation.get()));
-    robotControllerSignals->AutoTaskNext.connect(boost::bind(&Cloud::AutoTaskNext, cloud.get(), boost::placeholders::_1));
-    robotControllerSignals->AutoTaskAbort.connect(boost::bind(&Cloud::AutoTaskAbort, cloud.get(), boost::placeholders::_1));
 
     navigationSignals->Done.connect(boost::bind(&RobotController::OnNavigationDone, robotController.get()));
     navigationSignals->Stuck.connect(boost::bind(&RobotController::OnNavigationStuck, robotController.get()));
     navigationSignals->Cleared.connect(boost::bind(&RobotController::OnNavigationCleared, robotController.get()));
     navigationSignals->Abort.connect(boost::bind(&RobotController::OnNavigationAborted, robotController.get()));
 
-    cloudSignals->StreamError.connect(boost::bind(&Cloud::Error, cloud.get(), boost::placeholders::_1));
+    cloudSignals->StreamError.connect(boost::bind(&Cloud::OnErrorOccured, cloud.get()));
+
     if (cloudSlamEnable)
     {
-      robotControllerSignals->SlamExchange.connect(boost::bind(&Cloud::SlamExchange, cloud.get(), boost::placeholders::_1));
+      robotControllerSignals->SlamExchange.connect(boost::bind(&Cloud::SlamExchange, cloud.get(),
+        boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
       robotControllerSignals->SaveMap.connect(boost::bind(&Map::Save, map.get()));
       robotControllerSignals->Shutdown.connect(boost::bind(&Agent::Shutdown, this));
 
@@ -82,7 +82,8 @@ void Agent::Initalise()
     }
     else
     {
-      robotControllerSignals->CloudExchange.connect(boost::bind(&Cloud::Exchange, cloud.get(), boost::placeholders::_1));
+      robotControllerSignals->CloudExchange.connect(boost::bind(&Cloud::Exchange, cloud.get(),
+        boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
 
       cloudSignals->Connected.connect(boost::bind(&RobotController::OnConnectedCloud, robotController.get()));
       cloudSignals->NextExchange.connect(boost::bind(&RobotController::OnNextCloudChange, robotController.get()));

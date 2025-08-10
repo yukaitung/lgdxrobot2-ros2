@@ -93,14 +93,14 @@ void RobotController::UpdateExchange()
 {
   if (isSlam)
   {
-    exchange.set_robotstatus(robotStatus.GetStatus() == RobotClientsRobotStatus::Critical ? RobotClientsRobotStatus::Critical : RobotClientsRobotStatus::Paused);
+    exchangeRobotData.set_robotstatus(robotStatus.GetStatus() == RobotClientsRobotStatus::Critical ? RobotClientsRobotStatus::Critical : RobotClientsRobotStatus::Paused);
   }
   else
   {
-    exchange.set_robotstatus(robotStatus.GetStatus());
+    exchangeRobotData.set_robotstatus(robotStatus.GetStatus());
   }
-  exchange.mutable_criticalstatus()->CopyFrom(criticalStatus);
-  auto exchangeBatteries = exchange.mutable_batteries();
+  exchangeRobotData.mutable_criticalstatus()->CopyFrom(criticalStatus);
+  auto exchangeBatteries = exchangeRobotData.mutable_batteries();
   exchangeBatteries->Clear();
   exchangeBatteries->Reserve(batteries.size());
   for (size_t i = 0; i < batteries.size(); i++)
@@ -121,17 +121,17 @@ void RobotController::UpdateExchange()
     double roll, pitch, yaw;
     m.getRPY(roll, pitch, yaw);
 
-    exchange.mutable_position()->set_x(-(t.transform.translation.x * cos(yaw) + t.transform.translation.y * sin(yaw)));
-    exchange.mutable_position()->set_y(-(-t.transform.translation.x * sin(yaw) + t.transform.translation.y * cos(yaw)));
-    exchange.mutable_position()->set_rotation(yaw);
+    exchangeRobotData.mutable_position()->set_x(-(t.transform.translation.x * cos(yaw) + t.transform.translation.y * sin(yaw)));
+    exchangeRobotData.mutable_position()->set_y(-(-t.transform.translation.x * sin(yaw) + t.transform.translation.y * cos(yaw)));
+    exchangeRobotData.mutable_position()->set_rotation(yaw);
   }
   catch (const tf2::TransformException &ex) 
   {
-    exchange.mutable_position()->set_x(0.0);
-    exchange.mutable_position()->set_y(0.0);
-    exchange.mutable_position()->set_rotation(0.0);
+    exchangeRobotData.mutable_position()->set_x(0.0);
+    exchangeRobotData.mutable_position()->set_y(0.0);
+    exchangeRobotData.mutable_position()->set_rotation(0.0);
   }
-  exchange.mutable_navprogress()->CopyFrom(*navProgress);
+  exchangeRobotData.mutable_navprogress()->CopyFrom(*navProgress);
 }
 
 void RobotController::CloudExchange()
@@ -141,7 +141,11 @@ void RobotController::CloudExchange()
 
   UpdateExchange();
 
-  robotControllerSignals->CloudExchange(exchange);
+  robotControllerSignals->CloudExchange(exchangeRobotData, exchangeNextToken, exchangeAbortToken);
+
+  // Clear the token to indicate that the exchange is done
+  exchangeNextToken.Clear();
+  exchangeAbortToken.Clear();
   // Don't reset the cloudExchangeTimer here
 }
 
@@ -152,15 +156,13 @@ void RobotController::SlamExchange()
 
   UpdateExchange();
 
-  slamExchange.clear_mapdata();
-  slamExchange.set_status(slamStatus);
-  slamExchange.mutable_exchange()->CopyFrom(exchange);
+  exchangeMapData.Clear();
   if (mapHasUpdated)
   {
-    slamExchange.mutable_mapdata()->CopyFrom(mapData);
+    exchangeMapData.CopyFrom(mapData);
     mapHasUpdated = false;
   }
-  robotControllerSignals->SlamExchange(slamExchange);
+  robotControllerSignals->SlamExchange(exchangeSlamStatus, exchangeRobotData, exchangeMapData);
   // Don't reset the slamExchangeTimer here
 }
 
@@ -213,6 +215,21 @@ void RobotController::OnSlamMapUpdate(const nav_msgs::msg::OccupancyGrid &msg)
   mapHasUpdated = true;
 }
 
+void RobotController::TryExitCriticalStatus()
+{
+  // Ensure no unreslovable status
+  if (criticalStatus.hardwareemergencystop() == true ||
+        criticalStatus.batterylow_size() > 0 ||
+        criticalStatus.motordamaged_size() > 0)
+  {
+    RCLCPP_ERROR(logger_, "Unresolvable critical status, will not exit.");
+    return;
+  }
+
+  criticalStatus.set_softwareemergencystop(false);
+  robotStatus.ExitCritical();
+}
+
 void RobotController::OnRobotDataReceived(const RobotData &rd)
 {
   robotData.transform[0] = rd.transform[0];
@@ -256,11 +273,10 @@ void RobotController::CloudAutoTaskNext()
 {
   if (!currentTask.next_token.empty())
   {
+    // Setup the next token for the exchange
     RCLCPP_INFO(logger_, "AutoTask advances to next progress.");
-    RobotClientsNextToken token;
-    token.set_taskid(currentTask.task_id);
-    token.set_nexttoken(currentTask.next_token);
-    robotControllerSignals->AutoTaskNext(token);
+    exchangeNextToken.set_taskid(currentTask.task_id);
+    exchangeNextToken.set_nexttoken(currentTask.next_token);
   }
 }
 
@@ -268,14 +284,12 @@ void RobotController::CloudAutoTaskAbort(RobotClientsAbortReason reason)
 {
   if (!currentTask.next_token.empty())
   {
-    //robotStatus.TaskAborting();
-    robotStatus.TaskCompleted();
+    // Setup the next token for the exchange
+    robotStatus.TaskAborting();
     RCLCPP_INFO(logger_, "AutoTask will be aborted.");
-    RobotClientsAbortToken token;
-    token.set_taskid(currentTask.task_id);
-    token.set_nexttoken(currentTask.next_token);
-    token.set_abortreason(reason);
-    robotControllerSignals->AutoTaskAbort(token);
+    exchangeAbortToken.set_taskid(currentTask.task_id);
+    exchangeAbortToken.set_nexttoken(currentTask.next_token);
+    exchangeAbortToken.set_abortreason(reason);
   }
 }
 
@@ -284,12 +298,13 @@ void RobotController::OnNextCloudChange()
   cloudExchangeTimer->reset();
 }
 
-void RobotController::OnHandleClouldExchange(const RobotClientsRespond *respond)
+void RobotController::OnHandleClouldExchange(const RobotClientsResponse *response)
 {
+
   // Handle AutoTask
-  if (respond->has_task())
+  if (response->has_task())
   {
-    RobotClientsAutoTask task = respond->task();
+    RobotClientsAutoTask task = response->task();
     currentTask.task_id = task.taskid();
     currentTask.task_name = task.taskname();
     currentTask.task_progress_id = task.taskprogressid();
@@ -304,6 +319,7 @@ void RobotController::OnHandleClouldExchange(const RobotClientsRespond *respond)
     {
       RCLCPP_INFO(logger_, "AutoTask Id: %d aborted.", task.taskid());
       robotControllerSignals->NavigationAbort();
+      robotStatus.TaskAborted();
     }
     else
     {
@@ -320,39 +336,34 @@ void RobotController::OnHandleClouldExchange(const RobotClientsRespond *respond)
     }
   }
 
-  // Handle Robot Command
-  if (respond->has_commands())
+  // Handle Robot Commands
+  if (response->has_commands())
   {
-    auto commands = respond->commands();
-    // Abort Task
-    if (commands.aborttask() == true && currentCommands.aborttask() == false)
+    auto commands = response->commands();
+    if (commands.has_aborttask() && commands.aborttask() == true)
     {
       CloudAutoTaskAbort(RobotClientsAbortReason::UserApi);
     }
-    currentCommands.set_aborttask(commands.aborttask());
-
-    // Emergency Stop
-    if (commands.softwareemergencystop() == true && currentCommands.softwareemergencystop() == false)
+    if (commands.has_softwareemergencystopenable() && commands.softwareemergencystopenable() == true)
     {
+      RCLCPP_INFO(logger_, "Enabling software emergency stop");
       robotStatus.EnterCritical();
     }
-    else if (commands.softwareemergencystop() == false && currentCommands.softwareemergencystop() == true)
+    if (commands.has_softwareemergencystopdisable() && commands.softwareemergencystopdisable() == true)
     {
-      robotStatus.ExitCritical();
+      RCLCPP_INFO(logger_, "Disabling software emergency stop");
+      TryExitCriticalStatus();
     }
-    criticalStatus.set_softwareemergencystop(commands.softwareemergencystop());
-    currentCommands.set_softwareemergencystop(commands.softwareemergencystop());
-
-    // Pause Task Assigement
-    if (commands.pausetaskassigement() == true && currentCommands.pausetaskassigement() == false)
+    if (commands.has_pausetaskassigementenable() && commands.pausetaskassigementenable() == true)
     {
+      RCLCPP_INFO(logger_, "Pausing task assigement");
       robotStatus.PauseTaskAssigement();
     }
-    else if (commands.pausetaskassigement() == false && currentCommands.pausetaskassigement() == true)
+    if (commands.has_pausetaskassigementdisable() && commands.pausetaskassigementdisable() == true)
     {
+      RCLCPP_INFO(logger_, "Resuming task assigement");
       robotStatus.ResumeTaskAssigement();
     }
-    currentCommands.set_pausetaskassigement(commands.pausetaskassigement());
   }
 }
 
@@ -386,7 +397,7 @@ void RobotController::OnNavigationDone()
 {
   if (isSlam)
   {
-    slamStatus = RobotClientsSlamStatus::SlamSuccess;
+    exchangeSlamStatus = RobotClientsSlamStatus::SlamSuccess;
   }
   else
   {
@@ -396,14 +407,20 @@ void RobotController::OnNavigationDone()
 
 void RobotController::OnNavigationStuck()
 {
-  if (!isSlam)
+  if (!isSlam) 
+  {
     robotStatus.NavigationStuck();
+  }
+  // Do nothing is SLAM
 }
 
 void RobotController::OnNavigationCleared()
 {
-  if (!isSlam)
+  if (!isSlam) 
+  {
     robotStatus.NavigationCleared();
+  }
+  // Do nothing is SLAM
 }
 
 void RobotController::OnNavigationAborted()
@@ -417,7 +434,7 @@ void RobotController::OnNavigationAborted()
     }
     else
     {
-      slamStatus = RobotClientsSlamStatus::SlamAborted;
+      exchangeSlamStatus = RobotClientsSlamStatus::SlamAborted;
     }
   }
   else
@@ -435,7 +452,7 @@ void RobotController::OnHandleSlamExchange(const RobotClientsSlamCommands *respo
 {
   if (respond->has_setgoal())
   {
-    if (slamStatus == RobotClientsSlamStatus::SlamRunning)
+    if (exchangeSlamStatus == RobotClientsSlamStatus::SlamRunning)
     {
       overwriteGoal = true;
     }
@@ -453,7 +470,7 @@ void RobotController::OnHandleSlamExchange(const RobotClientsSlamCommands *respo
     pose.pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(rotation);
     poses.push_back(pose);
     robotControllerSignals->NavigationStart(poses);
-    slamStatus = RobotClientsSlamStatus::SlamRunning;
+    exchangeSlamStatus = RobotClientsSlamStatus::SlamRunning;
   }
   if (respond->has_abortgoal())
   {
@@ -464,11 +481,13 @@ void RobotController::OnHandleSlamExchange(const RobotClientsSlamCommands *respo
   {
     RCLCPP_INFO(logger_, "Enabling software emergency stop");
     robotStatus.EnterCritical();
+    criticalStatus.set_softwareemergencystop(true);
   }
   if (respond->has_softwareemergencystopdisable() && respond->softwareemergencystopdisable() == true)
   {
     RCLCPP_INFO(logger_, "Disabling software emergency stop");
-    robotStatus.ExitCritical();
+    TryExitCriticalStatus();
+    criticalStatus.set_softwareemergencystop(false);
   }
   if (respond->has_savemap() && respond->savemap() == true)
   {

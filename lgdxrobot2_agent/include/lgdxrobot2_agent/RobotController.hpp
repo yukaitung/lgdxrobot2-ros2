@@ -18,43 +18,38 @@
 class RobotController
 {
   private:
+    // ROS
     rclcpp::Logger logger_;
-
     rclcpp::TimerBase::SharedPtr autoTaskPublisherTimer;
     rclcpp::TimerBase::SharedPtr cloudExchangeTimer;
     rclcpp::TimerBase::SharedPtr robotDataPublisherTimer;
-
     rclcpp::Publisher<lgdxrobot2_agent::msg::AutoTask>::SharedPtr autoTaskPublisher;
     rclcpp::Publisher<lgdxrobot2_agent::msg::RobotData>::SharedPtr robotDataPublisher;
-
     rclcpp::Service<lgdxrobot2_agent::srv::AutoTaskNext>::SharedPtr autoTaskNextService;
     rclcpp::Service<lgdxrobot2_agent::srv::AutoTaskAbort>::SharedPtr autoTaskAbortService;
-
     rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr mapSubscription;
-    
     std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tfBuffer;
-
     std::shared_ptr<RobotControllerSignals> robotControllerSignals;
 
     // Robot Data
     bool isSlam = false;
     RobotStatus robotStatus;
     lgdxrobot2_agent::msg::RobotData robotData;
-    RobotClientsRobotCommands currentCommands;
     std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgress;
+    std::vector<double> batteries = {0.0, 0.0};
+    RobotClientsRobotCriticalStatus criticalStatus;
     // Robot Data: SLAM
     bool mapHasUpdated = false;
     bool overwriteGoal = false;
-    RobotClientsSlamExchange slamExchange;
     RobotClientsMapData mapData;
-    RobotClientsSlamStatus slamStatus = RobotClientsSlamStatus::SlamIdle;
 
     // Exchange
-    RobotClientsExchange exchange;
-    RobotClientsDof robotPosition;
-    std::vector<double> batteries = {0.0, 0.0};
-    RobotClientsRobotCriticalStatus criticalStatus;
+    RobotClientsData exchangeRobotData;
+    RobotClientsNextToken exchangeNextToken;
+    RobotClientsAbortToken exchangeAbortToken;
+    RobotClientsSlamStatus exchangeSlamStatus = RobotClientsSlamStatus::SlamIdle;
+    RobotClientsMapData exchangeMapData;
 
     // AutoTask
     lgdxrobot2_agent::msg::AutoTask currentTask;
@@ -67,6 +62,8 @@ class RobotController
     void SlamExchange();
     void OnSlamMapUpdate(const nav_msgs::msg::OccupancyGrid &msg);
 
+    void TryExitCriticalStatus();
+
   public:
     RobotController(rclcpp::Node::SharedPtr node,
       std::shared_ptr<RobotControllerSignals> robotControllerSignalsPtr,
@@ -78,7 +75,7 @@ class RobotController
     void CloudAutoTaskNext();
     void CloudAutoTaskAbort(RobotClientsAbortReason reason);
     void OnNextCloudChange();
-    void OnHandleClouldExchange(const RobotClientsRespond *respond);
+    void OnHandleClouldExchange(const RobotClientsResponse *response);
 
     void OnNavigationStart();
     void OnNavigationDone();
@@ -87,7 +84,7 @@ class RobotController
     void OnNavigationCleared();
 
     void OnNextSlamExchange();
-    void OnHandleSlamExchange(const RobotClientsSlamCommands *respond);
+    void OnHandleSlamExchange(const RobotClientsSlamCommands *response);
     
     void Shutdown();
 };

@@ -9,13 +9,11 @@
 
 struct RobotControllerSignals
 {
-  boost::signals2::signal<void(RobotClientsExchange &)> CloudExchange;
+  boost::signals2::signal<void(const RobotClientsData &, const RobotClientsNextToken &, const RobotClientsAbortToken &)> CloudExchange;
   boost::signals2::signal<void(std::vector<geometry_msgs::msg::PoseStamped> &)> NavigationStart;
   boost::signals2::signal<void()> NavigationAbort;
-  boost::signals2::signal<void(RobotClientsNextToken &)> AutoTaskNext;
-  boost::signals2::signal<void(RobotClientsAbortToken &)> AutoTaskAbort;
 
-  boost::signals2::signal<void(RobotClientsSlamExchange &)> SlamExchange;
+  boost::signals2::signal<void(const RobotClientsSlamStatus, const RobotClientsData &, const RobotClientsMapData &)> SlamExchange;
   boost::signals2::signal<void()> SaveMap;
   boost::signals2::signal<void()> Shutdown;
 };

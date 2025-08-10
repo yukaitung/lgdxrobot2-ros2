@@ -9,7 +9,7 @@ CloudExchangeStream::CloudExchangeStream(RobotClientsService::Stub *stub,
   cloudSignals = cloudSignalsPtr;
   context.set_credentials(accessToken);
   stub->async()->Exchange(&context, this);
-  StartRead(&respond);
+  StartRead(&response);
   StartCall();
 }
 
@@ -34,8 +34,8 @@ void CloudExchangeStream::OnReadDone(bool ok)
 {
   if (ok && !isShutdown)
   {
-    cloudSignals->HandleExchange(&respond); 
-    StartRead(&respond);
+    cloudSignals->HandleExchange(&response); 
+    StartRead(&response);
   }
 }
 
@@ -44,7 +44,7 @@ void CloudExchangeStream::OnDone(const grpc::Status& status)
   if (!status.ok())
   {
     isShutdown = true;
-    cloudSignals->StreamError(CloudFunctions::Exchange);
+    cloudSignals->StreamError();
     return;
   }
   std::lock_guard<std::mutex> lock(mutex);
@@ -53,13 +53,31 @@ void CloudExchangeStream::OnDone(const grpc::Status& status)
   cv.notify_one();
 }
 
-void CloudExchangeStream::SendMessage(RobotClientsExchange &exchange)
+void CloudExchangeStream::SendMessage(const RobotClientsData &robotData,
+  const RobotClientsNextToken &nextToken,
+  const RobotClientsAbortToken &abortToken)
 {
   if (isShutdown)
   {
     return;
   }
-  *requestPtr = exchange;
+  requestPtr->mutable_robotdata()->CopyFrom(robotData);
+  if (!nextToken.nexttoken().empty())
+  {
+    requestPtr->mutable_nexttoken()->CopyFrom(nextToken);
+  }
+  else
+  {
+    requestPtr->mutable_nexttoken()->Clear();
+  }
+  if (!abortToken.nexttoken().empty())
+  {
+    requestPtr->mutable_aborttoken()->CopyFrom(abortToken);
+  }
+  else
+  {
+    requestPtr->mutable_aborttoken()->Clear();
+  }
   StartWrite(requestPtr);
 }
 

@@ -123,24 +123,8 @@ void Cloud::SetSystemInfo(RobotClientsSystemInfo *info)
 void Cloud::HandleError()
 {
   cloudRetryTimer->cancel();
-  // Avoid inf loop if the queue increases
   Greet(cloudErrorRetryData.mcuSerialNumber);
-  for (int i = 0, size = cloudErrorQueue.size(); i < size; i++)
-  {
-    CloudFunctions function = cloudErrorQueue.front();
-    switch (function)
-    {
-      case CloudFunctions::AutoTaskNext:
-        AutoTaskNext(cloudErrorRetryData.nextToken);
-        break;
-      case CloudFunctions::AutoTaskAbort:
-        AutoTaskAbort(cloudErrorRetryData.abortToken);
-        break;
-      default:
-        break;
-    }
-    cloudErrorQueue.pop();
-  }
+  // set hasError to false when greet success
 }
 
 void Cloud::Greet(std::string mcuSN)
@@ -158,125 +142,75 @@ void Cloud::Greet(std::string mcuSN)
   }
   request->set_allocated_systeminfo(systemInfo);
 
-  RobotClientsGreetRespond *respond = new RobotClientsGreetRespond();
+  RobotClientsGreetResponse *response = new RobotClientsGreetResponse();
 
   cloudErrorRetryData.mcuSerialNumber = mcuSN;
+  RCLCPP_INFO(logger_, "Connecting to the cloud.");
   
-  grpcStub->async()->Greet(context, request, respond, [context, request, respond, this](grpc::Status status)
+  grpcStub->async()->Greet(context, request, response, [context, request, response, this](grpc::Status status)
   {
     if (status.ok()) 
     {
-      accessToken = grpc::AccessTokenCredentials(respond->accesstoken());
+      accessToken = grpc::AccessTokenCredentials(response->accesstoken());
       if (grpcRealtimeStub == nullptr)
       {
         grpcRealtimeStub = RobotClientsService::NewStub(grpcChannel);
       }
       if (isCloudSlam)
       {
-        RCLCPP_INFO(logger_, "Connect to the cloud, start SLAM data exchange.");
+        RCLCPP_INFO(logger_, "Connected to the cloud, start SLAM data exchange.");
         slamExchangeStream = std::make_unique<SlamExchangeStream>(grpcRealtimeStub.get(), accessToken, cloudSignals);
       }
       else
       {
-        RCLCPP_INFO(logger_, "Connect to the cloud, start data exchange.");
+        RCLCPP_INFO(logger_, "Connected to the cloud, start data exchange.");
         cloudSignals->Connected();
         cloudExchangeStream = std::make_unique<CloudExchangeStream>(grpcRealtimeStub.get(), accessToken, cloudSignals);
       }
       // Start the timer to exchange data
       cloudSignals->NextExchange();
+      hasError = false;
     }
     else
     {
       RCLCPP_ERROR(logger_, "Unable to connect the cloud, will try again later.");
-      Error(CloudFunctions::Greet);
+      OnErrorOccured();
     }
     delete context;
     delete request;
-    delete respond;
+    delete response;
   });
 }
 
-void Cloud::AutoTaskNext(RobotClientsNextToken &token)
-{
-  grpc::ClientContext *context = new grpc::ClientContext();
-  auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
-  context->set_deadline(deadline);
-  context->set_credentials(accessToken);
-
-  RobotClientsNextToken *request = new RobotClientsNextToken();
-  *request = token;
-
-  RobotClientsRespond *respond = new RobotClientsRespond();
-
-  cloudErrorRetryData.nextToken = token;
-
-  grpcStub->async()->AutoTaskNext(context, request, respond, [context, request, respond, this](grpc::Status status)
-  {
-    if (status.ok()) 
-    {
-      cloudSignals->HandleExchange(respond);
-    }
-    else 
-    {
-      RCLCPP_ERROR(logger_, "AutoTaskNext failed.");
-      Error(CloudFunctions::Exchange);
-    }
-    delete context;
-    delete request;
-    delete respond;
-  });
-}
-
-void Cloud::AutoTaskAbort(RobotClientsAbortToken &token)
-{
-  grpc::ClientContext *context = new grpc::ClientContext();
-  auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
-  context->set_deadline(deadline);
-  context->set_credentials(accessToken);
-
-  RobotClientsAbortToken *request = new RobotClientsAbortToken();
-  *request = token;
-
-  RobotClientsRespond *respond = new RobotClientsRespond();
-
-  cloudErrorRetryData.abortToken = token;
-
-  grpcStub->async()->AutoTaskAbort(context, request, respond, [context, request, respond, this](grpc::Status status)
-  {
-    if (status.ok()) 
-    {
-      cloudSignals->HandleExchange(respond);
-    }
-    else 
-    {
-      RCLCPP_ERROR(logger_, "AutoTaskAbort failed.");
-      Error(CloudFunctions::AutoTaskAbort);
-    }
-    delete context;
-    delete request;
-    delete respond;
-  });
-}
-
-void Cloud::Exchange(RobotClientsExchange &exchange)
+void Cloud::Exchange(const RobotClientsData &robotData,
+  const RobotClientsNextToken &nextToken,
+  const RobotClientsAbortToken &abortToken)
 {
   if (cloudExchangeStream != nullptr)
   {
-    cloudExchangeStream->SendMessage(exchange);
+    cloudExchangeStream->SendMessage(robotData, nextToken, abortToken);
   }
 }
 
-void Cloud::SlamExchange(RobotClientsSlamExchange &data)
+void Cloud::SlamExchange(const RobotClientsSlamStatus status,
+  const RobotClientsData &robotData,
+  const RobotClientsMapData &mapData)
 {
   if (slamExchangeStream != nullptr)
   {
-    slamExchangeStream->SendMessage(data);
+    slamExchangeStream->SendMessage(status, robotData, mapData);
   }
 }
 
-void Cloud::Error(CloudFunctions function)
+void Cloud::OnErrorOccured()
 {
-  cloudErrorQueue.push(function);
+  if (hasError)
+  {
+    // Prevent timer reset
+    return;
+  }
+  RCLCPP_ERROR(logger_, "Cloud error occured.");
+  hasError = true;
   if (cloudRetryTimer->is_canceled())
     cloudRetryTimer->reset();
 }

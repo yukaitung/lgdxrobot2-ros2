@@ -34,7 +34,7 @@ class Cloud
     std::unique_ptr<RobotClientsService::Stub> grpcStub;
 
     bool isCloudSlam = false;
-    std::queue<CloudFunctions> cloudErrorQueue;
+    bool hasError = false;
     CloudErrorRetryData cloudErrorRetryData;
     std::shared_ptr<grpc::CallCredentials> accessToken;
     RobotClientsRobotCommands robotCommand;
@@ -51,11 +51,13 @@ class Cloud
     Cloud(rclcpp::Node::SharedPtr node,
       std::shared_ptr<CloudSignals> cloudSignalsPtr);
     void Greet(std::string mcuSN);
-    void AutoTaskNext(RobotClientsNextToken &token);
-    void AutoTaskAbort(RobotClientsAbortToken &token);
-    void Exchange(RobotClientsExchange &exchange);
-    void SlamExchange(RobotClientsSlamExchange &data);
-    void Error(CloudFunctions function);
+    void Exchange(const RobotClientsData &robotData,
+      const RobotClientsNextToken &nextToken,
+      const RobotClientsAbortToken &abortToken);
+    void SlamExchange(const RobotClientsSlamStatus status,
+      const RobotClientsData &robotData,
+      const RobotClientsMapData &mapData);
+    void OnErrorOccured();
     void Shutdown();
 };
 

@@ -43,7 +43,7 @@ void RobotStatus::ChargingCompleted()
 
 void RobotStatus::TaskAssigned()
 {
-  if (robotStatus == RobotClientsRobotStatus::Idle)
+  if (robotStatus == RobotClientsRobotStatus::Idle || robotStatus == RobotClientsRobotStatus::Aborting)
     ChangeStatus(RobotClientsRobotStatus::Running);
 }
 
@@ -100,6 +100,9 @@ void RobotStatus::TaskAborted()
 
 void RobotStatus::EnterCritical()
 {
+  if (robotStatus == RobotClientsRobotStatus::Critical)
+    return;
+
   previousRobotStatus = robotStatus;
   ChangeStatus(RobotClientsRobotStatus::Critical);
 }

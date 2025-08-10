@@ -17,9 +17,9 @@ struct CloudSignals
 {
   boost::signals2::signal<void()> Connected;
   boost::signals2::signal<void()> NextExchange;
-  boost::signals2::signal<void(const RobotClientsRespond *respond)> HandleExchange;
-  boost::signals2::signal<void(const RobotClientsSlamCommands *respond)> HandleSlamExchange;
-  boost::signals2::signal<void(CloudFunctions)> StreamError;
+  boost::signals2::signal<void(const RobotClientsResponse *)> HandleExchange;
+  boost::signals2::signal<void(const RobotClientsSlamCommands *)> HandleSlamExchange;
+  boost::signals2::signal<void()> StreamError;
 };
 
 #endif // CLOUDSIGNALS_HPP

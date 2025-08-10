@@ -45,7 +45,7 @@ void SlamExchangeStream::OnDone(const grpc::Status& status)
   if (!status.ok())
   {
     isShutdown = true;
-    cloudSignals->StreamError(CloudFunctions::SlamExchange);
+    cloudSignals->StreamError();
     return;
   }
   std::lock_guard<std::mutex> lock(mutex);
@@ -54,13 +54,24 @@ void SlamExchangeStream::OnDone(const grpc::Status& status)
   cv.notify_one();
 }
 
-void SlamExchangeStream::SendMessage(RobotClientsSlamExchange &data)
+void SlamExchangeStream::SendMessage(const RobotClientsSlamStatus status,
+  const RobotClientsData &robotData,
+  const RobotClientsMapData &mapData)
 {
   if (isShutdown)
   {
     return;
   }
-  *requestPtr = data;
+  requestPtr->set_status(status);
+  requestPtr->mutable_robotdata()->CopyFrom(robotData);
+  if (mapData.data_size() > 0)
+  {
+    requestPtr->mutable_mapdata()->CopyFrom(mapData);
+  }
+  else
+  {
+    requestPtr->mutable_mapdata()->Clear();
+  }
   StartWrite(requestPtr);
 }
 
