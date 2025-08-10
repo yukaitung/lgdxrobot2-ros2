@@ -34,7 +34,6 @@ class Cloud
     std::unique_ptr<RobotClientsService::Stub> grpcStub;
 
     bool isCloudSlam = false;
-    bool hasError = false;
     CloudErrorRetryData cloudErrorRetryData;
     std::shared_ptr<grpc::CallCredentials> accessToken;
     RobotClientsRobotCommands robotCommand;

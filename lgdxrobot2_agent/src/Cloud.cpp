@@ -169,7 +169,6 @@ void Cloud::Greet(std::string mcuSN)
       }
       // Start the timer to exchange data
       cloudSignals->NextExchange();
-      hasError = false;
     }
     else
     {
@@ -204,15 +203,11 @@ void Cloud::SlamExchange(const RobotClientsSlamStatus status,
 
 void Cloud::OnErrorOccured()
 {
-  if (hasError)
-  {
-    // Prevent timer reset
-    return;
-  }
-  RCLCPP_ERROR(logger_, "Cloud error occured.");
-  hasError = true;
   if (cloudRetryTimer->is_canceled())
+  {
+    RCLCPP_ERROR(logger_, "Cloud error occured.");
     cloudRetryTimer->reset();
+  }
 }
 
 void Cloud::Shutdown()

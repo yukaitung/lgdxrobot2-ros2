@@ -347,6 +347,7 @@ void RobotController::OnHandleClouldExchange(const RobotClientsResponse *respons
     if (commands.has_softwareemergencystopenable() && commands.softwareemergencystopenable() == true)
     {
       RCLCPP_INFO(logger_, "Enabling software emergency stop");
+      criticalStatus.set_softwareemergencystop(true);
       robotStatus.EnterCritical();
     }
     if (commands.has_softwareemergencystopdisable() && commands.softwareemergencystopdisable() == true)
@@ -480,8 +481,8 @@ void RobotController::OnHandleSlamExchange(const RobotClientsSlamCommands *respo
   if (respond->has_softwareemergencystopenable() && respond->softwareemergencystopenable() == true)
   {
     RCLCPP_INFO(logger_, "Enabling software emergency stop");
-    robotStatus.EnterCritical();
     criticalStatus.set_softwareemergencystop(true);
+    robotStatus.EnterCritical();
   }
   if (respond->has_softwareemergencystopdisable() && respond->softwareemergencystopdisable() == true)
   {
