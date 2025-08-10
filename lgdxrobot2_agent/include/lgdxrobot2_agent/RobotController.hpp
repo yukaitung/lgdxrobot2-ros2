@@ -34,6 +34,7 @@ class RobotController
 
     // Robot Data
     bool isSlam = false;
+    bool pauseTaskAssignment = false;
     RobotStatus robotStatus;
     lgdxrobot2_agent::msg::RobotData robotData;
     std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgress;

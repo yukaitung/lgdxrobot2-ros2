@@ -132,6 +132,7 @@ void RobotController::UpdateExchange()
     exchangeRobotData.mutable_position()->set_rotation(0.0);
   }
   exchangeRobotData.mutable_navprogress()->CopyFrom(*navProgress);
+  exchangeRobotData.set_pausetaskassignment(pauseTaskAssignment);
 }
 
 void RobotController::CloudExchange()
@@ -225,8 +226,6 @@ void RobotController::TryExitCriticalStatus()
     RCLCPP_ERROR(logger_, "Unresolvable critical status, will not exit.");
     return;
   }
-
-  criticalStatus.set_softwareemergencystop(false);
   robotStatus.ExitCritical();
 }
 
@@ -353,17 +352,20 @@ void RobotController::OnHandleClouldExchange(const RobotClientsResponse *respons
     if (commands.has_softwareemergencystopdisable() && commands.softwareemergencystopdisable() == true)
     {
       RCLCPP_INFO(logger_, "Disabling software emergency stop");
+      criticalStatus.set_softwareemergencystop(false);
       TryExitCriticalStatus();
     }
-    if (commands.has_pausetaskassigementenable() && commands.pausetaskassigementenable() == true)
+    if (commands.has_pausetaskassignmentenable() && commands.pausetaskassignmentenable() == true)
     {
-      RCLCPP_INFO(logger_, "Pausing task assigement");
-      robotStatus.PauseTaskAssigement();
+      RCLCPP_INFO(logger_, "Pausing task Assignment");
+      pauseTaskAssignment = true;
+      robotStatus.PauseTaskAssignment();
     }
-    if (commands.has_pausetaskassigementdisable() && commands.pausetaskassigementdisable() == true)
+    if (commands.has_pausetaskassignmentdisable() && commands.pausetaskassignmentdisable() == true)
     {
-      RCLCPP_INFO(logger_, "Resuming task assigement");
-      robotStatus.ResumeTaskAssigement();
+      RCLCPP_INFO(logger_, "Resuming task Assignment");
+      pauseTaskAssignment = false;
+      robotStatus.ResumeTaskAssignment();
     }
   }
 }
@@ -487,8 +489,8 @@ void RobotController::OnHandleSlamExchange(const RobotClientsSlamCommands *respo
   if (respond->has_softwareemergencystopdisable() && respond->softwareemergencystopdisable() == true)
   {
     RCLCPP_INFO(logger_, "Disabling software emergency stop");
-    TryExitCriticalStatus();
     criticalStatus.set_softwareemergencystop(false);
+    TryExitCriticalStatus();
   }
   if (respond->has_savemap() && respond->savemap() == true)
   {
