@@ -8,7 +8,7 @@ class RobotStatus
   private:
     RobotClientsRobotStatus robotStatus = RobotClientsRobotStatus::Offline;
     RobotClientsRobotStatus previousRobotStatus = RobotClientsRobotStatus::Offline;
-    bool pauseTaskAssigementFlag = false;
+    bool pauseTaskAssignmentFlag = false;
 
     void ChangeStatus(RobotClientsRobotStatus newState);
 
@@ -22,8 +22,8 @@ class RobotStatus
     void TaskCompleted();
     void NavigationStuck();
     void NavigationCleared();
-    void PauseTaskAssigement();
-    void ResumeTaskAssigement();
+    void PauseTaskAssignment();
+    void ResumeTaskAssignment();
     void TaskAborting();
     void TaskAborted();
     void EnterCritical();

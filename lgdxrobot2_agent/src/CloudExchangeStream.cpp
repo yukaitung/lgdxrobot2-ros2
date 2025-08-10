@@ -4,23 +4,29 @@ CloudExchangeStream::CloudExchangeStream(RobotClientsService::Stub *stub,
   std::shared_ptr<grpc::CallCredentials> accessToken,
   std::shared_ptr<CloudSignals> cloudSignalsPtr)
 {
+  requestPtr = new RobotClientsExchange();
+
   cloudSignals = cloudSignalsPtr;
   context.set_credentials(accessToken);
-  stub->async()->ExchangeStream(&context, this);
-  StartRead(&respond);
+  stub->async()->Exchange(&context, this);
+  StartRead(&response);
   StartCall();
+}
+
+CloudExchangeStream::~CloudExchangeStream()
+{
+  if (requestPtr != nullptr)
+  {
+    delete requestPtr;
+    requestPtr = nullptr;
+  }
 }
 
 void CloudExchangeStream::OnWriteDone(bool ok)
 {
-  if (ok)
+  if (ok && !isShutdown)
   {
     cloudSignals->NextExchange();
-    if (requestPtr != nullptr)
-    {
-      delete requestPtr;
-      requestPtr = nullptr;
-    }
   }
 }
 
@@ -28,46 +34,50 @@ void CloudExchangeStream::OnReadDone(bool ok)
 {
   if (ok && !isShutdown)
   {
-    cloudSignals->HandleExchange(&respond); 
-    StartRead(&respond);
+    cloudSignals->HandleExchange(&response); 
+    StartRead(&response);
   }
 }
 
 void CloudExchangeStream::OnDone(const grpc::Status& status)
 {
+  if (!status.ok())
+  {
+    isShutdown = true;
+    cloudSignals->StreamError();
+    return;
+  }
   std::lock_guard<std::mutex> lock(mutex);
   finalStatus = status;
   done = true;
   cv.notify_one();
 }
 
-void CloudExchangeStream::SendMessage(RobotClientsRobotStatus robotStatus,
-  RobotClientsRobotCriticalStatus &criticalStatus,
-  std::vector<double> &batteries,
-  RobotClientsDof &position,
-  RobotClientsAutoTaskNavProgress &navProgress)
+void CloudExchangeStream::SendMessage(const RobotClientsData &robotData,
+  const RobotClientsNextToken &nextToken,
+  const RobotClientsAbortToken &abortToken)
 {
   if (isShutdown)
   {
     return;
   }
-
-  requestPtr = new RobotClientsExchange();
-  requestPtr->set_robotstatus(robotStatus);
-  RobotClientsRobotCriticalStatus *intCriticalStatus = new RobotClientsRobotCriticalStatus();
-  *intCriticalStatus = criticalStatus;
-  requestPtr->set_allocated_criticalstatus(intCriticalStatus);
-  for (auto &battery : batteries)
+  requestPtr->mutable_robotdata()->CopyFrom(robotData);
+  if (!nextToken.nexttoken().empty())
   {
-    requestPtr->add_batteries(battery);
+    requestPtr->mutable_nexttoken()->CopyFrom(nextToken);
   }
-  RobotClientsDof *intPosition = new RobotClientsDof();
-  *intPosition = position;
-  requestPtr->set_allocated_position(intPosition);
-  RobotClientsAutoTaskNavProgress *intNavProgress = new RobotClientsAutoTaskNavProgress();
-  *intNavProgress = navProgress;
-  requestPtr->set_allocated_navprogress(intNavProgress);
-  
+  else
+  {
+    requestPtr->mutable_nexttoken()->Clear();
+  }
+  if (!abortToken.nexttoken().empty())
+  {
+    requestPtr->mutable_aborttoken()->CopyFrom(abortToken);
+  }
+  else
+  {
+    requestPtr->mutable_aborttoken()->Clear();
+  }
   StartWrite(requestPtr);
 }
 

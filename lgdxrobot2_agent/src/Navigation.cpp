@@ -2,12 +2,10 @@
 
 Navigation::Navigation(rclcpp::Node::SharedPtr node, 
     std::shared_ptr<NavigationSignals> navigationSignalsPtr,
-    std::shared_ptr<RobotStatus> robotStatusPtr,
     std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgressPtr
  ) : logger_(node->get_logger())
 {
   navigationSignals = navigationSignalsPtr;
-  robotStatus = robotStatusPtr;
   navProgress = navProgressPtr;
 
   navThroughPosesActionClient = rclcpp_action::create_client<nav2_msgs::action::NavigateThroughPoses>(
@@ -23,7 +21,7 @@ void Navigation::Response(const rclcpp_action::ClientGoalHandle<nav2_msgs::actio
   if (!goalHandle)
   {
     RCLCPP_ERROR(logger_, "navThroughPoses goal was rejected by server, the task will be aborted.");
-    navigationSignals->Abort(RobotClientsAbortReason::NavStack);
+    navigationSignals->Abort();
   }
 }
 
@@ -35,7 +33,8 @@ void Navigation::Feedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::Nav
   navProgress->set_recoveries(feedback->number_of_recoveries);
   navProgress->set_distanceremaining(feedback->distance_remaining);
   navProgress->set_waypointsremaining(feedback->number_of_poses_remaining);
-  if (robotStatus->GetStatus() == RobotClientsRobotStatus::Running)
+  
+  if (!isStuck)
   {
     // Determine if the robot is stuck by
     // 1. Recoveries is increasing
@@ -43,11 +42,12 @@ void Navigation::Feedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::Nav
     if (navProgress->recoveries() > lastNavProgress.recoveries() && 
         navProgress->eta() == 0)
     {
-      robotStatus->NavigationStuck();
       RCLCPP_INFO(logger_, "The robot is stuck.");
+      isStuck = true;
+      navigationSignals->Stuck();
     }
   }
-  else if (robotStatus->GetStatus() == RobotClientsRobotStatus::Stuck)
+  else
   {
     // Determine if the robot is cleared by
     // 1. Recoveries is unchanged
@@ -58,8 +58,10 @@ void Navigation::Feedback(rclcpp_action::ClientGoalHandle<nav2_msgs::action::Nav
         navProgress->eta() > 0 &&
         navProgress->distanceremaining() < lastNavProgress.distanceremaining())
     {
-      robotStatus->NavigationCleared();
+      
       RCLCPP_INFO(logger_, "The robot is cleared.");
+      isStuck = false;
+      navigationSignals->Cleared();
     }
   }
 }
@@ -69,16 +71,16 @@ void Navigation::Result(const rclcpp_action::ClientGoalHandle<nav2_msgs::action:
   switch (result.code)
   {
     case rclcpp_action::ResultCode::SUCCEEDED:
-      navigationSignals->NextNavigation();
+      navigationSignals->Done();
       break;
     case rclcpp_action::ResultCode::ABORTED:
     case rclcpp_action::ResultCode::CANCELED:
     default:
-      navigationSignals->Abort(RobotClientsAbortReason::NavStack);
+      navigationSignals->Abort();
       return;
   }
-	// Clear Plan
 	navProgress->clear_plan();
+  isStuck = false;
 }
 
 void Navigation::PlanCallback(const nav_msgs::msg::Path &msg)
@@ -138,5 +140,7 @@ void Navigation::Abort()
       }
     );
   }
-  robotStatus->TaskAborted();
+  navigationSignals->Abort();
+  navProgress->clear_plan();
+  isStuck = false;
 }

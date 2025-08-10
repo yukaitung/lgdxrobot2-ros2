@@ -7,6 +7,5 @@ int main(int argc, char **argv)
   node->Initalise();
   rclcpp::spin(node);
   node->Shutdown();
-  rclcpp::shutdown();
   return 0;
 }

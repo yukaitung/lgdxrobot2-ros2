@@ -9,14 +9,13 @@
 
 struct RobotControllerSignals
 {
-  boost::signals2::signal<void(RobotClientsRobotCriticalStatus &,
-    std::vector<double> &,
-    RobotClientsDof &,
-    RobotClientsAutoTaskNavProgress &)> CloudExchange;
+  boost::signals2::signal<void(const RobotClientsData &, const RobotClientsNextToken &, const RobotClientsAbortToken &)> CloudExchange;
   boost::signals2::signal<void(std::vector<geometry_msgs::msg::PoseStamped> &)> NavigationStart;
   boost::signals2::signal<void()> NavigationAbort;
-  boost::signals2::signal<void(RobotClientsNextToken &)> AutoTaskNext;
-  boost::signals2::signal<void(RobotClientsAbortToken &)> AutoTaskAbort;
+
+  boost::signals2::signal<void(const RobotClientsSlamStatus, const RobotClientsData &, const RobotClientsMapData &)> SlamExchange;
+  boost::signals2::signal<void()> SaveMap;
+  boost::signals2::signal<void()> Shutdown;
 };
 
 #endif // ROBOT_CONTROLLER_SIGNALS_HPP

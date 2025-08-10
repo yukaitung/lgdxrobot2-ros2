@@ -1,5 +1,5 @@
-#ifndef CLOUDEXCHANGESTREAM_HPP
-#define CLOUDEXCHANGESTREAM_HPP
+#ifndef SLAMEXCHANGESTREAM_HPP
+#define SLAMEXCHANGESTREAM_HPP
 
 #include <grpcpp/grpcpp.h>
 #include <mutex>
@@ -8,13 +8,13 @@
 #include "Structs/CloudSignals.hpp"
 #include "proto/RobotClientsService.grpc.pb.h"
 
-class CloudExchangeStream : public grpc::ClientBidiReactor<RobotClientsExchange, RobotClientsResponse>
+class SlamExchangeStream : public grpc::ClientBidiReactor<RobotClientsSlamExchange, RobotClientsSlamCommands>
 {
   private:
     std::shared_ptr<CloudSignals> cloudSignals;
     grpc::ClientContext context;
-    RobotClientsExchange *requestPtr;
-    RobotClientsResponse response;
+    RobotClientsSlamExchange *requestPtr;
+    RobotClientsSlamCommands respond;
     std::mutex mutex;
     std::condition_variable cv;
     grpc::Status finalStatus;
@@ -26,15 +26,15 @@ class CloudExchangeStream : public grpc::ClientBidiReactor<RobotClientsExchange,
     void OnDone(const grpc::Status& status) override;
 
   public:
-    CloudExchangeStream(RobotClientsService::Stub *stub, 
+    SlamExchangeStream(RobotClientsService::Stub *stub, 
       std::shared_ptr<grpc::CallCredentials> accessToken,
       std::shared_ptr<CloudSignals> cloudSignalsPtr);
-    ~CloudExchangeStream();
-    void SendMessage(const RobotClientsData &robotData,
-      const RobotClientsNextToken &nextToken,
-      const RobotClientsAbortToken &abortToken);
+    ~SlamExchangeStream();
+    void SendMessage(const RobotClientsSlamStatus status,
+      const RobotClientsData &robotData,
+      const RobotClientsMapData &mapData);
     void Shutdown();
     grpc::Status AwaitCompletion();
 };
 
-#endif // CLOUDEXCHANGESTREAM_HPP
+#endif // SLAMEXCHANGESTREAM_HPP
