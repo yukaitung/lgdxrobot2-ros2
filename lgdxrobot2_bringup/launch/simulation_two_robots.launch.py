@@ -13,7 +13,7 @@ ros2 launch lgdxrobot2_bringup simulation_two_robots.launch.py cloud_address:='1
 
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, TimerAction
 from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -88,7 +88,7 @@ def launch_setup(context):
     world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
     ros2_supervisor=True
   )
-  
+    
   lgdxrobot2_mcu_node1 = Node(
     package='lgdxrobot2_agent',
     executable='lgdxrobot2_agent_node',
@@ -109,7 +109,7 @@ def launch_setup(context):
       ('/agent/robot_data', 'agent/robot_data'),
     ],
   )
-  
+
   lgdxrobot2_mcu_node2 = Node(
     package='lgdxrobot2_agent',
     executable='lgdxrobot2_agent_node',
@@ -130,6 +130,8 @@ def launch_setup(context):
       ('/agent/robot_data', 'agent/robot_data'),
     ],
   )
+  
+  lgdxrobot2_mcu = TimerAction(period=15.0, actions=[lgdxrobot2_mcu_node1, lgdxrobot2_mcu_node2])
   
   robot1 = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
@@ -164,7 +166,7 @@ def launch_setup(context):
     }.items(),
   )
 
-  return [webots, webots._supervisor, robot1, robot2, lgdxrobot2_mcu_node1, lgdxrobot2_mcu_node2]
+  return [webots, webots._supervisor, robot1, robot2, lgdxrobot2_mcu]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)
