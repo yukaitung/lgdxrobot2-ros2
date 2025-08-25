@@ -475,7 +475,7 @@ void RobotController::OnHandleSlamExchange(const RobotClientsSlamCommands *respo
     robotControllerSignals->NavigationStart(poses);
     exchangeSlamStatus = RobotClientsSlamStatus::SlamRunning;
   }
-  if (respond->has_abortgoal())
+  if (respond->has_abortgoal() && respond->abortgoal() == true)
   {
     RCLCPP_INFO(logger_, "Aborting the current goal");
     robotControllerSignals->NavigationAbort();

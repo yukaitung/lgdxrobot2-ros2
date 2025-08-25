@@ -22,7 +22,7 @@ ros2 launch lgdxrobot2_bringup simulation_nav.launch.py use_cloud:=True cloud_ad
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, TimerAction
 from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -259,10 +259,12 @@ def launch_setup(context):
       ('/agent/robot_data', 'agent/robot_data'),
     ],
   )
+  
+  lgdxrobot2_agent = TimerAction(period=15.0, actions=[lgdxrobot2_agent_node])
 
   waiting_nodes = WaitForControllerConnection(
     target_driver = lgdxrobot2_driver,
-    nodes_to_start = [description_node] + [robot_localization_node]  + [explore_node] + [ros2_nav] + [lgdxrobot2_agent_node]
+    nodes_to_start = [description_node, robot_localization_node, explore_node, ros2_nav, lgdxrobot2_agent]
   )
 
   return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]
