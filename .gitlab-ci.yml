@@ -87,7 +87,8 @@ build-amd64:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   image: docker:24.0.5-git
   tags:
-    - lgdx-amd64
+    #- lgdx-amd64
+    - saas-linux-small-amd64
   services:
     - docker:24.0.5-dind
   script:
