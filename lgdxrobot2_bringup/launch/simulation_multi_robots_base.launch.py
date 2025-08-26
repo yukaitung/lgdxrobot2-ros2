@@ -40,7 +40,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='apartment.yaml',
+    default_value='default_2r.yaml',
     description='Map yaml file in `lgdxrobot2_webots` package.'
   ),
   DeclareLaunchArgument(

@@ -1,4 +1,4 @@
-image: two_robots.pgm
+image: default_2r.pgm
 mode: trinary
 resolution: 0.05
 origin: [-0.951, -1.11, 0]

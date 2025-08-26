@@ -47,7 +47,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='world',
-    default_value='apartment.wbt',
+    default_value='default.wbt',
     description='World file in `lgdxrobot2_webots` package.'
   ),
   DeclareLaunchArgument(
@@ -62,7 +62,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='apartment.yaml',
+    default_value='default.yaml',
     description='Map yaml file in `lgdxrobot2_webots` package.'
   ),
   DeclareLaunchArgument(
@@ -149,7 +149,7 @@ def launch_setup(context):
     ros2_supervisor=True
   )
   lgdxrobot2_driver = WebotsController(
-    robot_name='LGDXRobot2',
+    robot_name='robot1',
     namespace=namespace,
     parameters=[
       {
