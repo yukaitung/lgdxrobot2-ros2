@@ -1,10 +1,9 @@
-#VRML_SIM R2023b utf8
+#VRML_SIM R2025a utf8
 
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "../protos/LGDXRobot2.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/factory/containers/protos/WoodenBox.proto"
 
 WorldInfo {
   contactProperties [
@@ -33,8 +32,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.014995675165428176 0.9996366981946148 0.022396458400860502 1.1803359953135828
-  position -8.690756109456807 -0.09467230880458033 19.446979095175905
+  orientation -0.0005166228011171463 -0.999999738450129 0.0005061625774955911 4.69193504568437
+  position 0.3859889238295248 -0.10023077553875381 20.70697552352775
 }
 TexturedBackground {
 }
@@ -45,57 +44,160 @@ RectangleArena {
   wallHeight 0.5
 }
 LGDXRobot2 {
+  translation -4.13 -3.98 0
+  rotation 0 0 -1 -5.307179586466759e-06
   controller "<extern>"
-  name "LGDXRobot2"
+  name "robot1"
 }
-WoodenBox {
-  translation 0.791722 -2.38815 0.3
+Solid {
+  translation 2.5 3.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf1"
+  boundingObject Box {
+    size 3 1 1
+  }
 }
-WoodenBox {
-  translation -1.24048 -1.49362 0.3
-  name "wooden box(2)"
+Solid {
+  translation -2.5 3.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf2"
+  boundingObject Box {
+    size 3 1 1
+  }
 }
-WoodenBox {
-  translation -2.38066 0.224695 0.3
-  name "wooden box(3)"
+Solid {
+  translation -2.5 1.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf3"
+  boundingObject Box {
+    size 3 1 1
+  }
 }
-WoodenBox {
-  translation -0.776224 1.3953 0.3
-  name "wooden box(4)"
+Solid {
+  translation 2.5 1.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf6"
+  boundingObject Box {
+    size 3 1 1
+  }
 }
-WoodenBox {
-  translation 2.14769 0.866455 0.3
-  name "wooden box(1)"
+Solid {
+  translation -2.5 -0.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf4"
+  boundingObject Box {
+    size 3 1 1
+  }
 }
-WoodenBox {
-  translation 3.48719 3.757 0.3
-  name "wooden box(5)"
+Solid {
+  translation 2.5 -0.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf7"
+  boundingObject Box {
+    size 3 1 1
+  }
 }
-WoodenBox {
-  translation 0.171462 3.84091 0.3
-  name "wooden box(6)"
+Solid {
+  translation -2.5 -2.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf5"
+  boundingObject Box {
+    size 3 1 1
+  }
 }
-WoodenBox {
-  translation -3.30406 3.79815 0.3
-  name "wooden box(7)"
-}
-WoodenBox {
-  translation -3.16461 -1.91712 0.3
-  name "wooden box(8)"
-}
-WoodenBox {
-  translation -4.20281 1.43993 0.3
-  name "wooden box(10)"
-}
-WoodenBox {
-  translation -1.55294 -3.54785 0.3
-  name "wooden box(9)"
-}
-WoodenBox {
-  translation 3.25057 -3.81393 0.3
-  name "wooden box(11)"
-}
-WoodenBox {
-  translation 3.64884 -0.68742 0.3
-  name "wooden box(12)"
+Solid {
+  translation 2.5 -2.5 0.5
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.647059 0.113725 0.176471
+        }
+      }
+      geometry Box {
+        size 3 1 1
+      }
+    }
+  ]
+  name "shelf8"
+  boundingObject Box {
+    size 3 1 1
+  }
 }
