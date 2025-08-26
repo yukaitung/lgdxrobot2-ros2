@@ -1,8 +1,14 @@
 # LGDXRobot2 ROS2
 
+![IMG](img.png)
+
 > Please note that development is primarily done on GitLab: https://gitlab.com/yukaitung/lgdxrobot2-ros2
 
-LGDXRobot2 ROS2 is an integration layer for the ROS2 ecosystem, with examples for both physical robots and simulations. It currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless integration with the [LGDXRobot Cloud](https://gitlab.com/yukaitung/lgdxrobot2-cloud).
+## Overview
+
+LGDXRobot2 ROS2 is an integration software for the LGDXRobot2 utilising ROS2 ecosystem, especially navigation with the NAV2 stack. It provides examples for both physical robots and simulations. Also, it offers Docker images with ready-to-use ROS2 environment on a web interface.
+
+The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless integration with the [LGDXRobot Cloud](https://gitlab.com/yukaitung/lgdxrobot2-cloud).
 
 - [Homepage](https://lgdxrobot.bristolgram.uk/lgdxrobot2/)
 - [Documentation](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/ros2/)
@@ -17,6 +23,10 @@ The solution consists of the following packages:
 - `lgdxrobot2_webots`: Simulation configuration and driver for Webots.
 
 ## Getting Started
+
+### Full Integration with LGDXRobot Cloud
+
+[https://lgdxrobot.bristolgram.uk/get-started/](https://lgdxrobot.bristolgram.uk/get-started/)
 
 ### Docker for Simulation
 
@@ -38,8 +48,7 @@ The Docker image has ROS2 and Webots installed, along with the this LGDXRobot2 p
 2. [Install NAV2](https://docs.nav2.org/getting_started/index.html)
 
 ```bash
-sudo apt install ros-jazzy-navigation2
-sudo apt install ros-jazzy-nav2-bringup
+sudo apt install ros-jazzy-navigation2 ros-jazzy-nav2-bringup
 ```
 
 3. [Install Webots](https://cyberbotics.com/doc/guide/installation-procedure)
@@ -48,8 +57,10 @@ sudo apt install ros-jazzy-nav2-bringup
 
 ```bash
 sudo apt install libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc 
-sudo apt install ros-jazzy-rtabmap-ros ros-jazzy-imu-transformer # Optional for simulation
+sudo apt install ros-jazzy-rtabmap-ros ros-jazzy-imu-transformer # Optional in simulation
 ```
+
+6. Build the workspace using `colcon build`
 
 [More documentation](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/)
 
@@ -72,10 +83,15 @@ There are also additional repositories that include dependencies, which can be u
 
 This project is licensed under the MIT Licence.
 
+## Extra Dependencies
+
+- [m-explore ROS2 port](https://github.com/robo-friends/m-explore-ros2)
+- [hwinfo](https://github.com/lfreist/hwinfo)
+
 ## Credits
 
-* [Building Webots on arm64 Linux](https://github.com/up200707458/webots)
-* [Docker images for Selkies](https://github.com/linuxserver/docker-baseimage-selkies/)
+- [Building Webots on arm64 Linux](https://github.com/up200707458/webots)
+- [Docker images for Selkies](https://github.com/linuxserver/docker-baseimage-selkies/)
 
 ## Acknowledgements
 
