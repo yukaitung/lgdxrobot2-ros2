@@ -25,7 +25,7 @@ import os
 launch_args = [
   DeclareLaunchArgument(
     name='world',
-    default_value='two_robots.wbt',
+    default_value='default_2r.wbt',
     description='World file in `lgdxrobot2_webots` package.'
   ),
   DeclareLaunchArgument(
