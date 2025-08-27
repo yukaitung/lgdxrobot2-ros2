@@ -32,7 +32,7 @@ void LgdxRobot2Driver::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
   
 }
 
-void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered_map<std::string, std::string>) 
+void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered_map<std::string, std::string> &parameters) 
 {
   rosNode = node;
 
