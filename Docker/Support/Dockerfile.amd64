@@ -1,7 +1,6 @@
 FROM ros:jazzy
 
 RUN apt update && \
-      apt upgrade -y && \  
       apt install --no-install-recommends -y git ros-dev-tools ros-jazzy-navigation2 ros-jazzy-nav2-bringup libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc wget && \
       rm -rf /var/lib/apt/lists/*
 
@@ -31,4 +30,3 @@ RUN apt update && \
 WORKDIR /config/lgdx_ws
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
       colcon build
-

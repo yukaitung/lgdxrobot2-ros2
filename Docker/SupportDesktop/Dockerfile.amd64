@@ -20,7 +20,6 @@ RUN set -eux; \
 
 # setup sources.list
 RUN echo "deb [ signed-by=/usr/share/keyrings/ros2-testing-archive-keyring.gpg ] http://packages.ros.org/ros2-testing/ubuntu noble main" > /etc/apt/sources.list.d/ros2-testing.list
-
 ENV ROS_DISTRO=jazzy
 
 # install bootstrap tools
