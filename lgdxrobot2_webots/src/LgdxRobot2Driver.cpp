@@ -32,7 +32,7 @@ void LgdxRobot2Driver::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
   
 }
 
-void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered_map<std::string, std::string> &parameters) 
+void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered_map<std::string, std::string>) 
 {
   rosNode = node;
 
@@ -64,7 +64,7 @@ void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered
     rclcpp::SensorDataQoS().reliable(),
     [this](const lgdxrobot2_agent::msg::RobotData &msg)
     {
-      isCrticialStatus = msg.robot_status == 5; // 5 = Critical
+      isCrticialStatus = msg.robot_status == 6; // 6 = Critical
     }
   );
   odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("/odom", rclcpp::SensorDataQoS().reliable());

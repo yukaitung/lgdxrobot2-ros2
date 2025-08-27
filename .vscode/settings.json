@@ -80,6 +80,7 @@
     "strstream": "cpp",
     "cfenv": "cpp",
     "stdfloat": "cpp",
-    "queue": "cpp"
+    "queue": "cpp",
+    "__node_handle": "cpp"
   }
 }
