@@ -97,9 +97,9 @@ def launch_setup(context):
     parameters=[{
       'cloud_enable': True,
       'cloud_address': cloud_address,
-      'cloud_root_cert': '/home/user/keys/root.crt',
-      'cloud_client_key': '/home/user/keys/Robot1.key',
-      'cloud_client_cert': '/home/user/keys/Robot1.crt',
+      'cloud_root_cert': '/config/keys/root.crt',
+      'cloud_client_key': '/config/keys/Robot1.key',
+      'cloud_client_cert': '/config/keys/Robot1.crt',
       'sim_enable': True,
     }],
     remappings=[
@@ -118,9 +118,9 @@ def launch_setup(context):
     parameters=[{
       'cloud_enable': True,
       'cloud_address': cloud_address,
-      'cloud_root_cert': '/home/user/keys/root.crt',
-      'cloud_client_key': '/home/user/keys/Robot2.key',
-      'cloud_client_cert': '/home/user/keys/Robot2.crt',
+      'cloud_root_cert': '/config/keys/root.crt',
+      'cloud_client_key': '/config/keys/Robot2.key',
+      'cloud_client_cert': '/config/keys/Robot2.crt',
       'sim_enable': True,
     }],
     remappings=[
