@@ -2,10 +2,11 @@
 set -e
 
 # Setup permissions
-chown -R abc:abc /config/.ros
-chown -R abc:abc /config/.colcon
-chown -R abc:abc /config/lgdx_ws
-chown -R abc:abc /config/webots_ws
+chown -R 1000:1000 /config/.ros
+chown -R 1000:1000 /config/.colcon
+chown -R 1000:1000 /config/lgdx_ws
+chown -R 1000:1000 /config/webots_ws
+chown -R 1000:1000 /config/webots
 
 # setup ros2 environment
 source "/opt/ros/$ROS_DISTRO/setup.bash"
