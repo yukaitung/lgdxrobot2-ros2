@@ -1,3 +1,5 @@
+FROM yukaitung/lgdxrobot2.support:amd64 AS support
+
 FROM ghcr.io/linuxserver/baseimage-selkies:ubuntunoble
 
 # Install ROS2
@@ -62,37 +64,20 @@ RUN apt update && \
       rm -rf /var/lib/apt/lists/*
 
 # Webots ROS2
-WORKDIR /home/user/webots_ws/src
-RUN git clone --recurse-submodules https://github.com/cyberbotics/webots_ros2.git
-
-WORKDIR /home/user/webots_ws
+COPY --from=support /config/webots_ws /config/webots_ws
+WORKDIR /config/webots_ws
 RUN apt update && \
       rosdep update && \
       rosdep install --from-paths src --ignore-src --rosdistro $ROS_DISTRO -y && \
       rm -rf /var/lib/apt/lists/*
-RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-      colcon build --symlink-install
 
 # LGDXRobot2 ROS2 (Third Party)
-WORKDIR /home/user/lgdx_ws/src
-COPY . .
-RUN rm -rf lgdxrobot2*
-RUN git submodule init
-RUN git submodule update
+COPY --from=support /config/lgdx_ws /config/lgdx_ws
+WORKDIR /config/lgdx_ws/src
 RUN apt update && \
       rosdep update && \
       rosdep install --from-paths third_party/m-explore-ros2 --ignore-src --rosdistro $ROS_DISTRO -y && \
       rm -rf /var/lib/apt/lists/*
-
-WORKDIR /home/user/lgdx_ws
-RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-      colcon build
-
-# configure permissions
-RUN mkdir -p /config/.ros
-RUN chmod 777 -R /config/.ros
-RUN mkdir -p /config/.colcon
-RUN chmod 777 -R /config/.ros
 
 # setup entrypoint
 COPY /root /

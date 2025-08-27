@@ -6,10 +6,10 @@ RUN apt update && \
       rm -rf /var/lib/apt/lists/*
 
 # Webots ROS2
-WORKDIR /home/user/webots_ws/src
+WORKDIR /config/webots_ws/src
 RUN git clone --recurse-submodules https://github.com/cyberbotics/webots_ros2.git
 
-WORKDIR /home/user/webots_ws
+WORKDIR /config/webots_ws
 RUN apt update && \
       rosdep update && \
       rosdep install --from-paths src --ignore-src --rosdistro $ROS_DISTRO -y && \
@@ -18,7 +18,7 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
       colcon build --symlink-install
 
 # LGDXRobot2 ROS2 (Third Party)
-WORKDIR /home/user/lgdx_ws/src
+WORKDIR /config/lgdx_ws/src
 COPY . .
 RUN rm -rf lgdxrobot2*
 RUN git submodule init
@@ -28,7 +28,7 @@ RUN apt update && \
       rosdep install --from-paths third_party/m-explore-ros2 --ignore-src --rosdistro $ROS_DISTRO -y && \
       rm -rf /var/lib/apt/lists/*
 
-WORKDIR /home/user/lgdx_ws
+WORKDIR /config/lgdx_ws
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
       colcon build
 
