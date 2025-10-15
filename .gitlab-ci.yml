@@ -136,6 +136,10 @@ release_job:
   needs:
     - job: prepare
       artifacts: true
+    - job: build-arm64
+      artifacts: false
+    - job: build-amd64
+      artifacts: false
   services:
     - docker:24.0.5-dind
   before_script:
