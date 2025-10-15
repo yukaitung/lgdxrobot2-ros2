@@ -2,12 +2,6 @@
 set -e
 
 # Setup permissions
-mkdir -p /config/.ros
-mkdir -p /config/.colcon
-mkdir -p /config/lgdx_ws
-mkdir -p /config/webots_ws
-mkdir -p /config/webots
-
 chown -R 1000:1000 /config/.ros
 chown -R 1000:1000 /config/.colcon
 chown -R 1000:1000 /config/lgdx_ws

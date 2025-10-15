@@ -30,3 +30,6 @@ RUN apt update && \
 WORKDIR /config/lgdx_ws
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
       colcon build
+
+WORKDIR /config
+RUN mkdir -p .ros && mkdir -p .colcon && mkdir -p webots
