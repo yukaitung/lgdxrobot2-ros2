@@ -6,6 +6,7 @@ chown -R 1000:1000 /config/.ros
 chown -R 1000:1000 /config/.colcon
 chown -R 1000:1000 /config/lgdx_ws
 chown -R 1000:1000 /config/webots_ws
+mkdir -p /config/webots
 chown -R 1000:1000 /config/webots
 
 # setup ros2 environment
