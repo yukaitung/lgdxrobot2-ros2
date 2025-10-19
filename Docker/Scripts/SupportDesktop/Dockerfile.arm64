@@ -1,4 +1,4 @@
-FROM yukaitung/lgdxrobot2.support:amd64 AS support
+FROM yukaitung/lgdxrobot2.support:arm64 AS support
 
 FROM ghcr.io/linuxserver/baseimage-selkies:ubuntunoble
 
@@ -79,7 +79,7 @@ RUN apt update && \
       rm -rf /var/lib/apt/lists/*
 
 # setup entrypoint
-COPY /root /
+COPY /Docker/root /
 
 # configure branding
 ENV TITLE="LGDXRobot2 Workspace"

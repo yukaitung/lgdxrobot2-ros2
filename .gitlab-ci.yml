@@ -38,9 +38,9 @@ build-sup-amd64:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker build -f Docker/Support/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64 .
+    - docker build -f Docker/Scripts/Support/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64
-    - docker build -f Docker/SupportDesktop/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:amd64 .
+    - docker build -f Docker/Scripts/SupportDesktop/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:amd64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:amd64
 
 build-sup-arm64-webots:
@@ -57,7 +57,7 @@ build-sup-arm64-webots:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker build -f Docker/Webots/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.webots:latest .
+    - docker build -f Docker/Scripts/Webots/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.webots:latest .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.webots:latest
 
 build-sup-arm64:
@@ -74,9 +74,9 @@ build-sup-arm64:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker build -f Docker/Support/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64 .
+    - docker build -f Docker/Scripts/Support/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64
-    - docker build -f Docker/SupportDesktop/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:arm64 .
+    - docker build -f Docker/Scripts/SupportDesktop/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:arm64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:arm64
 
 build-amd64:
@@ -93,13 +93,13 @@ build-amd64:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker build -f Docker/Base/Dockerfile.amd64lite -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64-lite .
+    - docker build -f Docker/Scripts/Base/Dockerfile.amd64lite -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64-lite .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64-lite
-    - docker build -f Docker/Base/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64 .
+    - docker build -f Docker/Scripts/Base/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64
-    - docker build -f Docker/Desktop/Dockerfile.amd64lite -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-amd64-lite .
+    - docker build -f Docker/Scripts/Desktop/Dockerfile.amd64lite -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-amd64-lite .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-amd64-lite
-    - docker build -f Docker/Desktop/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-amd64 .
+    - docker build -f Docker/Scripts/Desktop/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-amd64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-amd64
     
 build-arm64:
@@ -115,13 +115,13 @@ build-arm64:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    - docker build -f Docker/Base/Dockerfile.arm64lite -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64-lite .
+    - docker build -f Docker/Scripts/Base/Dockerfile.arm64lite -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64-lite .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64-lite
-    - docker build -f Docker/Base/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64 .
+    - docker build -f Docker/Scripts/Base/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64
-    - docker build -f Docker/Desktop/Dockerfile.arm64lite -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-arm64-lite .
+    - docker build -f Docker/Scripts/Desktop/Dockerfile.arm64lite -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-arm64-lite .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-arm64-lite
-    - docker build -f Docker/Desktop/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-arm64 .
+    - docker build -f Docker/Scripts/Desktop/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-arm64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-arm64
     
 release_job:

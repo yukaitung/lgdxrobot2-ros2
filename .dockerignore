@@ -1,6 +1,6 @@
 .vscode/*
 .gitignore
-Docker/*
+Docker/Scripts/*
 LICENSE
 README.md
 img.png
