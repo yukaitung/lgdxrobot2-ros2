@@ -7,7 +7,7 @@ COPY . .
 WORKDIR /config/lgdx_ws
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
       . /config/webots_ws/install/setup.sh && \
-      colcon build
+      colcon build --symlink-install
 
 COPY ./ros_entrypoint.sh /
 RUN chmod +x /ros_entrypoint.sh
