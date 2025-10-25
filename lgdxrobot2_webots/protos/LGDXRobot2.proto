@@ -71,21 +71,6 @@ Robot {
       translation 0.06 0 0.13331
       rotation 0 0 1 3.14159
       children [
-        DEF LIDAR_BO Pose {
-          translation 0 0 0.02065
-          children [
-            Shape {
-              appearance Appearance {
-                material Material {
-                  transparency 1
-                }
-              }
-              geometry Box {
-                size 0.0556 0.0556 0.0413
-              }
-            }
-          ]
-        }
         Shape {
           appearance Plastic {
             colorOverride 0 0 0
@@ -97,17 +82,24 @@ Robot {
           }
         }
       ]
-      boundingObject USE LIDAR_BO
+      boundingObject Pose {
+        translation 0 0 0.02065
+        children [
+          Box {
+            size 0.0556 0.0556 0.0413
+          }
+        ]
+      }
       physics Physics {
         density -1
         mass 0.11
       }
-      horizontalResolution 360
+      horizontalResolution 500
       fieldOfView 6.28318
       numberOfLayers 1
-      near 0.07
-      minRange 0.12
-      maxRange 3.5
+      near 0.05
+      minRange 0.05
+      maxRange 9
     }
     HingeJoint {
       jointParameters HingeJointParameters {
@@ -138,9 +130,14 @@ Robot {
         ]
         name "WHEEL_4"
         contactMaterial "ExteriorWheelMat"
-        boundingObject Cylinder {
-          height 0.095
-          radius 0.0375
+        boundingObject Pose {
+          translation 0 0 0.024
+          children [
+            Cylinder {
+              height 0.048
+              radius 0.0375
+            }
+          ]
         }
         physics Physics {
         }
@@ -175,9 +172,14 @@ Robot {
         ]
         name "WHEEL_3"
         contactMaterial "InteriorWheelMat"
-        boundingObject Cylinder {
-          height 0.095
-          radius 0.0375
+        boundingObject Pose {
+          translation 0 0 0.024
+          children [
+            Cylinder {
+              height 0.048
+              radius 0.0375
+            }
+          ]
         }
         physics Physics {
         }
@@ -212,9 +214,14 @@ Robot {
         ]
         name "WHEEL_2"
         contactMaterial "InteriorWheelMat"
-        boundingObject Cylinder {
-          height 0.095
-          radius 0.0375
+        boundingObject Pose {
+          translation 0 0 0.024
+          children [
+            Cylinder {
+              height 0.048
+              radius 0.0375
+            }
+          ]
         }
         physics Physics {
         }
@@ -249,9 +256,14 @@ Robot {
         ]
         name "WHEEL_1"
         contactMaterial "ExteriorWheelMat"
-        boundingObject Cylinder {
-          height 0.095
-          radius 0.0375
+        boundingObject Pose {
+          translation 0 0 0.024
+          children [
+            Cylinder {
+              height 0.048
+              radius 0.0375
+            }
+          ]
         }
         physics Physics {
         }
@@ -302,15 +314,28 @@ Robot {
       ]
     }
   ]
-  boundingObject Pose {
-    translation 0 0 0.094
+  boundingObject Group {
     children [
-      Box {
-        size 0.24 0.24 0.078
+      Pose {
+        translation 0 0 0.031
+        children [
+          Box {
+            size 0.204 0.138 0.047
+          }
+        ]
+      }
+      Pose {
+        translation 0 0 0.094
+        children [
+          Box {
+            size 0.24 0.24 0.078
+          }
+        ]
       }
     ]
   }
   physics Physics {
   }
 }
+
 }
