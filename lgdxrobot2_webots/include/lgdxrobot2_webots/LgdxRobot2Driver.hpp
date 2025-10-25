@@ -12,8 +12,8 @@
 // Odom
 #include "tf2_ros/transform_broadcaster.h"
 
-#define CHASSIS_LX 0.237
-#define CHASSIS_LY 0.287
+#define CHASSIS_LX 0.24
+#define CHASSIS_LY 0.24
 #define WHEEL_RADIUS 0.0375
 
 namespace LgdxRobot2 

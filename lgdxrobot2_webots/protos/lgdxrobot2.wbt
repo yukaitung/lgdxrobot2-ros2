@@ -1,0 +1,328 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Plastic.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Rubber.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BrushedAluminium.proto"
+
+WorldInfo {
+  basicTimeStep 16
+  contactProperties [
+    ContactProperties {
+      material1 "InteriorWheelMat"
+      coulombFriction [
+        0, 2, 0
+      ]
+      frictionRotation -0.785398 0
+      bounce 0
+      forceDependentSlip [
+        10, 0
+      ]
+    }
+    ContactProperties {
+      material1 "ExteriorWheelMat"
+      coulombFriction [
+        0, 2, 0
+      ]
+      frictionRotation 0.785398 0
+      bounce 0
+      forceDependentSlip [
+        10, 0
+      ]
+    }
+  ]
+}
+Viewpoint {
+  orientation 0.1756576195684078 -0.011990703740033774 -0.9843782929907482 3.1819253580437454
+  position 0.7902640248914221 -0.06767807691147776 0.32234911649075343
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 10 10
+  wallHeight 0.5
+}
+Robot {
+  children [
+    Lidar {
+      translation 0.06 0 0.13331
+      children [
+        DEF LIDAR_BO Pose {
+          translation 0 0 0.02065
+          children [
+            Shape {
+              appearance Appearance {
+                material Material {
+                  transparency 1
+                }
+              }
+              geometry Box {
+                size 0.0556 0.0556 0.0413
+              }
+            }
+          ]
+        }
+        Shape {
+          appearance Plastic {
+            colorOverride 0 0 0
+          }
+          geometry Mesh {
+            url [
+              "meshes/Lidar.dae"
+            ]
+          }
+        }
+      ]
+      boundingObject USE LIDAR_BO
+      physics Physics {
+      }
+    }
+    Camera {
+      translation 0.11 0 0.07181
+      children [
+        DEF CAMERA_BO Pose {
+          translation 0.0125 0 0
+          children [
+            Shape {
+              appearance Appearance {
+                material Material {
+                  transparency 1
+                }
+              }
+              geometry Box {
+                size 0.025 0.09 0.025
+              }
+            }
+          ]
+        }
+        Shape {
+          appearance BrushedAluminium {
+          }
+          geometry Mesh {
+            url [
+              "meshes/Camera.dae"
+            ]
+          }
+        }
+      ]
+      boundingObject USE CAMERA_BO
+      physics Physics {
+      }
+    }
+    DEF BOUNDING Pose {
+      translation 0 0 0.094
+      children [
+        Shape {
+          appearance Appearance {
+            material Material {
+              transparency 1
+            }
+          }
+          geometry Box {
+            size 0.24 0.24 0.078
+          }
+        }
+      ]
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor -0.1055 -0.1025 0.0375
+      }
+      device [
+        RotationalMotor {
+          name "wheel4"
+        }
+        PositionSensor {
+          name "encoder4"
+        }
+      ]
+      endPoint Solid {
+        translation -0.083 -0.072 0.037
+        rotation 1 0 0 1.5708
+        children [
+          Shape {
+            appearance Rubber {
+            }
+            geometry Mesh {
+              url [
+                "../protos/meshes/Wheel4.dae"
+              ]
+            }
+          }
+        ]
+        name "WHEEL_4"
+        contactMaterial "ExteriorWheelMat"
+        boundingObject Cylinder {
+          height 0.095
+          radius 0.0375
+        }
+        physics Physics {
+        }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor -0.1055 0.1025 0.0375
+      }
+      device [
+        RotationalMotor {
+          name "wheel3"
+        }
+        PositionSensor {
+          name "encoder3"
+        }
+      ]
+      endPoint Solid {
+        translation -0.083 0.072 0.037
+        rotation -0.9999999999999999 0 0 1.5707953071795862
+        children [
+          Shape {
+            appearance Rubber {
+            }
+            geometry Mesh {
+              url [
+                "meshes/Wheel3.dae"
+              ]
+            }
+          }
+        ]
+        name "WHEEL_3"
+        contactMaterial "InteriorWheelMat"
+        boundingObject Cylinder {
+          height 0.095
+          radius 0.0375
+        }
+        physics Physics {
+        }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0.1055 -0.1025 0.0375
+      }
+      device [
+        RotationalMotor {
+          name "wheel2"
+        }
+        PositionSensor {
+          name "encoder2"
+        }
+      ]
+      endPoint Solid {
+        translation 0.083 -0.072 0.037
+        rotation 1 0 0 1.5708
+        children [
+          Shape {
+            appearance Rubber {
+            }
+            geometry Mesh {
+              url [
+                "meshes/Wheel2.dae"
+              ]
+            }
+          }
+        ]
+        name "WHEEL_2"
+        contactMaterial "InteriorWheelMat"
+        boundingObject Cylinder {
+          height 0.095
+          radius 0.0375
+        }
+        physics Physics {
+        }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0.1055 0.1025 0.0375
+      }
+      device [
+        PositionSensor {
+          name "encoder1"
+        }
+        RotationalMotor {
+          name "wheel1"
+        }
+      ]
+      endPoint Solid {
+        translation 0.083 0.072 0.037
+        rotation -1 0 0 1.5708
+        children [
+          Shape {
+            appearance Rubber {
+            }
+            geometry Mesh {
+              url [
+                "meshes/Wheel1.dae"
+              ]
+            }
+          }
+        ]
+        name "WHEEL_1"
+        contactMaterial "ExteriorWheelMat"
+        boundingObject Cylinder {
+          height 0.095
+          radius 0.0375
+        }
+        physics Physics {
+        }
+      }
+    }
+    DEF BODY Pose {
+      children [
+        DEF MOTORS Shape {
+          appearance BrushedAluminium {
+            IBLStrength 0.5
+          }
+          geometry Mesh {
+            url [
+              "meshes/Motors.dae"
+            ]
+          }
+        }
+        DEF BRACKETS Shape {
+          appearance BrushedAluminium {
+            colorOverride 0 0 0
+          }
+          geometry Mesh {
+            url [
+              "meshes/Brackets.dae"
+            ]
+          }
+        }
+        DEF STANDOFFS Shape {
+          appearance BrushedAluminium {
+            IBLStrength 0.5
+          }
+          geometry Mesh {
+            url [
+              "meshes/Standoffs.dae"
+            ]
+          }
+        }
+        DEF PLATES Shape {
+          appearance Plastic {
+            colorOverride 0.509804 0.105882 0.113725
+          }
+          geometry Mesh {
+            url [
+              "meshes/Plates.dae"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+  name "LGDXRobot2"
+  boundingObject USE BOUNDING
+  physics Physics {
+  }
+}
