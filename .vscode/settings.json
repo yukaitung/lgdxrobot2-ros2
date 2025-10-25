@@ -82,5 +82,6 @@
     "stdfloat": "cpp",
     "queue": "cpp",
     "__node_handle": "cpp"
-  }
+  },
+  "cmake.sourceDirectory": "/Users/sam/Develop/lgdxrobot2-ros2/lgdxrobot2"
 }

@@ -1,8 +1,15 @@
 FROM ros:jazzy
 
-RUN apt update && \
-      apt install --no-install-recommends -y git ros-dev-tools ros-jazzy-navigation2 ros-jazzy-nav2-bringup ros-jazzy-nav2-route libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc && \
-      rm -rf /var/lib/apt/lists/*
+# install packages
+RUN apt update && apt install -y --no-install-recommends \
+      ros-dev-tools \
+      ros-jazzy-navigation2 \
+      ros-jazzy-nav2-bringup \
+      ros-jazzy-nav2-route \
+      libprotobuf-dev \
+      libgrpc++-dev \
+      protobuf-compiler-grpc \
+      && rm -rf /var/lib/apt/lists/*
 
 # Webots ROS2
 WORKDIR /config/webots_ws/src
