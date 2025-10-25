@@ -52,6 +52,7 @@ RUN apt update && apt install -y --no-install-recommends \
 			xfce4-terminal \
 			ros-jazzy-navigation2 \
 			ros-jazzy-nav2-bringup \
+			ros-jazzy-nav2-route \
 			libprotobuf-dev \
 			libgrpc++-dev \
 			protobuf-compiler-grpc \
