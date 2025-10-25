@@ -3,6 +3,7 @@
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Plastic.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Rubber.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BrushedAluminium.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Pcb.proto"
 PROTO LGDXRobot2 [
   field SFVec3f    translation  0 0 0
   field SFRotation rotation     0 0 1 0
@@ -123,6 +124,15 @@ Robot {
             }
             geometry Mesh {
               url [
+                "meshes/Wheel4Rollers.dae"
+              ]
+            }
+          }
+          Shape {
+            appearance BrushedAluminium {
+            }
+            geometry Mesh {
+              url [
                 "meshes/Wheel4.dae"
               ]
             }
@@ -162,6 +172,15 @@ Robot {
         children [
           Shape {
             appearance Rubber {
+            }
+            geometry Mesh {
+              url [
+                "meshes/Wheel3Rollers.dae"
+              ]
+            }
+          }
+          Shape {
+            appearance BrushedAluminium {
             }
             geometry Mesh {
               url [
@@ -207,6 +226,15 @@ Robot {
             }
             geometry Mesh {
               url [
+                "meshes/Wheel2Rollers.dae"
+              ]
+            }
+          }
+          Shape {
+            appearance BrushedAluminium {
+            }
+            geometry Mesh {
+              url [
                 "meshes/Wheel2.dae"
               ]
             }
@@ -249,6 +277,15 @@ Robot {
             }
             geometry Mesh {
               url [
+                "meshes/Wheel1Rollers.dae"
+              ]
+            }
+          }
+          Shape {
+            appearance BrushedAluminium {
+            }
+            geometry Mesh {
+              url [
                 "meshes/Wheel1.dae"
               ]
             }
@@ -271,6 +308,24 @@ Robot {
     }
     DEF BODY Pose {
       children [
+        Shape {
+          appearance Pcb {
+          }
+          geometry Mesh {
+            url [
+              "meshes/Board.dae"
+            ]
+          }
+        }
+        DEF BOARD_SCREWS Shape {
+          appearance BrushedAluminium {
+          }
+          geometry Mesh {
+            url [
+              "meshes/Screws.dae"
+            ]
+          }
+        }
         DEF MOTORS Shape {
           appearance BrushedAluminium {
             IBLStrength 0.5
