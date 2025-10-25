@@ -35,8 +35,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.1756576195684078 -0.011990703740033774 -0.9843782929907482 3.1819253580437454
-  position 0.7902640248914221 -0.06767807691147776 0.32234911649075343
+  orientation 0.11260231986760824 -0.059647757888220944 -0.9918482053920049 4.199533354244575
+  position 0.5799758327394025 -0.8728708139102723 0.2766294326143319
 }
 TexturedBackground {
 }
@@ -48,6 +48,59 @@ RectangleArena {
 }
 Robot {
   children [
+    Solid {
+      translation 0.1 0 0.05931
+      children [
+        Accelerometer {
+          name "accelerometer"
+        }
+        Gyro {
+          name "gyro"
+        }
+        InertialUnit {
+          name "inertial_unit"
+        }
+        RangeFinder {
+          translation 0.025 0 0.0125
+          name "camera depth"
+          width 1280
+          height 720
+        }
+        Camera {
+          translation 0.025 0 0.0125
+          name "camera rgb"
+          width 1280
+          height 720
+        }
+        Pose {
+          translation 0 0 0.0125
+          children [
+            Shape {
+              appearance BrushedAluminium {
+              }
+              geometry Mesh {
+                url [
+                  "../protos/meshes/Camera.dae"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+      name "Camera"
+      boundingObject Pose {
+        translation 0.0125 0 0.0125
+        children [
+          DEF CAMERA_BO Box {
+            size 0.025 0.09 0.025
+          }
+        ]
+      }
+      physics Physics {
+        density -1
+        mass 0.26
+      }
+    }
     Lidar {
       translation 0.06 0 0.13331
       children [
@@ -79,54 +132,9 @@ Robot {
       ]
       boundingObject USE LIDAR_BO
       physics Physics {
+        density -1
+        mass 0.11
       }
-    }
-    Camera {
-      translation 0.11 0 0.07181
-      children [
-        DEF CAMERA_BO Pose {
-          translation 0.0125 0 0
-          children [
-            Shape {
-              appearance Appearance {
-                material Material {
-                  transparency 1
-                }
-              }
-              geometry Box {
-                size 0.025 0.09 0.025
-              }
-            }
-          ]
-        }
-        Shape {
-          appearance BrushedAluminium {
-          }
-          geometry Mesh {
-            url [
-              "meshes/Camera.dae"
-            ]
-          }
-        }
-      ]
-      boundingObject USE CAMERA_BO
-      physics Physics {
-      }
-    }
-    DEF BOUNDING Pose {
-      translation 0 0 0.094
-      children [
-        Shape {
-          appearance Appearance {
-            material Material {
-              transparency 1
-            }
-          }
-          geometry Box {
-            size 0.24 0.24 0.078
-          }
-        }
-      ]
     }
     HingeJoint {
       jointParameters HingeJointParameters {
@@ -322,7 +330,14 @@ Robot {
     }
   ]
   name "LGDXRobot2"
-  boundingObject USE BOUNDING
+  boundingObject Pose {
+    translation 0 0 0.094
+    children [
+      Box {
+        size 0.24 0.24 0.078
+      }
+    ]
+  }
   physics Physics {
   }
 }
