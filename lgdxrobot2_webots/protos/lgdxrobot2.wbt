@@ -35,8 +35,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.11260231986760824 -0.059647757888220944 -0.9918482053920049 4.199533354244575
-  position 0.5799758327394025 -0.8728708139102723 0.2766294326143319
+  orientation -0.13338527134006437 -0.03851247792218564 0.9903156862505161 3.6248970697026053
+  position 1.080609956773456 0.9050878604226942 0.44395773721033704
 }
 TexturedBackground {
 }
@@ -52,10 +52,8 @@ Robot {
       translation 0.1 0 0.05931
       children [
         Accelerometer {
-          name "accelerometer"
         }
         Gyro {
-          name "gyro"
         }
         InertialUnit {
           name "inertial_unit"
@@ -80,7 +78,7 @@ Robot {
               }
               geometry Mesh {
                 url [
-                  "../protos/meshes/Camera.dae"
+                  "meshes/Camera.dae"
                 ]
               }
             }
@@ -103,6 +101,7 @@ Robot {
     }
     Lidar {
       translation 0.06 0 0.13331
+      rotation 0 0 1 3.14159
       children [
         DEF LIDAR_BO Pose {
           translation 0 0 0.02065
@@ -135,11 +134,17 @@ Robot {
         density -1
         mass 0.11
       }
+      horizontalResolution 360
+      fieldOfView 6.28318
+      numberOfLayers 1
+      near 0.07
+      minRange 0.12
+      maxRange 3.5
     }
     HingeJoint {
       jointParameters HingeJointParameters {
         axis 0 1 0
-        anchor -0.1055 -0.1025 0.0375
+        anchor -0.083 -0.072 0.037
       }
       device [
         RotationalMotor {
@@ -158,7 +163,7 @@ Robot {
             }
             geometry Mesh {
               url [
-                "../protos/meshes/Wheel4.dae"
+                "meshes/Wheel4.dae"
               ]
             }
           }
@@ -176,7 +181,7 @@ Robot {
     HingeJoint {
       jointParameters HingeJointParameters {
         axis 0 1 0
-        anchor -0.1055 0.1025 0.0375
+        anchor -0.083 0.072 0.037
       }
       device [
         RotationalMotor {
@@ -213,7 +218,7 @@ Robot {
     HingeJoint {
       jointParameters HingeJointParameters {
         axis 0 1 0
-        anchor 0.1055 -0.1025 0.0375
+        anchor 0.083 -0.072 0.037
       }
       device [
         RotationalMotor {
@@ -250,7 +255,7 @@ Robot {
     HingeJoint {
       jointParameters HingeJointParameters {
         axis 0 1 0
-        anchor 0.1055 0.1025 0.0375
+        anchor 0.083 0.072 0.037
       }
       device [
         PositionSensor {
