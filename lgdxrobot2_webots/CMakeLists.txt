@@ -11,6 +11,7 @@ find_package(lgdxrobot2_agent REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(webots_ros2_driver REQUIRED)
@@ -32,6 +33,7 @@ ament_target_dependencies(
   nav_msgs
   pluginlib
   rclcpp
+  sensor_msgs
   std_msgs
   tf2_geometry_msgs
   webots_ros2_driver

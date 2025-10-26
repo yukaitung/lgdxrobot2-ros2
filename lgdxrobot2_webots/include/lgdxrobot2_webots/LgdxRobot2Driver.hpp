@@ -6,11 +6,13 @@
 #include "nav_msgs/msg/odometry.hpp"
 #include "rclcpp/macros.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
 #include "webots_ros2_driver/PluginInterface.hpp"
 #include "webots_ros2_driver/WebotsNode.hpp"
 
 // Odom
 #include "tf2_ros/transform_broadcaster.h"
+#include <string>
 
 #define CHASSIS_LX 0.24
 #define CHASSIS_LY 0.24
@@ -23,19 +25,20 @@ class LgdxRobot2Driver : public webots_ros2_driver::PluginInterface
   private:
     webots_ros2_driver::WebotsNode *rosNode;
 
-    WbDeviceTag wheels[4];
-    double wheelsVelocity[4] = {0};
+    WbDeviceTag wheels[4]; // Wheel1 - Wheel4
+    double wheelsVelocity[4] = {0}; // Wheel1 - Wheel4
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
 
     bool isCrticialStatus = false;
     rclcpp::Subscription<lgdxrobot2_agent::msg::RobotData>::SharedPtr robotStatusSubscription;
     
     double lastSimTime = 0;
-    double motorLastPosition[4] = {0};
-    double robotTransform[3] = {0};
-    WbDeviceTag positionSensors[4];
+    double motorLastPosition[4] = {0}; // Wheel1 - Wheel4
+    double robotTransform[3] = {0}; // x, y, rotation
+    WbDeviceTag positionSensors[4]; // Wheel1 - Wheel4
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPublisher;
     std::shared_ptr<tf2_ros::TransformBroadcaster> tfBroadcaster;
+    rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr jointStatePublisher;
 
     WbDeviceTag inertialUnit;
 

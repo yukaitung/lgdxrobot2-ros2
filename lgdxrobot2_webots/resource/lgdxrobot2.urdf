@@ -14,14 +14,14 @@
       <ros>
         <topicName>/camera/color</topicName>
         <enabled>true</enabled>
-        <alwaysOn>true</alwaysOn>
+        <alwaysOn>false</alwaysOn>
       </ros>
     </device>
     <device reference="camera_depth" type="RangeFinder">
       <ros>
         <topicName>/camera/depth</topicName>
         <enabled>true</enabled>
-        <alwaysOn>true</alwaysOn>
+        <alwaysOn>false</alwaysOn>
       </ros>
     </device>
     <device reference="lidar_link" type="Lidar">

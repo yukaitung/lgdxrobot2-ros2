@@ -19,28 +19,28 @@
     <origin rpy="-1.57080 0.00000 0.00000" xyz="0.08200 0.10357 0.03681"/>
     <parent link="base_link"/>
     <child link="wheel1_link"/>
-    <axis xyz="0.00000 0.00000 -1.00000"/>
+    <axis xyz="0.00000 0.00000 1.00000"/>
   </joint>
   <joint name="wheel2_link_joint" type="continuous">
     <limit effort="30.00000" velocity="12.00000"/>
     <origin rpy="-1.57080 0.00000 0.00000" xyz="0.08185 -0.10362 0.03676"/>
     <parent link="base_link"/>
     <child link="wheel2_link"/>
-    <axis xyz="0.00000 0.00000 -1.00000"/>
+    <axis xyz="0.00000 0.00000 1.00000"/>
   </joint>
   <joint name="wheel3_link_joint" type="continuous">
     <limit effort="30.00000" velocity="12.00000"/>
     <origin rpy="-1.57080 0.00000 0.00000" xyz="-0.08200 0.10357 0.03681"/>
     <parent link="base_link"/>
     <child link="wheel3_link"/>
-    <axis xyz="0.00000 0.00000 -1.00000"/>
+    <axis xyz="0.00000 0.00000 1.00000"/>
   </joint>
   <joint name="wheel4_link_joint" type="continuous">
     <limit effort="30.00000" velocity="12.00000"/>
     <origin rpy="-1.57080 0.00000 0.00000" xyz="-0.08200 -0.10357 0.03681"/>
     <parent link="base_link"/>
     <child link="wheel4_link"/>
-    <axis xyz="0.00000 0.00000 -1.00000"/>
+    <axis xyz="0.00000 0.00000 1.00000"/>
   </joint>
   <link name="base_link">
     <collision name="brackets_collision">
