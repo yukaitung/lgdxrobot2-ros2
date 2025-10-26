@@ -50,6 +50,10 @@ Robot {
           }
         ]
       }
+      physics Physics {
+        density -1
+        mass 0.11
+      }
     }
     Solid {
       translation 0.106 0 0.05931
@@ -62,14 +66,16 @@ Robot {
           name "inertial_unit"
         }
         RangeFinder {
-          translation 0.025 0 0.0125
-          name "camera_depth"
+          translation 0.025 0.0175 0.0125
+          name "camera_depth_frame_sim"
           width 1280
           height 720
+          minRange 0.3
+          maxRange 3
         }
         Camera {
-          translation 0.025 0 0.0125
-          name "camera_rgb"
+          translation 0.025 0.0325 0.0125
+          name "camera_color_frame_sim"
           width 1280
           height 720
         }
@@ -88,7 +94,7 @@ Robot {
           ]
         }
       ]
-      name "camera_link"
+      name "camera"
       boundingObject Pose {
         translation 0.0125 0 0.0125
         children [
@@ -390,8 +396,9 @@ Robot {
     ]
   }
   physics Physics {
+    density -1
+    mass 2
   }
 }
-
 
 }
