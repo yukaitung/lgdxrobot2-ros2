@@ -66,13 +66,13 @@ Robot {
         }
         RangeFinder {
           translation 0.025 0 0.0125
-          name "camera depth"
+          name "camera_depth"
           width 1280
           height 720
         }
         Camera {
           translation 0.025 0 0.0125
-          name "camera rgb"
+          name "camera_rgb"
           width 1280
           height 720
         }
@@ -91,7 +91,7 @@ Robot {
           ]
         }
       ]
-      name "Camera"
+      name "camera_link"
       boundingObject Pose {
         translation 0.0125 0 0.0125
         children [
@@ -120,6 +120,7 @@ Robot {
           }
         }
       ]
+      name "lidar_link"
       boundingObject Pose {
         translation 0 0 0.02065
         children [

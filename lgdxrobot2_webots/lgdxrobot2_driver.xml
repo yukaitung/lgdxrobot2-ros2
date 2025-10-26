@@ -3,7 +3,7 @@
   <!-- The `base_class_type` attribute is always `webots_ros2_driver::PluginInterface`. -->
   <class type="LgdxRobot2::LgdxRobot2Driver" base_class_type="webots_ros2_driver::PluginInterface">
     <description>
-      This is a Webots ROS 2 plugin example
+      This is a Webots ROS 2 plugin
     </description>
   </class>
 </library>

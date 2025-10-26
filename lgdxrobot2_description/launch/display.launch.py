@@ -55,7 +55,8 @@ def launch_setup(context):
         package='robot_state_publisher',
         executable='robot_state_publisher',
         parameters=[
-          {'robot_description': Command(['xacro ', model_path])}
+          {'robot_description': Command(['xacro ', model_path])},
+          {'use_sim_time': use_sim_time}
         ],
         remappings=[
           ('/tf', 'tf'), 
@@ -63,8 +64,14 @@ def launch_setup(context):
         ]
       ),
       Node(
-        package="joint_state_publisher",
-        executable="joint_state_publisher",
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        name='joint_state_publisher',
+        parameters=[{'use_sim_time': use_sim_time}],
+        remappings=[
+          ('/tf', 'tf'), 
+          ('/tf_static', 'tf_static')
+        ]
       ),
       Node(
         package='rviz2',

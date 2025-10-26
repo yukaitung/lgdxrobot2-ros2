@@ -10,21 +10,21 @@
       <gyroName>gyro</gyroName>
       <accelerometerName>accelerometer</accelerometerName>
     </plugin>
-    <device reference="camera rgb" type="Camera">
+    <device reference="camera_rgb" type="Camera">
       <ros>
         <topicName>/camera/color</topicName>
         <enabled>true</enabled>
-        <alwaysOn>false</alwaysOn>
+        <alwaysOn>true</alwaysOn>
       </ros>
     </device>
-    <device reference="camera depth" type="RangeFinder">
+    <device reference="camera_depth" type="RangeFinder">
       <ros>
         <topicName>/camera/depth</topicName>
         <enabled>true</enabled>
-        <alwaysOn>false</alwaysOn>
+        <alwaysOn>true</alwaysOn>
       </ros>
     </device>
-    <device reference="lidar" type="Lidar">
+    <device reference="lidar_link" type="Lidar">
       <ros>
         <topicName>/scan</topicName>
         <updateRate>15</updateRate>

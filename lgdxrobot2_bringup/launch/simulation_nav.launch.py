@@ -184,7 +184,6 @@ def launch_setup(context):
     launch_arguments={
       'namespace': namespace,
       'use_sim_time': use_sim_time,
-      'model': 'lgdxrobot2_sim_description.urdf',
       'use_rviz': use_rviz,
       'rviz_config': rviz_config,
     }.items(),
