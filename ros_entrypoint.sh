@@ -22,11 +22,14 @@ if [[ -e /config/webots ]]; then
   chown -R 1000:1000 /config/webots
 fi
 
+# Remove Warning
+if [[ -e /run/dbus/pid ]]; then
+  rm /run/dbus/pid
+fi
+
 # setup ros2 environment
 source "/opt/ros/$ROS_DISTRO/setup.bash"
 source "/config/webots_ws/install/setup.bash"
 source "/config/lgdx_ws/install/setup.bash"
-
-echo "Setup complete"
 
 exec "$@"
