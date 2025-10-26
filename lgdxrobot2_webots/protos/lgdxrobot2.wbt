@@ -36,8 +36,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.07595411611119023 -0.018487343059715694 -0.9969399131303552 3.622793264864529
-  position 0.9742971995547318 -0.471019923516756 0.227814573005453
+  orientation 0.2203898257082691 -0.05025714074061542 -0.9741162890173105 3.578764354547935
+  position 0.7416233306138208 -0.3059970353781425 0.4279244099489581
 }
 TexturedBackground {
 }
@@ -87,6 +87,10 @@ Robot {
           }
         ]
       }
+      physics Physics {
+        density -1
+        mass 0.11
+      }
     }
     Solid {
       translation 0.106 0 0.05931
@@ -99,14 +103,16 @@ Robot {
           name "inertial_unit"
         }
         RangeFinder {
-          translation 0.025 0 0.0125
-          name "camera_depth"
+          translation 0.025 0.0175 0.0125
+          name "camera_depth_frame_sim"
           width 1280
           height 720
+          minRange 0.3
+          maxRange 3
         }
         Camera {
-          translation 0.025 0 0.0125
-          name "camera_rgb"
+          translation 0.025 0.0325 0.0125
+          name "camera_color_frame_sim"
           width 1280
           height 720
         }
@@ -125,7 +131,7 @@ Robot {
           ]
         }
       ]
-      name "camera_link"
+      name "camera"
       boundingObject Pose {
         translation 0.0125 0 0.0125
         children [
@@ -427,5 +433,7 @@ Robot {
     ]
   }
   physics Physics {
+    density -1
+    mass 2
   }
 }
