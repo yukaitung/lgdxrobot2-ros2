@@ -18,7 +18,7 @@ Robot {
   controller IS controller
   children [
     Solid {
-      translation 0.1 0 0.05931
+      translation 0.106 0 0.05931
       children [
         Accelerometer {
         }
