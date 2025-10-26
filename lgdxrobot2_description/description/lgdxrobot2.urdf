@@ -10,7 +10,7 @@
     <child link="camera_link"/>
   </joint>
   <joint name="lidar_link_joint" type="fixed">
-    <origin rpy="0.00000 0.00000 0.00000" xyz="0.06000 -0.00000 0.13331"/>
+    <origin rpy="0.00000 0.00000 0.00000" xyz="0.06000 -0.00000 0.15641"/>
     <parent link="base_link"/>
     <child link="lidar_link"/>
   </joint>
@@ -123,7 +123,7 @@
     </collision>
     <visual name="lidar">
       <material name="lgdxrobot_black"/>
-      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 -0.00000 0.00000"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 -0.00000 -0.02310"/>
       <geometry>
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Lidar_001_.dae" scale="1.00000 1.00000 1.00000"/>
       </geometry>

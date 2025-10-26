@@ -36,8 +36,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.13610027509156708 -0.013190278916786966 -0.9906072539922658 3.3961356697551817
-  position 0.7494074105846387 -0.16905748179034474 0.25849827027924027
+  orientation 0.07595411611119023 -0.018487343059715694 -0.9969399131303552 3.622793264864529
+  position 0.9742971995547318 -0.471019923516756 0.227814573005453
 }
 TexturedBackground {
 }
@@ -54,6 +54,40 @@ RectangleArena {
 }
 Robot {
   children [
+    Solid {
+      translation 0.06 0 0.13331
+      children [
+        Shape {
+          appearance Plastic {
+            colorOverride 0 0 0
+          }
+          geometry Mesh {
+            url [
+              "meshes/Lidar.dae"
+            ]
+          }
+        }
+        Lidar {
+          translation 0 0 0.0231
+          name "lidar_link"
+          horizontalResolution 500
+          fieldOfView 6.28318
+          numberOfLayers 1
+          near 0.05
+          minRange 0.05
+          maxRange 6
+        }
+      ]
+      name "lidar"
+      boundingObject Pose {
+        translation 0 0 0.02065
+        children [
+          Box {
+            size 0.0556 0.0556 0.0413
+          }
+        ]
+      }
+    }
     Solid {
       translation 0.106 0 0.05931
       children [
@@ -105,41 +139,6 @@ Robot {
         mass 0.26
       }
     }
-    Lidar {
-      translation 0.06 0 0.13331
-      rotation 0 0 1 -5.307179586466759e-06
-      children [
-        Shape {
-          appearance Plastic {
-            colorOverride 0 0 0
-          }
-          geometry Mesh {
-            url [
-              "meshes/Lidar.dae"
-            ]
-          }
-        }
-      ]
-      name "lidar_link"
-      boundingObject Pose {
-        translation 0 0 0.02065
-        children [
-          Box {
-            size 0.0556 0.0556 0.0413
-          }
-        ]
-      }
-      physics Physics {
-        density -1
-        mass 0.11
-      }
-      horizontalResolution 500
-      fieldOfView 6.28318
-      numberOfLayers 1
-      near 0.05
-      minRange 0.05
-      maxRange 9
-    }
     HingeJoint {
       jointParameters HingeJointParameters {
         axis 0 1 0
@@ -155,7 +154,7 @@ Robot {
       ]
       endPoint Solid {
         translation -0.083 -0.072 0.037
-        rotation 1 0 0 1.5708
+        rotation 1 7.377914028877902e-24 -5.321091516014994e-23 1.5707999999999975
         children [
           Shape {
             appearance Rubber {
@@ -206,7 +205,7 @@ Robot {
       ]
       endPoint Solid {
         translation -0.083 0.072 0.037
-        rotation -0.9999999999999999 0 0 1.5707953071795862
+        rotation -0.9999999999999999 -1.1259498901841018e-23 9.207493204982446e-24 1.5707953071795868
         children [
           Shape {
             appearance Rubber {
@@ -257,7 +256,7 @@ Robot {
       ]
       endPoint Solid {
         translation 0.083 -0.072 0.037
-        rotation 1 0 0 1.5708
+        rotation 1 -4.010327193927938e-23 -7.07606642328715e-24 1.5707999999999995
         children [
           Shape {
             appearance Rubber {
@@ -308,7 +307,7 @@ Robot {
       ]
       endPoint Solid {
         translation 0.083 0.072 0.037
-        rotation -1 0 0 1.5708
+        rotation -1 -9.630939940004967e-23 -2.4808445617012115e-23 1.5707999999999995
         children [
           Shape {
             appearance Rubber {
