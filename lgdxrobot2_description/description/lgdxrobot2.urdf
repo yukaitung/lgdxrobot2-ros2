@@ -1,0 +1,198 @@
+<robot name="lgdxrobot2" version="1.0">
+  <joint name="camera_link_joint" type="fixed">
+    <origin rpy="0.00000 0.00000 0.00000" xyz="0.10800 0.00026 0.05931"/>
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+  </joint>
+  <joint name="lidar_link_joint" type="fixed">
+    <origin rpy="0.00000 0.00000 0.00000" xyz="0.06000 -0.00000 0.13331"/>
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+  </joint>
+  <joint name="wheel1_link_joint" type="continuous">
+    <limit effort="30.00000" velocity="12.00000"/>
+    <origin rpy="-1.57080 0.00000 0.00000" xyz="0.08200 0.10357 0.03681"/>
+    <parent link="base_link"/>
+    <child link="wheel1_link"/>
+    <axis xyz="0.00000 0.00000 -1.00000"/>
+  </joint>
+  <joint name="wheel2_link_joint" type="continuous">
+    <limit effort="30.00000" velocity="12.00000"/>
+    <origin rpy="-1.57080 0.00000 0.00000" xyz="0.08185 -0.10362 0.03676"/>
+    <parent link="base_link"/>
+    <child link="wheel2_link"/>
+    <axis xyz="0.00000 0.00000 -1.00000"/>
+  </joint>
+  <joint name="wheel3_link_joint" type="continuous">
+    <limit effort="30.00000" velocity="12.00000"/>
+    <origin rpy="-1.57080 0.00000 0.00000" xyz="-0.08200 0.10357 0.03681"/>
+    <parent link="base_link"/>
+    <child link="wheel3_link"/>
+    <axis xyz="0.00000 0.00000 -1.00000"/>
+  </joint>
+  <joint name="wheel4_link_joint" type="continuous">
+    <limit effort="30.00000" velocity="12.00000"/>
+    <origin rpy="-1.57080 0.00000 0.00000" xyz="-0.08200 -0.10357 0.03681"/>
+    <parent link="base_link"/>
+    <child link="wheel4_link"/>
+    <axis xyz="0.00000 0.00000 -1.00000"/>
+  </joint>
+  <link name="base_link">
+    <collision name="brackets_collision">
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.03150"/>
+      <geometry>
+        <box size="0.20400 0.13800 0.04700"/>
+      </geometry>
+    </collision>
+    <collision name="plates_collision">
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.09400"/>
+      <geometry>
+        <box size="0.24000 0.24000 0.07800"/>
+      </geometry>
+    </collision>
+    <visual name="board">
+      <material name="lgdxrobot_green"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="package://lgdxrobot2_description/meshes/dae/b_LGDXRobot2_Board_001_.dae" scale="1.00000 1.00000 1.00000"/>
+      </geometry>
+    </visual>
+    <visual name="brackets">
+      <material name="lgdxrobot_black"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Mounting_Bracket_001_001.dae" scale="1.00000 1.00000 1.00000"/>
+      </geometry>
+    </visual>
+    <visual name="motors">
+      <material name="lgdxrobot_sliver"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Motor_001_001.dae" scale="1.00000 1.00000 1.00000"/>
+      </geometry>
+    </visual>
+    <visual name="plates">
+      <material name="lgdxrobot_red"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Top_Plate_001_.dae" scale="1.00000 1.00000 1.00000"/>
+      </geometry>
+    </visual>
+    <visual name="screws">
+      <material name="lgdxrobot_sliver"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="package://lgdxrobot2_description/meshes/dae/b_M4_Nut_001_021.dae" scale="1.00000 1.00000 1.00000"/>
+      </geometry>
+    </visual>
+    <visual name="standoffs">
+      <material name="lgdxrobot_sliver"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Coupling_Nut_70mm_001_006.dae" scale="1.00000 1.00000 1.00000"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="camera_link">
+    <collision name="camera_collision">
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.01097 -0.00000 0.01306"/>
+      <geometry>
+        <box size="0.02500 0.09000 0.02500"/>
+      </geometry>
+    </collision>
+    <visual name="camera">
+      <material name="lgdxrobot_sliver"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 -0.00000 -0.00000"/>
+      <geometry>
+        <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Camera_001_.dae" scale="1.00000 1.00000 1.00000"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="lidar_link">
+    <collision name="lidar_collision">
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.02150"/>
+      <geometry>
+        <box size="0.05560 0.05560 0.04130"/>
+      </geometry>
+    </collision>
+    <visual name="lidar">
+      <material name="lgdxrobot_black"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 -0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Lidar_001_.dae" scale="1.00000 1.00000 1.00000"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="wheel1_link">
+    <collision name="wheel1_collision">
+      <origin rpy="-3.14159 0.00000 0.00000" xyz="0.00000 0.00000 -0.00026"/>
+      <geometry>
+        <cylinder radius="0.03750" length="0.03200"/>
+      </geometry>
+    </collision>
+    <visual name="wheel1">
+      <material name="lgdxrobot_black"/>
+      <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_1_001_.dae" scale="1.00000 1.00000 1.00000"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="wheel2_link">
+    <collision name="wheel2_collision">
+      <origin rpy="-3.14159 0.00000 0.00000" xyz="0.00001 -0.00000 0.00027"/>
+      <geometry>
+        <cylinder radius="0.03750" length="0.03200"/>
+      </geometry>
+    </collision>
+    <visual name="wheel2">
+      <material name="lgdxrobot_black"/>
+      <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 -0.00000 -0.00000"/>
+      <geometry>
+        <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_2_001_.dae" scale="1.00000 1.00000 1.00000"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="wheel3_link">
+    <collision name="wheel3_collision">
+      <origin rpy="-3.14159 0.00000 0.00000" xyz="0.00000 0.00000 -0.00026"/>
+      <geometry>
+        <cylinder radius="0.03750" length="0.03200"/>
+      </geometry>
+    </collision>
+    <visual name="wheel3">
+      <material name="lgdxrobot_black"/>
+      <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 0.00000 -0.00000"/>
+      <geometry>
+        <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_3_001_.dae" scale="1.00000 1.00000 1.00000"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="wheel4_link">
+    <collision name="wheel4_collision">
+      <origin rpy="-3.14159 0.00000 0.00000" xyz="-0.00000 -0.00000 0.00026"/>
+      <geometry>
+        <cylinder radius="0.03750" length="0.03200"/>
+      </geometry>
+    </collision>
+    <visual name="wheel4">
+      <material name="lgdxrobot_black"/>
+      <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 -0.00000 0.00000"/>
+      <geometry>
+        <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_4_001_.dae" scale="1.00000 1.00000 1.00000"/>
+      </geometry>
+    </visual>
+  </link>
+  <material name="lgdxrobot_black">
+    <color rgba="0.00000 0.00000 0.00000 1.00000"/>
+  </material>
+  <material name="lgdxrobot_green">
+    <color rgba="0.00000 0.25882 0.06667 1.00000"/>
+  </material>
+  <material name="lgdxrobot_red">
+    <color rgba="0.21961 0.00784 0.01176 1.00000"/>
+  </material>
+  <material name="lgdxrobot_sliver">
+    <color rgba="0.52549 0.52549 0.52549 1.00000"/>
+  </material>
+</robot>

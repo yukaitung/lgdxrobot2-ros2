@@ -27,11 +27,6 @@ launch_args = [
     description='Use the simulation time from Webots.'
   ),
   DeclareLaunchArgument(
-    name='model', 
-    default_value='lgdxrobot2_sim_description.urdf',
-    description='Model file in `lgdxrobot2_description` package.'
-  ),
-  DeclareLaunchArgument(
     name='rviz_config',
     default_value='', 
     description='Absolute path to rviz config file'
@@ -47,7 +42,7 @@ def launch_setup(context):
   description_pkg_share = get_package_share_directory('lgdxrobot2_description')
   namespace = LaunchConfiguration('namespace')
   use_sim_time = LaunchConfiguration('use_sim_time')
-  model_path = os.path.join(description_pkg_share, 'description', LaunchConfiguration('model').perform(context))
+  model_path = os.path.join(description_pkg_share, 'description', 'lgdxrobot2.urdf')
   rviz_config_path = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config_path:
     rviz_config_path = os.path.join(description_pkg_share, 'rviz', 'display.rviz')
@@ -66,6 +61,10 @@ def launch_setup(context):
           ('/tf', 'tf'), 
           ('/tf_static', 'tf_static')
         ]
+      ),
+      Node(
+        package="joint_state_publisher",
+        executable="joint_state_publisher",
       ),
       Node(
         package='rviz2',
