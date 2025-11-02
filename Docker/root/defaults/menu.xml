@@ -6,5 +6,15 @@
     <command>/usr/bin/xfce4-terminal</command>
   </action>
 </item>
+<item label="rqt" icon="/opt/ros/jazzy/share/rqt_gui/resource/rqt.svg">
+  <action name="Execute">
+    <command>rqt</command>
+  </action>
+</item>
+<item label="RViz" icon="/opt/ros/jazzy/share/rviz_common/icons/package.png">
+  <action name="Execute">
+    <command>rviz2</command>
+  </action>
+</item>
 </menu>
 </openbox_menu>
