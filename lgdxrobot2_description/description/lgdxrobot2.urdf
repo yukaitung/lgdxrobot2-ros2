@@ -165,7 +165,7 @@
     </collision>
     <visual name="wheel2">
       <material name="lgdxrobot_black"/>
-      <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 -0.00000 -0.00000"/>
+      <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
       <geometry>
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_2_001_.dae" scale="1.00000 1.00000 1.00000"/>
       </geometry>
@@ -179,8 +179,8 @@
       </geometry>
     </collision>
     <visual name="wheel3">
-      <material name="lgdxrobot_black"/>
-      <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 0.00000 -0.00000"/>
+      <material name="lgdxrobot_sliver"/>
+      <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 -0.00000 0.00000"/>
       <geometry>
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_3_001_.dae" scale="1.00000 1.00000 1.00000"/>
       </geometry>

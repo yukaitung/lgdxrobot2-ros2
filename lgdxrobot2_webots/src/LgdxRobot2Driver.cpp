@@ -132,6 +132,12 @@ void LgdxRobot2Driver::step()
   jointState.header.stamp = currentTime;
   jointState.name = {"wheel1_link_joint", "wheel2_link_joint", "wheel3_link_joint", "wheel4_link_joint"};
   jointState.position = {motorPosition[0], motorPosition[1], motorPosition[2], motorPosition[3]};
+  double motorVelocity[4] = {0};
+  for (int i = 0; i < 4; i++) 
+  {
+    motorVelocity[i] = (motorPosition[i] - motorLastPosition[i]) / timeElapsed;
+  }
+  jointState.velocity = {motorVelocity[0], motorVelocity[1], motorVelocity[2], motorVelocity[3]};
   if(jointStatePublisher)
     jointStatePublisher->publish(jointState);
 
