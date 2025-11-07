@@ -41,7 +41,7 @@ def launch_setup(context):
         ),
         launch_arguments={
         'use_sim_time': 'False',
-        'use_joint_state_publisher': 'True',
+        'use_joint_state_publisher': 'False',
         'use_rviz': use_rviz,
         }.items(),
     )
@@ -55,7 +55,8 @@ def launch_setup(context):
             'mcu_control_mode': 'joy',
             'mcu_publish_odom': True,
             'mcu_publish_tf': True,
-            'mcu_reset_transform': True
+            'mcu_reset_transform': True,
+            'mcu_publish_joint_state': True
         }]
     )
     joy_node = Node(

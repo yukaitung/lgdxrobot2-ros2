@@ -18,6 +18,9 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
   auto mcuTfParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuTfParam.description = "Publishing tf information from the robot.";
   node->declare_parameter("mcu_publish_tf", false, mcuTfParam);
+  auto mcuJointStateParam = rcl_interfaces::msg::ParameterDescriptor{};
+  mcuJointStateParam.description = "Publishing joint state information from the robot.";
+  node->declare_parameter("mcu_publish_joint_state", false, mcuJointStateParam);
   auto mcuBaseLinkParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuBaseLinkParam.description = "Custom `base_link` name.";
   node->declare_parameter("mcu_base_link_name", "base_link", mcuBaseLinkParam);
@@ -52,6 +55,11 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
   if (node->get_parameter("mcu_publish_tf").as_bool())
   {
     tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(node);
+  }
+  if (node->get_parameter("mcu_publish_joint_state").as_bool())
+  {
+    jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("/joint_states", 
+      rclcpp::SensorDataQoS().reliable());
   }
   needPublishOdom = tfBroadcaster != nullptr || odomPublisher != nullptr;
 }
@@ -154,5 +162,20 @@ void Sensors::PublishOdom(const RobotData& data)
       odometry.twist.twist.angular.z = data.forwardKinematic[2];
       odomPublisher->publish(odometry);
     }
+  }
+  if (jointStatePublisher != nullptr)
+  {
+    for (int i = 0; i < 4; i++)
+    {
+      motorsPosition[i] += data.motorsActualVelocity[i] * (data.responseTime / 1000.0);
+    }
+    rclcpp::Time currentTime = clock_->now();
+    sensor_msgs::msg::JointState jointState;
+    jointState.header.stamp = currentTime;
+    jointState.name = {"wheel1_link_joint", "wheel2_link_joint", "wheel3_link_joint", "wheel4_link_joint"};
+    jointState.position = {motorsPosition[0], motorsPosition[1], motorsPosition[2], motorsPosition[3]};
+    jointState.velocity = {data.motorsActualVelocity[0], data.motorsActualVelocity[1], data.motorsActualVelocity[2], data.motorsActualVelocity[3]};
+    if(jointStatePublisher)
+      jointStatePublisher->publish(jointState);
   }
 }
