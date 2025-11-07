@@ -1,11 +1,13 @@
 #ifndef MCU_HPP
 #define MCU_HPP
 
+#include <array>
 #include <boost/asio.hpp>
 
 #include "rclcpp/rclcpp.hpp"
 #include "Structs/McuSignals.hpp"
 #include "Structs/RobotData.hpp"
+#include "lgdxrobot2_agent/lgdxrobot2.h"
 
 class Mcu
 {
@@ -21,7 +23,6 @@ class Mcu
 
     // Constants
     int kWaitSecond = 3;
-    static const int kReadBufferSize = 2048;
 
     // Settings
     std::string portName;
@@ -29,7 +30,8 @@ class Mcu
 
     // Data
     RobotData robotData;
-    char readBuffer[kReadBufferSize] = {0};
+    std::array<uint8_t, 512> readBuffer = {0};
+    std::vector<uint8_t> mcuBuffer = {0};
 
     // Util
     inline uint32_t FloatToUint32(float n){ return (uint32_t)(*(uint32_t*)&n); }
@@ -48,10 +50,10 @@ class Mcu
     // Read from MCU
     void Read();
     void OnReadComplete(boost::system::error_code error, std::size_t size);
-    void ProcessRobotData();
-    void CharArrayToHex(const char* input, size_t length, char* output);
+    void ProcessRobotData(const McuData &mcuData);
+    std::string SerialToHexString(uint32_t serial1, uint32_t serial2, uint32_t serial3);
     void GetSerialNumber();
-    void ProcessSerialNumber();
+    void ProcessSerialNumber(const McuSerialNumber &mcuSerialNumber);
 
     // Write to MCU
     void ResetTransformInternal();
@@ -65,7 +67,6 @@ class Mcu
     void SetInverseKinematics(float x, float y, float w);
     void SetEstop(int enable);
     void ResetTransform();
-    void SetExternalImu(float ax, float ay, float az, float gz);
 };
 
 #endif // MCU_HPP

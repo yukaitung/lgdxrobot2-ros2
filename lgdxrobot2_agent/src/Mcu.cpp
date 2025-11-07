@@ -1,4 +1,7 @@
 #include <filesystem>
+#include <algorithm>
+#include <sstream>
+#include <iomanip>
 
 #include "lgdxrobot2_agent/Mcu.hpp"
 
@@ -106,33 +109,72 @@ void Mcu::Reconnect()
 
 void Mcu::Read()
 {
-  serial.async_read_some(boost::asio::buffer(readBuffer, kReadBufferSize), std::bind(&Mcu::OnReadComplete, this, std::placeholders::_1, std::placeholders::_2));    
+  serial.async_read_some(boost::asio::buffer(readBuffer), std::bind(&Mcu::OnReadComplete, this, std::placeholders::_1, std::placeholders::_2));    
 }
 
 void Mcu::OnReadComplete(boost::system::error_code error, std::size_t size)
 {
+  const uint8_t startSeq[] = {0xAA, 0x55};
+  const uint8_t endSeq[] = {0xA5, 0x5A};
+
   if(!serial.is_open())
     return; // Discard further error is the serial is closed
 
-  if(!error)// OK
+  if(!error) // OK
   {
-    if(size >= 2) 
+    mcuBuffer.insert(mcuBuffer.end(), readBuffer.begin(), readBuffer.begin() + size);
+
+    auto startIt = std::search(mcuBuffer.begin(), mcuBuffer.end(), std::begin(startSeq), std::end(startSeq));
+    if (startIt == mcuBuffer.end()) 
     {
-      // Find the header and frame size
-      if(readBuffer[0] == char(170)) // 170 = 0xAA
+      // No frame start found, discard junk
+      mcuBuffer.clear();
+      return;
+    }
+
+    auto nextIt = std::search(startIt + 2, mcuBuffer.end(), std::begin(endSeq), std::end(endSeq));
+    if (nextIt == mcuBuffer.end()) {
+      // No frame end found yet
+      return;
+    }
+
+    auto lastStartIt = startIt;
+    bool mcuDataFound = false;
+    // Handle frames unitl no complete frame is found
+    while (startIt != mcuBuffer.end() && nextIt != mcuBuffer.end())
+    {
+      std::vector<uint8_t> frame(startIt, nextIt + sizeof(endSeq));
+      if (frame.size() > 3)
       {
-        int frameSize = readBuffer[2];
-        if(int(size) == frameSize)
+        switch (frame.at(2))
         {
-          // Process the data if received data = target size, 
-          ProcessRobotData();
+          case MCU_DATA_TYPE:
+            if (!mcuDataFound)
+            {
+              McuData mcuData;
+              memcpy(&mcuData, frame.data(), sizeof(McuData));
+              ProcessRobotData(mcuData);
+              mcuDataFound = true;
+            }
+            break;
+          case MCU_SERIAL_NUMBER_TYPE:
+            McuSerialNumber mcuSerialNumber;
+            memcpy(&mcuSerialNumber, frame.data(), sizeof(McuSerialNumber));
+            ProcessSerialNumber(mcuSerialNumber);
+          default:
+            break;
         }
       }
+
+      lastStartIt = startIt;
+      // Find next frame start
+      startIt = std::search(nextIt + 2, mcuBuffer.end(), std::begin(startSeq), std::end(startSeq));
+      nextIt = std::search(startIt + 2, mcuBuffer.end(), std::begin(endSeq), std::end(endSeq));
     }
-    if(readBuffer[0] == (char) 171) // 171 = 0xAB
-    {
-      ProcessSerialNumber();
-    }
+
+    // Remove processed data from buffer
+	  mcuBuffer.erase(mcuBuffer.begin(), lastStartIt);
+
     // Read more data
     Read();
   }
@@ -145,98 +187,63 @@ void Mcu::OnReadComplete(boost::system::error_code error, std::size_t size)
   }
 }
 
-void Mcu::ProcessRobotData()
+void Mcu::ProcessRobotData(const McuData &mcuData)
 {
-  int index = 3;
-  robotData.refreshTime = CombineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1]);
-  index += 2;
-  for(int i = 0; i < 3; i++)
-  {
-    uint32_t temp = CombineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    robotData.transform[i] = Uint32ToFloat(temp);
-    index += 4;
-  }
-  for(int i = 0; i < 3; i++)
-  {
-    uint32_t temp = CombineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    robotData.forwardKinematic[i] = Uint32ToFloat(temp);
-    index += 4;
-  }
-  for(int i = 0; i < robotData.wheelCount; i++) 
-  {
-    uint32_t temp = CombineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    robotData.targetWheelVelocity[i] = Uint32ToFloat(temp);
-    index += 4;
-  }
-  for(int i = 0; i < robotData.wheelCount; i++) 
-  {
-    uint32_t temp = CombineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    robotData.measuredWheelVelocity[i] = Uint32ToFloat(temp);
-    index += 4;
-  }
-  for(int i = 0; i < robotData.wheelCount; i++) 
-  {
-    uint32_t temp = CombineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    robotData.pConstant[i]  = Uint32ToFloat(temp);
-    index += 4;
-  }
-  for(int i = 0; i < robotData.wheelCount; i++) 
-  {
-    uint32_t temp = CombineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    robotData.iConstant[i]  = Uint32ToFloat(temp);
-    index += 4;
-  }
-  for(int i = 0; i < robotData.wheelCount; i++) 
-  {
-    uint32_t temp = CombineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1], (uint8_t) readBuffer[index + 2], (uint8_t) readBuffer[index + 3]);
-    robotData.dConstant[i]  = Uint32ToFloat(temp);
-    index += 4;
-  }
-  for(int i = 0; i < 2; i++) 
-  {
-    robotData.battery[i] = CombineBytes((uint8_t) readBuffer[index], (uint8_t) readBuffer[index + 1]) * 0.004;
-    index += 2;
-  }
-  uint8_t eStopByte = readBuffer[index];
-  int compare = 128;
-  for(int i = 0; i < 2; i++)
-  {
-    robotData.eStop[i] = (eStopByte & compare) >> (7 - i);
-    compare = compare >> 1;
-  }
+  robotData.transform[0] = mcuData.transform.x;
+  robotData.transform[1] = mcuData.transform.y;
+  robotData.transform[2] = mcuData.transform.rotation;
+  robotData.forwardKinematic[0] = mcuData.forward_kinematic.x;
+  robotData.forwardKinematic[1] = mcuData.forward_kinematic.y;
+  robotData.forwardKinematic[2] = mcuData.forward_kinematic.rotation;
+  std::copy(mcuData.motors_target_velocity, mcuData.motors_target_velocity + 4, robotData.motorsTargetVelocity);
+  std::copy(mcuData.motors_desire_velocity, mcuData.motors_desire_velocity + 4, robotData.motorsDesireVelocity);
+  std::copy(mcuData.motors_actual_velocity, mcuData.motors_actual_velocity + 4, robotData.motorsActualVelocity);
+  std::copy(mcuData.motors_ccr, mcuData.motors_ccr + 4, robotData.motorsCcr);
+  robotData.batteryCurrent[0] = mcuData.battery1.current;
+  robotData.batteryCurrent[1] = mcuData.battery2.current;
+  robotData.batteryVoltage[0] = mcuData.battery1.voltage;
+  robotData.batteryVoltage[1] = mcuData.battery2.voltage;
+  robotData.eStop[0] = mcuData.software_emergency_stop_enabled;
+  robotData.eStop[1] = mcuData.hardware_emergency_stop_enabled;
+  robotData.eStop[2] = mcuData.bettery_low_emergency_stop_enabled;
   mcuSignals->UpdateRobotData(robotData);
 }
 
-void Mcu::CharArrayToHex(const char* input, size_t length, char* output) 
+std::string Mcu::SerialToHexString(uint32_t serial1, uint32_t serial2, uint32_t serial3) 
 {
-  const char hexChars[] = "0123456789ABCDEF";
-  for (size_t i = 0; i < length; ++i) 
-  {
-    output[i * 2] = hexChars[(input[i] >> 4) & 0xF];  
-    output[i * 2 + 1] = hexChars[input[i] & 0xF]; 
-  }
-  output[length * 2] = '\0';
+  std::ostringstream oss;
+
+  // Convert each uint32_t to 8-character hex with leading zeros
+  oss << std::hex << std::uppercase << std::setfill('0')
+      << std::setw(8) << serial1
+      << std::setw(8) << serial2
+      << std::setw(8) << serial3;
+
+  return oss.str();
 }
 
 void Mcu::GetSerialNumber()
 {
-  std::vector<char> ba(1);
-  ba[0] = 'S';
-  Write(ba);
+  McuGetSerialNumberCommand command;
+  command.command = MCU_GET_SERIAL_NUMBER_COMMAND_TYPE;
+  std::vector<char> buffer(sizeof(McuGetSerialNumberCommand));
+  std::memcpy(buffer.data(), &command, sizeof(McuGetSerialNumberCommand));
+  Write(buffer);
 }
 
-void Mcu::ProcessSerialNumber()
+void Mcu::ProcessSerialNumber(const McuSerialNumber &mcuSerialNumber)
 {
-  char sn[30] = {0};
-  CharArrayToHex(&readBuffer[1], 12, sn);
+  std::string sn = SerialToHexString(mcuSerialNumber.serial_number1, mcuSerialNumber.serial_number2, mcuSerialNumber.serial_number3);
   mcuSignals->UpdateSerialNumber(sn);
 }
 
 void Mcu::ResetTransformInternal()
 {
-  std::vector<char> ba(1);
-  ba[0] = 'T';
-  Write(ba);
+  McuResetTransformCommand command;
+  command.command = MCU_RESET_TRANSFORM_COMMAND_TYPE;
+  std::vector<char> buffer(sizeof(McuResetTransformCommand));
+  std::memcpy(buffer.data(), &command, sizeof(McuResetTransformCommand));
+  Write(buffer);
 }
 
 void Mcu::Write(const std::vector<char> &data)
@@ -255,35 +262,24 @@ void Mcu::OnWriteComplete(boost::system::error_code error)
 
 void Mcu::SetInverseKinematics(float x, float y, float w)
 {
-  uint32_t ux = FloatToUint32(x);
-  uint32_t uy = FloatToUint32(y);
-  uint32_t uw = FloatToUint32(w);
-  std::vector<char> ba(13);
-  ba[0] = 'M';
-  ba[1] = (ux & 4278190080) >> 24;
-  ba[2] = (ux & 16711680) >> 16;
-  ba[3] = (ux & 65280) >> 8;
-  ba[4] = ux & 255;
-  ba[5] = (uy & 4278190080) >> 24;
-  ba[6] = (uy & 16711680) >> 16;
-  ba[7] = (uy & 65280) >> 8;
-  ba[8] = uy & 255;
-  ba[9] = (uw & 4278190080) >> 24;
-  ba[10] = (uw & 16711680) >> 16;
-  ba[11] = (uw & 65280) >> 8;
-  ba[12] = uw & 255;
-  Write(ba);
+  McuInverseKinematicsCommand command;
+  command.command = MCU_INVERSE_KINEMATICS_COMMAND_TYPE;
+  command.velocity.x = x;
+  command.velocity.y = y;
+  command.velocity.rotation = w;
+  std::vector<char> buffer(sizeof(McuInverseKinematicsCommand));
+  std::memcpy(buffer.data(), &command, sizeof(McuInverseKinematicsCommand));
+  Write(buffer);
 }
 
 void Mcu::SetEstop(int enable)
 {
-  std::vector<char> ba(5);
-  ba[0] = 'E';
-  ba[1] = (enable & 4278190080) >> 24;
-  ba[2] = (enable & 16711680) >> 16;
-  ba[3] = (enable & 65280) >> 8;
-  ba[4] = enable & 255;
-  Write(ba);
+  McuSoftwareEmergencyStopCommand command;
+  command.command = MCU_SOFTWARE_EMERGENCY_STOP_COMMAND_TYPE;
+  command.enable = enable;
+  std::vector<char> buffer(sizeof(McuSoftwareEmergencyStopCommand));
+  std::memcpy(buffer.data(), &command, sizeof(McuSoftwareEmergencyStopCommand));
+  Write(buffer);
 }
 
 void Mcu::ResetTransform()
@@ -292,31 +288,4 @@ void Mcu::ResetTransform()
     ResetTransformInternal();
   else
     resetTransformOnConnected = true;
-}
-
-void Mcu::SetExternalImu(float ax, float ay, float az, float gz)
-{
-  uint32_t ux = FloatToUint32(ax);
-  uint32_t uy = FloatToUint32(ay);
-  uint32_t uz = FloatToUint32(az);
-  uint32_t ugz = FloatToUint32(gz);
-  std::vector<char> ba(17);
-  ba[0] = 'M';
-  ba[1] = (ux & 4278190080) >> 24;
-  ba[2] = (ux & 16711680) >> 16;
-  ba[3] = (ux & 65280) >> 8;
-  ba[4] = ux & 255;
-  ba[5] = (uy & 4278190080) >> 24;
-  ba[6] = (uy & 16711680) >> 16;
-  ba[7] = (uy & 65280) >> 8;
-  ba[8] = uy & 255;
-  ba[9] = (uz & 4278190080) >> 24;
-  ba[10] = (uz & 16711680) >> 16;
-  ba[11] = (uz & 65280) >> 8;
-  ba[12] = uz & 255;
-  ba[13] = (ugz & 4278190080) >> 24;
-  ba[14] = (ugz & 16711680) >> 16;
-  ba[15] = (ugz & 65280) >> 8;
-  ba[16] = ugz & 255;
-  Write(ba);
 }

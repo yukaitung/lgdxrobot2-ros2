@@ -6,4 +6,3 @@ lgdxrobot2_agent_node:
     mcu_publish_odom: true
     mcu_publish_tf: false
     mcu_base_link_name: base_link
-    mcu_use_external_imu: true

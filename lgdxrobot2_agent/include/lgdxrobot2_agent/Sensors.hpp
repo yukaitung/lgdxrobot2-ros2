@@ -19,7 +19,6 @@ class Sensors
 
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
     rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joySubscription;
-    rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imuSubscription;
 
     // Odom
     std::string baseLinkName;
@@ -36,7 +35,6 @@ class Sensors
 
     void CmdVelCallback(const geometry_msgs::msg::Twist &msg);
     void JoyCallback(const sensor_msgs::msg::Joy &msg);
-    void ImuCallback(const sensor_msgs::msg::Imu &msg);
 
   public:
     Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> sensorSignalsPtr);

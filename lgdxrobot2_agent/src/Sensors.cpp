@@ -23,7 +23,6 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
   node->declare_parameter("mcu_base_link_name", "base_link", mcuBaseLinkParam);
   auto mcuExternalImuParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuExternalImuParam.description = "Using external IMU for odometry calcuation.";
-  node->declare_parameter("mcu_use_external_imu", false, mcuExternalImuParam);
 
   // Topics
   std::string controlMode = node->get_parameter("mcu_control_mode").as_string();
@@ -43,12 +42,6 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
   {
     RCLCPP_FATAL(logger_, "Control mode is invalid, the program is terminaling");
     exit(0);
-  }
-  if (node->get_parameter("mcu_use_external_imu").as_bool())
-  {
-    imuSubscription = node->create_subscription<sensor_msgs::msg::Imu>("/agent/ext_imu",
-      rclcpp::SensorDataQoS().reliable(),
-      std::bind(&Sensors::ImuCallback, this, std::placeholders::_1));
   }
   if (node->get_parameter("mcu_publish_odom").as_bool())
   {
@@ -123,15 +116,6 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
   // LT = w left, RT = w right
   float w = (((msg.axes[4] - 1) / 2) - ((msg.axes[5] - 1) / 2)) * maximumVelocity;
   sensorSignals->SetInverseKinematics(x, y, w);
-}
-
-void Sensors::ImuCallback(const sensor_msgs::msg::Imu &msg)
-{
-  float ax = msg.linear_acceleration.x;
-  float ay = msg.linear_acceleration.y;
-  float az = msg.linear_acceleration.z;
-  float gz = msg.angular_velocity.z;
-  sensorSignals->SetExternalImu(ax, ay, az, gz);
 }
 
 void Sensors::PublishOdom(const RobotData& data)
