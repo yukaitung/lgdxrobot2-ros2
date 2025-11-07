@@ -189,6 +189,7 @@ void Mcu::OnReadComplete(boost::system::error_code error, std::size_t size)
 
 void Mcu::ProcessRobotData(const McuData &mcuData)
 {
+  robotData.responseTime = mcuData.response_time;
   robotData.transform[0] = mcuData.transform.x;
   robotData.transform[1] = mcuData.transform.y;
   robotData.transform[2] = mcuData.transform.rotation;
