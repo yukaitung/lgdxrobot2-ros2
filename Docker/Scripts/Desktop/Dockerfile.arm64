@@ -1,14 +1,16 @@
-FROM yukaitung/lgdxrobot2.webots:latest AS webots
+FROM yukaitung/lgdxrobot2:dev-arm64 AS lgdxrobot2
 
-FROM yukaitung/lgdxrobot2.desktop:dev-arm64-lite
+FROM yukaitung/lgdxrobot2.supportdesktop:arm64
 
-# Install Webots
-ENV JAVA_HOME=/usr/lib/jvm/default-java
-ENV WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=1 
-ENV WEBOTS_ALLOW_MODIFY_INSTALLATION=1
-ENV WEBOTS_HOME=/config/webots
-ENV PATH=/config/.local/bin:$PATH
-COPY --from=webots /home/user/webots /config/webots
-RUN apt update && \
-      /config/webots/scripts/install/linux_runtime_dependencies.sh && \
-      rm -rf /var/lib/apt/lists/*
+# LGDXRobot2 ROS2
+COPY --from=lgdxrobot2 /config/lgdx_ws /config/lgdx_ws
+
+COPY ./ros_entrypoint.sh /
+RUN chmod +x /ros_entrypoint.sh
+
+ENTRYPOINT ["/ros_entrypoint.sh"]
+CMD ["/init"]
+
+EXPOSE 3000
+EXPOSE 3001
+VOLUME /config

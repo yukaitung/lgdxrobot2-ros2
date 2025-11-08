@@ -2,6 +2,8 @@ FROM yukaitung/lgdxrobot2.support:arm64 AS support
 
 FROM ghcr.io/linuxserver/baseimage-selkies:ubuntunoble
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 # INSTALL ROS2 START
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
     ca-certificates \
@@ -66,7 +68,14 @@ RUN apt update && apt install -y --no-install-recommends \
 			libgrpc++-dev \
 			protobuf-compiler-grpc \
 			wget \
+            ros-jazzy-joy \
+            ros-jazzy-imu-filter-madgwick \
+            ros-jazzy-librealsense2* \
+            ros-jazzy-realsense2-* \
 			&& rm -rf /var/lib/apt/lists/*
+
+# Lidar
+COPY --from=support /config/ros2_ws /config/ros2_ws
 			
 # Webots ROS2
 COPY --from=support /config/webots_ws /config/webots_ws
