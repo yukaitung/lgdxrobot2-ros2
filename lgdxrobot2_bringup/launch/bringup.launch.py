@@ -2,8 +2,8 @@
 Usage: 
 cd lgdx_ws # The location of the source code
 . install/setup.bash
-ros2 launch lgdxrobot2_agent joy.launch.py
-ros2 launch lgdxrobot2_agent joy.launch.py rviz:=false # Without Rviz
+ros2 launch lgdxrobot2_bringup bringup.launch.py
+ros2 launch lgdxrobot2_bringup bringup.launch.py rviz:=false # Without Rviz
 """
 
 from ament_index_python.packages import get_package_share_directory

@@ -122,7 +122,7 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
     y = msg.axes[6] * maximumVelocity;
   }
   // LT = w left, RT = w right
-  float w = (((msg.axes[4] - 1) / 2) - ((msg.axes[5] - 1) / 2)) * maximumVelocity;
+  float w = ((msg.axes[4] - 1) - (msg.axes[5] - 1)) * maximumVelocity;
   sensorSignals->SetInverseKinematics(x, y, w);
 }
 
