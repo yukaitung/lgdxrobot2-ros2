@@ -107,7 +107,10 @@ def launch_setup(context):
         launch_arguments={
             'camera_namespace': '',
             'depth_module.depth_profile': '1280x720x30',
-            'pointcloud.enable': 'True'
+            'pointcloud.enable': 'True',
+            'enable_accel': 'True',
+            'enable_gyro': 'True',
+            'unite_imu_method': '2'
         }.items(),
     )
     return [description_node, lgdxrobot2_agent_node, joy_node, lidar_node, camera_node]
