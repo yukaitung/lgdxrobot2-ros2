@@ -33,9 +33,4 @@ if [[ -e /run/dbus/pid ]]; then
   rm /run/dbus/pid
 fi
 
-usermod -aG dialout $(getent passwd 1000 | cut -d: -f1)
-newgrp dialout
-usermod -aG video $(getent passwd 1000 | cut -d: -f1)
-newgrp video
-
 exec "$@"
