@@ -38,6 +38,11 @@ launch_args = [
         description='RPLIDAR model name.'
     ),
     DeclareLaunchArgument(
+        name='use_camera', 
+        default_value='True', 
+        description='Whether to enable the camera.'
+    ),
+    DeclareLaunchArgument(
         name='use_rviz', 
         default_value='True', 
         description='Visualize in RViz.'
@@ -47,10 +52,12 @@ launch_args = [
 def launch_setup(context):
     description_pkg_share = get_package_share_directory('lgdxrobot2_description')
     lidar_pkg_share = get_package_share_directory('sllidar_ros2')
+    camera_pkg_share = get_package_share_directory('realsense2_camera')
     serial_port_name = LaunchConfiguration('serial_port_name')
     use_joy = LaunchConfiguration('use_joy')
     use_lidar = LaunchConfiguration('use_lidar')
     lidar_model = LaunchConfiguration('lidar_model').perform(context)
+    use_camera = LaunchConfiguration('use_camera')
     use_rviz = LaunchConfiguration('use_rviz')
 
     description_node = IncludeLaunchDescription(
@@ -92,7 +99,18 @@ def launch_setup(context):
             'frame_id': 'lidar_link'
         }.items(),
     )
-    return [description_node, lgdxrobot2_agent_node, joy_node, lidar_node]
+    camera_node = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(camera_pkg_share, 'launch', 'rs_launch.py')
+        ),
+        condition=IfCondition(use_camera),
+        launch_arguments={
+            'camera_namespace': '',
+            'depth_module.depth_profile': '1280x720x30',
+            'pointcloud.enable': 'True'
+        }.items(),
+    )
+    return [description_node, lgdxrobot2_agent_node, joy_node, lidar_node, camera_node]
     
 def generate_launch_description():
     opfunc = OpaqueFunction(function = launch_setup)
