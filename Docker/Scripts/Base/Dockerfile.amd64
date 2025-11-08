@@ -1,10 +1,16 @@
-FROM yukaitung/lgdxrobot2:dev-amd64-lite
+FROM yukaitung/lgdxrobot2.support:amd64
 
-# Install Webots
-WORKDIR /etc/apt/keyrings
-RUN sudo wget -q https://cyberbotics.com/Cyberbotics.asc
-RUN echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/Cyberbotics.asc] https://cyberbotics.com/debian binary-amd64/" | sudo tee /etc/apt/sources.list.d/Cyberbotics.list
+# LGDXRobot2 ROS2
+WORKDIR /config/lgdx_ws/src
+COPY . .
 
-RUN apt update && \
-      apt install --no-install-recommends -y webots && \
-      rm -rf /var/lib/apt/lists/*
+WORKDIR /config/lgdx_ws
+RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
+      . /config/webots_ws/install/setup.sh && \
+      colcon build --symlink-install
+
+COPY ./ros_entrypoint.sh /
+RUN chmod +x /ros_entrypoint.sh
+
+ENTRYPOINT ["/ros_entrypoint.sh"]
+CMD ["bash"]
