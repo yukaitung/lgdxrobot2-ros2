@@ -28,7 +28,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='use_joint_state_publisher',
-    default_value='False',
+    default_value='True',
     description='Wether to use joint state publisher or use your own publisher'
   ),
   DeclareLaunchArgument(

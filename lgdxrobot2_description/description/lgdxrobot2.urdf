@@ -20,7 +20,7 @@
     <child link="camera_depth_frame_sim"/>
   </joint>
   <joint name="lidar_link_joint" type="fixed">
-    <origin rpy="0.00000 0.00000 0.00000" xyz="0.06000 -0.00000 0.15641"/>
+    <origin rpy="0.00000 0.00000 -3.14159" xyz="0.06000 -0.00000 0.15641"/>
     <parent link="base_link"/>
     <child link="lidar_link"/>
   </joint>
@@ -128,7 +128,7 @@
   <link name="camera_depth_frame_sim"/>
   <link name="lidar_link">
     <collision name="lidar_collision">
-      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.02150"/>
+      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 -0.00000 0.02150"/>
       <geometry>
         <box size="0.05560 0.05560 0.04130"/>
       </geometry>
