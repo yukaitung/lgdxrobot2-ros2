@@ -1,4 +1,4 @@
-FROM yukaitung/lgdxrobot2:dev-amd64-lite AS lgdxrobot2
+FROM yukaitung/lgdxrobot2:dev-amd64 AS lgdxrobot2
 
 FROM yukaitung/lgdxrobot2.supportdesktop:amd64
 
