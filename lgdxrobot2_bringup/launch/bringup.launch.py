@@ -50,16 +50,20 @@ launch_args = [
 ]
 
 def launch_setup(context):
-    description_pkg_share = get_package_share_directory('lgdxrobot2_description')
-    lidar_pkg_share = get_package_share_directory('sllidar_ros2')
-    camera_pkg_share = get_package_share_directory('realsense2_camera')
-    serial_port_name = LaunchConfiguration('serial_port_name')
     use_joy = LaunchConfiguration('use_joy')
     use_lidar = LaunchConfiguration('use_lidar')
     lidar_model = LaunchConfiguration('lidar_model').perform(context)
+    use_camera_bool = LaunchConfiguration('use_camera').perform(context).lower() == 'true'
     use_camera = LaunchConfiguration('use_camera')
     use_rviz = LaunchConfiguration('use_rviz')
-
+    
+    description_pkg_share = get_package_share_directory('lgdxrobot2_description')
+    lidar_pkg_share = get_package_share_directory('sllidar_ros2')
+    camera_pkg_share = ''
+    if use_camera_bool:
+        camera_pkg_share = get_package_share_directory('realsense2_camera')
+    serial_port_name = LaunchConfiguration('serial_port_name')
+    
     description_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(description_pkg_share, 'launch', 'display.launch.py')
