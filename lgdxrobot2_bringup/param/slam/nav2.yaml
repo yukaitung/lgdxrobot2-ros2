@@ -151,9 +151,9 @@ controller_server:
   ros__parameters:
     # controller server parameters (see Controller Server for more info)
     controller_frequency: 10.0
-    min_x_velocity_threshold: 0.001
+    min_x_velocity_threshold: 0.01
     min_y_velocity_threshold: 0.5
-    min_theta_velocity_threshold: 0.001
+    min_theta_velocity_threshold: 0.01
     progress_checker_plugins: ["progress_checker"] # progress_checker_plugin: "progress_checker" For Humble and older
     goal_checker_plugins: ["goal_checker"]
     controller_plugins: ["FollowPath"]
@@ -184,7 +184,7 @@ controller_server:
       decel_lim_x: -2.0
       decel_lim_y: 0.0
       decel_lim_theta: -2.0
-      vx_samples: 20
+      vx_samples: 30
       vy_samples: 5
       vtheta_samples: 20
       sim_time: 1.0
