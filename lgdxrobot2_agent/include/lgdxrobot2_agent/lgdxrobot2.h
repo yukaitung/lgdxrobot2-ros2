@@ -95,17 +95,23 @@ typedef struct {
 
 // Emergency stop
 typedef struct {
+  uint8_t header1;
+  uint8_t header2;
   char command;
   bool enable;
 } McuSoftwareEmergencyStopCommand;
 
 // Motor control
 typedef struct {
+  uint8_t header1;
+  uint8_t header2;
   char command;
   McuDof velocity;
 } McuInverseKinematicsCommand;
 
 typedef struct {
+  uint8_t header1;
+  uint8_t header2;
   char command;
   uint8_t motor;
   float velocity;
@@ -113,15 +119,21 @@ typedef struct {
 
 // PID control
 typedef struct {
+  uint8_t header1;
+  uint8_t header2;
   char command;
   float pid_speed[PID_LEVEL];
 } McuSetPidSpeedCommand;
 
 typedef struct {
+  uint8_t header1;
+  uint8_t header2;
   char command;
 } McuGetPidCommand;
 
 typedef struct {
+  uint8_t header1;
+  uint8_t header2;
   char command;
   uint8_t motor;
   uint8_t level;
@@ -131,20 +143,28 @@ typedef struct {
 } McuSetPidCommand;
 
 typedef struct {
+  uint8_t header1;
+  uint8_t header2;
   char command;
 } McuSavePidCommand;
 
 typedef struct {
+  uint8_t header1;
+  uint8_t header2;
   char command;
   float speed[API_MOTOR_COUNT];
 } McuSetMotorMaximumSpeedCommand;
 
 // Other
 typedef struct {
+  uint8_t header1;
+  uint8_t header2;
   char command;
 } McuGetSerialNumberCommand;
 
 typedef struct {
+  uint8_t header1;
+  uint8_t header2;
   char command;
 } McuResetTransformCommand;
 

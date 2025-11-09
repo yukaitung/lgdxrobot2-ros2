@@ -226,6 +226,8 @@ std::string Mcu::SerialToHexString(uint32_t serial1, uint32_t serial2, uint32_t 
 void Mcu::GetSerialNumber()
 {
   McuGetSerialNumberCommand command;
+  command.header1 = MCU_HEADER1;
+  command.header2 = MCU_HEADER2;
   command.command = MCU_GET_SERIAL_NUMBER_COMMAND_TYPE;
   std::vector<char> buffer(sizeof(McuGetSerialNumberCommand));
   std::memcpy(buffer.data(), &command, sizeof(McuGetSerialNumberCommand));
@@ -241,6 +243,8 @@ void Mcu::ProcessSerialNumber(const McuSerialNumber &mcuSerialNumber)
 void Mcu::ResetTransformInternal()
 {
   McuResetTransformCommand command;
+  command.header1 = MCU_HEADER1;
+  command.header2 = MCU_HEADER2;
   command.command = MCU_RESET_TRANSFORM_COMMAND_TYPE;
   std::vector<char> buffer(sizeof(McuResetTransformCommand));
   std::memcpy(buffer.data(), &command, sizeof(McuResetTransformCommand));
@@ -264,6 +268,8 @@ void Mcu::OnWriteComplete(boost::system::error_code error)
 void Mcu::SetInverseKinematics(float x, float y, float w)
 {
   McuInverseKinematicsCommand command;
+  command.header1 = MCU_HEADER1;
+  command.header2 = MCU_HEADER2;
   command.command = MCU_INVERSE_KINEMATICS_COMMAND_TYPE;
   command.velocity.x = x;
   command.velocity.y = y;
@@ -276,6 +282,8 @@ void Mcu::SetInverseKinematics(float x, float y, float w)
 void Mcu::SetEstop(int enable)
 {
   McuSoftwareEmergencyStopCommand command;
+  command.header1 = MCU_HEADER1;
+  command.header2 = MCU_HEADER2;
   command.command = MCU_SOFTWARE_EMERGENCY_STOP_COMMAND_TYPE;
   command.enable = enable;
   std::vector<char> buffer(sizeof(McuSoftwareEmergencyStopCommand));
