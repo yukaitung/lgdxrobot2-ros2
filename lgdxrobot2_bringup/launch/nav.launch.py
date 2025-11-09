@@ -104,6 +104,11 @@ launch_args = [
     default_value='True', 
     description='Whether to enable the camera.'
   ),
+  DeclareLaunchArgument(
+    name='use_joy', 
+    default_value='False', 
+    description='Whether to enable the joy.'
+  ),
 ]
       
 def launch_setup(context):
@@ -137,6 +142,7 @@ def launch_setup(context):
   lidar_model = LaunchConfiguration('lidar_model').perform(context)
   use_rviz = LaunchConfiguration('use_rviz')
   use_camera = LaunchConfiguration('use_camera')
+  use_joy = LaunchConfiguration('use_joy')
   
   #
   # Base
@@ -194,6 +200,12 @@ def launch_setup(context):
     parameters=[get_param_path("imu_filter_madgwick.yaml", profile_str, namespace)],
     condition=IfCondition(use_camera)
   )
+  joy_node = Node(
+    package='joy',
+    executable='joy_node',
+    output='screen',
+    condition=IfCondition(use_joy),
+  )
 
   #
   # NAV2
@@ -239,7 +251,7 @@ def launch_setup(context):
     }.items()
   )
 
-  return [description_node, lgdxrobot2_agent_node, lidar_node, camera_node, imu_filter_madgwick_node, robot_localization_node, ros2_nav, explore_node]
+  return [description_node, lgdxrobot2_agent_node, lidar_node, camera_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav, explore_node]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)

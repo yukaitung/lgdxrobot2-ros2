@@ -1,7 +1,7 @@
 <ROS_NAMESPACE>/lgdxrobot2_agent_node:
   ros__parameters:
     mcu_enable: true
-    mcu_control_mode: "cmd_vel"
+    mcu_control_mode: "both"
     mcu_reset_transform: true
     mcu_publish_odom: true
     mcu_publish_tf: false

@@ -29,13 +29,13 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
 
   // Topics
   std::string controlMode = node->get_parameter("mcu_control_mode").as_string();
-  if (controlMode.empty() || controlMode == "cmd_vel")
+  if (controlMode.empty() || controlMode == "cmd_vel" || controlMode == "both")
   {
     cmdVelSubscription = node->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 
       rclcpp::SensorDataQoS().reliable(),
       std::bind(&Sensors::CmdVelCallback, this, std::placeholders::_1));
   }
-  else if(controlMode == "joy")
+  else if(controlMode == "joy" || controlMode == "both")
   {
     joySubscription = node->create_subscription<sensor_msgs::msg::Joy>("joy",
       rclcpp::SensorDataQoS().reliable(),
