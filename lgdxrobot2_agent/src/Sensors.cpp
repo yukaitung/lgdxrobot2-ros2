@@ -41,11 +41,6 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
       rclcpp::SensorDataQoS().reliable(),
       std::bind(&Sensors::JoyCallback, this, std::placeholders::_1));
   }
-  else
-  {
-    RCLCPP_FATAL(logger_, "Control mode is invalid, the program is terminaling");
-    exit(0);
-  }
   if (node->get_parameter("mcu_publish_odom").as_bool())
   {
     baseLinkName = node->get_parameter("mcu_base_link_name").as_string();
