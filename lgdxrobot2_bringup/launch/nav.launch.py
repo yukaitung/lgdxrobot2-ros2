@@ -53,7 +53,7 @@ launch_args = [
   DeclareLaunchArgument(
     name='map',
     default_value='default.yaml',
-    description='Map yaml file in `lgdxrobot2_webots` package.'
+    description='Absolute path to the map yaml file.'
   ),
   DeclareLaunchArgument(
     name='autostart',
