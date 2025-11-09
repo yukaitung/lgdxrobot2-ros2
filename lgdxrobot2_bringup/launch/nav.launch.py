@@ -122,7 +122,6 @@ def launch_setup(context):
   slam = LaunchConfiguration('slam')
   use_localization = LaunchConfiguration('use_localization')
   map = LaunchConfiguration('map')
-  use_sim_time = LaunchConfiguration('use_sim_time')
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')

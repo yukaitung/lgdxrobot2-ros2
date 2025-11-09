@@ -185,13 +185,13 @@ controller_server:
       ax_min: -3.0
       ay_max: 3.0
       az_max: 3.5
-      vx_std: 0.2
-      vy_std: 0.2
-      wz_std: 0.4
-      vx_max: 0.25
-      vx_min: -0.25
-      vy_max: 0.0
-      wz_max: 0.2
+      vx_std: 0.3
+      vy_std: 0.3
+      wz_std: 0.5
+      vx_max: 0.3
+      vx_min: -0.3
+      vy_max: 0.3
+      wz_max: 0.5
       iteration_count: 1
       prune_distance: 1.7
       transform_tolerance: 0.1
@@ -281,7 +281,7 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 5.0
-        inflation_radius: 0.35
+        inflation_radius: 0.2
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -350,7 +350,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 5.0
-        inflation_radius: 0.35
+        inflation_radius: 0.2
       always_send_full_costmap: True
 
 # The yaml_filename does not need to be specified since it going to be set by defaults in launch.
@@ -440,7 +440,7 @@ velocity_smoother:
     min_velocity: [-0.5, 0.0, -2.0]
     max_accel: [2.5, 0.0, 3.2]
     max_decel: [-2.5, 0.0, -3.2]
-    odom_topic: "<ROS_NAMESPACE>/odom"
+    odom_topic: "<ROS_NAMESPACE>/odometry/filtered"
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
     velocity_timeout: 1.0
