@@ -126,11 +126,6 @@ def launch_setup(context):
   use_respawn = LaunchConfiguration('use_respawn')
   use_explore_lite = LaunchConfiguration('use_explore_lite')
 
-  # Display
-  rviz_config = LaunchConfiguration('rviz_config').perform(context)
-  if not rviz_config:
-    rviz_config = os.path.join(package_dir, 'rviz', profile_str) + '.rviz'
-
   # Sensors
   use_lidar = LaunchConfiguration('use_lidar')
   lidar_model = LaunchConfiguration('lidar_model').perform(context)
@@ -139,6 +134,7 @@ def launch_setup(context):
   use_camera_bool = LaunchConfiguration('use_camera').perform(context).lower() == 'true'
   use_joy = LaunchConfiguration('use_joy')
   
+  # Pcakges
   camera_pkg_share = ''
   if use_camera_bool:
     camera_pkg_share = get_package_share_directory('realsense2_camera')
@@ -146,6 +142,11 @@ def launch_setup(context):
   lidar_pkg_share = get_package_share_directory('sllidar_ros2')
   nav2_package_dir = get_package_share_directory('nav2_bringup')
   package_dir = get_package_share_directory('lgdxrobot2_bringup')
+  
+  # Display
+  rviz_config = LaunchConfiguration('rviz_config').perform(context)
+  if not rviz_config:
+    rviz_config = os.path.join(package_dir, 'rviz', profile_str) + '.rviz'
   
   #
   # Base
