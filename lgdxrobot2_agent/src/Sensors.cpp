@@ -35,7 +35,7 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
       rclcpp::SensorDataQoS().reliable(),
       std::bind(&Sensors::CmdVelCallback, this, std::placeholders::_1));
   }
-  else if(controlMode == "joy" || controlMode == "both")
+  if(controlMode == "joy" || controlMode == "both")
   {
     joySubscription = node->create_subscription<sensor_msgs::msg::Joy>("joy",
       rclcpp::SensorDataQoS().reliable(),
