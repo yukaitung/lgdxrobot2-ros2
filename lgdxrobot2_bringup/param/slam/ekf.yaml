@@ -3,7 +3,6 @@
     ros__parameters:
         frequency: 30.0
         two_d_mode: true
-        publish_acceleration: true
         publish_tf: true
         map_frame: map
         odom_frame: odom
