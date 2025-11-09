@@ -129,7 +129,6 @@ def launch_setup(context):
   # Sensors
   use_lidar = LaunchConfiguration('use_lidar')
   lidar_model = LaunchConfiguration('lidar_model').perform(context)
-  use_rviz = LaunchConfiguration('use_rviz')
   use_camera = LaunchConfiguration('use_camera')
   use_camera_bool = LaunchConfiguration('use_camera').perform(context).lower() == 'true'
   use_joy = LaunchConfiguration('use_joy')
@@ -144,6 +143,7 @@ def launch_setup(context):
   package_dir = get_package_share_directory('lgdxrobot2_bringup')
   
   # Display
+  use_rviz = LaunchConfiguration('use_rviz')
   rviz_config = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config:
     rviz_config = os.path.join(package_dir, 'rviz', profile_str) + '.rviz'
