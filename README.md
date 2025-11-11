@@ -27,11 +27,13 @@ The solution consists of the following packages:
 ### Docker
 
 ```bash
-docker run --rm -it \
+docker run -d \
+  --name lgdxrobot2 \
   -e PUID=1000 \
   -e PGID=1000 \
   -p 3000:3000 \
-  -p 3001:3001 yukaitung/lgdxrobot2.desktop:latest
+  -p 3001:3001 \
+  yukaitung/lgdxrobot2.desktop:latest
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) to access the web interface. If the terminal is closed, you can right-click the desktop to relaunch it from the menu.
