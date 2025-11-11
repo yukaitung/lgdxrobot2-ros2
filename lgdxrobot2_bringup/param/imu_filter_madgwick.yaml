@@ -1,4 +1,4 @@
-imu_filter_madgwick:
+<ROS_NAMESPACE>/imu_filter_madgwick:
   ros__parameters:
     constant_dt: 0.0
     declination: 0.0

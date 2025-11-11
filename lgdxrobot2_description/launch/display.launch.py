@@ -23,13 +23,13 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='use_sim_time',
-    default_value='True',
+    default_value='False',
     description='Use the simulation time from Webots.'
   ),
   DeclareLaunchArgument(
-    name='model', 
-    default_value='lgdxrobot2_sim_description.urdf',
-    description='Model file in `lgdxrobot2_description` package.'
+    name='use_joint_state_publisher',
+    default_value='True',
+    description='Wether to use joint state publisher or use your own publisher'
   ),
   DeclareLaunchArgument(
     name='rviz_config',
@@ -47,7 +47,7 @@ def launch_setup(context):
   description_pkg_share = get_package_share_directory('lgdxrobot2_description')
   namespace = LaunchConfiguration('namespace')
   use_sim_time = LaunchConfiguration('use_sim_time')
-  model_path = os.path.join(description_pkg_share, 'description', LaunchConfiguration('model').perform(context))
+  use_joint_state_publisher = LaunchConfiguration('use_joint_state_publisher')
   rviz_config_path = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config_path:
     rviz_config_path = os.path.join(description_pkg_share, 'rviz', 'display.rviz')
@@ -60,11 +60,26 @@ def launch_setup(context):
         package='robot_state_publisher',
         executable='robot_state_publisher',
         parameters=[
-          {'robot_description': Command(['xacro ', model_path])}
+          {'robot_description': Command(['xacro ', os.path.join(description_pkg_share, 'description', 'lgdxrobot2.urdf')])},
+          {'use_sim_time': use_sim_time}
         ],
         remappings=[
           ('/tf', 'tf'), 
           ('/tf_static', 'tf_static')
+        ]
+      ),
+      Node(
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        name='joint_state_publisher',
+        condition=IfCondition(use_joint_state_publisher),
+        parameters=[
+          {'use_sim_time': use_sim_time}
+        ],
+        remappings=[
+          ('/tf', 'tf'), 
+          ('/tf_static', 'tf_static'),
+          ('/joint_states', 'joint_states')
         ]
       ),
       Node(
@@ -74,7 +89,9 @@ def launch_setup(context):
         name='rviz2',
         output='screen',
         arguments=['-d', rviz_config_path],
-        parameters=[{'use_sim_time': use_sim_time}],
+        parameters=[
+          {'use_sim_time': use_sim_time}
+        ],
       )
     ]
   )

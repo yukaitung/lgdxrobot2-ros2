@@ -1,4 +1,0 @@
-imu_transformer:
-  ros__parameters:
-    target_frame: camera_link
-    use_sim_time: false

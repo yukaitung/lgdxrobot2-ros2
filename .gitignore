@@ -1,8 +1,12 @@
 explore/*
 lgdxrobot2_webots/worlds/.*.jpg
 lgdxrobot2_webots/worlds/*.wbproj
+lgdxrobot2_webots/protos/.*.jpg
+lgdxrobot2_webots/protos/*.wbproj
 third_party/*
 build/*
 install/*
 log/*
 .DS_Store
+*.dae_history.log
+*.blend1

@@ -268,45 +268,33 @@ controller_server:
 local_costmap:
   local_costmap:
     ros__parameters:
-      update_frequency: 10.0
-      publish_frequency: 10.0
+      update_frequency: 5.0
+      publish_frequency: 5.0
       global_frame: odom
       robot_base_frame: base_link
       rolling_window: true
       width: 3
       height: 3
       resolution: 0.05
-      footprint: "[ [0.143, 0.1185], [0.143, -0.1185], [-0.143, -0.1185], [-0.143, 0.1185] ]"
-      plugins: ["voxel_layer", "inflation_layer"]
+      footprint: "[ [0.12, 0.12], [0.12, -0.12], [-0.12, -0.12], [-0.12, 0.12] ]"
+      plugins: ["obstacle_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 5.0
         inflation_radius: 0.35
-      voxel_layer:
-        plugin: "nav2_costmap_2d::VoxelLayer"
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        publish_voxel_map: True
-        origin_z: 0.0
-        z_resolution: 0.05
-        z_voxels: 16
-        max_obstacle_height: 2.0
-        mark_threshold: 0
         observation_sources: scan
         scan:
-          # A relative topic will be appended to the parent of the local_costmap namespace.
-          # For example:
-          #   * User chosen namespace is `tb4`.
-          #   * User chosen topic is `scan`.
-          #   * Topic will be remapped to `/tb4/scan` without `local_costmap`.
-          #   * Use global topic `/scan` if you do not wish the node namespace to apply
           topic: <ROS_NAMESPACE>/scan
           max_obstacle_height: 2.0
           clearing: True
           marking: True
           data_type: "LaserScan"
-          raytrace_max_range: 3.0
+          raytrace_max_range: 2.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
+          obstacle_max_range: 2.0
           obstacle_min_range: 0.0
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
@@ -316,11 +304,11 @@ local_costmap:
 global_costmap:
   global_costmap:
     ros__parameters:
-      update_frequency: 10.0
-      publish_frequency: 10.0
+      update_frequency: 5.0
+      publish_frequency: 5.0
       global_frame: map
       robot_base_frame: base_link
-      robot_radius: 0.22
+      robot_radius: 0.17
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
@@ -329,12 +317,6 @@ global_costmap:
         enabled: True
         observation_sources: scan
         scan:
-          # A relative topic will be appended to the parent of the global_costmap namespace.
-          # For example:
-          #   * User chosen namespace is `tb4`.
-          #   * User chosen topic is `scan`.
-          #   * Topic will be remapped to `/tb4/scan` without `global_costmap`.
-          #   * Use global topic `/scan` if you do not wish the node namespace to apply
           topic: <ROS_NAMESPACE>/scan
           max_obstacle_height: 2.0
           clearing: True
@@ -478,7 +460,7 @@ collision_monitor:
 
 docking_server:
   ros__parameters:
-    controller_frequency: 50.0
+    controller_frequency: 10.0
     initial_perception_timeout: 5.0
     wait_charge_timeout: 5.0
     dock_approach_timeout: 30.0

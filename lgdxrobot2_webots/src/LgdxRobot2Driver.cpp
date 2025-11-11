@@ -29,10 +29,9 @@ void LgdxRobot2Driver::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
     wheelsVelocity[2] = (1 / WHEEL_RADIUS) * (x + y - (CHASSIS_LX + CHASSIS_LY) * w);
     wheelsVelocity[3] = (1 / WHEEL_RADIUS) * (x - y + (CHASSIS_LX + CHASSIS_LY) * w);
   }
-  
 }
 
-void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered_map<std::string, std::string> &parameters) 
+void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered_map<std::string, std::string> &) 
 {
   rosNode = node;
 
@@ -69,6 +68,7 @@ void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered
   );
   odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("/odom", rclcpp::SensorDataQoS().reliable());
   tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(node);
+  jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("/joint_states", rclcpp::SensorDataQoS().reliable());
 }
 
 void LgdxRobot2Driver::step() 
@@ -127,6 +127,19 @@ void LgdxRobot2Driver::step()
   odometry.twist.twist.angular.z = motorForwardKinematic[2];
   if(odomPublisher)
     odomPublisher->publish(odometry);
+
+  sensor_msgs::msg::JointState jointState;
+  jointState.header.stamp = currentTime;
+  jointState.name = {"wheel1_link_joint", "wheel2_link_joint", "wheel3_link_joint", "wheel4_link_joint"};
+  jointState.position = {motorPosition[0], motorPosition[1], motorPosition[2], motorPosition[3]};
+  double motorVelocity[4] = {0};
+  for (int i = 0; i < 4; i++) 
+  {
+    motorVelocity[i] = (motorPosition[i] - motorLastPosition[i]) / timeElapsed;
+  }
+  jointState.velocity = {motorVelocity[0], motorVelocity[1], motorVelocity[2], motorVelocity[3]};
+  if(jointStatePublisher)
+    jointStatePublisher->publish(jointState);
 
   for (int i = 0; i < 4; i++) 
   {

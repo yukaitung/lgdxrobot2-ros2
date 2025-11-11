@@ -1,10 +1,9 @@
 #VRML_SIM R2023b utf8
 # LGDXRobot2 Concept
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/devices/orbbec/protos/Astra.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/devices/robotis/protos/RobotisLds01.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Plastic.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/CorrodedMetal.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Rubber.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Plastic.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Rubber.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BrushedAluminium.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Pcb.proto"
 PROTO LGDXRobot2 [
   field SFVec3f    translation  0 0 0
   field SFRotation rotation     0 0 1 0
@@ -12,331 +11,395 @@ PROTO LGDXRobot2 [
   field SFString   name         ""
 ]
 {
-  Robot {
-    translation IS translation
-    rotation IS rotation
-    name IS name
-    controller IS controller
-    children [
-      Accelerometer {
-        translation 0 0 0.09
-        name "accelerometer"
-      }
-      Gyro {
-        translation 0 0 0.09
-        name "gyro"
-      }
-      InertialUnit {
-        translation 0 0 0.09
-        name "inertial_unit"
-      }
-      Astra {
-        translation 0.1 0 0.059
-        name "camera"
-      }
-      RobotisLds01 {
-        translation 0 0 0.157
-        rotation 0 0 1 3.14159
-        name "lidar"
-      }
-      DEF BODY Pose {
-        translation 0 0 0.057
-        children [
-          DEF BASE_TOP Pose {
-            translation 0 0 0.072
-            children [
-              Shape {
-                appearance Plastic {
-                  colorOverride 0 0 0
-                }
-                geometry Box {
-                  size 0.286 0.237 0.004
-                }
-              }
-            ]
-          }
-          DEF STANDOFF_8 Pose {
-            translation -0.138 -0.0685 0.037
-            children [
-              Shape {
-                appearance CorrodedMetal {
-                }
-                geometry Cylinder {
-                  height 0.07
-                  radius 0.004
-                }
-              }
-            ]
-          }
-          DEF STANDOFF_7 Pose {
-            translation -0.138 0.0685 0.037
-            children [
-              Shape {
-                appearance CorrodedMetal {
-                }
-                geometry Cylinder {
-                  height 0.07
-                  radius 0.004
-                }
-              }
-            ]
-          }
-          DEF STANDOFF_6 Pose {
-            translation -0.066 -0.0685 0.037
-            children [
-              Shape {
-                appearance CorrodedMetal {
-                }
-                geometry Cylinder {
-                  height 0.07
-                  radius 0.004
-                }
-              }
-            ]
-          }
-          DEF STANDOFF_5 Pose {
-            translation -0.066 0.0685 0.037
-            children [
-              Shape {
-                appearance CorrodedMetal {
-                }
-                geometry Cylinder {
-                  height 0.07
-                  radius 0.004
-                }
-              }
-            ]
-          }
-          DEF STANDOFF_4 Pose {
-            translation 0.066 -0.0685 0.037
-            children [
-              Shape {
-                appearance CorrodedMetal {
-                }
-                geometry Cylinder {
-                  height 0.07
-                  radius 0.004
-                }
-              }
-            ]
-          }
-          DEF STANDOFF_3 Pose {
-            translation 0.066 0.0685 0.037
-            children [
-              Shape {
-                appearance CorrodedMetal {
-                }
-                geometry Cylinder {
-                  height 0.07
-                  radius 0.004
-                }
-              }
-            ]
-          }
-          DEF STANDOFF_2 Pose {
-            translation 0.138 -0.0685 0.037
-            children [
-              Shape {
-                appearance CorrodedMetal {
-                }
-                geometry Cylinder {
-                  height 0.07
-                  radius 0.004
-                }
-              }
-            ]
-          }
-          DEF STANDOFF_1 Pose {
-            translation 0.138 0.0685 0.037
-            children [
-              Shape {
-                appearance CorrodedMetal {
-                }
-                geometry Cylinder {
-                  height 0.07
-                  radius 0.004
-                }
-              }
-            ]
-          }
-          DEF BASE_REAR Pose {
-            translation -0.102 0 0
-            children [
-              Shape {
-                appearance Plastic {
-                  colorOverride 0 0 0
-                }
-                geometry Box {
-                  size 0.08 0.145 0.004
-                }
-              }
-            ]
-          }
-          DEF BASE_CENTRE Shape {
-            appearance DEF LGDX_MATERIAL1 Plastic {
-              colorOverride 0 0 0
-            }
-            geometry Box {
-              size 0.124 0.237 0.004
-            }
-          }
-          DEF BASE_FRONT Pose {
-            translation 0.102 0 0
-            children [
-              Shape {
-                appearance Plastic {
-                  colorOverride 0 0 0
-                }
-                geometry Box {
-                  size 0.08 0.145 0.004
-                }
-              }
-            ]
-          }
-        ]
-      }
-      HingeJoint {
-        jointParameters HingeJointParameters {
-          axis 0 1 0
-          anchor 0.1055 0.1025 0.0375
-        }
-        device [
-          PositionSensor {
-            name "encoder1"
-          }
-          RotationalMotor {
-            name "wheel1"
-          }
-        ]
-        endPoint DEF WHEEL_1 Solid {
-          translation 0.10549999989548409 0.10249999998380187 0.0375
-          rotation 0.9999999999999999 0 0 1.570799999989945
-          children [
-            DEF WHEEL Shape {
-              appearance Rubber {
-              }
-              geometry Cylinder {
-                height 0.032
-                radius 0.0375
-              }
-            }
-          ]
-          name "WHEEL_1_SOLID"
-          contactMaterial "ExteriorWheelMat"
-          boundingObject USE WHEEL
-          physics Physics {
-          }
-        }
-      }
-      HingeJoint {
-        jointParameters HingeJointParameters {
-          axis 0 1 0
-          anchor 0.1055 -0.1025 0.0375
-        }
-        device [
-          PositionSensor {
-            name "encoder2"
-          }
-          RotationalMotor {
-            name "wheel2"
-          }
-        ]
-        endPoint DEF WHEEL_2 Solid {
-          translation 0.10549999989554709 -0.10250000001615034 0.0375
-          rotation 0.9999999999999999 0 0 1.570799999989945
-          children [
-            DEF WHEEL Shape {
-              appearance Rubber {
-              }
-              geometry Cylinder {
-                height 0.032
-                radius 0.0375
-              }
-            }
-          ]
-          name "WHEEL_2_SOLID"
-          contactMaterial "InteriorWheelMat"
-          boundingObject USE WHEEL
-          physics Physics {
-          }
-        }
-      }
-      HingeJoint {
-        jointParameters HingeJointParameters {
-          axis 0 1 0
-          anchor -0.1055 0.1025 0.0375
-        }
-        device [
-          PositionSensor {
-            name "encoder3"
-          }
-          RotationalMotor {
-            name "wheel3"
-          }
-        ]
-        endPoint DEF WHEEL_3 Solid {
-          translation -0.10550000010413281 0.10249999998386608 0.0375
-          rotation 0.9999999999999999 0 0 1.570799999989945
-          children [
-            DEF WHEEL Shape {
-              appearance Rubber {
-              }
-              geometry Cylinder {
-                height 0.032
-                radius 0.0375
-              }
-            }
-          ]
-          name "WHEEL_3_SOLID"
-          contactMaterial "InteriorWheelMat"
-          boundingObject USE WHEEL
-          physics Physics {
-          }
-        }
-      }
-      HingeJoint {
-        jointParameters HingeJointParameters {
-          axis 0 1 0
-          anchor -0.1055 -0.1025 0.0375
-        }
-        device [
-          PositionSensor {
-            name "encoder4"
-          }
-          RotationalMotor {
-            name "wheel4"
-          }
-        ]
-        endPoint DEF WHEEL_4 Solid {
-          translation -0.10550000010406983 -0.10250000001608488 0.0375
-          rotation 0.9999999999999999 0 0 1.570799999989945
-          children [
-            DEF WHEEL Shape {
-              appearance Rubber {
-              }
-              geometry Cylinder {
-                height 0.032
-                radius 0.0375
-              }
-            }
-          ]
-          name "WHEEL_4_SOLID"
-          contactMaterial "ExteriorWheelMat"
-          boundingObject USE WHEEL
-          physics Physics {
-          }
-        }
-      }
-    ]
-    boundingObject Pose {
-      translation 0 0 0.094
+Robot {
+  translation IS translation
+  rotation IS rotation
+  name IS name
+  controller IS controller
+  children [
+    Solid {
+      translation 0.06 0 0.13331
+      rotation 0 0 1 3.14159
       children [
-        Box {
-          size 0.286 0.237 0.076
+        Shape {
+          appearance Plastic {
+            colorOverride 0 0 0
+          }
+          geometry Mesh {
+            url [
+              "meshes/Lidar.dae"
+            ]
+          }
+        }
+        Lidar {
+          translation 0 0 0.0231
+          name "lidar_link"
+          horizontalResolution 500
+          fieldOfView 6.28318
+          numberOfLayers 1
+          near 0.05
+          minRange 0.05
+          maxRange 6
+        }
+      ]
+      name "lidar"
+      boundingObject Pose {
+        translation 0 0 0.02065
+        children [
+          Box {
+            size 0.0556 0.0556 0.0413
+          }
+        ]
+      }
+      physics Physics {
+        density -1
+        mass 0.11
+      }
+    }
+    Solid {
+      translation 0.106 0 0.05931
+      children [
+        Accelerometer {
+        }
+        Gyro {
+        }
+        InertialUnit {
+          name "inertial_unit"
+        }
+        RangeFinder {
+          translation 0.025 0.0175 0.0125
+          name "camera_depth_frame_sim"
+          width 1280
+          height 720
+          minRange 0.3
+          maxRange 3
+        }
+        Camera {
+          translation 0.025 0.0325 0.0125
+          name "camera_color_frame_sim"
+          width 1280
+          height 720
+        }
+        Pose {
+          translation 0 0 0.0125
+          children [
+            Shape {
+              appearance BrushedAluminium {
+              }
+              geometry Mesh {
+                url [
+                  "meshes/Camera.dae"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+      name "camera"
+      boundingObject Pose {
+        translation 0.0125 0 0.0125
+        children [
+          DEF CAMERA_BO Box {
+            size 0.025 0.09 0.025
+          }
+        ]
+      }
+      physics Physics {
+        density -1
+        mass 0.26
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor -0.083 -0.072 0.037
+      }
+      device [
+        RotationalMotor {
+          name "wheel4"
+        }
+        PositionSensor {
+          name "encoder4"
+        }
+      ]
+      endPoint Solid {
+        translation -0.083 -0.072 0.037
+        rotation 1 7.377914028877902e-24 -5.321091516014994e-23 1.5707999999999975
+        children [
+          Shape {
+            appearance Rubber {
+            }
+            geometry Mesh {
+              url [
+                "meshes/Wheel4Rollers.dae"
+              ]
+            }
+          }
+          Shape {
+            appearance BrushedAluminium {
+            }
+            geometry Mesh {
+              url [
+                "meshes/Wheel4.dae"
+              ]
+            }
+          }
+        ]
+        name "WHEEL_4"
+        contactMaterial "ExteriorWheelMat"
+        boundingObject Pose {
+          translation 0 0 0.024
+          children [
+            Cylinder {
+              height 0.048
+              radius 0.0375
+            }
+          ]
+        }
+        physics Physics {
+        }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor -0.083 0.072 0.037
+      }
+      device [
+        RotationalMotor {
+          name "wheel3"
+        }
+        PositionSensor {
+          name "encoder3"
+        }
+      ]
+      endPoint Solid {
+        translation -0.083 0.072 0.037
+        rotation -0.9999999999999999 -1.1259498901841018e-23 9.207493204982446e-24 1.5707953071795868
+        children [
+          Shape {
+            appearance Rubber {
+            }
+            geometry Mesh {
+              url [
+                "meshes/Wheel3Rollers.dae"
+              ]
+            }
+          }
+          Shape {
+            appearance BrushedAluminium {
+            }
+            geometry Mesh {
+              url [
+                "meshes/Wheel3.dae"
+              ]
+            }
+          }
+        ]
+        name "WHEEL_3"
+        contactMaterial "InteriorWheelMat"
+        boundingObject Pose {
+          translation 0 0 0.024
+          children [
+            Cylinder {
+              height 0.048
+              radius 0.0375
+            }
+          ]
+        }
+        physics Physics {
+        }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0.083 -0.072 0.037
+      }
+      device [
+        RotationalMotor {
+          name "wheel2"
+        }
+        PositionSensor {
+          name "encoder2"
+        }
+      ]
+      endPoint Solid {
+        translation 0.083 -0.072 0.037
+        rotation 1 -4.010327193927938e-23 -7.07606642328715e-24 1.5707999999999995
+        children [
+          Shape {
+            appearance Rubber {
+            }
+            geometry Mesh {
+              url [
+                "meshes/Wheel2Rollers.dae"
+              ]
+            }
+          }
+          Shape {
+            appearance BrushedAluminium {
+            }
+            geometry Mesh {
+              url [
+                "meshes/Wheel2.dae"
+              ]
+            }
+          }
+        ]
+        name "WHEEL_2"
+        contactMaterial "InteriorWheelMat"
+        boundingObject Pose {
+          translation 0 0 0.024
+          children [
+            Cylinder {
+              height 0.048
+              radius 0.0375
+            }
+          ]
+        }
+        physics Physics {
+        }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0.083 0.072 0.037
+      }
+      device [
+        PositionSensor {
+          name "encoder1"
+        }
+        RotationalMotor {
+          name "wheel1"
+        }
+      ]
+      endPoint Solid {
+        translation 0.083 0.072 0.037
+        rotation -1 -9.630939940004967e-23 -2.4808445617012115e-23 1.5707999999999995
+        children [
+          Shape {
+            appearance Rubber {
+            }
+            geometry Mesh {
+              url [
+                "meshes/Wheel1Rollers.dae"
+              ]
+            }
+          }
+          Shape {
+            appearance BrushedAluminium {
+            }
+            geometry Mesh {
+              url [
+                "meshes/Wheel1.dae"
+              ]
+            }
+          }
+        ]
+        name "WHEEL_1"
+        contactMaterial "ExteriorWheelMat"
+        boundingObject Pose {
+          translation 0 0 0.024
+          children [
+            Cylinder {
+              height 0.048
+              radius 0.0375
+            }
+          ]
+        }
+        physics Physics {
+        }
+      }
+    }
+    DEF BODY Pose {
+      children [
+        Shape {
+          appearance Pcb {
+          }
+          geometry Mesh {
+            url [
+              "meshes/Board.dae"
+            ]
+          }
+        }
+        DEF BOARD_SCREWS Shape {
+          appearance BrushedAluminium {
+          }
+          geometry Mesh {
+            url [
+              "meshes/Screws.dae"
+            ]
+          }
+        }
+        DEF MOTORS Shape {
+          appearance BrushedAluminium {
+            IBLStrength 0.5
+          }
+          geometry Mesh {
+            url [
+              "meshes/Motors.dae"
+            ]
+          }
+        }
+        DEF BRACKETS Shape {
+          appearance BrushedAluminium {
+            colorOverride 0 0 0
+          }
+          geometry Mesh {
+            url [
+              "meshes/Brackets.dae"
+            ]
+          }
+        }
+        DEF STANDOFFS Shape {
+          appearance BrushedAluminium {
+            IBLStrength 0.5
+          }
+          geometry Mesh {
+            url [
+              "meshes/Standoffs.dae"
+            ]
+          }
+        }
+        DEF PLATES Shape {
+          appearance Plastic {
+            colorOverride 0.509804 0.105882 0.113725
+          }
+          geometry Mesh {
+            url [
+              "meshes/Plates.dae"
+            ]
+          }
         }
       ]
     }
-    physics Physics {
-    }
+  ]
+  boundingObject Group {
+    children [
+      Pose {
+        translation 0 0 0.031
+        children [
+          Box {
+            size 0.204 0.138 0.047
+          }
+        ]
+      }
+      Pose {
+        translation 0 0 0.094
+        children [
+          Box {
+            size 0.24 0.24 0.078
+          }
+        ]
+      }
+    ]
   }
+  physics Physics {
+    density -1
+    mass 2
+  }
+}
+
 }

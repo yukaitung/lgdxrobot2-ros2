@@ -18,37 +18,28 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
   auto mcuTfParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuTfParam.description = "Publishing tf information from the robot.";
   node->declare_parameter("mcu_publish_tf", false, mcuTfParam);
+  auto mcuJointStateParam = rcl_interfaces::msg::ParameterDescriptor{};
+  mcuJointStateParam.description = "Publishing joint state information from the robot.";
+  node->declare_parameter("mcu_publish_joint_state", false, mcuJointStateParam);
   auto mcuBaseLinkParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuBaseLinkParam.description = "Custom `base_link` name.";
   node->declare_parameter("mcu_base_link_name", "base_link", mcuBaseLinkParam);
   auto mcuExternalImuParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuExternalImuParam.description = "Using external IMU for odometry calcuation.";
-  node->declare_parameter("mcu_use_external_imu", false, mcuExternalImuParam);
 
   // Topics
   std::string controlMode = node->get_parameter("mcu_control_mode").as_string();
-  if (controlMode.empty() || controlMode == "cmd_vel")
+  if (controlMode.empty() || controlMode == "cmd_vel" || controlMode == "both")
   {
     cmdVelSubscription = node->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 
       rclcpp::SensorDataQoS().reliable(),
       std::bind(&Sensors::CmdVelCallback, this, std::placeholders::_1));
   }
-  else if(controlMode == "joy")
+  if(controlMode == "joy" || controlMode == "both")
   {
     joySubscription = node->create_subscription<sensor_msgs::msg::Joy>("joy",
       rclcpp::SensorDataQoS().reliable(),
       std::bind(&Sensors::JoyCallback, this, std::placeholders::_1));
-  }
-  else
-  {
-    RCLCPP_FATAL(logger_, "Control mode is invalid, the program is terminaling");
-    exit(0);
-  }
-  if (node->get_parameter("mcu_use_external_imu").as_bool())
-  {
-    imuSubscription = node->create_subscription<sensor_msgs::msg::Imu>("/agent/ext_imu",
-      rclcpp::SensorDataQoS().reliable(),
-      std::bind(&Sensors::ImuCallback, this, std::placeholders::_1));
   }
   if (node->get_parameter("mcu_publish_odom").as_bool())
   {
@@ -59,6 +50,11 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
   if (node->get_parameter("mcu_publish_tf").as_bool())
   {
     tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(node);
+  }
+  if (node->get_parameter("mcu_publish_joint_state").as_bool())
+  {
+    jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("/joint_states", 
+      rclcpp::SensorDataQoS().reliable());
   }
   needPublishOdom = tfBroadcaster != nullptr || odomPublisher != nullptr;
 }
@@ -121,17 +117,8 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
     y = msg.axes[6] * maximumVelocity;
   }
   // LT = w left, RT = w right
-  float w = (((msg.axes[4] - 1) / 2) - ((msg.axes[5] - 1) / 2)) * maximumVelocity;
+  float w = ((msg.axes[4] - 1) - (msg.axes[5] - 1)) * maximumVelocity * 2;
   sensorSignals->SetInverseKinematics(x, y, w);
-}
-
-void Sensors::ImuCallback(const sensor_msgs::msg::Imu &msg)
-{
-  float ax = msg.linear_acceleration.x;
-  float ay = msg.linear_acceleration.y;
-  float az = msg.linear_acceleration.z;
-  float gz = msg.angular_velocity.z;
-  sensorSignals->SetExternalImu(ax, ay, az, gz);
 }
 
 void Sensors::PublishOdom(const RobotData& data)
@@ -170,5 +157,20 @@ void Sensors::PublishOdom(const RobotData& data)
       odometry.twist.twist.angular.z = data.forwardKinematic[2];
       odomPublisher->publish(odometry);
     }
+  }
+  if (jointStatePublisher != nullptr)
+  {
+    for (int i = 0; i < 4; i++)
+    {
+      motorsPosition[i] += data.motorsActualVelocity[i] * (data.responseTime / 1000.0);
+    }
+    rclcpp::Time currentTime = clock_->now();
+    sensor_msgs::msg::JointState jointState;
+    jointState.header.stamp = currentTime;
+    jointState.name = {"wheel1_link_joint", "wheel2_link_joint", "wheel3_link_joint", "wheel4_link_joint"};
+    jointState.position = {motorsPosition[0], motorsPosition[1], motorsPosition[2], motorsPosition[3]};
+    jointState.velocity = {data.motorsActualVelocity[0], data.motorsActualVelocity[1], data.motorsActualVelocity[2], data.motorsActualVelocity[3]};
+    if(jointStatePublisher)
+      jointStatePublisher->publish(jointState);
   }
 }

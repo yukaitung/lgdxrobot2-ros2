@@ -1,17 +1,7 @@
-/camera:
-  ros__parameters:
-    align_depth:
-      enable: true
-    accel_qos: SYSTEM_DEFAULT
-    depth_module:
-      profile: 1280x720x30
-    pointcloud:
-      enable: true
-    enable_accel: true
-    enable_color: true
-    enable_depth: true
-    enable_gyro: true
-    enable_sync: true
-    enable_rgbd: false
-    gyro_qos: SYSTEM_DEFAULT
-    unite_imu_method: 2
+camera_namespace: "<ROS_NAMESPACE>"
+enable_accel: "True"
+enable_gyro: "True"
+unite_imu_method: "2"
+enable_rgbd: "False"
+enable_color: "False"
+enable_depth: "False"
