@@ -16,9 +16,9 @@
     <command>rviz2</command>
   </action>
 </item>
-<item label="ChassisTuner" icon="/favicon.png">
+<item label="ChassisTuner" icon="/usr/share/selkies/www/icon.png">
   <action name="Execute">
-    <command>/config/ChassisTuner</command>
+    <command>/config/ChassisTuner/bin/ChassisTuner</command>
   </action>
 </item>
 </menu>
