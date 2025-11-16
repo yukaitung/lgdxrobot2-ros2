@@ -11,7 +11,8 @@ RUN chmod +x /ros_entrypoint.sh
 # ChassisTuner
 WORKDIR /config
 RUN wget https://gitlab.com/yukaitung/lgdxrobot2-chassistuner/-/package_files/247453314/download
-RUN mv ChassisTuner-arm64 ChassisTuner
+RUN ls
+RUN mv /config/ChassisTuner-arm64 /config/ChassisTuner
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["/init"]
