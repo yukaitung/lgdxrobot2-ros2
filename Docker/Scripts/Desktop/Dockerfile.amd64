@@ -13,7 +13,8 @@ WORKDIR /config
 RUN wget https://gitlab.com/api/v4/projects/52363675/packages/generic/binaries/latest/ChassisTuner-amd64.zip \
   && unzip ChassisTuner-amd64.zip \
   && mv build/ChassisTuner-amd64 /config/ChassisTuner \
-  && rm -rf build
+  && rm -rf build \
+  && rm ChassisTuner-amd64.zip
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["/init"]
