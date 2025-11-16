@@ -28,6 +28,11 @@ if [[ -e /config/ros2_ws ]]; then
   source "/config/ros2_ws/install/setup.bash"
 fi
 
+if [[ -e /config/ChassisTuner ]]; then
+  chown -R 1000:1000 /config/ChassisTuner
+  chmod +x /config/ChassisTuner/bin/ChassisTuner
+fi
+
 # Remove Warning
 if [[ -e /run/dbus/pid ]]; then
   rm /run/dbus/pid
