@@ -11,6 +11,11 @@ RUN chmod +x /ros_entrypoint.sh
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["/init"]
 
+# ChassisTuner
+WORKDIR /config
+RUN wget https://gitlab.com/yukaitung/lgdxrobot2-chassistuner/-/package_files/247453314/download
+RUN mv ChassisTuner-amd64 ChassisTuner
+
 EXPOSE 3000
 EXPOSE 3001
 VOLUME /config

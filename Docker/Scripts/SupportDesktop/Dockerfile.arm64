@@ -57,22 +57,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # install packages
 RUN apt update && apt install -y --no-install-recommends \
 			git \
+            xfce4-terminal \
+            wget \
+            nano \
+            libxkbcommon-x11-0 \
+            libxcb-cursor0 \
+            libxcb-icccm4 \
 			ros-dev-tools \
 			ros-jazzy-ros-base=0.11.0-1* \
 			ros-jazzy-desktop=0.11.0-1* \
-			xfce4-terminal \
 			ros-jazzy-navigation2 \
 			ros-jazzy-nav2-bringup \
 			ros-jazzy-nav2-route \
 			libprotobuf-dev \
 			libgrpc++-dev \
 			protobuf-compiler-grpc \
-			wget \
             ros-jazzy-joy \
             ros-jazzy-imu-filter-madgwick \
             ros-jazzy-librealsense2* \
             ros-jazzy-realsense2-* \
-            nano \
 			&& rm -rf /var/lib/apt/lists/*
 
 # Lidar

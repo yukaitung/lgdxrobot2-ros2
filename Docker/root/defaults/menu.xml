@@ -16,5 +16,10 @@
     <command>rviz2</command>
   </action>
 </item>
+<item label="ChassisTuner" icon="/favicon.png">
+  <action name="Execute">
+    <command>/config/ChassisTuner</command>
+  </action>
+</item>
 </menu>
 </openbox_menu>
