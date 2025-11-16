@@ -10,6 +10,10 @@ stages:
   - build
   - release
 
+#
+# Prepare variables
+#
+
 prepare:
   stage: prepare
   rules:
@@ -26,6 +30,10 @@ prepare:
     reports:
       dotenv: variables.env
 
+#
+# Build support packages for dependencies
+#
+
 build-sup-amd64:
   stage: build-sup
   rules:
@@ -38,8 +46,10 @@ build-sup-amd64:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    # Base Support Image
     - docker build -f Docker/Scripts/Support/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64
+    # Desktop Support Image
     - docker build -f Docker/Scripts/SupportDesktop/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:amd64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:amd64
 
@@ -57,10 +67,16 @@ build-sup-arm64:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    # Base Support Image
     - docker build -f Docker/Scripts/Support/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64
+    # Desktop Support Image
     - docker build -f Docker/Scripts/SupportDesktop/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:arm64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:arm64
+
+#
+# Build the ROS packages
+#
 
 build-amd64:
   stage: build
@@ -75,8 +91,10 @@ build-amd64:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    # Base
     - docker build -f Docker/Scripts/Base/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64
+    # Desktop
     - docker build -f Docker/Scripts/Desktop/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-amd64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-amd64
     
@@ -93,10 +111,16 @@ build-arm64:
     - docker:24.0.5-dind
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    # Base
     - docker build -f Docker/Scripts/Base/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64
+    # Support
     - docker build -f Docker/Scripts/Desktop/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-arm64 .
     - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-arm64
+
+#
+# Release
+#
     
 release_job:
   stage: release
