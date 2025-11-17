@@ -1,4 +1,4 @@
-FROM yukaitung/lgdxrobot2.supportdesktop:arm64
+FROM yukaitung/lgdxrobot2-support-desktop:arm64
 
 #
 # LGDXRobot2 ROS2
