@@ -37,7 +37,7 @@ prepare:
 # Build support images (Optional)
 #
 
-build-support-amd64:
+build-support-core-amd64:
   stage: build-support
   rules:
     - if: $CI_COMMIT_TAG
@@ -56,11 +56,8 @@ build-support-amd64:
     # Core Support Image
     - docker build -f Docker/Scripts/Support-Core/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$SUPPORT_CORE_IMAGE_NAME:$ARCH .
     - docker push $EXT_REGISTRY/$EXT_USER/$SUPPORT_CORE_IMAGE_NAME:$ARCH
-    # Desktop Support Image
-    - docker build -f Docker/Scripts/Support-Desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$SUPPORT_DESKTOP_IMAGE_NAME:$ARCH .
-    - docker push $EXT_REGISTRY/$EXT_USER/$SUPPORT_DESKTOP_IMAGE_NAME:$ARCH
 
-build-support-arm64:
+build-support-core-arm64:
   stage: build-support
   rules:
     - if: $CI_COMMIT_TAG
@@ -81,6 +78,45 @@ build-support-arm64:
     # Core Support Image
     - docker build -f Docker/Scripts/Support-Core/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$SUPPORT_CORE_IMAGE_NAME:$ARCH .
     - docker push $EXT_REGISTRY/$EXT_USER/$SUPPORT_CORE_IMAGE_NAME:$ARCH
+
+build-support-desktop-amd64:
+  stage: build-support
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  when: manual
+  image: docker:24.0.5-git
+  tags:
+    - saas-linux-small-amd64
+  services:
+    - docker:24.0.5-dind
+  variables:
+    ARCH: amd64
+  script:
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    # Desktop Support Image
+    - docker build -f Docker/Scripts/Support-Desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$SUPPORT_DESKTOP_IMAGE_NAME:$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$SUPPORT_DESKTOP_IMAGE_NAME:$ARCH
+
+build-support-desktop-arm64:
+  stage: build-support
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  when: manual
+  image: docker:24.0.5-git
+  tags:
+    - saas-linux-small-arm64 
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    ARCH: arm64
+  services:
+    - name: docker:24.0.5-dind
+      command: ["--mtu=1400"]
+  script:
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     # Desktop Support Image
     - docker build -f Docker/Scripts/Support-Desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$SUPPORT_DESKTOP_IMAGE_NAME:$ARCH .
     - docker push $EXT_REGISTRY/$EXT_USER/$SUPPORT_DESKTOP_IMAGE_NAME:$ARCH

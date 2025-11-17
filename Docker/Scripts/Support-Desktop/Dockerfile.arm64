@@ -1,5 +1,3 @@
-FROM yukaitung/lgdxrobot2-support:arm64 AS support
-
 FROM ghcr.io/linuxserver/baseimage-selkies:ubuntunoble
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -86,27 +84,43 @@ RUN apt update && apt install -y --no-install-recommends \
 #
 # Lidar
 #
-COPY --from=support /config/ros2_ws /config/ros2_ws
-			
+WORKDIR /config/ros2_ws/src
+RUN git clone https://github.com/Slamtec/sllidar_ros2.git
+
+WORKDIR /config/ros2_ws
+RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
+      colcon build --symlink-install
+
 #
 # Webots ROS2
 #
-COPY --from=support /config/webots_ws /config/webots_ws
+WORKDIR /config/webots_ws/src
+RUN git clone --recurse-submodules https://github.com/cyberbotics/webots_ros2.git
+
 WORKDIR /config/webots_ws
 RUN apt update && \
       rosdep update && \
       rosdep install --from-paths src --ignore-src --rosdistro $ROS_DISTRO -y && \
       rm -rf /var/lib/apt/lists/*
+RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
+      colcon build --symlink-install
 
 #
 # LGDXRobot2 ROS2 (Third Party)
 #
-COPY --from=support /config/lgdx_ws /config/lgdx_ws
 WORKDIR /config/lgdx_ws/src
+COPY . .
+RUN rm -rf lgdxrobot2*
+RUN git submodule init
+RUN git submodule update
 RUN apt update && \
       rosdep update && \
       rosdep install --from-paths third_party/m-explore-ros2 --ignore-src --rosdistro $ROS_DISTRO -y && \
       rm -rf /var/lib/apt/lists/*
+
+WORKDIR /config/lgdx_ws
+RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
+      colcon build --symlink-install
 
 #
 # Configure branding
