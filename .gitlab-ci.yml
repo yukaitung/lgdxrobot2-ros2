@@ -7,6 +7,8 @@
 variables:
   SUPPORT_CORE_IMAGE_NAME: "lgdxrobot2-support-core"
   SUPPORT_DESKTOP_IMAGE_NAME: "lgdxrobot2-support-desktop"
+  CORE_IMAGE_NAME: "lgdxrobot2-core"
+  DESKTOP_IMAGE_NAME: "lgdxrobot2-desktop"
 
 stages:
   - prepare
@@ -122,9 +124,10 @@ build-support-desktop-arm64:
     - docker push $EXT_REGISTRY/$EXT_USER/$SUPPORT_DESKTOP_IMAGE_NAME:$ARCH
 
 #
-# Build the ROS packages
+# Build the final images
 #
-build-amd64:
+
+build-core-amd64:
   stage: build
   rules:
     - if: $CI_COMMIT_TAG
@@ -135,16 +138,15 @@ build-amd64:
     - saas-linux-small-amd64
   services:
     - docker:24.0.5-dind
+  variables:
+    ARCH: amd64
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    # Base
-    - docker build -f Docker/Scripts/Base/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64 .
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-amd64
-    # Desktop
-    - docker build -f Docker/Scripts/Desktop/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-amd64 .
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-amd64
+    # Core
+    - docker build -f Docker/Scripts/Core/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$CORE_IMAGE_NAME:dev-$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$CORE_IMAGE_NAME:dev-$ARCH
     
-build-arm64:
+build-core-arm64:
   stage: build
   rules:
     - if: $CI_COMMIT_TAG
@@ -155,17 +157,55 @@ build-arm64:
     - saas-linux-small-arm64 
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
+    ARCH: amd64
   services:
     - name: docker:24.0.5-dind
       command: ["--mtu=1400"]
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    # Base
-    - docker build -f Docker/Scripts/Base/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64 .
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:dev-arm64
-    # Support
-    - docker build -f Docker/Scripts/Desktop/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-arm64 .
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:dev-arm64
+    # Core
+    - docker build -f Docker/Scripts/Core/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$CORE_IMAGE_NAME:dev-$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$CORE_IMAGE_NAME:dev-$ARCH
+
+build-desktop-amd64:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: docker:24.0.5-git
+  tags:
+    - saas-linux-small-amd64
+  services:
+    - docker:24.0.5-dind
+  variables:
+    ARCH: amd64
+  script:
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    # Desktop
+    - docker build -f Docker/Scripts/Desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH
+    
+build-desktop-arm64:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: docker:24.0.5-git
+  tags:
+    - saas-linux-small-arm64 
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    ARCH: amd64
+  services:
+    - name: docker:24.0.5-dind
+      command: ["--mtu=1400"]
+  script:
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    # Desktop
+    - docker build -f Docker/Scripts/Desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH
 
 #
 # Release
@@ -181,9 +221,13 @@ release_job:
   needs:
     - job: prepare
       artifacts: true
-    - job: build-arm64
+    - job: build-core-arm64
       artifacts: false
-    - job: build-amd64
+    - job: build-core-amd64
+      artifacts: false
+    - job: build-desktop-arm64
+      artifacts: false
+    - job: build-desktop-amd64
       artifacts: false
   services:
     - docker:24.0.5-dind
@@ -192,16 +236,16 @@ release_job:
     - apk add gitlab-release-cli    
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    # Base
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2:latest --amend $EXT_USER/lgdxrobot2:dev-amd64 --amend $EXT_USER/lgdxrobot2:dev-arm64
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2:$APP_VERSION --amend $EXT_USER/lgdxrobot2:dev-amd64 --amend $EXT_USER/lgdxrobot2:dev-arm64
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:latest
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2:$APP_VERSION
+    # Core
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/$CORE_IMAGE_NAME:latest --amend $EXT_USER/$CORE_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$CORE_IMAGE_NAME:dev-arm64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/$CORE_IMAGE_NAME:$APP_VERSION --amend $EXT_USER/$CORE_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$CORE_IMAGE_NAME:dev-arm64
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/$CORE_IMAGE_NAME:latest
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/$CORE_IMAGE_NAME:$APP_VERSION
     # Desktop
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:latest --amend $EXT_USER/lgdxrobot2.desktop:dev-amd64 --amend $EXT_USER/lgdxrobot2.desktop:dev-arm64
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:$APP_VERSION --amend $EXT_USER/lgdxrobot2.desktop:dev-amd64 --amend $EXT_USER/lgdxrobot2.desktop:dev-arm64
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:latest
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.desktop:$APP_VERSION
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:latest --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-arm64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:$APP_VERSION --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-arm64
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:latest
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:$APP_VERSION
   release:
     name : 'Release $APP_VERSION'
     tag_name: '$APP_VERSION'
@@ -209,7 +253,7 @@ release_job:
     ref: '$CI_COMMIT_SHA'
     assets:
       links:
-        - name: 'Docker Images for LGDXRobot2'
-          url: 'https://hub.docker.com/v2/repositories/yukaitung/lgdxrobot2/tags/$APP_VERSION'
+        - name: 'Docker Images for LGDXRobot2 Core'
+          url: 'https://hub.docker.com/v2/repositories/yukaitung/$CORE_IMAGE_NAME/tags/$APP_VERSION'
         - name: 'Docker Images for LGDXRobot2 Desktop'
-          url: 'https://hub.docker.com/v2/repositories/yukaitung/lgdxrobot2.desktop/tags/$APP_VERSION'
+          url: 'https://hub.docker.com/v2/repositories/yukaitung/$DESKTOP_IMAGE_NAME/tags/$APP_VERSION'

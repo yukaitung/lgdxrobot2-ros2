@@ -1,4 +1,4 @@
-FROM yukaitung/lgdxrobot2.support:amd64
+FROM yukaitung/lgdxrobot2-support-core:amd64
 
 # LGDXRobot2 ROS2
 WORKDIR /config/lgdx_ws/src
