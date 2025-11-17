@@ -6,7 +6,7 @@
 
 variables:
   SUPPORT_CORE_IMAGE_NAME: "lgdxrobot2-support-core"
-  SUPPORT_DESKTOP_IMAGE_NAME: "lgdxrobot2-support-core"
+  SUPPORT_DESKTOP_IMAGE_NAME: "lgdxrobot2-support-desktop"
 
 stages:
   - prepare
