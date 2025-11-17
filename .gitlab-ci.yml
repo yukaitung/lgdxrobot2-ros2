@@ -41,7 +41,7 @@ build-sup-amd64:
   when: manual
   image: docker:24.0.5-git
   tags:
-    - saas-linux-medium-amd64
+    - saas-linux-small-amd64
   services:
     - docker:24.0.5-dind
   script:
@@ -62,7 +62,7 @@ build-sup-arm64:
   when: manual
   image: docker:24.0.5-git
   tags:
-    - saas-linux-medium-arm64 
+    - saas-linux-small-arm64 
   services:
     - docker:24.0.5-dind
   script:
@@ -86,7 +86,7 @@ build-amd64:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   image: docker:24.0.5-git
   tags:
-    - saas-linux-medium-amd64
+    - saas-linux-small-amd64
   services:
     - docker:24.0.5-dind
   script:
@@ -106,7 +106,7 @@ build-arm64:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   image: docker:24.0.5-git
   tags:
-    - saas-linux-medium-arm64 
+    - saas-linux-small-arm64 
   services:
     - docker:24.0.5-dind
   script:
