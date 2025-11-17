@@ -5,8 +5,7 @@ FROM ghcr.io/linuxserver/baseimage-selkies:ubuntunoble
 ARG DEBIAN_FRONTEND=noninteractive
 
 # INSTALL ROS2 START
-RUN apt-get update && sudo apt install --only-upgrade python3-urllib3 \
-    && apt-get install -q -y --no-install-recommends \
+RUN apt-get update && apt-get install -q -y --no-install-recommends \
     ca-certificates \
     curl \
     dirmngr \
