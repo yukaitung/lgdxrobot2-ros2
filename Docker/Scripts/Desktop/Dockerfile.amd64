@@ -14,7 +14,7 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
 #
 # ChassisTuner
 #
-WORKDIR /config
+WORKDIR /config/ChassisTuner
 RUN wget https://gitlab.com/api/v4/projects/52363675/packages/generic/LGDXRobot2-ChassisTuner/latest/ChassisTuner-amd64.zip -O ChassisTuner.zip \
   && unzip ChassisTuner.zip \
   && rm ChassisTuner.zip
