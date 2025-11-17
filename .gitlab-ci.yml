@@ -157,7 +157,7 @@ build-core-arm64:
     - saas-linux-small-arm64 
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
-    ARCH: amd64
+    ARCH: arm64
   services:
     - name: docker:24.0.5-dind
       command: ["--mtu=1400"]
@@ -197,7 +197,7 @@ build-desktop-arm64:
     - saas-linux-small-arm64 
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
-    ARCH: amd64
+    ARCH: arm64
   services:
     - name: docker:24.0.5-dind
       command: ["--mtu=1400"]
