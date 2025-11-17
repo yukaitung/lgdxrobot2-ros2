@@ -4,9 +4,13 @@
 # $EXT_USER: Username for the registry
 # $EXT_PAT: PAT for the registry (https://docs.docker.com/security/for-developers/access-tokens/)
 
+variables:
+  SUPPORT_CORE_IMAGE_NAME: "lgdxrobot2-support-core"
+  SUPPORT_DESKTOP_IMAGE_NAME: "lgdxrobot2-support-core"
+
 stages:
   - prepare
-  - build-sup
+  - build-support
   - build
   - release
 
@@ -27,13 +31,14 @@ prepare:
   artifacts:
     reports:
       dotenv: variables.env
+    expire_in: 1 day
 
 #
-# Build support packages for dependencies
+# Build support images (Optional)
 #
 
-build-sup-amd64:
-  stage: build-sup
+build-support-amd64:
+  stage: build-support
   rules:
     - if: $CI_COMMIT_TAG
       when: never 
@@ -44,16 +49,18 @@ build-sup-amd64:
     - saas-linux-small-amd64
   services:
     - docker:24.0.5-dind
+  variables:
+    ARCH: amd64
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    # Base Support Image
-    - docker build -f Docker/Scripts/Support/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64 .
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:amd64
+    # Core Support Image
+    - docker build -f Docker/Scripts/Support-Core/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$SUPPORT_CORE_IMAGE_NAME:$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$SUPPORT_CORE_IMAGE_NAME:$ARCH
     # Desktop Support Image
-    - docker build -f Docker/Scripts/SupportDesktop/Dockerfile.amd64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:amd64 .
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:amd64
+    - docker build -f Docker/Scripts/Support-Desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$SUPPORT_DESKTOP_IMAGE_NAME:$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$SUPPORT_DESKTOP_IMAGE_NAME:$ARCH
 
-build-sup-arm64:
+build-support-arm64:
   stage: build-sup
   rules:
     - if: $CI_COMMIT_TAG
@@ -68,19 +75,20 @@ build-sup-arm64:
   services:
     - name: docker:24.0.5-dind
       command: ["--mtu=1400"]
+  variables:
+    ARCH: arm64
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    # Base Support Image
-    - docker build -f Docker/Scripts/Support/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64 .
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.support:arm64
+    # Core Support Image
+    - docker build -f Docker/Scripts/Support-Core/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$SUPPORT_CORE_IMAGE_NAME:$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$SUPPORT_CORE_IMAGE_NAME:$ARCH
     # Desktop Support Image
-    - docker build -f Docker/Scripts/SupportDesktop/Dockerfile.arm64 -t $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:arm64 .
-    - docker push $EXT_REGISTRY/$EXT_USER/lgdxrobot2.supportdesktop:arm64
+    - docker build -f Docker/Scripts/Support-Desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$SUPPORT_DESKTOP_IMAGE_NAME:$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$SUPPORT_DESKTOP_IMAGE_NAME:$ARCH
 
 #
 # Build the ROS packages
 #
-
 build-amd64:
   stage: build
   rules:

@@ -2,7 +2,9 @@ FROM ros:jazzy
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# install packages
+#
+# Install packages
+#
 RUN apt update && apt install -y --no-install-recommends \
       ros-dev-tools \
       ros-jazzy-navigation2 \
@@ -17,7 +19,9 @@ RUN apt update && apt install -y --no-install-recommends \
       ros-jazzy-realsense2-* \
       && rm -rf /var/lib/apt/lists/*
 
+#      
 # Lidar
+#
 WORKDIR /config/ros2_ws/src
 RUN git clone https://github.com/Slamtec/sllidar_ros2.git
 
@@ -25,7 +29,9 @@ WORKDIR /config/ros2_ws
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
       colcon build --symlink-install
 
+#
 # Webots ROS2
+#
 WORKDIR /config/webots_ws/src
 RUN git clone --recurse-submodules https://github.com/cyberbotics/webots_ros2.git
 
@@ -37,7 +43,9 @@ RUN apt update && \
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
       colcon build --symlink-install
 
+#
 # LGDXRobot2 ROS2 (Third Party)
+#
 WORKDIR /config/lgdx_ws/src
 COPY . .
 RUN rm -rf lgdxrobot2*
