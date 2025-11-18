@@ -2,6 +2,8 @@
 
 ## Overview
 
+![Img](img.png)
+
 LGDXRobot2 ROS2 is an integration software for the LGDXRobot2 utilising ROS2 ecosystem, especially navigation with the NAV2 stack. It provides examples for both physical robots and simulations. Also, it offers Docker images with ready-to-use ROS2 environment on a web interface.
 
 The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless integration with the [LGDXRobot Cloud](https://gitlab.com/yukaitung/lgdxrobot2-cloud).
@@ -33,12 +35,14 @@ docker run -d \
   -e PGID=1000 \
   -p 3000:3000 \
   -p 3001:3001 \
-  yukaitung/lgdxrobot2.desktop:latest
+  yukaitung/lgdxrobot2-desktop:latest
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) to access the web interface. If the terminal is closed, you can right-click the desktop to relaunch it from the menu.
 
 ### Build from Source
+
+Assumes that you have already installed Ubuntu 24.04 LTS.
 
 #### Prerequisites
 
@@ -91,9 +95,9 @@ After installing all dependencies, clone the project and run the following comma
 ```bash
 mkdir -p ~/lgdx_ws/src
 cd ~/lgdx_ws/src
-git clone --recurse-submodules https://gitlab.com/yukaitung/lgdxrobot2-ros2
+git clone --recurse-submodules https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2
 cd ..
-source "~/webots_ws/install/setup.bash
+source "~/webots_ws/install/setup.bash"
 colcon build --symlink-install
 ```
 
@@ -102,24 +106,40 @@ If you are not using Webots:
 ```bash
 mkdir -p ~/lgdx_ws/src
 cd ~/lgdx_ws/src
-git clone --recurse-submodules https://gitlab.com/yukaitung/lgdxrobot2-ros2
+git clone --recurse-submodules https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2
 cd ..
 colcon build --symlink-install --packages-ignore lgdxrobot2_webots
+```
+
+#### Configuration
+
+First, add the user to the `dialout` group to allow access to the controller board.
+
+```bash
+sudo usermod -a -G dialout $USER
+```
+
+Then, source the setup files for the ROS2 workspaces. You can optionally ignore the Webots workspace.
+
+```bash
+source ~/lgdx_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
+source ~/webots_ws/install/setup.bash
 ```
 
 ## Notes About Docker
 
 The Docker images provide a ready-to-use environment for running LGDXRobot2 on your local machine. They also offer flexibility in the choice of pre-installed packages. The two main repositories are:
 
-- `yukaitung/lgdxrobot2`: A pre-built image for simulation.
-- `yukaitung/lgdxrobot2.desktop`: A pre-built image for simulation with a desktop interface accessible via a web browser.
+- `yukaitung/lgdxrobot2-core`: A pre-built image for simulation.
+- `yukaitung/lgdxrobot2-desktop`: A pre-built image for simulation with a desktop interface accessible via a web browser.
 
-To pull these images from Docker Hub, you can either use the `latest` tag or specify a particular version number, such as `1.0.0`. Please refer to the [releases](https://gitlab.com/yukaitung/lgdxrobot2-ros2/-/releases) page for version history. All images support both amd64 and arm64 architectures.
+To pull these images from Docker Hub, you can either use the `latest` tag or specify a particular version number, such as `2.0.5`. Please refer to the [releases](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) page for version history. All images support both amd64 and arm64 architectures.
 
 There are also additional repositories that include dependencies, which can be used as base images for other ROS2 projects:
 
-- `yukaitung/lgdxrobot2.support`
-- `yukaitung/lgdxrobot2.supportdesktop`
+- `yukaitung/lgdxrobot2-support-core`
+- `yukaitung/lgdxrobot2-support-desktop`
 
 ## License
 
