@@ -1,4 +1,4 @@
-# LGDXRobot2 ROS2
+# LGDXRobot2 ROS 2
 
 ## Overview
 
@@ -6,7 +6,7 @@
 
 > LGDXRobot2 fully uses GitLab CI/CD for builds.<br />[![pipeline status](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/badges/main/pipeline.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/commits/main)  [![Latest Release](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/badges/release.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) 
 
-LGDXRobot2 ROS2 is an integration software for the LGDXRobot2 utilising ROS2 ecosystem, especially navigation with the NAV2 stack. It provides examples for both physical robots and simulations. Also, it offers Docker images with ready-to-use ROS2 environment on a web interface.
+LGDXRobot2 ROS 2 is an integration software for the LGDXRobot2 utilising ROS 2 ecosystem, especially navigation with the NAV2 stack. It provides examples for both physical robots and simulations. Also, it offers Docker images with ready-to-use ROS 2 environment on a web interface.
 
 The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless integration with the [LGDXRobot Cloud](https://gitlab.com/yukaitung/lgdxrobot2-cloud).
 
@@ -15,14 +15,14 @@ The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless i
 - LGDXRobot2 Design: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-design) | [GitHub](https://github.com/yukaitung/lgdxrobot2-design))
 - LGDXRobot2 MCU: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-mcu) | [GitHub](https://github.com/yukaitung/lgdxrobot2-mcu))
 - LGDXRobot2 ChassisTuner: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-chassistuner) | [GitHub](https://github.com/yukaitung/lgdxrobot2-chassistuner))
-- LGDXRobot2 ROS2: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2) | [GitHub](https://github.com/yukaitung/lgdxrobot2-ros2))
+- LGDXRobot2 ROS 2: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2) | [GitHub](https://github.com/yukaitung/lgdxrobot2-ros2))
 
 ## Packages
 
 The solution consists of the following packages:
 
-- `lgdxrobot2_agent`: A ROS2 node that drives the robot using ROS2 Topics and Services. It also acts as a client for the LGDXRobot Cloud.
-- `lgdxrobot2_bringup`: ROS2 launch files demonstrating how to bringup the robot with NAV2 and LGDXRobot Cloud.
+- `lgdxrobot2_agent`: A ROS 2 node that drives the robot using ROS 2 Topics and Services. It also acts as a client for the LGDXRobot Cloud.
+- `lgdxrobot2_bringup`: ROS 2 launch files demonstrating how to bringup the robot with NAV2 and LGDXRobot Cloud.
 - `lgdxrobot2_description`: A URDF model of the robot.
 - `lgdxrobot2_webots`: Simulation configuration and driver for Webots.
 
@@ -48,7 +48,7 @@ Assumes that you have already installed Ubuntu 24.04 LTS.
 
 #### Prerequisites
 
-1. [Install ROS2](https://docs.ros.org/en/jazzy/Installation.html)
+1. [Install ROS 2](https://docs.ros.org/en/jazzy/Installation.html)
 2. [Install NAV2](https://docs.nav2.org/getting_started/index.html)
 
 ```bash
@@ -79,7 +79,7 @@ sudo apt install ros-jazzy-imu-filter-madgwick ros-jazzy-librealsense2* ros-jazz
 ```
 
 6. [Install Webots](https://cyberbotics.com/doc/guide/installation-procedure) (Optional)
-7. [Install Webots ROS2 Interface](https://github.com/cyberbotics/webots_ros2/wiki/Getting-Started) (Optional)
+7. [Install Webots ROS 2 Interface](https://github.com/cyberbotics/webots_ros2/wiki/Getting-Started) (Optional)
 ```bash
 mkdir -p ~/webots_ws/src
 cd ~/webots_ws/src
@@ -121,7 +121,7 @@ First, add the user to the `dialout` group to allow access to the controller boa
 sudo usermod -a -G dialout $USER
 ```
 
-Then, source the setup files for the ROS2 workspaces. You can optionally ignore the Webots workspace.
+Then, source the setup files for the ROS 2 workspaces. You can optionally ignore the Webots workspace.
 
 ```bash
 source ~/lgdx_ws/install/setup.bash
@@ -138,7 +138,7 @@ The Docker images provide a ready-to-use environment for running LGDXRobot2 on y
 
 To pull these images from Docker Hub, you can either use the `latest` tag or specify a particular version number, such as `2.0.5`. Please refer to the [releases](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) page for version history. All images support both amd64 and arm64 architectures.
 
-There are also additional repositories that include dependencies, which can be used as base images for other ROS2 projects:
+There are also additional repositories that include dependencies, which can be used as base images for other ROS 2 projects:
 
 - `yukaitung/lgdxrobot2-support-core`
 - `yukaitung/lgdxrobot2-support-desktop`
@@ -149,7 +149,7 @@ This project is licensed under the MIT Licence.
 
 ## Extra Dependencies
 
-- [m-explore ROS2 port](https://github.com/robo-friends/m-explore-ros2)
+- [m-explore ROS 2 port](https://github.com/robo-friends/m-explore-ros2)
 - [hwinfo](https://github.com/lfreist/hwinfo)
 
 ## Credits
