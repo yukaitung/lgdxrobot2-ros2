@@ -188,6 +188,9 @@ def launch_setup(context):
     launch_arguments={
       'frame_id': 'lidar_link'
     }.items(),
+    remappings=[
+      ('/scan', 'scan')
+    ]
   )
   camera_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
@@ -209,6 +212,9 @@ def launch_setup(context):
     executable='joy_node',
     output='screen',
     condition=IfCondition(use_joy),
+    remappings=[
+      ('/joy', 'joy')
+    ]
   )
 
   #

@@ -224,6 +224,7 @@ def launch_setup(context):
     remappings=[
       ('/tf', 'tf'), 
       ('/tf_static', 'tf_static'),
+      ('/joint_states', 'joint_states'),
       ('/agent/auto_task', 'agent/auto_task'),
       ('/agent/robot_data', 'agent/robot_data'),
     ],
