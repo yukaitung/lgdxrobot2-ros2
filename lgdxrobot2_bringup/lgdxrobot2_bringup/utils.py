@@ -17,6 +17,19 @@ def process_yaml(input_path: str, namespace: str, inital_pose_x: str, inital_pos
     temp_file_path = temp_file.name
     temp_file.close()
     return temp_file_path
+  
+def get_rviz_config_path_with_profile(profile: str) -> str:
+  package_dir = get_package_share_directory('lgdxrobot2_bringup')
+  path = os.path.join(package_dir, 'rviz', profile) + '.rviz'
+  if os.path.exists(path):
+    return path
+  else:
+    # Check if the profile starts with slam-xxx, loc-xxx
+    words = profile.split('-', 1)
+    if len(words) > 1:
+      return os.path.join(package_dir, 'rviz', words[0]) + '.rviz'
+    else:
+      return os.path.join(package_dir, 'rviz', 'default.rviz')
 
 def get_path_with_profile(file_name: str, profile: str) -> str:
   package_dir = get_package_share_directory('lgdxrobot2_bringup')
