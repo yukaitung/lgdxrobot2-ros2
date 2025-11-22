@@ -187,10 +187,7 @@ def launch_setup(context):
     condition=IfCondition(use_lidar),
     launch_arguments={
       'frame_id': 'lidar_link'
-    }.items(),
-    remappings=[
-      ('/scan', 'scan')
-    ]
+    }.items()
   )
   camera_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
