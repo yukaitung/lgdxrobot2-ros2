@@ -182,7 +182,7 @@ controller_server:
       max_vel_theta: 0.4
       min_speed_xy: 0.0
       max_speed_xy: 0.2
-      min_speed_theta: 0.0
+      min_speed_theta: -0.4
       acc_lim_x: 1.0
       acc_lim_y: 0.0
       acc_lim_theta: 1.0
@@ -228,8 +228,8 @@ local_costmap:
       plugins: ["obstacle_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 5.0
-        inflation_radius: 0.2
+        cost_scaling_factor: 1.0
+        inflation_radius: 0.1
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
@@ -280,7 +280,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 1.0
-        inflation_radius: 0.2
+        inflation_radius: 0.1
       always_send_full_costmap: True
 
 # The yaml_filename does not need to be specified since it going to be set by defaults in launch.
