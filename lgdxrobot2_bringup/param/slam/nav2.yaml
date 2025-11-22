@@ -175,19 +175,19 @@ controller_server:
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: 0.0
-      min_vel_y: 0.0
+      min_vel_x: -0.1
+      min_vel_y: -0.1
       max_vel_x: 0.2
       max_vel_y: 0.2
       max_vel_theta: 0.4
-      min_speed_xy: 0.0
-      max_speed_xy: 0.2
-      min_speed_theta: 0.0
+      min_speed_xy: -0.0
+      max_speed_xy: 0.1
+      min_speed_theta: -0.4
       acc_lim_x: 1.0
-      acc_lim_y: 0.0
+      acc_lim_y: 1.0
       acc_lim_theta: 1.0
       decel_lim_x: -1.0
-      decel_lim_y: 0.0
+      decel_lim_y: -1.0
       decel_lim_theta: -1.0
       vx_samples: 20
       vy_samples: 5
@@ -393,7 +393,7 @@ collision_monitor:
       type: "polygon"
       action_type: "approach"
       footprint_topic: "<ROS_NAMESPACE>/local_costmap/published_footprint"
-      time_before_collision: 1.0
+      time_before_collision: 2.0
       simulation_time_step: 0.1
       min_points: 6
       visualize: False
