@@ -74,26 +74,29 @@ slam_toolbox:
     debug_logging: false
     throttle_scans: 1
     transform_publish_period: 0.02 #if 0 never publishes odometry
-    map_update_interval: 10.0
+    map_update_interval: 5.0
     resolution: 0.05
+    restamp_tf: false
+    min_laser_range: 0.0 #for rastering images
     max_laser_range: 20.0 #for rastering images
-    minimum_time_interval: 1.0
+    minimum_time_interval: 0.5
     transform_timeout: 0.2
     tf_buffer_duration: 30.0
     stack_size_to_use: 40000000 #// program needs a larger stack size to serialize large maps
-    enable_interactive_mode: True
+    enable_interactive_mode: true
 
     # General Parameters
-    use_scan_matching: False
-    use_scan_barycenter: True
-    minimum_travel_distance: 0.2
+    use_scan_matching: true
+    use_scan_barycenter: true
+    minimum_travel_distance: 0.5
     minimum_travel_heading: 0.5
+    check_min_dist_and_heading_precisely: false
     scan_buffer_size: 10
     scan_buffer_maximum_scan_distance: 10.0
     link_match_minimum_response_fine: 0.1  
     link_scan_maximum_distance: 1.5
     loop_search_maximum_distance: 3.0
-    do_loop_closing: false 
+    do_loop_closing: true 
     loop_match_minimum_chain_size: 10           
     loop_match_maximum_variance_coarse: 3.0  
     loop_match_minimum_response_coarse: 0.35    
@@ -119,6 +122,8 @@ slam_toolbox:
     minimum_angle_penalty: 0.9
     minimum_distance_penalty: 0.5
     use_response_expansion: true
+    min_pass_through: 2
+    occupancy_threshold: 0.1
 
 bt_navigator:
   ros__parameters:
@@ -170,24 +175,24 @@ controller_server:
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: 0.0
+      min_vel_x: -0.1
       min_vel_y: 0.0
       max_vel_x: 0.2
       max_vel_y: 0.0
       max_vel_theta: 0.4
       min_speed_xy: 0.0
       max_speed_xy: 0.2
-      min_speed_theta: 0.0
+      min_speed_theta: -0.4
       acc_lim_x: 1.0
       acc_lim_y: 0.0
       acc_lim_theta: 1.0
       decel_lim_x: -1.0
       decel_lim_y: 0.0
       decel_lim_theta: -1.0
-      vx_samples: 20
+      vx_samples: 40
       vy_samples: 5
       vtheta_samples: 20
-      sim_time: 1.0
+      sim_time: 1.5
       linear_granularity: 0.05
       angular_granularity: 0.05
       transform_tolerance: 0.2
@@ -223,7 +228,7 @@ local_costmap:
       plugins: ["obstacle_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 5.0
+        cost_scaling_factor: 3.0
         inflation_radius: 0.2
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -235,9 +240,9 @@ local_costmap:
           clearing: True
           marking: True
           data_type: "LaserScan"
-          raytrace_max_range: 2.0
+          raytrace_max_range: 3.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 2.0
+          obstacle_max_range: 3.0
           obstacle_min_range: 0.0
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
@@ -265,16 +270,16 @@ global_costmap:
           clearing: True
           marking: True
           data_type: "LaserScan"
-          raytrace_max_range: 2.0
+          raytrace_max_range: 3.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 2.0
+          obstacle_max_range: 3.0
           obstacle_min_range: 0.0
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 1.0
+        cost_scaling_factor: 3.0
         inflation_radius: 0.2
       always_send_full_costmap: True
 
@@ -318,7 +323,7 @@ behavior_server:
     global_costmap_topic: <ROS_NAMESPACE>/global_costmap/costmap_raw
     local_footprint_topic: <ROS_NAMESPACE>/local_costmap/published_footprint
     global_footprint_topic: <ROS_NAMESPACE>/global_costmap/published_footprint
-    cycle_frequency: 10.0
+    cycle_frequency: 20.0
     behavior_plugins: ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
     spin:
       plugin: "nav2_behaviors::Spin"
@@ -388,7 +393,7 @@ collision_monitor:
       type: "polygon"
       action_type: "approach"
       footprint_topic: "<ROS_NAMESPACE>/local_costmap/published_footprint"
-      time_before_collision: 1.0
+      time_before_collision: 1.5
       simulation_time_step: 0.1
       min_points: 6
       visualize: False
