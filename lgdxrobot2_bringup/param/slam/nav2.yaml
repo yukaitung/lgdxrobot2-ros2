@@ -175,7 +175,7 @@ controller_server:
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: 0.0
+      min_vel_x: -0.1
       min_vel_y: 0.0
       max_vel_x: 0.2
       max_vel_y: 0.0
@@ -189,7 +189,7 @@ controller_server:
       decel_lim_x: -1.0
       decel_lim_y: 0.0
       decel_lim_theta: -1.0
-      vx_samples: 20
+      vx_samples: 40
       vy_samples: 5
       vtheta_samples: 20
       sim_time: 1.5
