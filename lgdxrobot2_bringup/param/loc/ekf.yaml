@@ -1,7 +1,7 @@
 ### ekf config file ###
 <ROS_NAMESPACE>/ekf_filter_node:
     ros__parameters:
-        frequency: 20.0
+        frequency: 30.0
         two_d_mode: true
         publish_tf: true
         map_frame: map
