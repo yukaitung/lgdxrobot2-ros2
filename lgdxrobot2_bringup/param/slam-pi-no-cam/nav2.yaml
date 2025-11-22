@@ -216,9 +216,9 @@ local_costmap:
       global_frame: odom
       robot_base_frame: base_link
       rolling_window: true
-      width: 3
-      height: 3
-      resolution: 0.05
+      width: 2
+      height: 2
+      resolution: 0.1
       footprint: "[ [0.12, 0.12], [0.12, -0.12], [-0.12, -0.12], [-0.12, 0.12] ]"
       plugins: ["obstacle_layer", "inflation_layer"]
       inflation_layer:
