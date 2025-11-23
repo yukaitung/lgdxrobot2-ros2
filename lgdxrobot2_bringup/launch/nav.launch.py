@@ -22,7 +22,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node
-from lgdxrobot2_bringup.utils import get_param_path
+from lgdxrobot2_bringup.utils import get_param_path, get_rviz_config_path_with_profile
 import os
 import yaml
 
@@ -146,7 +146,7 @@ def launch_setup(context):
   use_rviz = LaunchConfiguration('use_rviz')
   rviz_config = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config:
-    rviz_config = os.path.join(package_dir, 'rviz', profile_str) + '.rviz'
+    rviz_config = get_rviz_config_path_with_profile(profile_str)
   
   #
   # Base
@@ -187,7 +187,7 @@ def launch_setup(context):
     condition=IfCondition(use_lidar),
     launch_arguments={
       'frame_id': 'lidar_link'
-    }.items(),
+    }.items()
   )
   camera_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
@@ -209,6 +209,9 @@ def launch_setup(context):
     executable='joy_node',
     output='screen',
     condition=IfCondition(use_joy),
+    remappings=[
+      ('/joy', 'joy')
+    ]
   )
 
   #

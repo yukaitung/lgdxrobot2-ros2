@@ -31,14 +31,14 @@ from webots_ros2_driver.webots_launcher import WebotsLauncher
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.wait_for_controller_connection import WaitForControllerConnection
 from launch_ros.actions import Node
-from lgdxrobot2_bringup.utils import get_param_path
+from lgdxrobot2_bringup.utils import get_param_path, get_rviz_config_path_with_profile
 import os
 
 launch_args = [
   # Common
   DeclareLaunchArgument(
     name='profile',
-    default_value='sim-loc',
+    default_value='loc-sim',
     description='Parameters profile.'
   ),
   DeclareLaunchArgument(
@@ -150,7 +150,7 @@ def launch_setup(context):
   use_rviz = LaunchConfiguration('use_rviz')
   rviz_config = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config:
-    rviz_config = os.path.join(package_dir, 'rviz', profile_str) + '.rviz'
+    rviz_config = get_rviz_config_path_with_profile(profile_str)
   
   # Cloud
   use_cloud = LaunchConfiguration('use_cloud')
@@ -224,6 +224,7 @@ def launch_setup(context):
     remappings=[
       ('/tf', 'tf'), 
       ('/tf_static', 'tf_static'),
+      ('/joint_states', 'joint_states'),
       ('/agent/auto_task', 'agent/auto_task'),
       ('/agent/robot_data', 'agent/robot_data'),
     ],
