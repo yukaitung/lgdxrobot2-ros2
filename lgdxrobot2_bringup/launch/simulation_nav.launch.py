@@ -188,7 +188,7 @@ def launch_setup(context):
     ros2_supervisor=True
   )
   lgdxrobot2_driver = WebotsController(
-    robot_name='robot1',
+    robot_name='Robot1',
     namespace=namespace,
     parameters=[
       {

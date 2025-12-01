@@ -71,13 +71,13 @@ LGDXRobot2 {
   translation -11.7435 -2.66728 -6.66134e-15
   rotation 0 0 1 1.01503e-06
   controller "<extern>"
-  name "robot1"
+  name "Robot1"
 }
 LGDXRobot2 {
   translation -8.7435 -2.66728 0.1
   rotation 0 0 1 1.01503e-06
   controller "<extern>"
-  name "robot2"
+  name "Robot2"
 }
 DEF ROOF Group {
   children [

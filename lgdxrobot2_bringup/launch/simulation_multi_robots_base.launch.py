@@ -18,9 +18,10 @@ import os
 from lgdxrobot2_bringup.utils import get_param_path
 
 launch_args = [
+  # Common
   DeclareLaunchArgument(
     name='profile',
-    default_value='sim-loc',
+    default_value='loc-sim',
     description='Parameters profile.'
   ),
   DeclareLaunchArgument(
@@ -28,6 +29,8 @@ launch_args = [
     default_value='',
     description='Namespace for the robot.'
   ),
+  
+  # NAV2
   DeclareLaunchArgument(
     name='slam',
     default_value='False',
@@ -40,7 +43,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='default_2r.yaml',
+    default_value='default.yaml',
     description='Map yaml file in `lgdxrobot2_webots` package.'
   ),
   DeclareLaunchArgument(
@@ -63,6 +66,8 @@ launch_args = [
     default_value='False',
     description='Whether to respawn if a node crashes.'
   ),
+  
+  # Initial Pose
   DeclareLaunchArgument(
     name='initial_pose_x',
     default_value='0.0',
@@ -91,9 +96,12 @@ def launch_setup(context):
   nav2_package_dir = get_package_share_directory('nav2_bringup')
   robot_description_path = os.path.join(webots_package_dir, 'resource', 'lgdxrobot2.urdf')
   
+  # Common
   profile_str = LaunchConfiguration('profile').perform(context)
   namespace = LaunchConfiguration('namespace').perform(context)
   use_namespace = 'True' if namespace != '' else 'False'
+  
+  # NAV2
   slam = LaunchConfiguration('slam')
   use_localization = LaunchConfiguration('use_localization')
   map = LaunchConfiguration('map')
@@ -101,11 +109,16 @@ def launch_setup(context):
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
+
+  # Initial Pose
   initial_pose_x = LaunchConfiguration('initial_pose_x').perform(context)
   initial_pose_y = LaunchConfiguration('initial_pose_y').perform(context)
   initial_pose_z = LaunchConfiguration('initial_pose_z').perform(context)
   initial_pose_yaw = LaunchConfiguration('initial_pose_yaw').perform(context)
   
+  #
+  # Webots Simulator
+  #
   lgdxrobot2_driver = WebotsController(
     robot_name=namespace,
     namespace=namespace,
@@ -134,13 +147,16 @@ def launch_setup(context):
     respawn=True
   )
   
-  # Robot Description
+  #
+  # Robot State Publisher
+  #
   robot_state_publisher_node = Node(
     package='robot_state_publisher',
     executable='robot_state_publisher',
     namespace=namespace,
     parameters=[
-      {'robot_description': Command(['xacro ', os.path.join(description_package_dir, 'description', 'lgdxrobot2_sim_description.urdf')])}
+      {'robot_description': Command(['xacro ', os.path.join(description_package_dir, 'description', 'lgdxrobot2.urdf')])},
+      {'use_sim_time': use_sim_time}
     ],
     remappings=[
       ('/tf', 'tf'), 
@@ -148,6 +164,9 @@ def launch_setup(context):
     ]
   )
   
+  #
+  # NAV2
+  #
   robot_localization_node = Node(
     package='robot_localization',
     executable='ekf_node',
@@ -163,8 +182,6 @@ def launch_setup(context):
       ('/tf_static', 'tf_static')
     ]
   )
-  
-  # Nav2
   ros2_nav = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
       os.path.join(nav2_package_dir, 'launch', 'bringup_launch.py')

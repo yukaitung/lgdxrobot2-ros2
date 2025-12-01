@@ -47,7 +47,7 @@ LGDXRobot2 {
   translation -4.13 -3.98 0
   rotation 0 0 -1 -5.307179586466759e-06
   controller "<extern>"
-  name "robot1"
+  name "Robot1"
 }
 Solid {
   translation 2.5 3.5 0.5

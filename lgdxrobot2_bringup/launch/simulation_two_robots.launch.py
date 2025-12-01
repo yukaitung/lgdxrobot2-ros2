@@ -23,11 +23,14 @@ from launch_ros.actions import Node
 import os
 
 launch_args = [
+  # Webots
   DeclareLaunchArgument(
     name='world',
     default_value='default_2r.wbt',
     description='World file in `lgdxrobot2_webots` package.'
   ),
+  
+  # NAV2
   DeclareLaunchArgument(
     name='slam',
     default_value='False',
@@ -40,7 +43,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='default_2r.yaml',
+    default_value='default.yaml',
     description='Map yaml file in `lgdxrobot2_webots` package.'
   ),
   DeclareLaunchArgument(
@@ -63,6 +66,8 @@ launch_args = [
     default_value='False',
     description='Whether to respawn if a node crashes.'
   ),
+  
+  # Cloud
   DeclareLaunchArgument(
     name='cloud_address',
     default_value='host.docker.internal:5162',
@@ -74,7 +79,10 @@ def launch_setup(context):
   package_dir = get_package_share_directory('lgdxrobot2_bringup')
   webots_package_dir = get_package_share_directory('lgdxrobot2_webots')
   
+  # Webots
   world = LaunchConfiguration('world')
+  
+  # NAV2
   slam = LaunchConfiguration('slam')
   use_localization = LaunchConfiguration('use_localization')
   map = LaunchConfiguration('map')
@@ -82,17 +90,25 @@ def launch_setup(context):
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
+  
+  # Cloud
   cloud_address = LaunchConfiguration('cloud_address').perform(context)
   
+  #
+  # Webots Simulator
+  #
   webots = WebotsLauncher(
     world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
     ros2_supervisor=True
   )
     
-  lgdxrobot2_mcu_node1 = Node(
+  #
+  # LGDXRobot2 Agent
+  #
+  lgdxrobot2_agent_node1 = Node(
     package='lgdxrobot2_agent',
     executable='lgdxrobot2_agent_node',
-    namespace='robot1',
+    namespace='Robot1',
     output='screen',
     parameters=[{
       'cloud_enable': True,
@@ -105,15 +121,15 @@ def launch_setup(context):
     remappings=[
       ('/tf', 'tf'), 
       ('/tf_static', 'tf_static'),
+      ('/joint_states', 'joint_states'),
       ('/agent/auto_task', 'agent/auto_task'),
       ('/agent/robot_data', 'agent/robot_data'),
     ],
   )
-
-  lgdxrobot2_mcu_node2 = Node(
+  lgdxrobot2_agent_node2 = Node(
     package='lgdxrobot2_agent',
     executable='lgdxrobot2_agent_node',
-    namespace='robot2',
+    namespace='Robot2',
     output='screen',
     parameters=[{
       'cloud_enable': True,
@@ -126,19 +142,22 @@ def launch_setup(context):
     remappings=[
       ('/tf', 'tf'), 
       ('/tf_static', 'tf_static'),
+      ('/joint_states', 'joint_states'),
       ('/agent/auto_task', 'agent/auto_task'),
       ('/agent/robot_data', 'agent/robot_data'),
     ],
   )
+  lgdxrobot2_agent = TimerAction(period=5.0, actions=[lgdxrobot2_agent_node1, lgdxrobot2_agent_node2])
   
-  lgdxrobot2_mcu = TimerAction(period=15.0, actions=[lgdxrobot2_mcu_node1, lgdxrobot2_mcu_node2])
-  
+  #
+  # NAV2
+  #
   robot1 = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
       os.path.join(package_dir, 'launch', 'simulation_multi_robots_base.launch.py')
     ),
     launch_arguments={
-      'namespace': 'robot1',
+      'namespace': 'Robot1',
       'slam': slam,
       'use_localization': use_localization,
       'map': map,
@@ -148,13 +167,12 @@ def launch_setup(context):
       'use_respawn': use_respawn,
     }.items(),
   )
-  
   robot2 = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
       os.path.join(package_dir, 'launch', 'simulation_multi_robots_base.launch.py')
     ),
     launch_arguments={
-      'namespace': 'robot2',
+      'namespace': 'Robot2',
       'slam': slam,
       'use_localization': use_localization,
       'map': map,
@@ -166,7 +184,7 @@ def launch_setup(context):
     }.items(),
   )
 
-  return [webots, webots._supervisor, robot1, robot2, lgdxrobot2_mcu]
+  return [webots, webots._supervisor, robot1, robot2, lgdxrobot2_agent]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)
