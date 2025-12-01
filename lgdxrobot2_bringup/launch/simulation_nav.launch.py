@@ -118,6 +118,21 @@ launch_args = [
     name='cloud_address',
     default_value='host.docker.internal:5162',
     description='Address of LGDXRobot Cloud.'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_root_cert',
+    default_value='/config/keys/root.crt',
+    description='Path to the server’s root certificate'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_client_key',
+    default_value='/config/keys/Robot1.key',
+    description='Path to the client’s key file'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_client_cert',
+    default_value='/config/keys/Robot1.crt',
+    description='Path to the client’s crt file'
   )
 ]
       
@@ -155,6 +170,9 @@ def launch_setup(context):
   # Cloud
   use_cloud = LaunchConfiguration('use_cloud')
   cloud_address = LaunchConfiguration('cloud_address').perform(context)
+  cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
+  cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
+  cloud_root_cert = LaunchConfiguration('cloud_root_cert').perform(context)
   
   #
   # Webots Simulator
@@ -215,9 +233,9 @@ def launch_setup(context):
     parameters=[{
       'cloud_enable': True,
       'cloud_address': cloud_address,
-      'cloud_root_cert': '/config/keys/root.crt',
-      'cloud_client_key': '/config/keys/Robot1.key',
-      'cloud_client_cert': '/config/keys/Robot1.crt',
+      'cloud_root_cert': cloud_root_cert,
+      'cloud_client_key': cloud_client_key,
+      'cloud_client_cert': cloud_client_cert,
       'cloud_slam_enable': slam,
       'sim_enable': True,
     }],
@@ -229,7 +247,7 @@ def launch_setup(context):
       ('/agent/robot_data', 'agent/robot_data'),
     ],
   )
-  lgdxrobot2_agent = TimerAction(period=15.0, actions=[lgdxrobot2_agent_node])
+  lgdxrobot2_agent = TimerAction(period=5.0, actions=[lgdxrobot2_agent_node])
   
   #
   # NAV2
