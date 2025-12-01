@@ -6,17 +6,17 @@ cd lgdx_ws # The location of the source code
 . install/setup.bash
 
 # NAV2 SLAM
-ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True profile:='sim-slam'
-ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True use_explore_lite:=True profile:='sim-slam'
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True profile:='slam-sim'
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True use_explore_lite:=True profile:='slam-sim'
 
-# NAV2 SLAM With cloud
-ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True use_cloud:=True profile:='sim-slam' cloud_address:='192.168.1.10:5162'
+# NAV2 SLAM With cloud (Docker)
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True use_cloud:=True cloud_slam_enable:=True profile:='slam-sim'
 
 # NAV2 Localisation
 ros2 launch lgdxrobot2_bringup simulation_nav.launch.py
 
-# NAV2 Localisation With cloud
-ros2 launch lgdxrobot2_bringup simulation_nav.launch.py use_cloud:=True cloud_address:='192.168.1.10:5162'
+# NAV2 Localisation With cloud (Docker)
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py use_cloud:=True 
 """
 
 from launch.conditions import IfCondition
@@ -133,6 +133,11 @@ launch_args = [
     name='cloud_client_cert',
     default_value='/config/keys/Robot1.crt',
     description='Path to the client’s crt file'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_slam_enable',
+    default_value='False',
+    description='Enable LGDXRobot Cloud SLAM Mode.'
   )
 ]
       
@@ -173,6 +178,7 @@ def launch_setup(context):
   cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
   cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
   cloud_root_cert = LaunchConfiguration('cloud_root_cert').perform(context)
+  use_cloud_slam = LaunchConfiguration('cloud_slam_enable')
   
   #
   # Webots Simulator
@@ -238,6 +244,7 @@ def launch_setup(context):
       'cloud_client_cert': cloud_client_cert,
       'cloud_slam_enable': slam,
       'sim_enable': True,
+      'cloud_slam_enable': use_cloud_slam,
     }],
     remappings=[
       ('/tf', 'tf'), 
