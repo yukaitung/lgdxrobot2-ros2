@@ -109,6 +109,38 @@ launch_args = [
     default_value='False', 
     description='Whether to enable the joy.'
   ),
+  
+  # Cloud
+  DeclareLaunchArgument(
+    name='use_cloud',
+    default_value='False',
+    description='Whether to enable cloud.'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_address',
+    default_value='host.docker.internal:5162',
+    description='Address of LGDXRobot Cloud.'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_root_cert',
+    default_value='/config/keys/root.crt',
+    description='Path to the server’s root certificate'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_client_key',
+    default_value='/config/keys/Robot1.key',
+    description='Path to the client’s key file'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_client_cert',
+    default_value='/config/keys/Robot1.crt',
+    description='Path to the client’s crt file'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_slam_enable',
+    default_value='False',
+    description='Enable LGDXRobot Cloud SLAM Mode.'
+  )
 ]
       
 def launch_setup(context):
@@ -147,6 +179,14 @@ def launch_setup(context):
   rviz_config = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config:
     rviz_config = get_rviz_config_path_with_profile(profile_str)
+    
+  # Cloud
+  use_cloud = LaunchConfiguration('use_cloud')
+  cloud_address = LaunchConfiguration('cloud_address').perform(context)
+  cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
+  cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
+  cloud_root_cert = LaunchConfiguration('cloud_root_cert').perform(context)
+  use_cloud_slam = LaunchConfiguration('cloud_slam_enable')
   
   #
   # Base
@@ -166,7 +206,21 @@ def launch_setup(context):
     package='lgdxrobot2_agent',
     executable='lgdxrobot2_agent_node',
     output='screen',
-    parameters=[get_param_path("lgdxrobot2_agent_node.yaml", profile_str, namespace)],
+    parameters=[{
+      'mcu_enable': True,
+      'mcu_control_mode': 'both',
+      'mcu_publish_odom': True,
+      'mcu_publish_tf': False,
+      'mcu_base_link_name': 'base_link',
+      'mcu_reset_transform': True,
+      'mcu_publish_joint_state': True,
+      'cloud_enable': use_cloud,
+      'cloud_address': cloud_address,
+      'cloud_root_cert': cloud_root_cert,
+      'cloud_client_key': cloud_client_key,
+      'cloud_client_cert': cloud_client_cert,
+      'cloud_slam_enable': use_cloud_slam,
+    }],
     remappings=[
       ('/tf', 'tf'), 
       ('/tf_static', 'tf_static'),
