@@ -230,6 +230,7 @@ def launch_setup(context):
       ('/joint_states', 'joint_states'),
     ],
   )
+  lgdxrobot2_agent = TimerAction(period=5.0, actions=[lgdxrobot2_agent_node])
 
   #
   # Sensors
@@ -312,7 +313,7 @@ def launch_setup(context):
     }.items()
   )
 
-  return [description_node, lgdxrobot2_agent_node, lidar_node, camera_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav, explore_node]
+  return [description_node, lgdxrobot2_agent, lidar_node, camera_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav, explore_node]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)
