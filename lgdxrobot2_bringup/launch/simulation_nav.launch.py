@@ -133,11 +133,6 @@ launch_args = [
     name='cloud_client_cert',
     default_value='/config/keys/Robot1.crt',
     description='Path to the client’s crt file'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_slam_enable',
-    default_value='False',
-    description='Enable LGDXRobot Cloud SLAM Mode.'
   )
 ]
       
@@ -178,7 +173,6 @@ def launch_setup(context):
   cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
   cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
   cloud_root_cert = LaunchConfiguration('cloud_root_cert').perform(context)
-  use_cloud_slam = LaunchConfiguration('cloud_slam_enable')
   
   #
   # Webots Simulator
@@ -243,7 +237,7 @@ def launch_setup(context):
       'cloud_client_key': cloud_client_key,
       'cloud_client_cert': cloud_client_cert,
       'sim_enable': True,
-      'cloud_slam_enable': use_cloud_slam,
+      'cloud_slam_enable': slam,
     }],
     remappings=[
       ('/tf', 'tf'), 
