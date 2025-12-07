@@ -98,6 +98,7 @@ void Agent::Initalise()
     {
       // Start connection if MCU serial number obtained
       mcuSignals->UpdateSerialNumber.connect(boost::bind(&Cloud::Greet, cloud.get(), boost::placeholders::_1));
+      mcu->GetSerialNumber();
     }
     sensorSignals->SetEstop.connect(boost::bind(&Mcu::SetEstop, mcu.get(), boost::placeholders::_1));
     sensorSignals->SetInverseKinematics.connect(boost::bind(&Mcu::SetInverseKinematics, mcu.get(), 

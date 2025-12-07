@@ -136,11 +136,6 @@ launch_args = [
     default_value='/config/keys/Robot1.crt',
     description='Path to the client’s crt file'
   ),
-  DeclareLaunchArgument(
-    name='cloud_slam_enable',
-    default_value='False',
-    description='Enable LGDXRobot Cloud SLAM Mode.'
-  )
 ]
       
 def launch_setup(context):
@@ -219,7 +214,7 @@ def launch_setup(context):
       'cloud_root_cert': cloud_root_cert,
       'cloud_client_key': cloud_client_key,
       'cloud_client_cert': cloud_client_cert,
-      'cloud_slam_enable': use_cloud_slam,
+      'cloud_slam_enable': slam,
     }],
     remappings=[
       ('/tf', 'tf'), 

@@ -129,6 +129,8 @@ void Cloud::HandleError()
 
 void Cloud::Greet(std::string mcuSN)
 {
+  RCLCPP_INFO(logger_, "Connecting to the cloud.");
+  
   grpc::ClientContext *context = new grpc::ClientContext();
   auto deadline = std::chrono::system_clock::now() + std::chrono::seconds(kGrpcWaitSec);
   context->set_deadline(deadline);
@@ -145,7 +147,6 @@ void Cloud::Greet(std::string mcuSN)
   RobotClientsGreetResponse *response = new RobotClientsGreetResponse();
 
   cloudErrorRetryData.mcuSerialNumber = mcuSN;
-  RCLCPP_INFO(logger_, "Connecting to the cloud.");
   
   grpcStub->async()->Greet(context, request, response, [context, request, response, this](grpc::Status status)
   {

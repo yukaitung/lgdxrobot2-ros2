@@ -37,7 +37,6 @@ Mcu::Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr
     portName = port;
     Connect(portName);
   }
-  GetSerialNumber();
 }
 
 Mcu::~Mcu()
@@ -236,8 +235,13 @@ void Mcu::GetSerialNumber()
 
 void Mcu::ProcessSerialNumber(const McuSerialNumber &mcuSerialNumber)
 {
+  if (hasSerialNumber)
+  {
+    return;
+  }
+  hasSerialNumber = true;
   std::string sn = SerialToHexString(mcuSerialNumber.serial_number1, mcuSerialNumber.serial_number2, mcuSerialNumber.serial_number3);
-  RCLCPP_INFO(logger_, "Serial number received: %s", sn.c_str());
+  RCLCPP_INFO(logger_, "Serial Number received: %s", sn.c_str());
   mcuSignals->UpdateSerialNumber(sn);
 }
 
