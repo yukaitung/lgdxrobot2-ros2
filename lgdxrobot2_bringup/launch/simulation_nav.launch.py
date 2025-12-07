@@ -252,7 +252,6 @@ def launch_setup(context):
       ('/agent/robot_data', 'agent/robot_data'),
     ],
   )
-  lgdxrobot2_agent = TimerAction(period=5.0, actions=[lgdxrobot2_agent_node])
   
   #
   # NAV2
@@ -303,7 +302,7 @@ def launch_setup(context):
   
   waiting_nodes = WaitForControllerConnection(
     target_driver = lgdxrobot2_driver,
-    nodes_to_start = [description_node, robot_localization_node, explore_node, ros2_nav, lgdxrobot2_agent]
+    nodes_to_start = [description_node, robot_localization_node, explore_node, ros2_nav, lgdxrobot2_agent_node]
   )
 
   return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]
