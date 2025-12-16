@@ -22,10 +22,6 @@
   <exec_depend>realsense2_description</exec_depend>
   <exec_depend>realsense2_camera_msgs</exec_depend>
 
-  <!-- LGDXRobot2 -->
-  <exec_depend>lgdxrobot2_description</exec_depend>
-  <exec_depend>lgdxrobot2_agent</exec_depend>
-
   <!-- Algorithms -->
   <exec_depend>imu_filter_madgwick</exec_depend>
 

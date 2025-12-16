@@ -1,7 +1,10 @@
-.vscode/*
 .gitignore
+.gitlab-ci.yml
+.gitmodules
+.vscode/*
+demo.gif
 Docker/Scripts/*
+img.png
 LICENSE
 README.md
-img.png
 udev/*

@@ -13,7 +13,6 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>geometry_msgs</buildtool_depend>
-  <buildtool_depend>lgdxrobot2_agent</buildtool_depend>
   <buildtool_depend>nav_msgs</buildtool_depend>
   <buildtool_depend>pluginlib</buildtool_depend>
   <buildtool_depend>rclcpp</buildtool_depend>
@@ -23,7 +22,6 @@
   <buildtool_depend>webots_ros2_driver</buildtool_depend>
 
   <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>lgdxrobot2_agent</exec_depend>
   <exec_depend>nav_msgs</exec_depend>
   <exec_depend>pluginlib</exec_depend>
   <exec_depend>rclcpp</exec_depend>
