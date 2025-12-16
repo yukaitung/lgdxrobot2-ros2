@@ -2,31 +2,34 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>lgdxrobot2_webots</name>
-  <version>1.0.0</version>
-  <description>LGDXRobot2 configurations for Webots simulation.</description>
-  <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
+  <version>2.1.0</version>
+  <description>LGDXRobot2 simulation configuration and driver for Webots.</description>
   <license>MIT</license>
+  <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
+  <author email="info@bristolgram.uk">LGDXRobotics</author>
+  <url type="website">https://lgdxrobot.bristolgram.uk/lgdxrobot2</url>
+  <url type="repository">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2</url>
+  <url type="bugtracker">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/issues</url>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <buildtool_depend>rclcpp</buildtool_depend>
-  <buildtool_depend>std_msgs</buildtool_depend>
   <buildtool_depend>geometry_msgs</buildtool_depend>
   <buildtool_depend>nav_msgs</buildtool_depend>
-  <buildtool_depend>tf2_geometry_msgs</buildtool_depend>
   <buildtool_depend>pluginlib</buildtool_depend>
+  <buildtool_depend>rclcpp</buildtool_depend>
+  <buildtool_depend>sensor_msgs</buildtool_depend>
+  <buildtool_depend>std_msgs</buildtool_depend>
+  <buildtool_depend>tf2_geometry_msgs</buildtool_depend>
   <buildtool_depend>webots_ros2_driver</buildtool_depend>
-  <buildtool_depend>lgdxrobot2_agent</buildtool_depend>
 
-  <exec_depend>launch_ros</exec_depend>
-  <exec_depend>rclcpp</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>nav_msgs</exec_depend>
-  <exec_depend>tf2_geometry_msgs</exec_depend>
   <exec_depend>pluginlib</exec_depend>
-  <exec_depend>webots_ros2</exec_depend>
+  <exec_depend>rclcpp</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>tf2_geometry_msgs</exec_depend>
   <exec_depend>webots_ros2_driver</exec_depend>
-  <exec_depend>lgdxrobot2_agent</exec_depend>
+  <exec_depend>webots_ros2_msgs</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

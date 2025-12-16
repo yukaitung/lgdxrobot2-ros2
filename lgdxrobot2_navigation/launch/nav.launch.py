@@ -1,18 +1,3 @@
-"""\
-This script initalises LGDXRobot2 Webots simulation, RViz visualision and ROS2 Nav2 stack.
-
-Usage: 
-cd lgdx_ws # The location of the source code
-. install/setup.bash
-
-# NAV2 SLAM
-ros2 launch lgdxrobot2_bringup nav.launch.py slam:=True profile:='slam'
-ros2 launch lgdxrobot2_bringup nav.launch.py slam:=True use_explore_lite:=True profile:='slam'
-
-# NAV2 Localisation
-ros2 launch lgdxrobot2_bringup nav.launch.py
-"""
-
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
@@ -22,7 +7,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node
-from lgdxrobot2_bringup.utils import get_param_path, get_rviz_config_path_with_profile
+from lgdxrobot2_navigation.utils import get_param_path, get_rviz_config_path_with_profile
 import os
 import yaml
 
@@ -70,16 +55,11 @@ launch_args = [
     default_value='False',
     description='Whether to respawn if a node crashes.'
   ),
-  DeclareLaunchArgument(
-    name='use_explore_lite', 
-    default_value='False',
-    description='Launch explore_lite to explore the map automatically.'
-  ),
 
   # Display
   DeclareLaunchArgument(
     name='use_rviz',
-    default_value='True',
+    default_value='False',
     description='Launch RViz2.'
   ),
   DeclareLaunchArgument(
@@ -151,7 +131,6 @@ def launch_setup(context):
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
-  use_explore_lite = LaunchConfiguration('use_explore_lite')
 
   # Sensors
   use_lidar = LaunchConfiguration('use_lidar')
@@ -296,18 +275,8 @@ def launch_setup(context):
       'use_respawn': use_respawn,
     }.items(),
   )
-  explore_node = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(package_dir, 'launch', 'explore.launch.py')
-    ),
-    condition=IfCondition(use_explore_lite),
-    launch_arguments={
-      'config': get_param_path('explore_node.yaml', profile_str, namespace),
-      'namespace': namespace,
-    }.items()
-  )
 
-  return [description_node, lgdxrobot2_agent_node, lidar_node, camera_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav, explore_node]
+  return [description_node, lgdxrobot2_agent_node, lidar_node, camera_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)
