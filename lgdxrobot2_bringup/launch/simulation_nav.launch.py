@@ -1,3 +1,24 @@
+"""\
+This script initalises LGDXRobot2 Webots simulation, RViz visualision and ROS2 Nav2 stack.
+
+Usage: 
+cd lgdx_ws # The location of the source code
+. install/setup.bash
+
+# NAV2 SLAM
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True profile:='slam-sim'
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True use_explore_lite:=True profile:='slam-sim'
+
+# NAV2 SLAM With cloud (Docker)
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py slam:=True use_cloud:=True cloud_slam_enable:=True profile:='slam-sim'
+
+# NAV2 Localisation
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py
+
+# NAV2 Localisation With cloud (Docker)
+ros2 launch lgdxrobot2_bringup simulation_nav.launch.py use_cloud:=True 
+"""
+
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
@@ -69,11 +90,16 @@ launch_args = [
     default_value='False',
     description='Whether to respawn if a node crashes.'
   ),
+  DeclareLaunchArgument(
+    name='use_explore_lite', 
+    default_value='False',
+    description='Launch explore_lite to explore the map automatically.'
+  ),
   
   # Display
   DeclareLaunchArgument(
     name='use_rviz',
-    default_value='False',
+    default_value='True',
     description='Launch RViz2.'
   ),
   DeclareLaunchArgument(
@@ -133,6 +159,7 @@ def launch_setup(context):
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
+  use_explore_lite = LaunchConfiguration('use_explore_lite')
   
   # Display
   use_rviz = LaunchConfiguration('use_rviz')
@@ -255,10 +282,21 @@ def launch_setup(context):
       'use_respawn': use_respawn,
     }.items(),
   )
+  explore_node = IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(
+      os.path.join(package_dir, 'launch', 'explore.launch.py')
+    ),
+    condition=IfCondition(use_explore_lite),
+    launch_arguments={
+      'config': get_param_path('explore_node.yaml', profile_str, namespace),
+      'namespace': namespace,
+      'use_sim_time': use_sim_time
+    }.items()
+  )
   
   waiting_nodes = WaitForControllerConnection(
     target_driver = lgdxrobot2_driver,
-    nodes_to_start = [description_node, robot_localization_node, ros2_nav, lgdxrobot2_agent_node]
+    nodes_to_start = [description_node, robot_localization_node, explore_node, ros2_nav, lgdxrobot2_agent_node]
   )
 
   return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]
