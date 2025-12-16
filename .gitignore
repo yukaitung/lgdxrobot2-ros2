@@ -10,3 +10,4 @@ log/*
 .DS_Store
 *.dae_history.log
 *.blend1
+temp/*
