@@ -15,6 +15,7 @@
   <buildtool_depend>geometry_msgs</buildtool_depend>
   <buildtool_depend>boost</buildtool_depend>
   <buildtool_depend>libgrpc</buildtool_depend>
+  <buildtool_depend>protobuf</buildtool_depend>
   <buildtool_depend>protobuf-dev</buildtool_depend>
   <buildtool_depend>nav_msgs</buildtool_depend>
   <buildtool_depend>nav2_msgs</buildtool_depend>
