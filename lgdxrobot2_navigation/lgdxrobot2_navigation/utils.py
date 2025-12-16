@@ -19,7 +19,7 @@ def process_yaml(input_path: str, namespace: str, inital_pose_x: str, inital_pos
     return temp_file_path
   
 def get_rviz_config_path_with_profile(profile: str) -> str:
-  package_dir = get_package_share_directory('lgdxrobot2_bringup')
+  package_dir = get_package_share_directory('lgdxrobot2_navigation')
   path = os.path.join(package_dir, 'rviz', profile) + '.rviz'
   if os.path.exists(path):
     return path
@@ -32,7 +32,7 @@ def get_rviz_config_path_with_profile(profile: str) -> str:
       return os.path.join(package_dir, 'rviz', 'default.rviz')
 
 def get_path_with_profile(file_name: str, profile: str) -> str:
-  package_dir = get_package_share_directory('lgdxrobot2_bringup')
+  package_dir = get_package_share_directory('lgdxrobot2_navigation')
   path = os.path.join(package_dir, "param", profile, file_name)
   if os.path.exists(path):
     return path

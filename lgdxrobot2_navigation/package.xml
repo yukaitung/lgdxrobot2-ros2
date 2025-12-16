@@ -1,21 +1,35 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>lgdxrobot2_description</name>
+  <name>lgdxrobot2_navigation</name>
   <version>2.1.0</version>
-  <description>A description package for visualising LGDXRobot2 hardware as a 3D model.</description>
+  <description>LGDXRobot2 Nav2 stack integration.</description>
   <license>MIT</license>
   <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <author email="info@bristolgram.uk">LGDXRobotics</author>
   <url type="website">https://lgdxrobot.bristolgram.uk/lgdxrobot2</url>
   <url type="repository">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2</url>
   <url type="bugtracker">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/issues</url>
-  
-  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>robot_state_publisher</exec_depend>
-  <exec_depend>joint_state_publisher</exec_depend>
-  <exec_depend>xacro</exec_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <!-- Hardware -->
+  <exec_depend>rplidar_ros</exec_depend>
+  <exec_depend>joy</exec_depend>
+  <exec_depend>librealsense2</exec_depend>
+  <exec_depend>realsense2_camera</exec_depend>
+  <exec_depend>realsense2_description</exec_depend>
+  <exec_depend>realsense2_camera_msgs</exec_depend>
+
+  <!-- Algorithms -->
+  <exec_depend>imu_filter_madgwick</exec_depend>
+
+  <!-- Nav2 -->
+  <exec_depend>robot_localization</exec_depend>
+  <exec_depend>navigation2</exec_depend>
+  <exec_depend>nav2-bringup</exec_depend>
+  <exec_depend>nav2-route</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
