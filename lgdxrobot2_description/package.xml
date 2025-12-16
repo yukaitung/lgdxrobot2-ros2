@@ -2,14 +2,19 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>lgdxrobot2_description</name>
-  <version>1.0.0</version>
-  <description>LGDXRobot2 configurations for visualisation.</description>
-  <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
+  <version>2.1.0</version>
+  <description>A description package for visualising LGDXRobot2 hardware as a 3D model.</description>
   <license>MIT</license>
+  <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
+  <author email="info@bristolgram.uk">LGDXRobotics</author>
+  <url type="website">https://lgdxrobot.bristolgram.uk/lgdxrobot2</url>
+  <url type="repository">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2</url>
+  <url type="bugtracker">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/issues</url>
   
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
   <exec_depend>xacro</exec_depend>
 
   <export>
