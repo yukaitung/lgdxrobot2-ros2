@@ -1,17 +1,12 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>lgdxrobot2_description</name>
-  <version>1.0.0</version>
-  <description>LGDXRobot2 configurations for visualisation.</description>
+  <name>lgdxrobot2</name>
+  <version>2.0.13</version>
+  <description>LGDXRobot2 ROS2 packages.</description>
   <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <license>MIT</license>
-  
   <buildtool_depend>ament_cmake</buildtool_depend>
-
-  <exec_depend>robot_state_publisher</exec_depend>
-  <exec_depend>xacro</exec_depend>
-
   <export>
     <build_type>ament_cmake</build_type>
   </export>

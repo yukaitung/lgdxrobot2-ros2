@@ -1,3 +1,6 @@
+[submodule "third_party/m-explore-ros2"]
+	path = third_party/m-explore-ros2
+	url = https://github.com/robo-friends/m-explore-ros2.git
 [submodule "third_party/hwinfo"]
 	path = third_party/hwinfo
 	url = https://github.com/lfreist/hwinfo.git

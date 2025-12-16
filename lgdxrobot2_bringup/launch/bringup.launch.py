@@ -1,3 +1,11 @@
+"""\
+Usage: 
+cd lgdx_ws # The location of the source code
+. install/setup.bash
+ros2 launch lgdxrobot2_bringup bringup.launch.py
+ros2 launch lgdxrobot2_bringup bringup.launch.py rviz:=false # Without Rviz
+"""
+
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -36,7 +44,7 @@ launch_args = [
     ),
     DeclareLaunchArgument(
         name='use_rviz', 
-        default_value='False', 
+        default_value='True', 
         description='Visualize in RViz.'
     ),
 ]

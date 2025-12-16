@@ -1,3 +1,12 @@
+"""\
+This script publishes the model for the LGDXRobot2 and RViz visualision.
+
+Usage: 
+cd lgdx_ws # The location of the source code
+. install/setup.bash
+ros2 launch lgdxrobot2_description display.launch.py
+"""
+
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node, PushROSNamespace
@@ -29,7 +38,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='use_rviz', 
-    default_value='False', 
+    default_value='True', 
     description='Visualise the odometry with Rviz'
   )
 ]
