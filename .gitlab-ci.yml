@@ -11,6 +11,6 @@ build:
   script:
     - docker build -f Dockerfile -o . .
   artifacts:
-  paths:
-    - debs
+    paths:
+      - debs
 
