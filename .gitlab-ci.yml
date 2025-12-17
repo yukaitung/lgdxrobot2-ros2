@@ -372,12 +372,12 @@ release_job:
     ref: '$CI_COMMIT_SHA'
     assets:
       links:
-        - name: 'Ubuntu AMD64'
+        - name: 'LGDXRobot2 ROS 2 AMD64'
           url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-amd64.zip'
-        - name: 'Ubuntu ARM64'
+        - name: 'LGDXRobot2 ROS 2 ARM64'
           url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-arm64.zip'
-        - name: 'SLLIDAR ROS2 AMD64'
-          url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/$APP_VERSION/sllidar_ros2-amd64.zip'
-        - name: 'SLLIDAR ROS2 ARM64'
-          url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/$APP_VERSION/sllidar_ros2-arm64.zip'
+        - name: 'SLAMTEC LIDAR ROS 2 AMD64'
+          url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-amd64.zip'
+        - name: 'SLAMTEC LIDAR ROS 2 ARM64'
+          url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-arm64.zip'
 

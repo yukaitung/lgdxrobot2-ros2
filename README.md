@@ -48,6 +48,20 @@ sudo apt update
 sudo apt install ros-${ROS_DISTRO}-sllidar-ros2 ros-${ROS_DISTRO}-lgdxrobot2*
 ```
 
+### .deb Packages
+
+If adding the repository is not possible, the packages can be installed using the .deb packages.
+
+1. Install [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
+2. Download the `SLAMTEC LIDAR ROS 2` and `LGDXRobot2 ROS 2` packages from the [Releases](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) page.
+3. Install the packages and dependencies.
+
+```bash
+cd <path to .deb files>
+sudo apt install ./*.deb
+sudo dpkg -i ./*.deb
+```
+
 ### Docker
 
 ```bash
@@ -64,7 +78,7 @@ Visit [http://localhost:3000](http://localhost:3000) to access the web interface
 
 ### Build from Source
 
-Assumes that you have already installed Ubuntu 24.04 LTS.
+This tutorial assumes that Ubuntu 24.04 LTS has already been installed.
 
 #### Prerequisites
 
@@ -110,14 +124,6 @@ Then, source the setup files for the ROS 2 workspaces. You can optionally ignore
 source ~/lgdx_ws/install/setup.bash
 source ~/ros2_ws/install/setup.bash
 ```
-
-## Notes About Docker
-
-The Docker images provide a ready-to-use environment for running LGDXRobot2 on your local machine. They also offer flexibility in the choice of pre-installed packages. The two main repositories are:
-
-* `yukaitung/lgdxrobot2-base`: A pre-built image.
-* `yukaitung/lgdxrobot2-desktop`: A pre-built image with a desktop interface accessible via a web browser.
-
 
 ## License
 
