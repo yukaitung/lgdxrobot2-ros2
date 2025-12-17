@@ -76,7 +76,7 @@ launch_args = [
 ]
 
 def launch_setup(context):
-  package_dir = get_package_share_directory('lgdxrobot2_navigation')
+  package_dir = get_package_share_directory('lgdxrobot2_bringup')
   webots_package_dir = get_package_share_directory('lgdxrobot2_webots')
   
   # Webots
