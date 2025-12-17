@@ -11,23 +11,42 @@ LGDXRobot2 ROS 2 is an integration software for the LGDXRobot2 utilising ROS 2 e
 
 The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless integration with the [LGDXRobot Cloud](https://gitlab.com/yukaitung/lgdxrobot2-cloud).
 
-- [Homepage](https://lgdxrobot.bristolgram.uk/lgdxrobot2/)
-- [Documentation](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/)
-- LGDXRobot2 Design: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-design) | [GitHub](https://github.com/yukaitung/lgdxrobot2-design))
-- LGDXRobot2 MCU: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-mcu) | [GitHub](https://github.com/yukaitung/lgdxrobot2-mcu))
-- LGDXRobot2 ChassisTuner: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-chassistuner) | [GitHub](https://github.com/yukaitung/lgdxrobot2-chassistuner))
-- LGDXRobot2 ROS 2: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2) | [GitHub](https://github.com/yukaitung/lgdxrobot2-ros2))
+* [Homepage](https://lgdxrobot.bristolgram.uk/lgdxrobot2/)
+* [Documentation](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/)
+* LGDXRobot2 Design: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-design) | [GitHub](https://github.com/yukaitung/lgdxrobot2-design))
+* LGDXRobot2 MCU: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-mcu) | [GitHub](https://github.com/yukaitung/lgdxrobot2-mcu))
+* LGDXRobot2 ChassisTuner: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-chassistuner) | [GitHub](https://github.com/yukaitung/lgdxrobot2-chassistuner))
+* LGDXRobot2 ROS 2: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2) | [GitHub](https://github.com/yukaitung/lgdxrobot2-ros2))
 
 ## Packages
 
 The solution consists of the following packages:
 
-- `lgdxrobot2_agent`: A ROS 2 node that drives the robot using ROS 2 Topics and Services. It also acts as a client for the LGDXRobot Cloud.
-- `lgdxrobot2_bringup`: ROS 2 launch files demonstrating how to bringup the robot with NAV2 and LGDXRobot Cloud.
-- `lgdxrobot2_description`: A URDF model of the robot.
-- `lgdxrobot2_webots`: Simulation configuration and driver for Webots.
+* `lgdxrobot2_agent`: A ROS agent node for integration with LGDXRobot2 hardware and LGDXRobot Cloud.
+* `lgdxrobot2_bringup`: Bringup launch files for LGDXRobot2 hardware.
+* `lgdxrobot2_description`: A description package for visualising LGDXRobot2 hardware as a 3D model.
+* `lgdxrobot2_navigation`: LGDXRobot2 Nav2 stack integration.
+* `lgdxrobot2_webots`: Simulation configuration and driver for Webots.
 
 ## Getting Started
+
+### APT
+
+1. Install [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
+2. The packages are hosted in a repository managed by LGDXRobotics, so add this repository before installation.
+
+```bash
+cd /etc/apt/keyrings
+sudo wget -q https://lgdxrobot.bristolgram.uk/keys/lgdxrobotics.asc
+sudo echo "deb [signed-by=/etc/apt/keyrings/lgdxrobotics.asc] https://ros.bristolgram.uk/ noble main" | sudo tee /etc/apt/sources.list.d/lgdxrobotics.list
+sudo apt update
+```
+
+3. Install the packages. This will also install the required dependencies, including the Nav2 stack.
+
+```bash
+apt install ros-${ROS_DISTRO}-sllidar-ros2 ros-${ROS_DISTRO}-lgdxrobot2*
+```
 
 ### Docker
 
@@ -49,20 +68,10 @@ Assumes that you have already installed Ubuntu 24.04 LTS.
 
 #### Prerequisites
 
-1. [Install ROS 2](https://docs.ros.org/en/jazzy/Installation.html)
-2. [Install NAV2](https://docs.nav2.org/getting_started/index.html)
 
-```bash
-sudo apt install ros-jazzy-navigation2 ros-jazzy-nav2-bringup ros-jazzy-nav2-route
-```
+1. Install [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html) ensure that the development tools are installed.
 
-3. Install the dependencies:
-
-```bash
-sudo apt install ros-jazzy-joy libprotobuf-dev libgrpc++-dev protobuf-compiler-grpc 
-```
-
-4. Install Packages for LiDAR:
+2. Install Packages for LiDAR:
 ```bash
 mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/src
@@ -73,45 +82,18 @@ cd src/rpldiar_ros/
 source scripts/create_udev_rules.sh
 ```
 
-5. Install Packages for Realsense (Optional):
-
-```bash
-sudo apt install ros-jazzy-imu-filter-madgwick ros-jazzy-librealsense2* ros-jazzy-realsense2-*
-```
-
-6. [Install Webots](https://cyberbotics.com/doc/guide/installation-procedure) (Optional)
-7. [Install Webots ROS 2 Interface](https://github.com/cyberbotics/webots_ros2/wiki/Getting-Started) (Optional)
-```bash
-mkdir -p ~/webots_ws/src
-cd ~/webots_ws/src
-git clone --recurse-submodules https://github.com/cyberbotics/webots_ros2.git
-rosdep update
-rosdep install --from-paths src --ignore-src --rosdistro jazzy -y
-cd ..
-colcon build --symlink-install
-```
-
 #### Build
 
-After installing all dependencies, clone the project and run the following commands:
+Clone the project and run the following commands:
 
 ```bash
 mkdir -p ~/lgdx_ws/src
 cd ~/lgdx_ws/src
 git clone --recurse-submodules https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2
+rosdep update
+rosdep install --from-paths lgdxrobot2-ros2 --ignore-src -y
 cd ..
-source "~/webots_ws/install/setup.bash"
 colcon build --symlink-install
-```
-
-If you are not using Webots:
-
-```bash
-mkdir -p ~/lgdx_ws/src
-cd ~/lgdx_ws/src
-git clone --recurse-submodules https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2
-cd ..
-colcon build --symlink-install --packages-ignore lgdxrobot2_webots
 ```
 
 #### Configuration
@@ -127,22 +109,15 @@ Then, source the setup files for the ROS 2 workspaces. You can optionally ignore
 ```bash
 source ~/lgdx_ws/install/setup.bash
 source ~/ros2_ws/install/setup.bash
-source ~/webots_ws/install/setup.bash
 ```
 
 ## Notes About Docker
 
 The Docker images provide a ready-to-use environment for running LGDXRobot2 on your local machine. They also offer flexibility in the choice of pre-installed packages. The two main repositories are:
 
-- `yukaitung/lgdxrobot2-core`: A pre-built image for simulation.
-- `yukaitung/lgdxrobot2-desktop`: A pre-built image for simulation with a desktop interface accessible via a web browser.
+* `yukaitung/lgdxrobot2-base`: A pre-built image.
+* `yukaitung/lgdxrobot2-desktop`: A pre-built image with a desktop interface accessible via a web browser.
 
-To pull these images from Docker Hub, you can either use the `latest` tag or specify a particular version number, such as `2.0.5`. Please refer to the [releases](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) page for version history. All images support both amd64 and arm64 architectures.
-
-There are also additional repositories that include dependencies, which can be used as base images for other ROS 2 projects:
-
-- `yukaitung/lgdxrobot2-support-core`
-- `yukaitung/lgdxrobot2-support-desktop`
 
 ## License
 
@@ -150,13 +125,11 @@ This project is licensed under the MIT Licence.
 
 ## Extra Dependencies
 
-- [m-explore ROS 2 port](https://github.com/robo-friends/m-explore-ros2)
-- [hwinfo](https://github.com/lfreist/hwinfo)
+* [hwinfo](https://github.com/lfreist/hwinfo)
 
 ## Credits
 
-- [Building Webots on arm64 Linux](https://github.com/up200707458/webots)
-- [Docker images for Selkies](https://github.com/linuxserver/docker-baseimage-selkies/)
+* [Docker images for Selkies](https://github.com/linuxserver/docker-baseimage-selkies/)
 
 ## Acknowledgements
 
