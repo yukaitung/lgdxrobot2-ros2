@@ -34,7 +34,7 @@ RUN apt update \
   && wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-amd64.zip -O lgdxrobot2-ros2.zip \
   && unzip lgdxrobot2-ros2.zip \
   && cd debs \
-  && apt install ./*.deb \
+  && apt install -y --no-install-recommends ./*.deb \
   && dpkg -i *.deb \
   && cd .. \
   && rm lgdxrobot2-ros2.zip \
