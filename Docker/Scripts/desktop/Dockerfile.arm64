@@ -30,28 +30,14 @@ RUN apt update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install LGDXRobot2 ROS2
+WORKDIR /etc/apt/keyrings
+RUN wget -q https://lgdxrobot.bristolgram.uk/keys/lgdxrobotics.asc
+RUN echo "deb [signed-by=/etc/apt/keyrings/lgdxrobotics.asc] https://ros.bristolgram.uk/ noble main" | sudo tee /etc/apt/sources.list.d/lgdxrobotics.list
+
 RUN apt update \
   && apt install -y --no-install-recommends \
-    wget unzip dpkg \
-  && wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-arm64.zip -O lgdxrobot2-ros2.zip \
-  && unzip lgdxrobot2-ros2.zip \
-  && cd debs \
-  && apt install -y --no-install-recommends ./*.deb \
-  && dpkg -i *.deb \
-  && cd .. \
-  && rm lgdxrobot2-ros2.zip \
-  && rm -rf debs \
+    ros-${ROS_DISTRO}-sllidar-ros2 ros-${ROS_DISTRO}-lgdxrobot2* \
   && rm -rf /var/lib/apt/lists/*
-
-# Install sllidar_ros2
-RUN wget https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-arm64.zip -O sllidar_ros2.zip \
-  && unzip sllidar_ros2.zip \
-  && cd debs \
-  && apt install -y --no-install-recommends ./*.deb \
-  && dpkg -i *.deb \
-  && cd .. \
-  && rm sllidar_ros2.zip \
-  && rm -rf debs
 
 # ChassisTuner
 WORKDIR /config/ChassisTuner

@@ -2,6 +2,8 @@
 # $EXT_REGISTRY: Registry URL (e.g. docker.io)
 # $EXT_USER: Username for the registry
 # $EXT_PAT: PAT for the registry (https://docs.docker.com/security/for-developers/access-tokens/)
+# $GPG_PRIVATE_KEY: GPG Private Key in Base64
+# $GPG_PASSPHRASE: GPG Passphrase
 
 variables:
   BASE_IMAGE_NAME: "lgdxrobot2-base"
@@ -9,8 +11,8 @@ variables:
 
 stages:
   - prepare
-  #- dependencies
-  #- build
+  - dependencies
+  - build
   - repository
   - docker
   - release
@@ -38,146 +40,146 @@ prepare:
 # Build Dependencies
 #
 
-#sllidar_ros2-amd64:
-#  stage: dependencies
-#  rules:
-#    - if: $CI_COMMIT_TAG
-#      when: never 
-#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#  when: manual
-#  image: docker:24.0.5-git
-#  needs:
-#    - job: prepare
-#      artifacts: true
-#  tags:
-#    - saas-linux-small-amd64
-#  services:
-#    - docker:24.0.5-dind
-#  variables:
-#    ARCH: amd64
-#  before_script:
-#    - apk add curl
-#    - apk add zip
-#  script:
-#    - docker build -f Docker/Scripts/build/Dockerfile.sllidar_ros2 -o . .
-#    - zip -r sllidar_ros2-$ARCH.zip debs/*
-#    - |
-#      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-#           --upload-file sllidar_ros2-$ARCH.zip \
-#           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/latest/sllidar_ros2-$ARCH.zip"
-#    - |
-#      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-#           --upload-file sllidar_ros2-$ARCH.zip \
-#           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/$APP_VERSION/sllidar_ros2-$ARCH.zip"
-#  artifacts:
-#    paths:
-#      - debuild
-#    expire_in: 1 day
+sllidar_ros2-amd64:
+  stage: dependencies
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  when: manual
+  image: docker:24.0.5-git
+  needs:
+    - job: prepare
+      artifacts: true
+  tags:
+    - saas-linux-small-amd64
+  services:
+    - docker:24.0.5-dind
+  variables:
+    ARCH: amd64
+  before_script:
+    - apk add curl
+    - apk add zip
+  script:
+    - docker build -f Docker/Scripts/build/Dockerfile.sllidar_ros2 -o . .
+    - zip -r sllidar_ros2-$ARCH.zip debs/*
+    - |
+      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file sllidar_ros2-$ARCH.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/latest/sllidar_ros2-$ARCH.zip"
+    - |
+      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file sllidar_ros2-$ARCH.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/$APP_VERSION/sllidar_ros2-$ARCH.zip"
+  artifacts:
+    paths:
+      - debuild
+    expire_in: 1 day
+
+sllidar_ros2-arm64:
+  stage: dependencies
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  when: manual
+  image: docker:24.0.5-git
+  needs:
+    - job: prepare
+      artifacts: true
+  tags:
+    - saas-linux-small-arm64
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    ARCH: arm64
+  services:
+    - name: docker:24.0.5-dind
+      command: ["--mtu=1400"]
+  before_script:
+    - apk add curl
+    - apk add zip
+  script:
+    - docker build -f Docker/Scripts/build/Dockerfile.sllidar_ros2 -o . .
+    - zip -r sllidar_ros2-$ARCH.zip debs/*
+    - |
+      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file sllidar_ros2-$ARCH.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/latest/sllidar_ros2-$ARCH.zip"
+    - |
+      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file sllidar_ros2-$ARCH.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/$APP_VERSION/sllidar_ros2-$ARCH.zip"
+
 #
-#sllidar_ros2-arm64:
-#  stage: dependencies
-#  rules:
-#    - if: $CI_COMMIT_TAG
-#      when: never 
-#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#  when: manual
-#  image: docker:24.0.5-git
-#  needs:
-#    - job: prepare
-#      artifacts: true
-#  tags:
-#    - saas-linux-small-arm64
-#  variables:
-#    DOCKER_TLS_CERTDIR: "/certs"
-#    ARCH: arm64
-#  services:
-#    - name: docker:24.0.5-dind
-#      command: ["--mtu=1400"]
-#  before_script:
-#    - apk add curl
-#    - apk add zip
-#  script:
-#    - docker build -f Docker/Scripts/build/Dockerfile.sllidar_ros2 -o . .
-#    - zip -r sllidar_ros2-$ARCH.zip debs/*
-#    - |
-#      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-#           --upload-file sllidar_ros2-$ARCH.zip \
-#           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/latest/sllidar_ros2-$ARCH.zip"
-#    - |
-#      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-#           --upload-file sllidar_ros2-$ARCH.zip \
-#           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/$APP_VERSION/sllidar_ros2-$ARCH.zip"
+# Build LGDXRobot2 ROS 2
 #
-##
-## Build LGDXRobot2 ROS 2
-##
-#
-#build-amd64:
-#  stage: build
-#  rules:
-#    - if: $CI_COMMIT_TAG
-#      when: never 
-#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#  image: docker:24.0.5-git
-#  needs:
-#    - job: prepare
-#      artifacts: true
-#  tags:
-#    - saas-linux-small-amd64
-#  services:
-#    - docker:24.0.5-dind
-#  variables:
-#    ARCH: amd64
-#  before_script:
-#    - apk add curl
-#    - apk add zip
-#  script:
-#    - git submodule update --init --recursive
-#    - docker build --build-arg APP_VERSION=$APP_VERSION -f Docker/Scripts/build/Dockerfile -o . .
-#    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
-#    - |
-#      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-#           --upload-file lgdxrobot2-ros2-$ARCH.zip \
-#           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-$ARCH.zip"
-#    - |
-#      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-#           --upload-file lgdxrobot2-ros2-$ARCH.zip \
-#           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-$ARCH.zip"
-#
-#build-arm64:
-#  stage: build
-#  rules:
-#    - if: $CI_COMMIT_TAG
-#      when: never 
-#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#  image: docker:24.0.5-git
-#  needs:
-#    - job: prepare
-#      artifacts: true
-#  tags:
-#    - saas-linux-small-arm64
-#  variables:
-#    DOCKER_TLS_CERTDIR: "/certs"
-#    ARCH: arm64
-#  services:
-#    - name: docker:24.0.5-dind
-#      command: ["--mtu=1400"]
-#  before_script:
-#    - apk add curl
-#    - apk add zip
-#  script:
-#    - git submodule update --init --recursive
-#    - docker build --build-arg APP_VERSION=$APP_VERSION -f Docker/Scripts/build/Dockerfile -o . .
-#    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
-#    - |
-#      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-#           --upload-file lgdxrobot2-ros2-$ARCH.zip \
-#           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-$ARCH.zip"
-#    - |
-#      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-#           --upload-file lgdxrobot2-ros2-$ARCH.zip \
-#           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-$ARCH.zip"
-#
+
+build-amd64:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: docker:24.0.5-git
+  needs:
+    - job: prepare
+      artifacts: true
+  tags:
+    - saas-linux-small-amd64
+  services:
+    - docker:24.0.5-dind
+  variables:
+    ARCH: amd64
+  before_script:
+    - apk add curl
+    - apk add zip
+  script:
+    - git submodule update --init --recursive
+    - docker build --build-arg APP_VERSION=$APP_VERSION -f Docker/Scripts/build/Dockerfile -o . .
+    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
+    - |
+      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file lgdxrobot2-ros2-$ARCH.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-$ARCH.zip"
+    - |
+      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file lgdxrobot2-ros2-$ARCH.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-$ARCH.zip"
+
+build-arm64:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: docker:24.0.5-git
+  needs:
+    - job: prepare
+      artifacts: true
+  tags:
+    - saas-linux-small-arm64
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    ARCH: arm64
+  services:
+    - name: docker:24.0.5-dind
+      command: ["--mtu=1400"]
+  before_script:
+    - apk add curl
+    - apk add zip
+  script:
+    - git submodule update --init --recursive
+    - docker build --build-arg APP_VERSION=$APP_VERSION -f Docker/Scripts/build/Dockerfile -o . .
+    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
+    - |
+      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file lgdxrobot2-ros2-$ARCH.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-$ARCH.zip"
+    - |
+      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file lgdxrobot2-ros2-$ARCH.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-$ARCH.zip"
+
 #
 # Repository
 #
