@@ -38,7 +38,7 @@ prepare:
 #
 
 sllidar_ros2-amd64:
-  stage: build
+  stage: dependencies
   rules:
     - if: $CI_COMMIT_TAG
       when: never 
@@ -58,7 +58,7 @@ sllidar_ros2-amd64:
     - apk add curl
     - apk add zip
   script:
-    - docker build -f Docker/Scripts/build/sllidar_ros2 -o . .
+    - docker build -f Docker/Scripts/build/Dockerfile.sllidar_ros2 -o . .
     - zip -r sllidar_ros2-$ARCH.zip debs/*
     - |
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
@@ -70,7 +70,7 @@ sllidar_ros2-amd64:
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/$APP_VERSION/sllidar_ros2-$ARCH.zip"
 
 sllidar_ros2-arm64:
-  stage: build
+  stage: dependencies
   rules:
     - if: $CI_COMMIT_TAG
       when: never 
@@ -92,7 +92,7 @@ sllidar_ros2-arm64:
     - apk add curl
     - apk add zip
   script:
-    - docker build -f Docker/Scripts/build/sllidar_ros2 -o . .
+    - docker build -f Docker/Scripts/build/Dockerfile.sllidar_ros2 -o . .
     - zip -r sllidar_ros2-$ARCH.zip debs/*
     - |
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
