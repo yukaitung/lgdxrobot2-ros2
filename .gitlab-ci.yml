@@ -107,20 +107,6 @@ sllidar_ros2-arm64:
            --upload-file sllidar_ros2-$ARCH.zip \
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/$APP_VERSION/sllidar_ros2-$ARCH.zip"
 
-sllidar_ros2-ppa:
-  stage: dependencies
-  needs:
-    - job: sllidar_ros2-amd64
-      artifacts: true
-  image: ubuntu:24.04
-  before_script:
-    - apt-get update
-    - apt-get install -y gnupg2 dput devscripts
-  script:
-    - echo "$GPG_PRIVATE_KEY" | base64 -d | gpg --import --batch
-    - debsign -p"gpg --batch --pinentry-mode loopback --passphrase $GPG_PASSPHRASE" -k"$GPG_KEY_ID" debuild/*.changes 
-    - dput ppa:yukaitung/lgdxrobot2 debuild/*.changes
-
 #
 # Build LGDXRobot2 ROS 2
 #
@@ -146,7 +132,7 @@ build-amd64:
     - apk add zip
   script:
     - git submodule update --init --recursive
-    - docker build -f Docker/Scripts/build/Dockerfile -o . .
+    - docker build --build-arg APP_VERSION=$APP_VERSION -f Docker/Scripts/build/Dockerfile -o . .
     - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
     - |
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
@@ -180,7 +166,7 @@ build-arm64:
     - apk add zip
   script:
     - git submodule update --init --recursive
-    - docker build -f Docker/Scripts/build/Dockerfile -o . .
+    - docker build --build-arg APP_VERSION=$APP_VERSION -f Docker/Scripts/build/Dockerfile -o . .
     - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
     - |
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
