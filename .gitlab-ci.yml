@@ -3,9 +3,15 @@
 # $EXT_USER: Username for the registry
 # $EXT_PAT: PAT for the registry (https://docs.docker.com/security/for-developers/access-tokens/)
 
+variables:
+  BASE_IMAGE_NAME: "lgdxrobot2-base"
+  DESKTOP_IMAGE_NAME: "lgdxrobot2-desktop"
+
 stages:
   - prepare
   - build
+  - docker
+  - release
 
 #
 # Parepare variables
@@ -32,43 +38,202 @@ prepare:
 
 build-amd64:
   stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: docker:24.0.5-git
+  needs:
+    - job: prepare
+      artifacts: true
+  tags:
+    - saas-linux-small-amd64
+  services:
+    - docker:24.0.5-dind
+  variables:
+    ARCH: amd64
+  before_script:
+    - apk add curl
+    - apk add zip
+  script:
+    - git submodule update --init --recursive
+    - docker build -f Docker/Scripts/build/Dockerfile -o . .
+    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
+    - |
+      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file lgdxrobot2-ros2-$ARCH.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-$ARCH.zip"
+    - |
+      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file lgdxrobot2-ros2-$ARCH.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-$ARCH.zip"
+
+build-arm64:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: docker:24.0.5-git
+  needs:
+    - job: prepare
+      artifacts: true
+  tags:
+    - saas-linux-small-arm64
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    ARCH: arm64
+  services:
+    - name: docker:24.0.5-dind
+      command: ["--mtu=1400"]
+  before_script:
+    - apk add curl
+    - apk add zip
+  script:
+    - git submodule update --init --recursive
+    - docker build -f Docker/Scripts/build/Dockerfile -o . .
+    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
+    - |
+      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file lgdxrobot2-ros2-$ARCH.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-$ARCH.zip"
+    - |
+      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file lgdxrobot2-ros2-$ARCH.zip \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-$ARCH.zip"
+
+#
+# Build Docker Images
+#
+
+build-base-amd64:
+  stage: docker
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   image: docker:24.0.5-git
   tags:
     - saas-linux-small-amd64
   services:
     - docker:24.0.5-dind
-  before_script:
-    - apk add curl
-    - apk add zip
   variables:
     ARCH: amd64
   script:
-    - git submodule update --init --recursive
-    - docker build -f Docker/Scripts/build/Dockerfile -o . .
-    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file lgdxrobot2-ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-$ARCH.zip"
-
-build-arm64:
-  stage: build
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    # Core
+    - docker build -f Docker/Scripts/base/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH
+    
+build-base-arm64:
+  stage: docker
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   image: docker:24.0.5-git
   tags:
-    - saas-linux-small-arm64
+    - saas-linux-small-arm64 
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    ARCH: arm64
+  services:
+    - name: docker:24.0.5-dind
+      command: ["--mtu=1400"]
+  script:
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    # Core
+    - docker build -f Docker/Scripts/base/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH
+
+build-desktop-amd64:
+  stage: docker
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: docker:24.0.5-git
+  tags:
+    - saas-linux-small-amd64
+  services:
+    - docker:24.0.5-dind
+  variables:
+    ARCH: amd64
+  script:
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    # Desktop
+    - docker build -f Docker/Scripts/desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH
+    
+build-desktop-arm64:
+  stage: docker
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: docker:24.0.5-git
+  tags:
+    - saas-linux-small-arm64 
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    ARCH: arm64
+  services:
+    - name: docker:24.0.5-dind
+      command: ["--mtu=1400"]
+  script:
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    # Desktop
+    - docker build -f Docker/Scripts/desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH .
+    - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH
+
+#
+# Release
+#
+    
+release_job:
+  stage: release
+  image: docker:24.0.5-git
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  needs:
+    - job: prepare
+      artifacts: true
+    - job: build-base-arm64
+      artifacts: false
+    - job: build-base-amd64
+      artifacts: false
+    - job: build-desktop-arm64
+      artifacts: false
+    - job: build-desktop-amd64
+      artifacts: false
   services:
     - docker:24.0.5-dind
   before_script:
-    - apk add curl
-    - apk add zip
-  variables:
-    ARCH: arm64
+    - apk add glab
+    - apk add gitlab-release-cli    
   script:
-    - git submodule update --init --recursive
-    - docker build -f Docker/Scripts/build/Dockerfile -o . .
-    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file lgdxrobot2-ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-$ARCH.zip"
+    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
+    # Base
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:latest --amend $EXT_USER/$BASE_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$BASE_IMAGE_NAME:dev-arm64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:$APP_VERSION --amend $EXT_USER/$BASE_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$BASE_IMAGE_NAME:dev-arm64
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:latest
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:$APP_VERSION
+    # Desktop
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:latest --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-arm64
+    - docker manifest create $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:$APP_VERSION --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-arm64
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:latest
+    - docker manifest push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:$APP_VERSION
+  release:
+    name : 'Release $APP_VERSION'
+    tag_name: '$APP_VERSION'
+    description: '$APP_VERSION'
+    ref: '$CI_COMMIT_SHA'
+    assets:
+      links:
+        - name: 'Docker Images for LGDXRobot2 Base'
+          url: 'https://hub.docker.com/v2/repositories/yukaitung/$BASE_IMAGE_NAME/tags/$APP_VERSION'
+        - name: 'Docker Images for LGDXRobot2 Desktop'
+          url: 'https://hub.docker.com/v2/repositories/yukaitung/$DESKTOP_IMAGE_NAME/tags/$APP_VERSION'
 

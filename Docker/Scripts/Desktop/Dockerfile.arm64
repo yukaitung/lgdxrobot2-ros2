@@ -28,17 +28,26 @@ RUN apt update \
     ros-jazzy-desktop=0.11.0-1* \
     && rm -rf /var/lib/apt/lists/*
 
-#
+# Install LGDXRobot2 ROS2
+RUN apt update \
+  && apt install -y --no-install-recommends \
+    wget zip dpkg \
+  && wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-arm64.zip -O lgdxrobot2-ros2.zip \
+  && unzip lgdxrobot2-ros2.zip \
+  && cd debs \
+  && dpkg -i *.deb \
+  && cd .. \
+  && rm lgdxrobot2-ros2.zip \
+  && rm -rf debs \
+  && rm -rf /var/lib/apt/lists/*
+
 # ChassisTuner
-#
 WORKDIR /config/ChassisTuner
 RUN wget https://gitlab.com/api/v4/projects/52363675/packages/generic/LGDXRobot2-ChassisTuner/latest/ChassisTuner-arm64.zip -O ChassisTuner.zip \
   && unzip ChassisTuner.zip \
   && rm ChassisTuner.zip
 
-#
 # Configure branding
-#
 COPY /Docker/root /
 ENV TITLE="LGDXRobot2 Workspace"
 RUN mv -f /favicon.png /usr/share/selkies/www/icon.png
