@@ -55,7 +55,7 @@ build-arm64:
   stage: build
   image: docker:24.0.5-git
   tags:
-    - saas-linux-small-amd64
+    - saas-linux-small-arm64
   services:
     - docker:24.0.5-dind
   before_script:
