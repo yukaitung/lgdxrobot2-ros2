@@ -191,7 +191,7 @@ repository:
   image: ubuntu:24.04
   before_script:
     - apt-get update
-    - apt-get install -y curl reprepro gnupg2 unzip
+    - apt-get install -y wget reprepro gnupg2 unzip
   script:
     - echo "$GPG_PRIVATE_KEY" | base64 -d | gpg --import --batch
     - gpg-agent
