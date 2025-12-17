@@ -118,7 +118,7 @@ sllidar_ros2-ppa:
     - apt-get install -y gnupg2 dput devscripts
   script:
     - echo "$GPG_PRIVATE_KEY" | base64 -d | gpg --import --batch
-    - debsign -p"gpg --batch --pinentry-mode loopback --passphrase $GPG_PASSPHRASE" debuild/*.changes > /dev/null 2>&1
+    - debsign -p"gpg --batch --pinentry-mode loopback --passphrase $GPG_PASSPHRASE" debuild/*.changes 
     - dput ppa:yukaitung/lgdxrobot2 debuild/*.changes
 
 #
