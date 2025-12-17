@@ -9,7 +9,7 @@ variables:
 
 stages:
   - prepare
-  - build
+  #- build
   - docker
   - release
 
@@ -36,71 +36,71 @@ prepare:
 # Build LGDXRobot2 ROS 2
 #
 
-build-amd64:
-  stage: build
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  image: docker:24.0.5-git
-  needs:
-    - job: prepare
-      artifacts: true
-  tags:
-    - saas-linux-small-amd64
-  services:
-    - docker:24.0.5-dind
-  variables:
-    ARCH: amd64
-  before_script:
-    - apk add curl
-    - apk add zip
-  script:
-    - git submodule update --init --recursive
-    - docker build -f Docker/Scripts/build/Dockerfile -o . .
-    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file lgdxrobot2-ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-$ARCH.zip"
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file lgdxrobot2-ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-$ARCH.zip"
-
-build-arm64:
-  stage: build
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  image: docker:24.0.5-git
-  needs:
-    - job: prepare
-      artifacts: true
-  tags:
-    - saas-linux-small-arm64
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-    ARCH: arm64
-  services:
-    - name: docker:24.0.5-dind
-      command: ["--mtu=1400"]
-  before_script:
-    - apk add curl
-    - apk add zip
-  script:
-    - git submodule update --init --recursive
-    - docker build -f Docker/Scripts/build/Dockerfile -o . .
-    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file lgdxrobot2-ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-$ARCH.zip"
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file lgdxrobot2-ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-$ARCH.zip"
+#build-amd64:
+#  stage: build
+#  rules:
+#    - if: $CI_COMMIT_TAG
+#      when: never 
+#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#  image: docker:24.0.5-git
+#  needs:
+#    - job: prepare
+#      artifacts: true
+#  tags:
+#    - saas-linux-small-amd64
+#  services:
+#    - docker:24.0.5-dind
+#  variables:
+#    ARCH: amd64
+#  before_script:
+#    - apk add curl
+#    - apk add zip
+#  script:
+#    - git submodule update --init --recursive
+#    - docker build -f Docker/Scripts/build/Dockerfile -o . .
+#    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
+#    - |
+#      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+#           --upload-file lgdxrobot2-ros2-$ARCH.zip \
+#           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-$ARCH.zip"
+#    - |
+#      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+#           --upload-file lgdxrobot2-ros2-$ARCH.zip \
+#           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-$ARCH.zip"
+#
+#build-arm64:
+#  stage: build
+#  rules:
+#    - if: $CI_COMMIT_TAG
+#      when: never 
+#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#  image: docker:24.0.5-git
+#  needs:
+#    - job: prepare
+#      artifacts: true
+#  tags:
+#    - saas-linux-small-arm64
+#  variables:
+#    DOCKER_TLS_CERTDIR: "/certs"
+#    ARCH: arm64
+#  services:
+#    - name: docker:24.0.5-dind
+#      command: ["--mtu=1400"]
+#  before_script:
+#    - apk add curl
+#    - apk add zip
+#  script:
+#    - git submodule update --init --recursive
+#    - docker build -f Docker/Scripts/build/Dockerfile -o . .
+#    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
+#    - |
+#      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+#           --upload-file lgdxrobot2-ros2-$ARCH.zip \
+#           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-$ARCH.zip"
+#    - |
+#      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+#           --upload-file lgdxrobot2-ros2-$ARCH.zip \
+#           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-$ARCH.zip"
 
 #
 # Build Docker Images
