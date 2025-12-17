@@ -12,7 +12,7 @@ variables:
 stages:
   - prepare
   - dependencies
-  #- build
+  - build
   - repository
   - docker
   - release
