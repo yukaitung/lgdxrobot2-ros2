@@ -9,7 +9,7 @@ build:
   services:
     - docker:24.0.5-dind
   script:
-    - git submodule update --recursive --remote
+    - git submodule update --init --recursive
     - docker build -f Dockerfile -o . .
   artifacts:
     paths:
