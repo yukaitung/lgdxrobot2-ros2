@@ -7,7 +7,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node
-from lgdxrobot2_navigation.utils import get_param_path, get_rviz_config_path_with_profile
+from lgdxrobot2_bringup.utils import get_param_path, get_rviz_config_path_with_profile
 import os
 import yaml
 
@@ -159,7 +159,6 @@ def launch_setup(context):
   cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
   cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
   cloud_root_cert = LaunchConfiguration('cloud_root_cert').perform(context)
-  use_cloud_slam = LaunchConfiguration('cloud_slam_enable')
   
   #
   # Base
