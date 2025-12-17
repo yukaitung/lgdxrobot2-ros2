@@ -15,7 +15,7 @@ from webots_ros2_driver.wait_for_controller_connection import WaitForControllerC
 from launch_ros.actions import Node
 from launch.substitutions import Command
 import os
-from lgdxrobot2_bringup.utils import get_param_path
+from lgdxrobot2_navigation.utils import get_param_path
 
 launch_args = [
   # Common

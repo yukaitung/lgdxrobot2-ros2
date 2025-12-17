@@ -10,7 +10,7 @@ from webots_ros2_driver.webots_launcher import WebotsLauncher
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.wait_for_controller_connection import WaitForControllerConnection
 from launch_ros.actions import Node
-from lgdxrobot2_bringup.utils import get_param_path, get_rviz_config_path_with_profile
+from lgdxrobot2_navigation.utils import get_param_path, get_rviz_config_path_with_profile
 import os
 
 launch_args = [
@@ -113,7 +113,6 @@ launch_args = [
 def launch_setup(context):
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
   nav2_package_dir = get_package_share_directory('nav2_bringup')
-  package_dir = get_package_share_directory('lgdxrobot2_bringup')
   webots_package_dir = get_package_share_directory('lgdxrobot2_webots')
   robot_description_path = os.path.join(webots_package_dir, 'resource', 'lgdxrobot2.urdf')
   
