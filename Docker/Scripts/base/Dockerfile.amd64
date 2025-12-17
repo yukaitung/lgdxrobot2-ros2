@@ -1,0 +1,9 @@
+FROM ros:jazzy
+
+# Install LGDXRobot2 ROS2
+
+COPY Docker/root/ros_entrypoint.sh /
+RUN chmod +x /ros_entrypoint.sh
+
+ENTRYPOINT ["/ros_entrypoint.sh"]
+CMD ["bash"]

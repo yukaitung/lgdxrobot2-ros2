@@ -1,15 +1,32 @@
-FROM yukaitung/lgdxrobot2-support-desktop:arm64
+FROM ghcr.io/linuxserver/baseimage-selkies:ubuntunoble
 
-#
-# LGDXRobot2 ROS2
-#
-WORKDIR /config/lgdx_ws/src
-COPY . .
+ARG DEBIAN_FRONTEND=noninteractive
 
-WORKDIR /config/lgdx_ws
-RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
-      . /config/webots_ws/install/setup.sh && \
-      colcon build --symlink-install
+# Packages for ROS 2
+RUN apt-get update && apt-get install -q -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    dirmngr \
+    gnupg2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Setup ROS Apt sources
+RUN curl -L -s -o /tmp/ros2-apt-source.deb https://github.com/ros-infrastructure/ros-apt-source/releases/download/1.1.0/ros2-apt-source_1.1.0.noble_all.deb \
+    && echo "35441f3092fd05773a3c397fab38661bec466584c7a1f1c05366579997cb5fe7 /tmp/ros2-apt-source.deb" | sha256sum --strict --check \
+    && apt-get update \
+    && apt-get install /tmp/ros2-apt-source.deb \
+    && rm -f /tmp/ros2-apt-source.deb \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV ROS_DISTRO=jazzy
+
+# Install ROS 2 and dependencies
+RUN apt update \
+    && apt install -y --no-install-recommends \
+    libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 \
+    wget zip \
+    ros-jazzy-desktop=0.11.0-1* \
+    && rm -rf /var/lib/apt/lists/*
 
 #
 # ChassisTuner
@@ -19,7 +36,12 @@ RUN wget https://gitlab.com/api/v4/projects/52363675/packages/generic/LGDXRobot2
   && unzip ChassisTuner.zip \
   && rm ChassisTuner.zip
 
-COPY ./ros_entrypoint.sh /
+#
+# Configure branding
+#
+COPY /Docker/root /
+ENV TITLE="LGDXRobot2 Workspace"
+RUN mv -f /favicon.png /usr/share/selkies/www/icon.png
 RUN chmod +x /ros_entrypoint.sh
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
