@@ -1,0 +1,4 @@
+Codename: noble
+Components: main
+Architectures: arm64 amd64
+SignWith: A8963374BFB874C1E038FB5219858FB03281562D

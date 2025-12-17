@@ -9,8 +9,9 @@ variables:
 
 stages:
   - prepare
-  - dependencies
-  - build
+  #- dependencies
+  #- build
+  - repository
   - docker
   - release
 
@@ -176,6 +177,44 @@ build-arm64:
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
            --upload-file lgdxrobot2-ros2-$ARCH.zip \
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-$ARCH.zip"
+
+#
+# Repository
+#
+
+repository:
+  stage: repository
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: ubuntu:24.04
+  before_script:
+    - apt-get update
+    - apt-get install -y curl reprepro gnupg2 unzip
+  script:
+    - echo "$GPG_PRIVATE_KEY" | base64 -d | gpg --import --batch
+    - gpg-agent
+    - touch dummy
+    - gpg --pinentry-mode loopback --passphrase $GPG_PASSPHRASE --sign dummy
+    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-amd64.zip
+    - unzip lgdxrobot2-ros2-amd64.zip
+    - reprepro -b repo include debs/*.deb
+    - rm -rf debs
+    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-arm64.zip
+    - unzip lgdxrobot2-ros2-arm64.zip
+    - reprepro -b repo include debs/*.deb
+    - rm -rf debs
+    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-amd64.zip
+    - unzip sllidar_ros2-amd64.zip
+    - reprepro -b repo include debs/*.deb
+    - rm -rf debs
+    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-arm64.zip
+    - unzip sllidar_ros2-arm64.zip
+    - reprepro -b repo include debs/*.deb
+    - rm -rf debs
+  pages:
+    publish: repo
 
 #
 # Build Docker Images
