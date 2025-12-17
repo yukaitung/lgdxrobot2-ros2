@@ -199,19 +199,19 @@ repository:
     - gpg --pinentry-mode loopback --passphrase $GPG_PASSPHRASE --sign dummy
     - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-amd64.zip
     - unzip lgdxrobot2-ros2-amd64.zip
-    - reprepro -b repo include noble debs/*.deb
+    - reprepro -b repo includedeb noble debs/*.deb
     - rm -rf debs
     - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-arm64.zip
     - unzip lgdxrobot2-ros2-arm64.zip
-    - reprepro -b repo include noble debs/*.deb
+    - reprepro -b repo includedeb noble debs/*.deb
     - rm -rf debs
     - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-amd64.zip
     - unzip sllidar_ros2-amd64.zip
-    - reprepro -b repo include noble debs/*.deb
+    - reprepro -b repo includedeb noble debs/*.deb
     - rm -rf debs
     - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-arm64.zip
     - unzip sllidar_ros2-arm64.zip
-    - reprepro -b repo include noble debs/*.deb
+    - reprepro -b repo includedeb noble debs/*.deb
     - rm -rf debs
   pages:
     publish: repo
