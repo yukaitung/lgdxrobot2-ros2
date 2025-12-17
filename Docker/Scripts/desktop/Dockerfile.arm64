@@ -23,9 +23,8 @@ ENV ROS_DISTRO=jazzy
 # Install ROS 2 and dependencies
 RUN apt update \
     && apt install -y --no-install-recommends \
-    xfce4-terminal \
+    xfce4-terminal wget zip unzip \
     libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 \
-    wget zip \
     ros-jazzy-desktop=0.11.0-1* \
     && rm -rf /var/lib/apt/lists/*
 
