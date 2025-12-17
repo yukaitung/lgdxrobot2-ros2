@@ -14,7 +14,6 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <!-- Hardware -->
-  <exec_depend>rplidar_ros</exec_depend>
   <exec_depend>joy</exec_depend>
   <exec_depend>librealsense2</exec_depend>
   <exec_depend>realsense2_camera</exec_depend>

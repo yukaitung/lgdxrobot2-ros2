@@ -42,6 +42,16 @@ RUN apt update \
   && rm -rf debs \
   && rm -rf /var/lib/apt/lists/*
 
+# Install sllidar_ros2
+RUN wget https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-amd64.zip -O sllidar_ros2.zip \
+  && unzip sllidar_ros2.zip \
+  && cd debs \
+  && apt install -y --no-install-recommends ./*.deb \
+  && dpkg -i *.deb \
+  && cd .. \
+  && rm sllidar_ros2.zip \
+  && rm -rf debs
+
 # ChassisTuner
 WORKDIR /config/ChassisTuner
 RUN wget https://gitlab.com/api/v4/projects/52363675/packages/generic/LGDXRobot2-ChassisTuner/latest/ChassisTuner-amd64.zip -O ChassisTuner.zip \
