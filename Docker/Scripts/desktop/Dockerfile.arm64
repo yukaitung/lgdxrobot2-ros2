@@ -25,7 +25,8 @@ RUN apt update \
     && apt install -y --no-install-recommends \
     xfce4-terminal wget zip unzip \
     libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 \
-    ros-jazzy-desktop=0.11.0-1* \
+    ros-jazzy-base=0.11.0-1* \
+    ros-jazzy-rqt* ros-jazzy-rviz* \
     && rm -rf /var/lib/apt/lists/*
 
 # Install LGDXRobot2 ROS2
