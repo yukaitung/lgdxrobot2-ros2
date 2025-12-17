@@ -93,7 +93,7 @@ launch_args = [
 def launch_setup(context):
   webots_package_dir = get_package_share_directory('lgdxrobot2_webots')
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
-  nav2_package_dir = get_package_share_directory('nav2_bringup')
+  nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
   robot_description_path = os.path.join(webots_package_dir, 'resource', 'lgdxrobot2.urdf')
   
   # Common

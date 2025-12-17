@@ -145,7 +145,7 @@ def launch_setup(context):
     camera_pkg_share = get_package_share_directory('realsense2_camera')
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
   lidar_pkg_share = get_package_share_directory('sllidar_ros2')
-  nav2_package_dir = get_package_share_directory('nav2_bringup')
+  nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
   
   # Display
   use_rviz = LaunchConfiguration('use_rviz')
