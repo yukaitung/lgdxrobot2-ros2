@@ -68,6 +68,10 @@ sllidar_ros2-amd64:
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
            --upload-file sllidar_ros2-$ARCH.zip \
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/$APP_VERSION/sllidar_ros2-$ARCH.zip"
+  artifacts:
+    paths:
+      - debuild
+    expire_in: 1 day
 
 sllidar_ros2-arm64:
   stage: dependencies
@@ -102,6 +106,21 @@ sllidar_ros2-arm64:
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
            --upload-file sllidar_ros2-$ARCH.zip \
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/$APP_VERSION/sllidar_ros2-$ARCH.zip"
+
+sllidar_ros2-ppa:
+  stage: dependencies
+  needs:
+    - job: sllidar_ros2-amd64
+      artifacts: true
+  image: ubuntu:24.04
+  before_script:
+    - apt-get update
+    - apt-get install -y gnupg2 dput devscripts
+  script:
+    - echo "$GPG_PRIVATE_KEY" | base64 -d | gpg --import --batch
+    - echo "use-agent" >> ~/.gnupg/gpg.conf
+    - echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase-fd 0 --pinentry-mode loopback --import private.key
+    - debsign debuild/*.changes
 
 #
 # Build LGDXRobot2 ROS 2
