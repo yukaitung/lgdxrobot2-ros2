@@ -121,7 +121,7 @@ build-base-amd64:
     ARCH: amd64
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    # Core
+    # Base
     - docker build -f Docker/Scripts/base/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH .
     - docker push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH
     
@@ -142,7 +142,7 @@ build-base-arm64:
       command: ["--mtu=1400"]
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    # Core
+    # Base
     - docker build -f Docker/Scripts/base/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH .
     - docker push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH
 
@@ -162,9 +162,6 @@ build-desktop-amd64:
   script:
     - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
     # Desktop
-    - ls
-    - cd Docker/Scripts
-    - ls
     - docker build -f Docker/Scripts/desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH .
     - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH
     
