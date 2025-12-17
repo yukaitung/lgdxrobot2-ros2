@@ -17,6 +17,7 @@
   <!-- Algorithms -->
   <exec_depend>imu_filter_madgwick</exec_depend>
   <exec_depend>robot_localization</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
 
   <exec_depend>navigation2</exec_depend>
   <exec_depend>nav2_route</exec_depend>
