@@ -50,5 +50,4 @@ RUN mv *.deb /debs
 
 # Final stage outputs /src
 FROM scratch AS export
-COPY --from=builder /debuild /debuild
 COPY --from=builder /debs /debs
