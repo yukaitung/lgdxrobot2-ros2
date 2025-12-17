@@ -14,20 +14,11 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>
 
-  <!-- Hardware -->
-  <exec_depend>joy</exec_depend>
-  <exec_depend>librealsense2</exec_depend>
-  <exec_depend>realsense2_camera</exec_depend>
-  <exec_depend>realsense2_description</exec_depend>
-  <exec_depend>realsense2_camera_msgs</exec_depend>
-
   <!-- Algorithms -->
   <exec_depend>imu_filter_madgwick</exec_depend>
-
-  <!-- Nav2 -->
   <exec_depend>robot_localization</exec_depend>
+
   <exec_depend>navigation2</exec_depend>
-  <exec_depend>nav2_bringup</exec_depend>
   <exec_depend>nav2_route</exec_depend>
 
   <export>
