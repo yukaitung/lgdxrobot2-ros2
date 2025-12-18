@@ -10,13 +10,13 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone the repository
-RUN git clone https://github.com/Slamtec/sllidar_ros2.git
+RUN git clone https://github.com/robo-friends/m-explore-ros2.git
 
 # Get the version
-RUN export APP_VERSION=$(xmllint --xpath "//package/version/text()" sllidar_ros2/package.xml)
+RUN export APP_VERSION=$(xmllint --xpath "//package/version/text()" m-explore-ros2/explore/package.xml)
 
 # Complie the packages
-WORKDIR /src/sllidar_ros2
+WORKDIR /src/m-explore-ros2
 RUN bloom-generate rosdebian
 RUN fakeroot debian/rules binary
 
