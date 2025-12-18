@@ -10,11 +10,16 @@ from webots_ros2_driver.webots_launcher import WebotsLauncher
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.wait_for_controller_connection import WaitForControllerConnection
 from launch_ros.actions import Node
-from lgdxrobot2_bringup.utils import get_param_path, get_rviz_config_path_with_profile
+from lgdxrobot2_bringup.utils import ParamManager
 import os
 
 launch_args = [
   # Common
+  DeclareLaunchArgument(
+    name='profiles_path',
+    default_value='',
+    description='Absolute path to the profiles directory, or leave empty to use the default.'
+  ),
   DeclareLaunchArgument(
     name='profile',
     default_value='loc-sim',
@@ -117,9 +122,11 @@ def launch_setup(context):
   robot_description_path = os.path.join(webots_package_dir, 'resource', 'lgdxrobot2.urdf')
   
   # Common
+  profiles_path = LaunchConfiguration('profiles_path').perform(context)
   profile_str = LaunchConfiguration('profile').perform(context)
   namespace = LaunchConfiguration('namespace').perform(context)
   use_namespace = 'True' if namespace != '' else 'False'
+  p = ParamManager(profiles_path, profile_str, namespace)
   
   # Webots
   world = LaunchConfiguration('world')
@@ -137,7 +144,7 @@ def launch_setup(context):
   use_rviz = LaunchConfiguration('use_rviz')
   rviz_config = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config:
-    rviz_config = get_rviz_config_path_with_profile(profile_str)
+    rviz_config = p.get_rviz_config()
   
   # Cloud
   use_cloud = LaunchConfiguration('use_cloud')
@@ -229,7 +236,7 @@ def launch_setup(context):
     namespace=namespace,
     output='screen',
     parameters=[
-      get_param_path('ekf.yaml', profile_str, namespace),
+      p.get_param_path('ekf.yaml'),
       {'use_sim_time': use_sim_time }
     ],
     remappings=[
@@ -248,7 +255,7 @@ def launch_setup(context):
       'use_localization': use_localization,
       'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
       'use_sim_time': use_sim_time,
-      'params_file': get_param_path('nav2.yaml', profile_str, namespace),
+      'params_file': p.get_param_path('nav2.yaml'),
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,

@@ -15,10 +15,15 @@ from webots_ros2_driver.wait_for_controller_connection import WaitForControllerC
 from launch_ros.actions import Node
 from launch.substitutions import Command
 import os
-from lgdxrobot2_bringup.utils import get_param_path
+from lgdxrobot2_bringup.utils import ParamManager
 
 launch_args = [
   # Common
+  DeclareLaunchArgument(
+    name='profiles_path',
+    default_value='',
+    description='Absolute path to the profiles directory, or leave empty to use the default.'
+  ),
   DeclareLaunchArgument(
     name='profile',
     default_value='loc-sim',
@@ -97,9 +102,11 @@ def launch_setup(context):
   robot_description_path = os.path.join(webots_package_dir, 'resource', 'lgdxrobot2.urdf')
   
   # Common
+  profiles_path = LaunchConfiguration('profiles_path').perform(context)
   profile_str = LaunchConfiguration('profile').perform(context)
   namespace = LaunchConfiguration('namespace').perform(context)
   use_namespace = 'True' if namespace != '' else 'False'
+  p = ParamManager(profiles_path, profile_str, namespace)
   
   # NAV2
   slam = LaunchConfiguration('slam')
@@ -174,7 +181,7 @@ def launch_setup(context):
     namespace=namespace,
     output='screen',
     parameters=[
-      get_param_path('ekf.yaml', profile_str, namespace),
+      p.get_param_path('ekf.yaml'),
       {'use_sim_time': use_sim_time }
     ],
     remappings=[
@@ -193,7 +200,7 @@ def launch_setup(context):
       'use_localization': use_localization,
       'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
       'use_sim_time': use_sim_time,
-      'params_file': get_param_path('nav2.yaml', profile_str, namespace, initial_pose_x, initial_pose_y, initial_pose_z, initial_pose_yaw),
+      'params_file': p.get_param_path('nav2.yaml', initial_pose_x, initial_pose_y, initial_pose_z, initial_pose_yaw),
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,

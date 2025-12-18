@@ -7,12 +7,17 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node
-from lgdxrobot2_bringup.utils import get_param_path, get_rviz_config_path_with_profile
+from lgdxrobot2_bringup.utils import ParamManager
 import os
 import yaml
 
 launch_args = [
   # Common
+  DeclareLaunchArgument(
+    name='profiles_path',
+    default_value='',
+    description='Absolute path to the profiles directory, or leave empty to use the default.'
+  ),
   DeclareLaunchArgument(
     name='profile',
     default_value='loc',
@@ -120,9 +125,11 @@ launch_args = [
       
 def launch_setup(context):
   # Common
+  profiles_path = LaunchConfiguration('profiles_path').perform(context)
   profile_str = LaunchConfiguration('profile').perform(context)
   namespace = LaunchConfiguration('namespace').perform(context)
   use_namespace = 'True' if namespace != '' else 'False'
+  p = ParamManager(profiles_path, profile_str, namespace)
 
   # NAV2
   slam = LaunchConfiguration('slam')
@@ -151,7 +158,7 @@ def launch_setup(context):
   use_rviz = LaunchConfiguration('use_rviz')
   rviz_config = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config:
-    rviz_config = get_rviz_config_path_with_profile(profile_str)
+    rviz_config = p.get_rviz_config()
     
   # Cloud
   use_cloud = LaunchConfiguration('use_cloud')
@@ -220,14 +227,14 @@ def launch_setup(context):
       os.path.join(camera_pkg_share, 'launch', 'rs_launch.py')
     ),
     condition=IfCondition(use_camera),
-    launch_arguments=yaml.load(open(get_param_path("realsense2_camera.yaml", profile_str, namespace)), Loader=yaml.FullLoader).items(),
+    launch_arguments=yaml.load(open(p.get_param_path("realsense2_camera.yaml")), Loader=yaml.FullLoader).items(),
   )
   imu_filter_madgwick_node = Node(
     package='imu_filter_madgwick',
     executable='imu_filter_madgwick_node',
     output='screen',
     remappings=[(namespace + '/imu/data_raw', namespace + '/camera/imu')],
-    parameters=[get_param_path("imu_filter_madgwick.yaml", profile_str, namespace)],
+    parameters=[p.get_param_path("imu_filter_madgwick.yaml")],
     condition=IfCondition(use_camera)
   )
   joy_node = Node(
@@ -250,7 +257,7 @@ def launch_setup(context):
     namespace=namespace,
     output='screen',
     parameters=[
-      get_param_path('ekf.yaml', profile_str, namespace)
+      p.get_param_path('ekf.yaml')
     ],
     remappings=[
       ('/tf', 'tf'), 
@@ -267,7 +274,7 @@ def launch_setup(context):
       'slam': slam,
       'use_localization': use_localization,
       'map': map,
-      'params_file': get_param_path('nav2.yaml', profile_str, namespace),
+      'params_file': p.get_param_path('nav2.yaml'),
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,
