@@ -45,7 +45,7 @@ sudo apt update
 3. Install the packages. This will also install the required dependencies, including the Nav2 stack.
 
 ```bash
-sudo apt install ros-${ROS_DISTRO}-sllidar-ros2 ros-${ROS_DISTRO}-lgdxrobot2*
+ros-${ROS_DISTRO}-sllidar-ros2 ros-${ROS_DISTRO}-lgdxrobot2* ros-${ROS_DISTRO}-explore-lite ros-${ROS_DISTRO}-multirobot-map-merge
 ```
 
 ### .deb Packages
@@ -132,6 +132,8 @@ This project is licensed under the MIT Licence.
 ## Extra Dependencies
 
 * [hwinfo](https://github.com/lfreist/hwinfo)
+* [sllidar_ros2](https://github.com/Slamtec/sllidar_ros2)
+* [m-explore-ros2](https://github.com/robo-friends/m-explore-ros2)
 
 ## Credits
 
