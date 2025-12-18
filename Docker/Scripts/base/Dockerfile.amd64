@@ -11,7 +11,7 @@ RUN echo "deb [signed-by=/etc/apt/keyrings/lgdxrobotics.asc] https://ros.bristol
 
 RUN apt update \
   && apt install -y --no-install-recommends \
-    ros-${ROS_DISTRO}-sllidar-ros2 ros-${ROS_DISTRO}-lgdxrobot2* \
+    ros-${ROS_DISTRO}-sllidar-ros2 ros-${ROS_DISTRO}-lgdxrobot2* ros-${ROS_DISTRO}-explore-lite ros-${ROS_DISTRO}-multirobot-map-merge \
   && rm -rf /var/lib/apt/lists/*
 
 COPY Docker/root/ros_entrypoint.sh /

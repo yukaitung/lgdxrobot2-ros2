@@ -60,6 +60,11 @@ launch_args = [
     default_value='False',
     description='Whether to respawn if a node crashes.'
   ),
+  DeclareLaunchArgument(
+    name='use_explore_lite', 
+    default_value='False',
+    description='Launch explore_lite to explore the map automatically.'
+  ),
 
   # Display
   DeclareLaunchArgument(
@@ -138,6 +143,7 @@ def launch_setup(context):
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
+  use_explore_lite = LaunchConfiguration('use_explore_lite')
 
   # Sensors
   use_lidar = LaunchConfiguration('use_lidar')
@@ -153,6 +159,7 @@ def launch_setup(context):
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
   lidar_pkg_share = get_package_share_directory('sllidar_ros2')
   nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
+  package_dir = get_package_share_directory('lgdxrobot2_bringup')
   
   # Display
   use_rviz = LaunchConfiguration('use_rviz')
@@ -280,8 +287,18 @@ def launch_setup(context):
       'use_respawn': use_respawn,
     }.items(),
   )
+  explore_node = IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(
+      os.path.join(package_dir, 'launch', 'explore.launch.py')
+    ),
+    condition=IfCondition(use_explore_lite),
+    launch_arguments={
+      'config': p.get_param_path('explore_node.yaml'),
+      'namespace': namespace,
+    }.items()
+  )
 
-  return [description_node, lgdxrobot2_agent_node, lidar_node, camera_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav]
+  return [description_node, lgdxrobot2_agent_node, lidar_node, camera_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav, explore_node]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)
