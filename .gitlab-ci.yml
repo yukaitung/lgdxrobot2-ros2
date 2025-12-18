@@ -64,14 +64,6 @@ sllidar_ros2-amd64:
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
            --upload-file sllidar_ros2-$ARCH.zip \
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/latest/sllidar_ros2-$ARCH.zip"
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file sllidar_ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/$APP_VERSION/sllidar_ros2-$ARCH.zip"
-  artifacts:
-    paths:
-      - debuild
-    expire_in: 1 day
 
 sllidar_ros2-arm64:
   stage: dependencies
@@ -99,10 +91,6 @@ sllidar_ros2-arm64:
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
            --upload-file sllidar_ros2-$ARCH.zip \
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/latest/sllidar_ros2-$ARCH.zip"
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file sllidar_ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/$APP_VERSION/sllidar_ros2-$ARCH.zip"
 
 m_explore_ros2-amd64:
   stage: dependencies
@@ -128,14 +116,6 @@ m_explore_ros2-amd64:
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
            --upload-file m_explore_ros2-$ARCH.zip \
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/m_explore_ros2/latest/m_explore_ros2-$ARCH.zip"
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file m_explore_ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/m_explore_ros2/$APP_VERSION/m_explore_ros2-$ARCH.zip"
-  artifacts:
-    paths:
-      - debuild
-    expire_in: 1 day
 
 m_explore_ros2-arm64:
   stage: dependencies
@@ -163,10 +143,6 @@ m_explore_ros2-arm64:
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
            --upload-file m_explore_ros2-$ARCH.zip \
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/m_explore_ros2/latest/m_explore_ros2-$ARCH.zip"
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file m_explore_ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/m_explore_ros2/$APP_VERSION/m_explore_ros2-$ARCH.zip"
 
 #
 # Build LGDXRobot2 ROS 2

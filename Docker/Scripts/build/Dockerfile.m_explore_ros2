@@ -7,22 +7,34 @@ RUN apt-get update \
     # Install debian packages build dependencies
     python3-bloom python3-rosdep fakeroot debhelper dh-python \ 
     git \
+    # Missing dependencies
+    libboost-all-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone the repository
-RUN git clone https://github.com/robo-friends/m-explore-ros2.git
+RUN git clone https://github.com/robo-friends/m-explore-ros2.git \
+      # Version in package.xml is not correct
+      && rm m-explore-ros2/map_merge/CHANGELOG.rst 
 
-# Get the version
-RUN export APP_VERSION=$(xmllint --xpath "//package/version/text()" m-explore-ros2/explore/package.xml)
+WORKDIR /src/m-explore-ros2
+RUN apt-get update \
+    # Install dependencies
+    && rosdep install --from-paths explore --ignore-src -y \
+    && rosdep install --from-paths map_merge --ignore-src -y \
+    && rm -rf /var/lib/apt/lists/*
 
 # Complie the packages
-WORKDIR /src/m-explore-ros2
+WORKDIR /src/m-explore-ros2/explore
+RUN bloom-generate rosdebian
+RUN fakeroot debian/rules binary
+
+WORKDIR /src/m-explore-ros2/map_merge
 RUN bloom-generate rosdebian
 RUN fakeroot debian/rules binary
 
 # Organise the output
 ## Debian packages
-WORKDIR /src
+WORKDIR /src/m-explore-ros2
 RUN mkdir -p /debs
 RUN mv *.deb /debs
 #RUN mv *.ddeb /debs

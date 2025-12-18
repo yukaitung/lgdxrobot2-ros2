@@ -12,9 +12,6 @@ RUN apt-get update \
 # Clone the repository
 RUN git clone https://github.com/Slamtec/sllidar_ros2.git
 
-# Get the version
-RUN export APP_VERSION=$(xmllint --xpath "//package/version/text()" sllidar_ros2/package.xml)
-
 # Complie the packages
 WORKDIR /src/sllidar_ros2
 RUN bloom-generate rosdebian
