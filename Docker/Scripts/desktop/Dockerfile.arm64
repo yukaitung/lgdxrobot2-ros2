@@ -34,7 +34,8 @@ RUN apt update \
 WORKDIR /etc/apt/keyrings
 RUN wget -q https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-bootstrap/latest/lgdxrobot2-bootstrap.zip \
     && unzip lgdxrobot2-bootstrap.zip \
-    && dpkg -i debs/*.deb \
+    && dpkg -i debs/lgdxrobot2-apt-source.deb \
+    && rm -rf debs \
     && rm lgdxrobot2-bootstrap.zip
 
 RUN apt update \
