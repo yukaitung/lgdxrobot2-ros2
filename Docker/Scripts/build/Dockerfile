@@ -17,13 +17,17 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Complie the packages
-WORKDIR /src/lgdxrobot2_agent
+WORKDIR /src/lgdxrobot2_msgs
 RUN bloom-generate rosdebian
 RUN fakeroot debian/rules binary
 
 ## Install the agent package for webots
 WORKDIR /src
 RUN dpkg -i *.deb
+
+WORKDIR /src/lgdxrobot2_agent
+RUN bloom-generate rosdebian
+RUN fakeroot debian/rules binary
 
 WORKDIR /src/lgdxrobot2_bringup
 RUN bloom-generate rosdebian

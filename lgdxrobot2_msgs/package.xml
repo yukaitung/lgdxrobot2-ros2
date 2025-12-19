@@ -1,22 +1,23 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>lgdxrobot2_description</name>
+  <name>lgdxrobot2_msgs</name>
   <version>2.1.8</version>
-  <description>A description package for visualising LGDXRobot2 hardware as a 3D model.</description>
+  <description>Interface for LGDXRobot2 ROS 2.</description>
   <license>MIT</license>
   <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <author email="info@bristolgram.uk">LGDXRobotics</author>
   <url type="website">https://lgdxrobot.bristolgram.uk/lgdxrobot2</url>
   <url type="repository">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2</url>
   <url type="bugtracker">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/issues</url>
+
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+  <buildtool_depend>std_msgs</buildtool_depend>
   
-  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
 
-  <exec_depend>robot_state_publisher</exec_depend>
-  <exec_depend>joint_state_publisher</exec_depend>
-  <exec_depend>xacro</exec_depend>
-
+  <member_of_group>rosidl_interface_packages</member_of_group>
   <export>
     <build_type>ament_cmake</build_type>
   </export>

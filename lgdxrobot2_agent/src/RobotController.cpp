@@ -34,7 +34,7 @@ RobotController::RobotController(rclcpp::Node::SharedPtr node,
       cloudExchangeTimer->cancel();
 
       // Topics
-      autoTaskPublisher = node->create_publisher<lgdxrobot2_agent::msg::AutoTask>("agent/auto_task", 
+      autoTaskPublisher = node->create_publisher<lgdxrobot2_msgs::msg::AutoTask>("agent/auto_task", 
         rclcpp::SensorDataQoS().reliable());
       autoTaskPublisherTimer = node->create_wall_timer(std::chrono::milliseconds(100), 
         [this]()
@@ -43,9 +43,9 @@ RobotController::RobotController(rclcpp::Node::SharedPtr node,
         });
 
       // Services
-      autoTaskNextService = node->create_service<lgdxrobot2_agent::srv::AutoTaskNext>("auto_task_next",
-        [this](const std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskNext::Request> request,
-          std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskNext::Response> response) 
+      autoTaskNextService = node->create_service<lgdxrobot2_msgs::srv::AutoTaskNext>("auto_task_next",
+        [this](const std::shared_ptr<lgdxrobot2_msgs::srv::AutoTaskNext::Request> request,
+          std::shared_ptr<lgdxrobot2_msgs::srv::AutoTaskNext::Response> response) 
         {
           if (!currentTask.next_token.empty() && 
               request->task_id == currentTask.task_id &&
@@ -59,9 +59,9 @@ RobotController::RobotController(rclcpp::Node::SharedPtr node,
             response->success = false;
           }
         });
-      autoTaskAbortService = node->create_service<lgdxrobot2_agent::srv::AutoTaskAbort>("auto_task_abort",
-        [this](const std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskAbort::Request> request,
-          std::shared_ptr<lgdxrobot2_agent::srv::AutoTaskAbort::Response> response)
+      autoTaskAbortService = node->create_service<lgdxrobot2_msgs::srv::AutoTaskAbort>("auto_task_abort",
+        [this](const std::shared_ptr<lgdxrobot2_msgs::srv::AutoTaskAbort::Request> request,
+          std::shared_ptr<lgdxrobot2_msgs::srv::AutoTaskAbort::Response> response)
         {
           if (!currentTask.next_token.empty() && 
               request->task_id == currentTask.task_id &&
@@ -85,7 +85,7 @@ RobotController::RobotController(rclcpp::Node::SharedPtr node,
       robotData.robot_status = static_cast<int>(robotStatus.GetStatus());
       robotDataPublisher->publish(robotData);
     });
-  robotDataPublisher = node->create_publisher<lgdxrobot2_agent::msg::RobotData>("agent/robot_data", 
+  robotDataPublisher = node->create_publisher<lgdxrobot2_msgs::msg::RobotData>("agent/robot_data", 
     rclcpp::SensorDataQoS().reliable());
 }
 
