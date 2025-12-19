@@ -5,18 +5,25 @@
 ![Img](img.png)
 ![Demo](demo.gif)
 
-> LGDXRobot2 fully uses GitLab CI/CD for builds.<br /> [![pipeline status](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/badges/main/pipeline.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/commits/main)  [![Latest Release](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/badges/release.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) 
+> LGDXRobot2 fully uses GitLab CI/CD for builds.<br /> [![Latest Release](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/badges/release.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) 
 
 LGDXRobot2 ROS 2 is an integration software for the LGDXRobot2 utilising ROS 2 ecosystem, especially navigation with the NAV2 stack. It provides examples for both physical robots and simulations. Also, it offers Docker images with ready-to-use ROS 2 environment on a web interface.
 
 The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless integration with the [LGDXRobot Cloud](https://gitlab.com/yukaitung/lgdxrobot2-cloud).
 
 * [Homepage](https://lgdxrobot.bristolgram.uk/lgdxrobot2/)
+
+### Getting Help
+
 * [Documentation](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/)
-* LGDXRobot2 Design: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-design) | [GitHub](https://github.com/yukaitung/lgdxrobot2-design))
-* LGDXRobot2 MCU: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-mcu) | [GitHub](https://github.com/yukaitung/lgdxrobot2-mcu))
-* LGDXRobot2 ChassisTuner: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-chassistuner) | [GitHub](https://github.com/yukaitung/lgdxrobot2-chassistuner))
-* LGDXRobot2 ROS 2: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2) | [GitHub](https://github.com/yukaitung/lgdxrobot2-ros2))
+* Issue boards on both GitLab and GitHub
+
+### LGDXRobot2 All Repositories
+
+* Design files for both the chassis body and the controller board: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-design) | [GitHub](https://github.com/yukaitung/lgdxrobot2-design))
+* Firmware for the controller board: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-mcu) | [GitHub](https://github.com/yukaitung/lgdxrobot2-mcu))
+* A GUI tool for hardware testing: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-chassistuner) | [GitHub](https://github.com/yukaitung/lgdxrobot2-chassistuner))
+* LGDXRobot2 ROS 2 integration: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2) | [GitHub](https://github.com/yukaitung/lgdxrobot2-ros2))
 
 ## Packages
 
@@ -25,6 +32,7 @@ The solution consists of the following packages:
 * `lgdxrobot2_agent`: A ROS agent node for integration with LGDXRobot2 hardware and LGDXRobot Cloud.
 * `lgdxrobot2_bringup`: Bringup launch files for LGDXRobot2 hardware.
 * `lgdxrobot2_description`: A description package for visualising LGDXRobot2 hardware as a 3D model.
+* `lgdxrobot2_msgs`: Interface for LGDXRobot2 ROS 2.
 * `lgdxrobot2_navigation`: LGDXRobot2 Nav2 stack integration.
 * `lgdxrobot2_webots`: Simulation configuration and driver for Webots.
 
@@ -33,19 +41,22 @@ The solution consists of the following packages:
 ### APT
 
 1. Install [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
-2. The packages are hosted in a repository managed by LGDXRobotics, so add this repository before installation.
+2. The packages are hosted in a self-hosted repository, install this package to add the repository and the public key.
 
 ```bash
-cd /etc/apt/keyrings
-sudo wget -q https://lgdxrobot.bristolgram.uk/keys/lgdxrobotics.asc
-sudo echo "deb [signed-by=/etc/apt/keyrings/lgdxrobotics.asc] https://ros.bristolgram.uk/ noble main" | sudo tee /etc/apt/sources.list.d/lgdxrobotics.list
+wget -q https://ros.bristolgram.uk/lgdxrobot2-apt-source.deb
+sudo dpkg -i lgdxrobot2-apt-source.deb
 sudo apt update
 ```
 
 3. Install the packages. This will also install the required dependencies, including the Nav2 stack.
 
 ```bash
-ros-${ROS_DISTRO}-sllidar-ros2 ros-${ROS_DISTRO}-lgdxrobot2* ros-${ROS_DISTRO}-explore-lite ros-${ROS_DISTRO}-multirobot-map-merge
+sudo apt install lgdxrobot2-udev \
+  ros-${ROS_DISTRO}-sllidar-ros2 \
+  ros-${ROS_DISTRO}-lgdxrobot2* \
+  ros-${ROS_DISTRO}-explore-lite \
+  ros-${ROS_DISTRO}-multirobot-map-merge
 ```
 
 ### .deb Packages
@@ -53,10 +64,17 @@ ros-${ROS_DISTRO}-sllidar-ros2 ros-${ROS_DISTRO}-lgdxrobot2* ros-${ROS_DISTRO}-e
 If adding the repository is not possible, the packages can be installed using the .deb packages.
 
 1. Install [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
-2. Download the `SLAMTEC LIDAR ROS 2`, `M-EXPLORE ROS 2` and `LGDXRobot2 ROS 2` packages from the [Releases](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) page.
+2. Download following packages from the [Releases](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) page.
+
+* `SLAMTEC LIDAR ROS 2`
+* `M-EXPLORE ROS 2`
+* `LGDXRobot2 ROS 2`
+* `LGDXRobot2 UDEV (Universal)`
+
 3. Install the packages and dependencies.
 
 ```bash
+sudo dpkg -i <path to LGDXRobot2 UDEV>
 cd <path to .deb files>
 sudo apt install ./*.deb
 sudo dpkg -i ./*.deb
