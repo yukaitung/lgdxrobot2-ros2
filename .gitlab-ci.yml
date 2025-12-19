@@ -246,53 +246,53 @@ m_explore_ros2-arm64:
 # Repository
 #
 
-repository:
-  stage: repository
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  image: ubuntu:24.04
-  before_script:
-    - apt-get update
-    - apt-get install -y wget reprepro gnupg2 unzip
-  script:
-    # Bootstrap GPG
-    - echo "$GPG_PRIVATE_KEY" | base64 -d | gpg --import --batch
-    - gpg-agent
-    - touch dummy
-    - gpg --pinentry-mode loopback --passphrase $GPG_PASSPHRASE --sign dummy
-    # Sign the packages
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-amd64.zip
-    - unzip lgdxrobot2-ros2-amd64.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-arm64.zip
-    - unzip lgdxrobot2-ros2-arm64.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-amd64.zip
-    - unzip sllidar_ros2-amd64.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-arm64.zip
-    - unzip sllidar_ros2-arm64.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/m_explore_ros2/latest/m_explore_ros2-amd64.zip
-    - unzip m_explore_ros2-amd64.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/m_explore_ros2/latest/m_explore_ros2-arm64.zip
-    - unzip m_explore_ros2-arm64.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-bootstrap/latest/lgdxrobot2-bootstrap.zip
-    - unzip lgdxrobot2-bootstrap.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-  pages:
-    publish: Debian/Repository
+#repository:
+#  stage: repository
+#  rules:
+#    - if: $CI_COMMIT_TAG
+#      when: never 
+#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#  image: ubuntu:24.04
+#  before_script:
+#    - apt-get update
+#    - apt-get install -y wget reprepro gnupg2 unzip
+#  script:
+#    # Bootstrap GPG
+#    - echo "$GPG_PRIVATE_KEY" | base64 -d | gpg --import --batch
+#    - gpg-agent
+#    - touch dummy
+#    - gpg --pinentry-mode loopback --passphrase $GPG_PASSPHRASE --sign dummy
+#    # Sign the packages
+#    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-amd64.zip
+#    - unzip lgdxrobot2-ros2-amd64.zip
+#    - reprepro -b Debian/Repository includedeb noble debs/*.deb
+#    - rm -rf debs
+#    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-arm64.zip
+#    - unzip lgdxrobot2-ros2-arm64.zip
+#    - reprepro -b Debian/Repository includedeb noble debs/*.deb
+#    - rm -rf debs
+#    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-amd64.zip
+#    - unzip sllidar_ros2-amd64.zip
+#    - reprepro -b Debian/Repository includedeb noble debs/*.deb
+#    - rm -rf debs
+#    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-arm64.zip
+#    - unzip sllidar_ros2-arm64.zip
+#    - reprepro -b Debian/Repository includedeb noble debs/*.deb
+#    - rm -rf debs
+#    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/m_explore_ros2/latest/m_explore_ros2-amd64.zip
+#    - unzip m_explore_ros2-amd64.zip
+#    - reprepro -b Debian/Repository includedeb noble debs/*.deb
+#    - rm -rf debs
+#    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/m_explore_ros2/latest/m_explore_ros2-arm64.zip
+#    - unzip m_explore_ros2-arm64.zip
+#    - reprepro -b Debian/Repository includedeb noble debs/*.deb
+#    - rm -rf debs
+#    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-bootstrap/latest/lgdxrobot2-bootstrap.zip
+#    - unzip lgdxrobot2-bootstrap.zip
+#    - reprepro -b Debian/Repository includedeb noble debs/*.deb
+#    - rm -rf debs
+#  pages:
+#    publish: Debian/Repository
 
 #
 # Build Docker Images

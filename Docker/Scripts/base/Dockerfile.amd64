@@ -5,9 +5,10 @@ RUN apt update \
     wget \
   && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /etc/apt/keyrings
-RUN wget -q https://lgdxrobot.bristolgram.uk/keys/lgdxrobotics.asc
-RUN echo "deb [signed-by=/etc/apt/keyrings/lgdxrobotics.asc] https://ros.bristolgram.uk/ noble main" | sudo tee /etc/apt/sources.list.d/lgdxrobotics.list
+RUN wget -q https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-bootstrap/latest/lgdxrobot2-bootstrap.zip \
+    && unzip lgdxrobot2-bootstrap.zip \
+    && dpkg -i debs/*.deb \
+    && rm lgdxrobot2-bootstrap.zip
 
 RUN apt update \
   && apt install -y --no-install-recommends \
