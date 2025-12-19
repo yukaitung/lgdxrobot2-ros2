@@ -23,7 +23,7 @@ ENV ROS_DISTRO=jazzy
 # Install ROS 2 and dependencies
 RUN apt update \
     && apt install -y --no-install-recommends \
-    xfce4-terminal wget zip unzip \
+    xfce4-terminal wget zip unzip dpkg \
     libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 \
     ros-${ROS_DISTRO}-ros-base=0.11.0-1* \
     ros-${ROS_DISTRO}-rqt-common-plugins ros-${ROS_DISTRO}-rviz2 ros-${ROS_DISTRO}-rviz-default-plugins \
@@ -32,8 +32,10 @@ RUN apt update \
 
 # Install LGDXRobot2 ROS2
 WORKDIR /etc/apt/keyrings
-RUN wget -q https://lgdxrobot.bristolgram.uk/keys/lgdxrobotics.asc
-RUN echo "deb [signed-by=/etc/apt/keyrings/lgdxrobotics.asc] https://ros.bristolgram.uk/ noble main" | sudo tee /etc/apt/sources.list.d/lgdxrobotics.list
+RUN wget -q https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-bootstrap/latest/lgdxrobot2-bootstrap.zip \
+    && unzip lgdxrobot2-bootstrap.zip \
+    && dpkg -i debs/*.deb \
+    && rm lgdxrobot2-bootstrap.zip
 
 RUN apt update \
   && apt install -y --no-install-recommends \
