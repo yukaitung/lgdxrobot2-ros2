@@ -1,10 +1,10 @@
 #ifndef ROBOT_HPP
 #define ROBOT_HPP
 
-#include "lgdxrobot2_agent/msg/auto_task.hpp"
-#include "lgdxrobot2_agent/msg/robot_data.hpp"
-#include "lgdxrobot2_agent/srv/auto_task_abort.hpp"
-#include "lgdxrobot2_agent/srv/auto_task_next.hpp"
+#include "lgdxrobot2_msgs/msg/auto_task.hpp"
+#include "lgdxrobot2_msgs/msg/robot_data.hpp"
+#include "lgdxrobot2_msgs/srv/auto_task_abort.hpp"
+#include "lgdxrobot2_msgs/srv/auto_task_next.hpp"
 #include "proto/RobotClientsService.grpc.pb.h"
 #include "RobotStatus.hpp"
 #include "Structs/RobotControllerSignals.hpp"
@@ -23,10 +23,10 @@ class RobotController
     rclcpp::TimerBase::SharedPtr autoTaskPublisherTimer;
     rclcpp::TimerBase::SharedPtr cloudExchangeTimer;
     rclcpp::TimerBase::SharedPtr robotDataPublisherTimer;
-    rclcpp::Publisher<lgdxrobot2_agent::msg::AutoTask>::SharedPtr autoTaskPublisher;
-    rclcpp::Publisher<lgdxrobot2_agent::msg::RobotData>::SharedPtr robotDataPublisher;
-    rclcpp::Service<lgdxrobot2_agent::srv::AutoTaskNext>::SharedPtr autoTaskNextService;
-    rclcpp::Service<lgdxrobot2_agent::srv::AutoTaskAbort>::SharedPtr autoTaskAbortService;
+    rclcpp::Publisher<lgdxrobot2_msgs::msg::AutoTask>::SharedPtr autoTaskPublisher;
+    rclcpp::Publisher<lgdxrobot2_msgs::msg::RobotData>::SharedPtr robotDataPublisher;
+    rclcpp::Service<lgdxrobot2_msgs::srv::AutoTaskNext>::SharedPtr autoTaskNextService;
+    rclcpp::Service<lgdxrobot2_msgs::srv::AutoTaskAbort>::SharedPtr autoTaskAbortService;
     rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr mapSubscription;
     std::shared_ptr<tf2_ros::TransformListener> tfListener{nullptr};
     std::unique_ptr<tf2_ros::Buffer> tfBuffer;
@@ -36,7 +36,7 @@ class RobotController
     bool isSlam = false;
     bool pauseTaskAssignment = false;
     RobotStatus robotStatus;
-    lgdxrobot2_agent::msg::RobotData robotData;
+    lgdxrobot2_msgs::msg::RobotData robotData;
     std::shared_ptr<RobotClientsAutoTaskNavProgress> navProgress;
     std::vector<double> batteries = {0.0, 0.0};
     RobotClientsRobotCriticalStatus criticalStatus;
@@ -53,7 +53,7 @@ class RobotController
     RobotClientsMapData exchangeMapData;
 
     // AutoTask
-    lgdxrobot2_agent::msg::AutoTask currentTask;
+    lgdxrobot2_msgs::msg::AutoTask currentTask;
     std::vector<RobotClientsPath> navigationPaths;
     std::size_t navigationProgress = 0;
 

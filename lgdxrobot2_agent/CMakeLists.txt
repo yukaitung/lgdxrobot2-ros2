@@ -31,22 +31,6 @@ protobuf_generate(TARGET ${PROTO_NAME} LANGUAGE cpp)
 protobuf_generate(TARGET ${PROTO_NAME} LANGUAGE grpc GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}")
 
 #
-# Node Msg
-#
-find_package(rosidl_default_generators REQUIRED)
-rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/AutoTask.msg"
-  "msg/RobotData.msg"
-  "srv/AutoTaskNext.srv"
-  "srv/AutoTaskAbort.srv"
-)
-ament_export_dependencies(rosidl_default_runtime)
-rosidl_get_typesupport_target(cpp_typesupport_target
-  ${PROJECT_NAME}
-  rosidl_typesupport_cpp
-)
-
-#
 # Node
 #
 add_subdirectory(../third_party/hwinfo hwinfo)
@@ -60,6 +44,7 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(lgdxrobot2_msgs REQUIRED)
 
 include_directories(include)
 
@@ -83,7 +68,7 @@ target_link_libraries(${EXECUTABLE_NAME}
   Boost::headers
 )
 ament_target_dependencies(${EXECUTABLE_NAME}  
-  geometry_msgs nav2_msgs nav2_util nav_msgs rclcpp sensor_msgs std_msgs tf2_geometry_msgs
+  geometry_msgs nav2_msgs nav2_util nav_msgs rclcpp sensor_msgs std_msgs tf2_geometry_msgs lgdxrobot2_msgs
 )
 
 install(TARGETS ${EXECUTABLE_NAME} DESTINATION lib/${PROJECT_NAME})

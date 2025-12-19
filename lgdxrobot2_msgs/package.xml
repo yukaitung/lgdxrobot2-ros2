@@ -11,32 +11,11 @@
   <url type="repository">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2</url>
   <url type="bugtracker">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/issues</url>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
-  <buildtool_depend>geometry_msgs</buildtool_depend>
-  <buildtool_depend>boost</buildtool_depend>
-  <buildtool_depend>libgrpc</buildtool_depend>
-  <buildtool_depend>protobuf-dev</buildtool_depend>
-  <buildtool_depend>nav_msgs</buildtool_depend>
-  <buildtool_depend>nav2_msgs</buildtool_depend>
-  <buildtool_depend>nav2_util</buildtool_depend>
-  <buildtool_depend>protobuf-compiler-grpc</buildtool_depend>
-  <buildtool_depend>rclcpp</buildtool_depend>
   <buildtool_depend>rosidl_default_generators</buildtool_depend>
-  <buildtool_depend>sensor_msgs</buildtool_depend>
   <buildtool_depend>std_msgs</buildtool_depend>
-  <buildtool_depend>tf2_geometry_msgs</buildtool_depend>
-
-  <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>boost</exec_depend>
-  <exec_depend>libgrpc</exec_depend>
-  <exec_depend>nav_msgs</exec_depend>
-  <exec_depend>nav2_msgs</exec_depend>
-  <exec_depend>nav2_util</exec_depend>
-  <exec_depend>rclcpp</exec_depend>
+  
   <exec_depend>rosidl_default_runtime</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-  <exec_depend>tf2_geometry_msgs</exec_depend>
 
   <member_of_group>rosidl_interface_packages</member_of_group>
   <export>
