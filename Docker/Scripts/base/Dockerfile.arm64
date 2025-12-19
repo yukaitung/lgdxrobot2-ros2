@@ -2,7 +2,7 @@ FROM ros:jazzy
 
 RUN apt update \
   && apt install -y --no-install-recommends \
-    wget zip unzip dpkg \
+    wget zip unzip \
   # Install LGDXRobot2 Bootstrap
   && wget -q https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-bootstrap/latest/lgdxrobot2-bootstrap.zip \
   && unzip lgdxrobot2-bootstrap.zip \
@@ -10,9 +10,8 @@ RUN apt update \
   && rm -rf debs \
   && rm lgdxrobot2-bootstrap.zip \
   # Remove dependencies
-  && apt remove --purge -y wget zip unzip dpkg \
+  && apt remove --purge -y wget zip unzip \
   && rm -rf /var/lib/apt/lists/*
-
 
 RUN apt update \
   && apt install -y --no-install-recommends \
