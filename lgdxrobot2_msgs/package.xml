@@ -3,7 +3,7 @@
 <package format="3">
   <name>lgdxrobot2_msgs</name>
   <version>2.1.8</version>
-  <description>A ROS agent node for integration with LGDXRobot2 hardware and LGDXRobot Cloud.</description>
+  <description>Interface for LGDXRobot2 ROS 2.</description>
   <license>MIT</license>
   <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <author email="info@bristolgram.uk">LGDXRobotics</author>
