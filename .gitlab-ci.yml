@@ -57,7 +57,7 @@ lgdxrobot2-bootstrap:
     - dpkg-deb --build lgdxrobot2-apt-source
     # udev
     - chmod -R 755 lgdxrobot2-udev
-    - chown -R root:root lgdxrobot2-udev/lib
+    - chown -R root:root lgdxrobot2-udev/usr
     - dpkg-deb --build lgdxrobot2-udev
     # Release
     - mkdir -p debs
