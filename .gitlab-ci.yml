@@ -53,9 +53,10 @@ lgdxrobot2-bootstrap:
   script:
     - cd Debian
     # apt-source
+    - chmod -R 755 lgdxrobot2-apt-source
     - dpkg-deb --build lgdxrobot2-apt-source
     # udev
-    - chmod -R 755 lgdxrobot2-udev/DEBIAN
+    - chmod -R 755 lgdxrobot2-udev
     - chown -R root:root lgdxrobot2-udev/lib
     - dpkg-deb --build lgdxrobot2-udev
     # Release
