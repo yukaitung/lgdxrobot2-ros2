@@ -54,6 +54,8 @@ lgdxrobot2-bootstrap:
     - cd Debian
     # apt-source
     - chmod -R 755 lgdxrobot2-apt-source
+    - chown -R root:root lgdxrobot2-apt-source/etc
+    - chown -R root:root lgdxrobot2-apt-source/usr
     - dpkg-deb --build lgdxrobot2-apt-source
     # udev
     - chmod -R 755 lgdxrobot2-udev
