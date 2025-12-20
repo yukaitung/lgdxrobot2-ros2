@@ -36,9 +36,9 @@ The solution consists of the following packages:
 * `lgdxrobot2_navigation`: LGDXRobot2 Nav2 stack integration.
 * `lgdxrobot2_webots`: Simulation configuration and driver for Webots.
 
-## Getting Started
+## Installation
 
-### APT
+### 1. APT
 
 1. Install [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
 2. The packages are hosted in a self-hosted repository, install this package to add the repository and the public key.
@@ -59,7 +59,7 @@ sudo apt install lgdxrobot2-udev \
   ros-${ROS_DISTRO}-multirobot-map-merge
 ```
 
-### .deb Packages
+### 2. deb Packages
 
 If adding the repository is not possible, the packages can be installed using the .deb packages.
 
@@ -77,7 +77,7 @@ If adding the repository is not possible, the packages can be installed using th
 sudo apt install ./*.deb
 ```
 
-### Docker
+### 3. Docker
 
 ```bash
 docker run -d \
@@ -91,16 +91,21 @@ docker run -d \
 
 Visit [http://localhost:3000](http://localhost:3000) to access the web interface. If the terminal is closed, you can right-click the desktop to relaunch it from the menu.
 
-### Build from Source
+More information on Docker: [https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/ros2/installation-docker/](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/ros2/installation-docker/)
+
+## How to use LGDXRobot2 ROS 2
+
+[https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/ros2/bringup-bringup/](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/ros2/bringup-bringup/)
+
+## Build from Source
 
 This tutorial assumes that Ubuntu 24.04 LTS has already been installed.
 
-#### Prerequisites
-
+### 1. Prerequisites
 
 1. Install [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html) ensure that the development tools are installed.
-
 2. Install Packages for LiDAR:
+
 ```bash
 mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/src
@@ -111,7 +116,7 @@ cd src/rpldiar_ros/
 source scripts/create_udev_rules.sh
 ```
 
-#### Build
+### 2. Build
 
 Clone the project and run the following commands:
 
@@ -125,7 +130,7 @@ cd ..
 colcon build --symlink-install
 ```
 
-#### Configuration
+### 3. Configuration
 
 First, add the user to the `dialout` group to allow access to the controller board.
 
