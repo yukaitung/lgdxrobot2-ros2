@@ -293,8 +293,7 @@ repository:
     - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-apt-source/latest/lgdxrobot2-apt-source.deb
     - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-udev/latest/lgdxrobot2-udev.deb
     - reprepro -b Debian/Repository includedeb noble *.deb
-    - mv lgdxrobot2-apt-source.deb Debian/Repository
-    - rm -rf debs
+    - mv *.deb Debian/Repository
   pages:
     publish: Debian/Repository
 

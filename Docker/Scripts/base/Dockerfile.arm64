@@ -3,7 +3,7 @@ FROM ros:jazzy
 RUN apt update \
   && apt install -y --no-install-recommends wget \
   # Install LGDXRobot2 Bootstrap
-  && wget -q https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-apt-source/latest/lgdxrobot2-apt-source.deb \
+  && wget -q https://ros.bristolgram.uk/lgdxrobot2-apt-source.deb \
   && dpkg -i lgdxrobot2-apt-source.deb \
   && rm lgdxrobot2-apt-source.deb \
   # Remove dependencies
