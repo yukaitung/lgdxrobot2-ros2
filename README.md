@@ -74,10 +74,7 @@ If adding the repository is not possible, the packages can be installed using th
 3. Install the packages and dependencies.
 
 ```bash
-sudo dpkg -i <path to LGDXRobot2 UDEV>
-cd <path to .deb files>
 sudo apt install ./*.deb
-sudo dpkg -i ./*.deb
 ```
 
 ### Docker
