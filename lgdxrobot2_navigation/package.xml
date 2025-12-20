@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>lgdxrobot2_navigation</name>
-  <version>2.1.9</version>
+  <version>2.1.10</version>
   <description>LGDXRobot2 Nav2 stack integration.</description>
   <license>MIT</license>
   <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
@@ -15,6 +15,7 @@
   <buildtool_depend>ament_cmake_python</buildtool_depend>
 
   <!-- Algorithms -->
+  <exec_depend>imu_transformer</exec_depend>
   <exec_depend>imu_filter_madgwick</exec_depend>
   <exec_depend>robot_localization</exec_depend>
   <exec_depend>slam_toolbox</exec_depend>

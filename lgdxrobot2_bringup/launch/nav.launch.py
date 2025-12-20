@@ -244,6 +244,16 @@ def launch_setup(context):
     parameters=[p.get_param_path("imu_filter_madgwick.yaml")],
     condition=IfCondition(use_camera)
   )
+  imu_transformer_node = Node(
+    package='imu_transformer',
+    executable='imu_transformer_node',
+    output='screen',
+    remappings=[
+      (namespace + '/imu_in', namespace + '/imu/data'),
+      (namespace + '/imu_out', namespace + '/imu/data_transformed'),
+    ],
+    condition=IfCondition(use_camera)
+  )
   joy_node = Node(
     package='joy',
     executable='joy_node',
@@ -298,7 +308,7 @@ def launch_setup(context):
     }.items()
   )
 
-  return [description_node, lgdxrobot2_agent_node, lidar_node, camera_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav, explore_node]
+  return [description_node, lgdxrobot2_agent_node, lidar_node, camera_node, imu_filter_madgwick_node, imu_transformer_node, joy_node, robot_localization_node, ros2_nav, explore_node]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)
