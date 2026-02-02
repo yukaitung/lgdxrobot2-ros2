@@ -90,11 +90,6 @@ launch_args = [
     description='RPLIDAR model name.'
   ),
   DeclareLaunchArgument(
-    name='use_camera', 
-    default_value='True', 
-    description='Whether to enable the camera.'
-  ),
-  DeclareLaunchArgument(
     name='use_joy', 
     default_value='False', 
     description='Whether to enable the joy.'
@@ -148,14 +143,9 @@ def launch_setup(context):
   # Sensors
   use_lidar = LaunchConfiguration('use_lidar')
   lidar_model = LaunchConfiguration('lidar_model').perform(context)
-  use_camera = LaunchConfiguration('use_camera')
-  use_camera_bool = LaunchConfiguration('use_camera').perform(context).lower() == 'true'
   use_joy = LaunchConfiguration('use_joy')
   
   # Pcakges
-  camera_pkg_share = ''
-  if use_camera_bool:
-    camera_pkg_share = get_package_share_directory('realsense2_camera')
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
   lidar_pkg_share = get_package_share_directory('sllidar_ros2')
   nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
@@ -213,6 +203,8 @@ def launch_setup(context):
       ('/agent/auto_task', 'agent/auto_task'),
       ('/agent/robot_data', 'agent/robot_data'),
       ('/agent/odom', 'agent/odom'),
+      ('/agent/imu', 'agent/imu'),
+      ('/agent/mag', 'agent/mag'),
       ('/joint_states', 'joint_states'),
     ],
   )
@@ -229,30 +221,15 @@ def launch_setup(context):
       'frame_id': 'lidar_link'
     }.items()
   )
-  camera_node = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(camera_pkg_share, 'launch', 'rs_launch.py')
-    ),
-    condition=IfCondition(use_camera),
-    launch_arguments=yaml.load(open(p.get_param_path("realsense2_camera.yaml")), Loader=yaml.FullLoader).items(),
-  )
   imu_filter_madgwick_node = Node(
     package='imu_filter_madgwick',
     executable='imu_filter_madgwick_node',
     output='screen',
-    remappings=[(namespace + '/imu/data_raw', namespace + '/camera/imu')],
-    parameters=[p.get_param_path("imu_filter_madgwick.yaml")],
-    condition=IfCondition(use_camera)
-  )
-  imu_transformer_node = Node(
-    package='imu_transformer',
-    executable='imu_transformer_node',
-    output='screen',
     remappings=[
-      (namespace + '/imu_in', namespace + '/imu/data'),
-      (namespace + '/imu_out', namespace + '/imu/data_transformed'),
+      (namespace + '/imu/data_raw', namespace + '/agent/imu'),
+      (namespace + '/imu/mag', namespace + '/agent/mag'),
     ],
-    condition=IfCondition(use_camera)
+    parameters=[p.get_param_path("imu_filter_madgwick.yaml")]
   )
   joy_node = Node(
     package='joy',
@@ -308,7 +285,7 @@ def launch_setup(context):
     }.items()
   )
 
-  return [description_node, lgdxrobot2_agent_node, lidar_node, camera_node, imu_filter_madgwick_node, imu_transformer_node, joy_node, robot_localization_node, ros2_nav, explore_node]
+  return [description_node, lgdxrobot2_agent_node, lidar_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav, explore_node]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)

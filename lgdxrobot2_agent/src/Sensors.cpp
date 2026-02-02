@@ -56,6 +56,10 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
     jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("/joint_states", 
       rclcpp::SensorDataQoS().reliable());
   }
+  imuPublisher = node->create_publisher<sensor_msgs::msg::Imu>("/agent/imu", 
+    rclcpp::SensorDataQoS().reliable());
+  magneticFieldPublisher = node->create_publisher<sensor_msgs::msg::MagneticField>("/agent/mag", 
+    rclcpp::SensorDataQoS().reliable());
   needPublishOdom = tfBroadcaster != nullptr || odomPublisher != nullptr;
 }
 
@@ -123,12 +127,44 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
 
 void Sensors::PublishOdom(const RobotData& data)
 {
+  rclcpp::Time currentTime = clock_->now();
+
+  sensor_msgs::msg::Imu imu;
+  imu.header.stamp = currentTime;
+  imu.header.frame_id = "imu";
+  imu.orientation_covariance[0] = -1;
+  imu.angular_velocity.x = data.gyroscope[0];
+  imu.angular_velocity.y = data.gyroscope[1];
+  imu.angular_velocity.z = data.gyroscope[2];
+  imu.angular_velocity_covariance[0] = data.gyroscopeCovariance[0];
+  imu.angular_velocity_covariance[4] = data.gyroscopeCovariance[1];
+  imu.angular_velocity_covariance[8] = data.gyroscopeCovariance[2];
+  imu.linear_acceleration.x = data.accelerometer[0];
+  imu.linear_acceleration.y = data.accelerometer[1];
+  imu.linear_acceleration.z = data.accelerometer[2];
+  imu.linear_acceleration_covariance[0] = data.accelerometerCovariance[0];
+  imu.linear_acceleration_covariance[4] = data.accelerometerCovariance[1];
+  imu.linear_acceleration_covariance[8] = data.accelerometerCovariance[2];
+  if (imuPublisher != nullptr)
+    imuPublisher->publish(imu);
+
+  sensor_msgs::msg::MagneticField magneticField;
+  magneticField.header.stamp = currentTime;
+  magneticField.header.frame_id = "imu";
+  magneticField.magnetic_field.x = data.magnetometer[0] / 100000.0;
+  magneticField.magnetic_field.y = data.magnetometer[1] / 100000.0;
+  magneticField.magnetic_field.z = data.magnetometer[2] / 100000.0;
+  magneticField.magnetic_field_covariance[0] = data.magnetometerCovariance[0];
+  magneticField.magnetic_field_covariance[4] = data.magnetometerCovariance[1];
+  magneticField.magnetic_field_covariance[8] = data.magnetometerCovariance[2];
+  if (magneticFieldPublisher != nullptr)
+    magneticFieldPublisher->publish(magneticField);
+  
   if (needPublishOdom)
   {
     tf2::Quaternion quaternion;
     quaternion.setRPY(0, 0, data.transform[2]);
     geometry_msgs::msg::Quaternion odomQuaternion = tf2::toMsg(quaternion);
-    rclcpp::Time currentTime = clock_->now();
 
     if (tfBroadcaster != nullptr)
     {

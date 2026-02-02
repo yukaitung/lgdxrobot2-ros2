@@ -16,6 +16,12 @@ struct RobotData
   float batteryCurrent[2] = {0};
   float batteryVoltage[2] = {0};
   int eStop[3] = {0};
+  float accelerometer[3] = {0};
+  float accelerometerCovariance[3] = {0};
+  float gyroscope[3] = {0};
+  float gyroscopeCovariance[3] = {0};
+  float magnetometer[3] = {0};
+  float magnetometerCovariance[3] = {0};
 };
 
 #endif // ROBOTDATA_HPP
