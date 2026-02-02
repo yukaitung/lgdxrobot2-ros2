@@ -131,7 +131,6 @@ void Sensors::PublishOdom(const RobotData& data)
 
   sensor_msgs::msg::Imu imu;
   imu.header.stamp = currentTime;
-  imu.header.frame_id = "imu";
   imu.orientation_covariance[0] = -1;
   imu.angular_velocity.x = data.gyroscope[0];
   imu.angular_velocity.y = data.gyroscope[1];
@@ -150,10 +149,9 @@ void Sensors::PublishOdom(const RobotData& data)
 
   sensor_msgs::msg::MagneticField magneticField;
   magneticField.header.stamp = currentTime;
-  magneticField.header.frame_id = "imu";
-  magneticField.magnetic_field.x = data.magnetometer[0] / 100000.0;
-  magneticField.magnetic_field.y = data.magnetometer[1] / 100000.0;
-  magneticField.magnetic_field.z = data.magnetometer[2] / 100000.0;
+  magneticField.magnetic_field.x = data.magnetometer[0];
+  magneticField.magnetic_field.y = data.magnetometer[1];
+  magneticField.magnetic_field.z = data.magnetometer[2];
   magneticField.magnetic_field_covariance[0] = data.magnetometerCovariance[0];
   magneticField.magnetic_field_covariance[4] = data.magnetometerCovariance[1];
   magneticField.magnetic_field_covariance[8] = data.magnetometerCovariance[2];
