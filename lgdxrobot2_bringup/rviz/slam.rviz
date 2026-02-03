@@ -7,10 +7,9 @@ Panels:
         - /Global Options1
         - /TF1/Frames1
         - /TF1/Tree1
-        - /MarkerArray2/Status1
         - /MarkerArray2/Topic1
       Splitter Ratio: 0.5833333134651184
-    Tree Height: 287
+    Tree Height: 160
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -29,6 +28,8 @@ Panels:
     Name: Selector
   - Class: nav2_rviz_plugins/Docking
     Name: Docking
+  - Class: slam_toolbox::SlamToolboxPlugin
+    Name: SlamToolboxPlugin
 Visualization Manager:
   Class: ""
   Displays:
@@ -87,29 +88,25 @@ Visualization Manager:
           Value: true
         base_link:
           Value: true
-        base_scan:
+        camera_color_frame_sim:
           Value: true
-        camera_depth_frame:
-          Value: true
-        camera_depth_optical_frame:
+        camera_depth_frame_sim:
           Value: true
         camera_link:
           Value: true
-        camera_rgb_frame:
+        lidar_link:
           Value: true
-        camera_rgb_optical_frame:
-          Value: true
-        caster_back_left_link:
-          Value: true
-        caster_back_right_link:
-          Value: true
-        imu_link:
+        map:
           Value: true
         odom:
           Value: true
-        wheel_left_link:
+        wheel1_link:
           Value: true
-        wheel_right_link:
+        wheel2_link:
+          Value: true
+        wheel3_link:
+          Value: true
+        wheel4_link:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -117,7 +114,26 @@ Visualization Manager:
       Show Axes: true
       Show Names: false
       Tree:
-        {}
+        map:
+          odom:
+            base_link:
+              base_footprint:
+                {}
+              camera_link:
+                camera_color_frame_sim:
+                  {}
+                camera_depth_frame_sim:
+                  {}
+              lidar_link:
+                {}
+              wheel1_link:
+                {}
+              wheel2_link:
+                {}
+              wheel3_link:
+                {}
+              wheel4_link:
+                {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -135,9 +151,9 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 0
+      Max Intensity: 54
       Min Color: 0; 0; 0
-      Min Intensity: 0
+      Min Intensity: 5
       Name: LaserScan
       Position Transformer: XYZ
       Selectable: true
@@ -553,8 +569,8 @@ Visualization Manager:
       Enabled: true
       Name: MarkerArray
       Namespaces:
-        route_graph: true
-        route_graph_ids: true
+        route_graph_edges: true
+        route_graph_nodes: true
       Topic:
         Depth: 5
         Durability Policy: Transient Local
@@ -609,11 +625,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 54
+      Scale: 147.5898895263672
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz_default_plugins)
-      X: -5.409999847412109
-      Y: 0
+      X: 0.5147619247436523
+      Y: 0.8873218894004822
     Saved: ~
 Window Geometry:
   Displays:
