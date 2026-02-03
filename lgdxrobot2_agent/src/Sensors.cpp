@@ -135,15 +135,15 @@ void Sensors::PublishOdom(const RobotData& data)
   imu.angular_velocity.x = data.gyroscope[0];
   imu.angular_velocity.y = data.gyroscope[1];
   imu.angular_velocity.z = data.gyroscope[2];
-  //imu.angular_velocity_covariance[0] = data.gyroscopeCovariance[0];
-  //imu.angular_velocity_covariance[4] = data.gyroscopeCovariance[1];
-  //imu.angular_velocity_covariance[8] = data.gyroscopeCovariance[2];
+  imu.angular_velocity_covariance[0] = data.gyroscopeCovariance[0];
+  imu.angular_velocity_covariance[4] = data.gyroscopeCovariance[1];
+  imu.angular_velocity_covariance[8] = data.gyroscopeCovariance[2];
   imu.linear_acceleration.x = data.accelerometer[0];
   imu.linear_acceleration.y = data.accelerometer[1];
   imu.linear_acceleration.z = data.accelerometer[2];
-  //imu.linear_acceleration_covariance[0] = data.accelerometerCovariance[0];
-  //imu.linear_acceleration_covariance[4] = data.accelerometerCovariance[1];
-  //imu.linear_acceleration_covariance[8] = data.accelerometerCovariance[2];
+  imu.linear_acceleration_covariance[0] = data.accelerometerCovariance[0];
+  imu.linear_acceleration_covariance[4] = data.accelerometerCovariance[1];
+  imu.linear_acceleration_covariance[8] = data.accelerometerCovariance[2];
   if (imuPublisher != nullptr)
     imuPublisher->publish(imu);
 
@@ -152,9 +152,9 @@ void Sensors::PublishOdom(const RobotData& data)
   magneticField.magnetic_field.x = data.magnetometer[0];
   magneticField.magnetic_field.y = data.magnetometer[1];
   magneticField.magnetic_field.z = data.magnetometer[2];
-  //magneticField.magnetic_field_covariance[0] = data.magnetometerCovariance[0];
-  //magneticField.magnetic_field_covariance[4] = data.magnetometerCovariance[1];
-  //magneticField.magnetic_field_covariance[8] = data.magnetometerCovariance[2];
+  magneticField.magnetic_field_covariance[0] = data.magnetometerCovariance[0];
+  magneticField.magnetic_field_covariance[4] = data.magnetometerCovariance[1];
+  magneticField.magnetic_field_covariance[8] = data.magnetometerCovariance[2];
   if (magneticFieldPublisher != nullptr)
     magneticFieldPublisher->publish(magneticField);
   
