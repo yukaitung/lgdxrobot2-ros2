@@ -149,9 +149,9 @@ void Sensors::PublishOdom(const RobotData& data)
 
   sensor_msgs::msg::MagneticField magneticField;
   magneticField.header.stamp = currentTime;
-  magneticField.magnetic_field.x = data.magnetometer[0];
-  magneticField.magnetic_field.y = data.magnetometer[1];
-  magneticField.magnetic_field.z = data.magnetometer[2];
+  magneticField.magnetic_field.x = data.magnetometer[0] / 1000000;
+  magneticField.magnetic_field.y = data.magnetometer[1] / 1000000;
+  magneticField.magnetic_field.z = data.magnetometer[2] / 1000000;
   magneticField.magnetic_field_covariance[0] = data.magnetometerCovariance[0];
   magneticField.magnetic_field_covariance[4] = data.magnetometerCovariance[1];
   magneticField.magnetic_field_covariance[8] = data.magnetometerCovariance[2];
