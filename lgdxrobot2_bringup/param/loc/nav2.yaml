@@ -31,7 +31,7 @@ amcl:
     sigma_hit: 0.2
     tf_broadcast: true
     transform_tolerance: 1.0
-    update_min_a: 0.05
+    update_min_a: 0.2
     update_min_d: 0.05
     z_hit: 0.5
     z_max: 0.05
@@ -178,10 +178,10 @@ controller_server:
       min_vel_y: -0.33
       max_vel_x: 0.33
       max_vel_y: 0.33
-      max_vel_theta: 1.0
+      max_vel_theta: 0.3
       min_speed_xy: -0.33
       max_speed_xy: 0.33
-      min_speed_theta: -1.0
+      min_speed_theta: -0.3
       acc_lim_x: 3.0
       acc_lim_y: 3.0
       acc_lim_theta: 3.0
