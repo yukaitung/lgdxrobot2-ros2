@@ -111,8 +111,7 @@ cd ~/ros2_ws/src
 git clone https://github.com/Slamtec/sllidar_ros2.git
 cd ..
 colcon build --symlink-install
-cd src/rpldiar_ros/
-source scripts/create_udev_rules.sh
+source src/rpldiar_ros2/scripts/create_udev_rules.sh
 ```
 
 ### 2. Build
@@ -123,9 +122,16 @@ Clone the project and run the following commands:
 mkdir -p ~/lgdx_ws/src
 cd ~/lgdx_ws/src
 git clone --recurse-submodules https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2
-rosdep update
-rosdep install --from-paths lgdxrobot2-ros2 --ignore-src -y
 cd ..
+
+# Install build dependencies
+rosdep update
+rosdep install --from-paths src --ignore-src -y
+
+# Ensure that lgdxrobot2_msgs is in the system
+colcon build --packages-select lgdxrobot2_msgs  --symlink-install
+source install/setup.bash
+
 colcon build --symlink-install
 ```
 
