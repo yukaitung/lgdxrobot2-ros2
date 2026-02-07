@@ -11,19 +11,18 @@ LGDXRobot2 ROS 2 is an integration software for the LGDXRobot2 utilising ROS 2 e
 
 The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless integration with the [LGDXRobot Cloud](https://gitlab.com/yukaitung/lgdxrobot2-cloud).
 
-* [Homepage](https://lgdxrobot.bristolgram.uk/lgdxrobot2/)
+![LGDXRobot2 All Repositories](lgdxrobo2_repos.png)
+
+* LGDXRobot2 Design: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-design) | [GitHub](https://github.com/yukaitung/lgdxrobot2-design))
+* LGDXRobot2 MCU: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-mcu) | [GitHub](https://github.com/yukaitung/lgdxrobot2-mcu))
+* LGDXRobot2 ChassisTuner: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-chassistuner) | [GitHub](https://github.com/yukaitung/lgdxrobot2-chassistuner))
+* LGDXRobot2 ROS 2: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2) | [GitHub](https://github.com/yukaitung/lgdxrobot2-ros2))
 
 ### Getting Help
 
+* [Homepage](https://lgdxrobot.bristolgram.uk/lgdxrobot2/)
 * [Documentation](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/)
 * Issue boards on both GitLab and GitHub
-
-### LGDXRobot2 All Repositories
-
-* Design files for both the chassis body and the controller board: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-design) | [GitHub](https://github.com/yukaitung/lgdxrobot2-design))
-* Firmware for the controller board: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-mcu) | [GitHub](https://github.com/yukaitung/lgdxrobot2-mcu))
-* A GUI tool for hardware testing: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-chassistuner) | [GitHub](https://github.com/yukaitung/lgdxrobot2-chassistuner))
-* LGDXRobot2 ROS 2 integration: ([GitLab](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2) | [GitHub](https://github.com/yukaitung/lgdxrobot2-ros2))
 
 ## Packages
 
