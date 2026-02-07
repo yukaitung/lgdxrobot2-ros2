@@ -34,12 +34,6 @@ class Mcu
     std::array<uint8_t, 512> readBuffer = {0};
     std::vector<uint8_t> mcuBuffer = {0};
 
-    // Util
-    inline uint32_t FloatToUint32(float n){ return (uint32_t)(*(uint32_t*)&n); }
-    inline float Uint32ToFloat(uint32_t n){ return (float)(*(float*)&n); }
-    inline uint32_t CombineBytes(uint32_t a, uint32_t b, uint32_t c, uint32_t d) { return a << 24 | b << 16 | c << 8 | d; }
-    inline uint16_t CombineBytes(uint16_t a, uint16_t b) { return a << 8 | b; }
-
     // io_service thread
     void StartSerialIo();
 

@@ -13,7 +13,7 @@
     remove_gravity_vector: false
     reverse_tf: false
     stateless: false
-    use_mag: false
+    use_mag: true
     use_sim_time: false
     world_frame: enu
     yaw_offset: 0.0

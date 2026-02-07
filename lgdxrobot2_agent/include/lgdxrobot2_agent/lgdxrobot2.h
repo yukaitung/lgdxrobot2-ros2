@@ -14,6 +14,7 @@
 #define MCU_HEADER4 0x5A
 
 #define MCU_DATA_TYPE 'D'
+#define MCU_MAG_CALIBRATION_DATA_TYPE 'G'
 #define MCU_SERIAL_NUMBER_TYPE 'S'
 #define MCU_PID_TYPE 'P'
 
@@ -23,10 +24,12 @@
 #define MCU_SET_PID_SPEED_COMMAND_TYPE 'L'
 #define MCU_GET_PID_COMMAND_TYPE 'P'
 #define MCU_SET_PID_COMMAND_TYPE 'Q'
-#define MCU_SAVE_PID_COMMAND_TYPE 'R'
+#define MCU_SAVE_CONFIGURATION_COMMAND_TYPE 'R'
 #define MCU_GET_SERIAL_NUMBER_COMMAND_TYPE 'S'
 #define MCU_RESET_TRANSFORM_COMMAND_TYPE 'T'
 #define MCU_SET_MOTOR_MAXIMUM_SPEED_COMMAND_TYPE 'V'
+#define MCU_SET_MAG_CALIBRATION_DATA_COMMAND_TYPE 'W'
+#define MCU_GET_MAG_CALIBRATION_DATA_COMMAND_TYPE 'X'
 
 #pragma pack(push, 1)
 
@@ -39,6 +42,21 @@ typedef struct {
   float y;
   float rotation;
 } McuDof;
+
+typedef struct {
+  float x;
+  float y;
+  float z;
+} McuAxisRaw;
+
+typedef struct {
+  McuAxisRaw accelerometer;
+  McuAxisRaw accelerometer_covariance;
+  McuAxisRaw gyroscope;
+  McuAxisRaw gyroscope_covariance;
+  McuAxisRaw magnetometer;
+  McuAxisRaw magnetometer_covariance;
+} McuImuData;
 
 typedef struct {
   float voltage;
@@ -61,6 +79,7 @@ typedef struct {
   bool software_emergency_stop_enabled;
   bool hardware_emergency_stop_enabled;
   bool bettery_low_emergency_stop_enabled;
+  McuImuData imu;
   uint8_t header3;
   uint8_t header4;
 } McuData;
@@ -88,6 +107,17 @@ typedef struct {
   uint8_t header3;
   uint8_t header4;
 } McuPid;
+
+typedef struct {
+  uint8_t header1;
+  uint8_t header2;
+  char type;
+  float hard_iron_max[3];
+  float hard_iron_min[3];
+  float soft_iron_matrix[9];
+  uint8_t header3;
+  uint8_t header4;
+} McuMagCalibrationData;
 
 /*
  * PC to MCU communication
@@ -146,14 +176,31 @@ typedef struct {
   uint8_t header1;
   uint8_t header2;
   char command;
-} McuSavePidCommand;
+  float speed[API_MOTOR_COUNT];
+} McuSetMotorMaximumSpeedCommand;
+
+// Mag
+typedef struct {
+  uint8_t header1;
+  uint8_t header2;
+  char command;
+  float hard_iron_max[3];
+  float hard_iron_min[3];
+  float soft_iron_matrix[9];
+} McuSetMagCalibrationDataCommand;
 
 typedef struct {
   uint8_t header1;
   uint8_t header2;
   char command;
-  float speed[API_MOTOR_COUNT];
-} McuSetMotorMaximumSpeedCommand;
+} McuGetMagCalibrationDataCommand;
+
+// Configuration
+typedef struct {
+  uint8_t header1;
+  uint8_t header2;
+  char command;
+} McuSaveConfigurationCommand;
 
 // Other
 typedef struct {

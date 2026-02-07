@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>lgdxrobot2_bringup</name>
-  <version>2.1.11</version>
+  <version>3.0.0</version>
   <description>Bringup launch files for LGDXRobot2 hardware.</description>
   <license>MIT</license>
   <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
@@ -15,10 +15,6 @@
 
   <!-- Hardware -->
   <exec_depend>joy</exec_depend>
-  <exec_depend>librealsense2</exec_depend>
-  <exec_depend>realsense2_camera</exec_depend>
-  <exec_depend>realsense2_description</exec_depend>
-  <exec_depend>realsense2_camera_msgs</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
