@@ -1,5 +1,0 @@
-FROM yukaitung/lgdxrobot2-base:dev-amd64
-
-RUN apt-get update && apt-get install -q -y --no-install-recommends \
-        ros-$ROS_DISTRO-foxglove-bridge \
-    && rm -rf /var/lib/apt/lists/*

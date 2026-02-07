@@ -319,9 +319,6 @@ build-base-amd64:
     # Base
     - docker build -f Docker/Scripts/base/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH .
     - docker push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH
-    # Foxglove favour
-    - docker build -f Docker/Scripts/base/favour/foxglove/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH-foxglove .
-    - docker push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH-foxglove
     
 build-base-arm64:
   stage: docker
@@ -343,9 +340,6 @@ build-base-arm64:
     # Base
     - docker build -f Docker/Scripts/base/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH .
     - docker push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH
-    # Foxglove favour
-    - docker build -f Docker/Scripts/base/favour/foxglove/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH-foxglove .
-    - docker push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH-foxglove
 
 build-desktop-amd64:
   stage: docker
@@ -365,12 +359,6 @@ build-desktop-amd64:
     # Desktop
     - docker build -f Docker/Scripts/desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH .
     - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH
-    # Foxglove favour
-    - docker build -f Docker/Scripts/desktop/favour/foxglove/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH-foxglove .
-    - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH-foxglove
-    # Full favour
-    - docker build -f Docker/Scripts/desktop/favour/full/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH-full .
-    - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH-full
     
 build-desktop-arm64:
   stage: docker
@@ -392,12 +380,6 @@ build-desktop-arm64:
     # Desktop
     - docker build -f Docker/Scripts/desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH .
     - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH
-    # Foxglove favour
-    - docker build -f Docker/Scripts/desktop/favour/foxglove/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH-foxglove .
-    - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH-foxglove
-    # Full favour
-    - docker build -f Docker/Scripts/desktop/favour/full/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH-full .
-    - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH-full
 
 #
 # Release
@@ -424,26 +406,11 @@ release_job:
     - docker manifest create $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:$APP_VERSION --amend $EXT_USER/$BASE_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$BASE_IMAGE_NAME:dev-arm64
     - docker manifest push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:latest
     - docker manifest push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:$APP_VERSION
-    # Foxglove favour
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:latest-foxglove --amend $EXT_USER/$BASE_IMAGE_NAME:dev-amd64-foxglove --amend $EXT_USER/$BASE_IMAGE_NAME:dev-arm64-foxglove
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:$APP_VERSION-foxglove --amend $EXT_USER/$BASE_IMAGE_NAME:dev-amd64-foxglove --amend $EXT_USER/$BASE_IMAGE_NAME:dev-arm64-foxglove
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:latest-foxglove
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:$APP_VERSION-foxglove
     # Desktop
     - docker manifest create $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:latest --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-arm64
     - docker manifest create $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:$APP_VERSION --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-arm64
     - docker manifest push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:latest
     - docker manifest push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:$APP_VERSION
-    # Foxglove favour
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:latest-foxglove --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-amd64-foxglove --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-arm64-foxglove
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:$APP_VERSION-foxglove --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-amd64-foxglove --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-arm64-foxglove
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:latest-foxglove
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:$APP_VERSION-foxglove
-    # Full favour
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:latest-full --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-amd64-full --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-arm64-full
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:$APP_VERSION-full --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-amd64-full --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-arm64-full
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:latest-full
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:$APP_VERSION-full
   release:
     name : 'Release $APP_VERSION'
     tag_name: '$APP_VERSION'

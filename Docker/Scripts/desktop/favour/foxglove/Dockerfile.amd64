@@ -1,7 +1,0 @@
-FROM yukaitung/lgdxrobot2-desktop:dev-amd64
-
-ARG DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && apt-get install -q -y --no-install-recommends \
-        ros-$ROS_DISTRO-foxglove-bridge \
-    && rm -rf /var/lib/apt/lists/*
