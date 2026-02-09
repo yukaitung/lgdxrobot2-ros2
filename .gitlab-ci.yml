@@ -109,7 +109,7 @@ release_job:
     - prepare
   services:
     - docker:24.0.5-dind
-  before_script:
+  script:
     - apk add glab
     - apk add gitlab-release-cli    
   release:
