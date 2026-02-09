@@ -1,5 +1,0 @@
-#!/bin/sh
-set -e
-if [ "$1" = "configure" ]; then
-  udevadm control --reload-rules && udevadm trigger
-fi

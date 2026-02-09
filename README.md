@@ -2,8 +2,9 @@
 
 ## Overview
 
-![Img](img.png)
-![Demo](demo.gif)
+|  |  |
+| ---------------- | ----------------- |
+| ![Img](img.png) | ![Demo](demo.gif) |
 
 > LGDXRobot2 fully uses GitLab CI/CD for builds.<br /> [![Latest Release](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/badges/release.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) 
 

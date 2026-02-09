@@ -1,20 +1,6 @@
-# Variables Needed
-# $EXT_REGISTRY: Registry URL (e.g. docker.io)
-# $EXT_USER: Username for the registry
-# $EXT_PAT: PAT for the registry (https://docs.docker.com/security/for-developers/access-tokens/)
-# $GPG_PRIVATE_KEY: GPG Private Key in Base64
-# $GPG_PASSPHRASE: GPG Passphrase
-
-variables:
-  BASE_IMAGE_NAME: "lgdxrobot2-base"
-  DESKTOP_IMAGE_NAME: "lgdxrobot2-desktop"
-
 stages:
   - prepare
-  - dependencies
   - build
-  - repository
-  - docker
   - release
 
 #
@@ -35,144 +21,6 @@ prepare:
     reports:
       dotenv: variables.env
     expire_in: 1 day
-
-#
-# Build Dependencies
-#
-
-lgdxrobot2-bootstrap:
-  stage: dependencies
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  image: ubuntu:24.04
-  before_script:
-    - apt-get update
-    - apt-get install -y curl dpkg zip
-  script:
-    - cd Debian
-    # apt-source
-    - chmod -R 755 lgdxrobot2-apt-source
-    - chown -R root:root lgdxrobot2-apt-source/etc
-    - chown -R root:root lgdxrobot2-apt-source/usr
-    - dpkg-deb --build lgdxrobot2-apt-source
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file lgdxrobot2-apt-source.deb \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/lgdxrobot2-apt-source/latest/lgdxrobot2-apt-source.deb"
-    # udev
-    - chmod -R 755 lgdxrobot2-udev
-    - chown -R root:root lgdxrobot2-udev/usr
-    - dpkg-deb --build lgdxrobot2-udev
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file lgdxrobot2-udev.deb \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/lgdxrobot2-udev/latest/lgdxrobot2-udev.deb"
-    
-sllidar_ros2-amd64:
-  stage: dependencies
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  when: manual
-  image: docker:24.0.5-git
-  tags:
-    - saas-linux-small-amd64
-  services:
-    - docker:24.0.5-dind
-  variables:
-    ARCH: amd64
-  before_script:
-    - apk add curl
-    - apk add zip
-  script:
-    - docker build -f Docker/Scripts/build/Dockerfile.sllidar_ros2 -o . .
-    - zip -r sllidar_ros2-$ARCH.zip debs/*
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file sllidar_ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/latest/sllidar_ros2-$ARCH.zip"
-
-sllidar_ros2-arm64:
-  stage: dependencies
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  when: manual
-  image: docker:24.0.5-git
-  tags:
-    - saas-linux-small-arm64
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-    ARCH: arm64
-  services:
-    - name: docker:24.0.5-dind
-      command: ["--mtu=1400"]
-  before_script:
-    - apk add curl
-    - apk add zip
-  script:
-    - docker build -f Docker/Scripts/build/Dockerfile.sllidar_ros2 -o . .
-    - zip -r sllidar_ros2-$ARCH.zip debs/*
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file sllidar_ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sllidar_ros2/latest/sllidar_ros2-$ARCH.zip"
-
-m_explore_ros2-amd64:
-  stage: dependencies
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  when: manual
-  image: docker:24.0.5-git
-  tags:
-    - saas-linux-small-amd64
-  services:
-    - docker:24.0.5-dind
-  variables:
-    ARCH: amd64
-  before_script:
-    - apk add curl
-    - apk add zip
-  script:
-    - docker build -f Docker/Scripts/build/Dockerfile.m_explore_ros2 -o . .
-    - zip -r m_explore_ros2-$ARCH.zip debs/*
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file m_explore_ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/m_explore_ros2/latest/m_explore_ros2-$ARCH.zip"
-
-m_explore_ros2-arm64:
-  stage: dependencies
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  when: manual
-  image: docker:24.0.5-git
-  tags:
-    - saas-linux-small-arm64
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-    ARCH: arm64
-  services:
-    - name: docker:24.0.5-dind
-      command: ["--mtu=1400"]
-  before_script:
-    - apk add curl
-    - apk add zip
-  script:
-    - docker build -f Docker/Scripts/build/Dockerfile.m_explore_ros2 -o . .
-    - zip -r m_explore_ros2-$ARCH.zip debs/*
-    - |
-      curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-           --upload-file m_explore_ros2-$ARCH.zip \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/m_explore_ros2/latest/m_explore_ros2-$ARCH.zip"
 
 #
 # Build LGDXRobot2 ROS 2
@@ -200,7 +48,8 @@ build-amd64:
   script:
     - git submodule update --init --recursive
     - docker build --build-arg APP_VERSION=$APP_VERSION -f Docker/Scripts/build/Dockerfile -o . .
-    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
+    - cd debs
+    - zip -r lgdxrobot2-ros2-$ARCH.zip *
     - |
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
            --upload-file lgdxrobot2-ros2-$ARCH.zip \
@@ -234,7 +83,8 @@ build-arm64:
   script:
     - git submodule update --init --recursive
     - docker build --build-arg APP_VERSION=$APP_VERSION -f Docker/Scripts/build/Dockerfile -o . .
-    - zip -r lgdxrobot2-ros2-$ARCH.zip debs/*
+    - cd debs
+    - zip -r lgdxrobot2-ros2-$ARCH.zip *
     - |
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
            --upload-file lgdxrobot2-ros2-$ARCH.zip \
@@ -243,143 +93,6 @@ build-arm64:
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
            --upload-file lgdxrobot2-ros2-$ARCH.zip \
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-$ARCH.zip"
-
-#
-# Repository
-#
-
-repository:
-  stage: repository
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  image: ubuntu:24.04
-  before_script:
-    - apt-get update
-    - apt-get install -y wget reprepro gnupg2 unzip
-  script:
-    # Bootstrap GPG
-    - echo "$GPG_PRIVATE_KEY" | base64 -d | gpg --import --batch
-    - gpg-agent
-    - touch dummy
-    - gpg --pinentry-mode loopback --passphrase $GPG_PASSPHRASE --sign dummy
-    # Sign the packages
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-amd64.zip
-    - unzip lgdxrobot2-ros2-amd64.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/latest/lgdxrobot2-ros2-arm64.zip
-    - unzip lgdxrobot2-ros2-arm64.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-amd64.zip
-    - unzip sllidar_ros2-amd64.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-arm64.zip
-    - unzip sllidar_ros2-arm64.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/m_explore_ros2/latest/m_explore_ros2-amd64.zip
-    - unzip m_explore_ros2-amd64.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/m_explore_ros2/latest/m_explore_ros2-arm64.zip
-    - unzip m_explore_ros2-arm64.zip
-    - reprepro -b Debian/Repository includedeb noble debs/*.deb
-    - rm -rf debs
-    # Bootstrap
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-apt-source/latest/lgdxrobot2-apt-source.deb
-    - wget https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-udev/latest/lgdxrobot2-udev.deb
-    - reprepro -b Debian/Repository includedeb noble *.deb
-    - mv *.deb Debian/Repository
-  pages:
-    publish: Debian/Repository
-
-#
-# Build Docker Images
-#
-
-build-base-amd64:
-  stage: docker
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  image: docker:24.0.5-git
-  tags:
-    - saas-linux-small-amd64
-  services:
-    - docker:24.0.5-dind
-  variables:
-    ARCH: amd64
-  script:
-    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    # Base
-    - docker build -f Docker/Scripts/base/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH .
-    - docker push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH
-    
-build-base-arm64:
-  stage: docker
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  image: docker:24.0.5-git
-  tags:
-    - saas-linux-small-arm64 
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-    ARCH: arm64
-  services:
-    - name: docker:24.0.5-dind
-      command: ["--mtu=1400"]
-  script:
-    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    # Base
-    - docker build -f Docker/Scripts/base/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH .
-    - docker push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:dev-$ARCH
-
-build-desktop-amd64:
-  stage: docker
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  image: docker:24.0.5-git
-  tags:
-    - saas-linux-small-amd64
-  services:
-    - docker:24.0.5-dind
-  variables:
-    ARCH: amd64
-  script:
-    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    # Desktop
-    - docker build -f Docker/Scripts/desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH .
-    - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH
-    
-build-desktop-arm64:
-  stage: docker
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never 
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  image: docker:24.0.5-git
-  tags:
-    - saas-linux-small-arm64 
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-    ARCH: arm64
-  services:
-    - name: docker:24.0.5-dind
-      command: ["--mtu=1400"]
-  script:
-    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    # Desktop
-    - docker build -f Docker/Scripts/desktop/Dockerfile.$ARCH -t $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH .
-    - docker push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:dev-$ARCH
 
 #
 # Release
@@ -399,18 +112,6 @@ release_job:
   before_script:
     - apk add glab
     - apk add gitlab-release-cli    
-  script:
-    - echo -n $EXT_PAT | docker login -u $EXT_USER --password-stdin $EXT_REGISTRY
-    # Base
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:latest --amend $EXT_USER/$BASE_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$BASE_IMAGE_NAME:dev-arm64
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:$APP_VERSION --amend $EXT_USER/$BASE_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$BASE_IMAGE_NAME:dev-arm64
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:latest
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/$BASE_IMAGE_NAME:$APP_VERSION
-    # Desktop
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:latest --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-arm64
-    - docker manifest create $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:$APP_VERSION --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-amd64 --amend $EXT_USER/$DESKTOP_IMAGE_NAME:dev-arm64
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:latest
-    - docker manifest push $EXT_REGISTRY/$EXT_USER/$DESKTOP_IMAGE_NAME:$APP_VERSION
   release:
     name : 'Release $APP_VERSION'
     tag_name: '$APP_VERSION'
@@ -422,16 +123,5 @@ release_job:
           url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-amd64.zip'
         - name: 'LGDXRobot2 ROS 2 ARM64'
           url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/LGDXRobot2-ROS2/$APP_VERSION/lgdxrobot2-ros2-arm64.zip'
-        - name: 'SLAMTEC LIDAR ROS 2 AMD64'
-          url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-amd64.zip'
-        - name: 'SLAMTEC LIDAR ROS 2 ARM64'
-          url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/sllidar_ros2/latest/sllidar_ros2-arm64.zip'
-        - name: 'M-EXPLORE ROS 2 AMD64'
-          url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/m_explore_ros2/latest/m_explore_ros2-amd64.zip'
-        - name: 'M-EXPLORE ROS 2 ARM64'
-          url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/m_explore_ros2/latest/m_explore_ros2-arm64.zip'
-        - name: 'LGDXRobot2 APT Source (Universal)'
-          url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-apt-source/latest/lgdxrobot2-apt-source.deb'
-        - name: 'LGDXRobot2 UDEV (Universal)'
-          url: 'https://gitlab.com/api/v4/projects/53439376/packages/generic/lgdxrobot2-udev/latest/lgdxrobot2-udev.deb'
+
 

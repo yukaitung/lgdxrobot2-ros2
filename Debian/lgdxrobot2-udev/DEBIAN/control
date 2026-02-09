@@ -1,7 +1,0 @@
-Package: lgdxrobot2-udev
-Version: 1.0
-Section: misc
-Priority: optional
-Architecture: all
-Maintainer: LGDXRobotics <info@bristolgram.uk>
-Description: Udev rules for LGDXRobot2 hardware.

@@ -1,1 +1,0 @@
-KERNEL=="ttyACM*", MODE="0666"
