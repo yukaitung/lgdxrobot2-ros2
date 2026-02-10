@@ -7,7 +7,8 @@ ARG APP_VERSION=2.1.0
 WORKDIR /src
 COPY . .
 
-RUN sudo sed -i 's|http://ports.ubuntu.com/ubuntu-ports|https://mirrors.ocf.berkeley.edu/ubuntu-ports/|g' /etc/apt/sources.list
+# Fix ARM64 build network error
+RUN sed -i 's|http://ports.ubuntu.com/ubuntu-ports|https://mirrors.ocf.berkeley.edu/ubuntu-ports/|g' /etc/apt/sources.list.d/ubuntu.sources
 RUN rosdep update
 RUN apt-get update \
     && apt-get install -y \
