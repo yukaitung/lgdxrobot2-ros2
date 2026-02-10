@@ -52,6 +52,7 @@ build-amd64:
   artifacts:
     paths:
       - debs/lgdxrobot2-ros2-$ARCH.zip
+    expire_in: 1 day
 
 build-arm64:
   stage: build
@@ -81,6 +82,7 @@ build-arm64:
   artifacts:
     paths:
       - debs/lgdxrobot2-ros2-$ARCH.zip
+    expire_in: 1 day
 
 #
 # Release
