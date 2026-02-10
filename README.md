@@ -44,8 +44,8 @@ The solution consists of the following packages:
 2. The packages are hosted in a self-hosted repository, install this package to add the repository and the public key.
 
 ```bash
-wget -q https://ros.bristolgram.uk/lgdxrobot2-apt-source.deb
-sudo dpkg -i lgdxrobot2-apt-source.deb
+wget -q hhttp://packages.bristolgram.uk/lgdxrobotics-apt-source.deb
+sudo dpkg -i lgdxrobotics-apt-source.deb
 sudo apt update
 ```
 
@@ -59,25 +59,7 @@ sudo apt install lgdxrobot2-udev \
   ros-${ROS_DISTRO}-multirobot-map-merge
 ```
 
-### 2. deb Packages
-
-If adding the repository is not possible, the packages can be installed using the .deb packages.
-
-1. Install [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
-2. Download following packages from the [Releases](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) page.
-
-* `SLAMTEC LIDAR ROS 2`
-* `M-EXPLORE ROS 2`
-* `LGDXRobot2 ROS 2`
-* `LGDXRobot2 UDEV (Universal)`
-
-3. Install the packages and dependencies.
-
-```bash
-sudo apt install ./*.deb
-```
-
-### 3. Docker
+### 2. Docker
 
 ```bash
 docker run -d \
