@@ -98,7 +98,7 @@ build-arm64:
 # Release
 #
     
-release_job:
+release:
   stage: release
   image: alpine:latest
   rules:
