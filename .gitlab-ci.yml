@@ -70,7 +70,7 @@ build-arm64:
     - job: prepare
       artifacts: true
   tags:
-    - saas-linux-medium-arm64
+    - saas-linux-small-arm64
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
     ARCH: arm64
