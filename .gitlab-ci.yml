@@ -104,6 +104,7 @@ release:
     - apk add glab
     - apk add curl
   script:
+    - cd debs
     - |
       curl --location --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
            --upload-file lgdxrobot2-ros2-amd64.zip \
