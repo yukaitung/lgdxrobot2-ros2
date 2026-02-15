@@ -150,9 +150,8 @@ void Mcu::OnReadComplete(boost::system::error_code error, std::size_t size)
           case MCU_DATA_TYPE:
             if (!mcuDataFound)
             {
-              McuData mcuData;
               memcpy(&mcuData, frame.data(), sizeof(McuData));
-              ProcessRobotData(mcuData);
+              mcuSignals->UpdateMcuData(mcuData);
               mcuDataFound = true;
             }
             break;
@@ -184,47 +183,6 @@ void Mcu::OnReadComplete(boost::system::error_code error, std::size_t size)
     serial.close();
     Reconnect();
   }
-}
-
-void Mcu::ProcessRobotData(const McuData &mcuData)
-{
-  robotData.responseTime = mcuData.response_time;
-  robotData.transform[0] = mcuData.transform.x;
-  robotData.transform[1] = mcuData.transform.y;
-  robotData.transform[2] = mcuData.transform.rotation;
-  robotData.forwardKinematic[0] = mcuData.forward_kinematic.x;
-  robotData.forwardKinematic[1] = mcuData.forward_kinematic.y;
-  robotData.forwardKinematic[2] = mcuData.forward_kinematic.rotation;
-  std::copy(mcuData.motors_target_velocity, mcuData.motors_target_velocity + 4, robotData.motorsTargetVelocity);
-  std::copy(mcuData.motors_desire_velocity, mcuData.motors_desire_velocity + 4, robotData.motorsDesireVelocity);
-  std::copy(mcuData.motors_actual_velocity, mcuData.motors_actual_velocity + 4, robotData.motorsActualVelocity);
-  std::copy(mcuData.motors_ccr, mcuData.motors_ccr + 4, robotData.motorsCcr);
-  robotData.batteryCurrent[0] = mcuData.battery1.current;
-  robotData.batteryCurrent[1] = mcuData.battery2.current;
-  robotData.batteryVoltage[0] = mcuData.battery1.voltage;
-  robotData.batteryVoltage[1] = mcuData.battery2.voltage;
-  robotData.eStop[0] = mcuData.software_emergency_stop_enabled;
-  robotData.eStop[1] = mcuData.hardware_emergency_stop_enabled;
-  robotData.eStop[2] = mcuData.bettery_low_emergency_stop_enabled;
-  robotData.accelerometer[0] = mcuData.imu.accelerometer.x;
-  robotData.accelerometer[1] = mcuData.imu.accelerometer.y;
-  robotData.accelerometer[2] = mcuData.imu.accelerometer.z;
-  robotData.accelerometerCovariance[0] = mcuData.imu.accelerometer_covariance.x;
-  robotData.accelerometerCovariance[1] = mcuData.imu.accelerometer_covariance.y;
-  robotData.accelerometerCovariance[2] = mcuData.imu.accelerometer_covariance.z;
-  robotData.gyroscope[0] = mcuData.imu.gyroscope.x;
-  robotData.gyroscope[1] = mcuData.imu.gyroscope.y;
-  robotData.gyroscope[2] = mcuData.imu.gyroscope.z;
-  robotData.gyroscopeCovariance[0] = mcuData.imu.gyroscope_covariance.x;
-  robotData.gyroscopeCovariance[1] = mcuData.imu.gyroscope_covariance.y;
-  robotData.gyroscopeCovariance[2] = mcuData.imu.gyroscope_covariance.z;
-  robotData.magnetometer[0] = mcuData.imu.magnetometer.x;
-  robotData.magnetometer[1] = mcuData.imu.magnetometer.y;
-  robotData.magnetometer[2] = mcuData.imu.magnetometer.z;
-  robotData.magnetometerCovariance[0] = mcuData.imu.magnetometer_covariance.x;
-  robotData.magnetometerCovariance[1] = mcuData.imu.magnetometer_covariance.y;  
-  robotData.magnetometerCovariance[2] = mcuData.imu.magnetometer_covariance.z;
-  mcuSignals->UpdateRobotData(robotData);
 }
 
 std::string Mcu::SerialToHexString(uint32_t serial1, uint32_t serial2, uint32_t serial3) 

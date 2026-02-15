@@ -3,64 +3,47 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> sensorSignalsPtr) :
-  clock_(node->get_clock()),
-  logger_(node->get_logger())
+  _clock(node->get_clock()),
+  _logger(node->get_logger())
 {
   sensorSignals = sensorSignalsPtr;
 
   // Parameters
-  auto mcuControlModeParam = rcl_interfaces::msg::ParameterDescriptor{};
-  mcuControlModeParam.description = "Robot control mode, using `joy` for joystick or `cmd_vel` for ROS nav stack.";
-  node->declare_parameter("mcu_control_mode", "cmd_vel", mcuControlModeParam);
-  auto mcuOdomParam = rcl_interfaces::msg::ParameterDescriptor{};
-  mcuOdomParam.description = "Publishing odometry information from the robot.";
-  node->declare_parameter("mcu_publish_odom", false, mcuOdomParam);
   auto mcuTfParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuTfParam.description = "Publishing tf information from the robot.";
-  node->declare_parameter("mcu_publish_tf", false, mcuTfParam);
-  auto mcuJointStateParam = rcl_interfaces::msg::ParameterDescriptor{};
-  mcuJointStateParam.description = "Publishing joint state information from the robot.";
-  node->declare_parameter("mcu_publish_joint_state", false, mcuJointStateParam);
+  node->declare_parameter("publish_tf", false, mcuTfParam);
   auto mcuBaseLinkParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuBaseLinkParam.description = "Custom `base_link` name.";
-  node->declare_parameter("mcu_base_link_name", "base_link", mcuBaseLinkParam);
-  auto mcuExternalImuParam = rcl_interfaces::msg::ParameterDescriptor{};
-  mcuExternalImuParam.description = "Using external IMU for odometry calcuation.";
+  node->declare_parameter("base_link_name", "base_link", mcuBaseLinkParam);
+  auto mcuUseJoyParam = rcl_interfaces::msg::ParameterDescriptor{};
+  mcuUseJoyParam.description = "Control robot using `joy` node.";
+  node->declare_parameter("use_joy", false, mcuUseJoyParam);
 
-  // Topics
-  std::string controlMode = node->get_parameter("mcu_control_mode").as_string();
-  if (controlMode.empty() || controlMode == "cmd_vel" || controlMode == "both")
-  {
-    cmdVelSubscription = node->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 
-      rclcpp::SensorDataQoS().reliable(),
-      std::bind(&Sensors::CmdVelCallback, this, std::placeholders::_1));
-  }
-  if(controlMode == "joy" || controlMode == "both")
+  // Subscriber
+  cmdVelSubscription = node->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 
+    rclcpp::SensorDataQoS().reliable(),
+    std::bind(&Sensors::CmdVelCallback, this, std::placeholders::_1));
+  if (node->get_parameter("use_joy").as_bool())
   {
     joySubscription = node->create_subscription<sensor_msgs::msg::Joy>("joy",
       rclcpp::SensorDataQoS().reliable(),
       std::bind(&Sensors::JoyCallback, this, std::placeholders::_1));
   }
-  if (node->get_parameter("mcu_publish_odom").as_bool())
-  {
-    baseLinkName = node->get_parameter("mcu_base_link_name").as_string();
-    odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("/agent/odom",
-      rclcpp::SensorDataQoS().reliable());
-  }
-  if (node->get_parameter("mcu_publish_tf").as_bool())
-  {
-    tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(node);
-  }
-  if (node->get_parameter("mcu_publish_joint_state").as_bool())
-  {
-    jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("/joint_states", 
-      rclcpp::SensorDataQoS().reliable());
-  }
+
+  // Publisher
+  odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("/agent/odom",
+    rclcpp::SensorDataQoS().reliable());
+  jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("/joint_states", 
+    rclcpp::SensorDataQoS().reliable());
   imuPublisher = node->create_publisher<sensor_msgs::msg::Imu>("/agent/imu", 
     rclcpp::SensorDataQoS().reliable());
   magneticFieldPublisher = node->create_publisher<sensor_msgs::msg::MagneticField>("/agent/mag", 
     rclcpp::SensorDataQoS().reliable());
-  needPublishOdom = tfBroadcaster != nullptr || odomPublisher != nullptr;
+  baseLinkName = node->get_parameter("mcu_base_link_name").as_string();
+  if (node->get_parameter("mcu_publish_tf").as_bool())
+  {
+    tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(node);
+  }
 }
 
 void Sensors::CmdVelCallback(const geometry_msgs::msg::Twist &msg)
@@ -79,14 +62,14 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
   {
     // A = disable software E-Stop
     sensorSignals->SetEstop(false);
-    RCLCPP_INFO(logger_, "Software E-Stop Disabled");
+    RCLCPP_INFO(_logger, "Software E-Stop Disabled");
   }
   lastEstopButton[0] = msg.buttons[0];
   if (lastEstopButton[1] == 0 && msg.buttons[1] == 1)
   {
     // B = enable software E-Stop
     sensorSignals->SetEstop(true);
-    RCLCPP_INFO(logger_, "Software E-Stop Enabled");
+    RCLCPP_INFO(_logger, "Software E-Stop Enabled");
   }
   lastEstopButton[1] = msg.buttons[1];
   // Velocity Change
@@ -96,7 +79,7 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
     if (maximumVelocity >= 0.2)
     {
       maximumVelocity -= 0.1;
-      RCLCPP_INFO(logger_, "Maximum velocity decreased to %.1f m/s", maximumVelocity);
+      RCLCPP_INFO(_logger, "Maximum velocity decreased to %.1f m/s", maximumVelocity);
     }
   }
   lastVelocityChangeButton[0] = msg.buttons[6];
@@ -106,7 +89,7 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
     if (maximumVelocity < 1.0)
     {
       maximumVelocity += 0.1;
-      RCLCPP_INFO(logger_, "Maximum velocity increased to %.1f m/s", maximumVelocity);
+      RCLCPP_INFO(_logger, "Maximum velocity increased to %.1f m/s", maximumVelocity);
     }
   }
   lastVelocityChangeButton[1] = msg.buttons[7];
@@ -125,86 +108,86 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
   sensorSignals->SetInverseKinematics(x, y, w);
 }
 
-void Sensors::PublishOdom(const RobotData& data)
+void Sensors::Publish(const McuData& mcuData)
 {
-  rclcpp::Time currentTime = clock_->now();
+  rclcpp::Time currentTime = _clock->now();
 
-  sensor_msgs::msg::Imu imu;
-  imu.header.stamp = currentTime;
-  imu.orientation_covariance[0] = -1;
-  imu.angular_velocity.x = data.gyroscope[0];
-  imu.angular_velocity.y = data.gyroscope[1];
-  imu.angular_velocity.z = data.gyroscope[2];
-  imu.angular_velocity_covariance[0] = data.gyroscopeCovariance[0];
-  imu.angular_velocity_covariance[4] = data.gyroscopeCovariance[1];
-  imu.angular_velocity_covariance[8] = data.gyroscopeCovariance[2];
-  imu.linear_acceleration.x = data.accelerometer[0];
-  imu.linear_acceleration.y = data.accelerometer[1];
-  imu.linear_acceleration.z = data.accelerometer[2];
-  imu.linear_acceleration_covariance[0] = data.accelerometerCovariance[0];
-  imu.linear_acceleration_covariance[4] = data.accelerometerCovariance[1];
-  imu.linear_acceleration_covariance[8] = data.accelerometerCovariance[2];
   if (imuPublisher != nullptr)
-    imuPublisher->publish(imu);
-
-  sensor_msgs::msg::MagneticField magneticField;
-  magneticField.header.stamp = currentTime;
-  magneticField.magnetic_field.x = data.magnetometer[0] / 1000000;
-  magneticField.magnetic_field.y = data.magnetometer[1] / 1000000;
-  magneticField.magnetic_field.z = data.magnetometer[2] / 1000000;
-  magneticField.magnetic_field_covariance[0] = data.magnetometerCovariance[0];
-  magneticField.magnetic_field_covariance[4] = data.magnetometerCovariance[1];
-  magneticField.magnetic_field_covariance[8] = data.magnetometerCovariance[2];
-  if (magneticFieldPublisher != nullptr)
-    magneticFieldPublisher->publish(magneticField);
-  
-  if (needPublishOdom)
   {
-    tf2::Quaternion quaternion;
-    quaternion.setRPY(0, 0, data.transform[2]);
-    geometry_msgs::msg::Quaternion odomQuaternion = tf2::toMsg(quaternion);
-
-    if (tfBroadcaster != nullptr)
-    {
-      geometry_msgs::msg::TransformStamped odomTf;
-      odomTf.header.stamp = currentTime;
-      odomTf.header.frame_id = "odom";
-      odomTf.child_frame_id = baseLinkName;
-      odomTf.transform.translation.x = data.transform[0];
-      odomTf.transform.translation.y = data.transform[1];
-      odomTf.transform.translation.z = 0.0;
-      odomTf.transform.rotation = odomQuaternion;
-      tfBroadcaster->sendTransform(odomTf);
-    }
-    if (odomPublisher != nullptr)
-    {
-      nav_msgs::msg::Odometry odometry;
-      odometry.header.stamp = currentTime;
-      odometry.header.frame_id = "odom";
-      odometry.pose.pose.position.x = data.transform[0];
-      odometry.pose.pose.position.y = data.transform[1];
-      odometry.pose.pose.position.z = 0.0;
-      odometry.pose.pose.orientation = odomQuaternion;
-      odometry.child_frame_id = baseLinkName;
-      odometry.twist.twist.linear.x = data.forwardKinematic[0];
-      odometry.twist.twist.linear.y = data.forwardKinematic[1];
-      odometry.twist.twist.angular.z = data.forwardKinematic[2];
-      odomPublisher->publish(odometry);
-    }
+    sensor_msgs::msg::Imu imu;
+    imu.header.stamp = currentTime;
+    imu.orientation_covariance[0] = -1;
+    imu.angular_velocity.x = mcuData.imu.gyroscope.x;
+    imu.angular_velocity.y = mcuData.imu.gyroscope.y;
+    imu.angular_velocity.z = mcuData.imu.gyroscope.z;
+    imu.angular_velocity_covariance[0] = mcuData.imu.accelerometer_covariance.x;
+    imu.angular_velocity_covariance[4] = mcuData.imu.accelerometer_covariance.y;
+    imu.angular_velocity_covariance[8] = mcuData.imu.accelerometer_covariance.z;
+    imu.linear_acceleration.x = mcuData.imu.accelerometer.x;
+    imu.linear_acceleration.y = mcuData.imu.accelerometer.y;
+    imu.linear_acceleration.z = mcuData.imu.accelerometer.z;
+    imu.linear_acceleration_covariance[0] = mcuData.imu.accelerometer_covariance.x;
+    imu.linear_acceleration_covariance[4] = mcuData.imu.accelerometer_covariance.y;
+    imu.linear_acceleration_covariance[8] = mcuData.imu.accelerometer_covariance.z;
+    imuPublisher->publish(imu);
   }
+  
+  if (magneticFieldPublisher != nullptr)
+  {
+    sensor_msgs::msg::MagneticField magneticField;
+    magneticField.header.stamp = currentTime;
+    magneticField.magnetic_field.x = mcuData.imu.magnetometer.x / 1000000;
+    magneticField.magnetic_field.y = mcuData.imu.magnetometer.y / 1000000;
+    magneticField.magnetic_field.z = mcuData.imu.magnetometer.z / 1000000;
+    magneticField.magnetic_field_covariance[0] = mcuData.imu.magnetometer_covariance.x;
+    magneticField.magnetic_field_covariance[4] = mcuData.imu.magnetometer_covariance.y;
+    magneticField.magnetic_field_covariance[8] = mcuData.imu.magnetometer_covariance.z;
+    magneticFieldPublisher->publish(magneticField);
+  }
+  
+  tf2::Quaternion quaternion;
+  quaternion.setRPY(0, 0, mcuData.transform.rotation);
+  geometry_msgs::msg::Quaternion odomQuaternion = tf2::toMsg(quaternion);
+  if (tfBroadcaster != nullptr)
+  {
+    geometry_msgs::msg::TransformStamped odomTf;
+    odomTf.header.stamp = currentTime;
+    odomTf.header.frame_id = "odom";
+    odomTf.child_frame_id = baseLinkName;
+    odomTf.transform.translation.x = mcuData.transform.x;
+    odomTf.transform.translation.y = mcuData.transform.y;
+    odomTf.transform.translation.z = 0.0;
+    odomTf.transform.rotation = odomQuaternion;
+    tfBroadcaster->sendTransform(odomTf);
+  }
+  if (odomPublisher != nullptr)
+  {
+    nav_msgs::msg::Odometry odometry;
+    odometry.header.stamp = currentTime;
+    odometry.header.frame_id = "odom";
+    odometry.pose.pose.position.x = mcuData.transform.x;
+    odometry.pose.pose.position.y = mcuData.transform.y;
+    odometry.pose.pose.position.z = 0.0;
+    odometry.pose.pose.orientation = odomQuaternion;
+    odometry.child_frame_id = baseLinkName;
+    odometry.twist.twist.linear.x = mcuData.forward_kinematic.x;
+    odometry.twist.twist.linear.y = mcuData.forward_kinematic.y;
+    odometry.twist.twist.angular.z = mcuData.forward_kinematic.rotation;
+    odomPublisher->publish(odometry);
+  }
+
   if (jointStatePublisher != nullptr)
   {
     for (int i = 0; i < 4; i++)
     {
-      motorsPosition[i] += data.motorsActualVelocity[i] * (data.responseTime / 1000.0);
+      motorsPosition[i] += mcuData.motors_actual_velocity[i] * (mcuData.response_time / 1000.0);
     }
-    rclcpp::Time currentTime = clock_->now();
+    rclcpp::Time currentTime = currentTime;
     sensor_msgs::msg::JointState jointState;
     jointState.header.stamp = currentTime;
     jointState.name = {"wheel1_link_joint", "wheel2_link_joint", "wheel3_link_joint", "wheel4_link_joint"};
     jointState.position = {motorsPosition[0], motorsPosition[1], motorsPosition[2], motorsPosition[3]};
-    jointState.velocity = {data.motorsActualVelocity[0], data.motorsActualVelocity[1], data.motorsActualVelocity[2], data.motorsActualVelocity[3]};
-    if(jointStatePublisher)
-      jointStatePublisher->publish(jointState);
+    jointState.velocity = {mcuData.motors_actual_velocity[0], mcuData.motors_actual_velocity[1], mcuData.motors_actual_velocity[2], mcuData.motors_actual_velocity[3]};
+    jointStatePublisher->publish(jointState);
   }
 }

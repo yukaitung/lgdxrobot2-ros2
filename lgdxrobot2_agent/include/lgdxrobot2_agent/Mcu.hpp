@@ -5,9 +5,9 @@
 #include <boost/asio.hpp>
 
 #include "rclcpp/rclcpp.hpp"
-#include "Structs/McuSignals.hpp"
-#include "Structs/RobotData.hpp"
-#include "lgdxrobot2_agent/lgdxrobot2.h"
+
+#include "lgdxrobot2.h"
+#include "McuSignals.hpp"
 
 class Mcu
 {
@@ -30,7 +30,7 @@ class Mcu
 
     // Data
     bool hasSerialNumber = false;
-    RobotData robotData;
+    McuData mcuData;
     std::array<uint8_t, 512> readBuffer = {0};
     std::vector<uint8_t> mcuBuffer = {0};
 
@@ -45,7 +45,6 @@ class Mcu
     // Read from MCU
     void Read();
     void OnReadComplete(boost::system::error_code error, std::size_t size);
-    void ProcessRobotData(const McuData &mcuData);
     std::string SerialToHexString(uint32_t serial1, uint32_t serial2, uint32_t serial3);
     void ProcessSerialNumber(const McuSerialNumber &mcuSerialNumber);
 
