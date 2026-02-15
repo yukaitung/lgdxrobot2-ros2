@@ -39,7 +39,7 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
     rclcpp::SensorDataQoS().reliable());
   odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("agent/odom",
     rclcpp::SensorDataQoS().reliable());
-  jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("/joint_states", 
+  jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("joint_states", 
     rclcpp::SensorDataQoS().reliable());
   baseLinkName = node->get_parameter("base_link_name").as_string();
   if (node->get_parameter("publish_tf").as_bool())
