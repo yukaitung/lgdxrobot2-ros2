@@ -1,11 +1,5 @@
-uint32 response_time
-float32[3] transform
-float32[3] forward_kinematic
-float32[4] motors_target_velocity
-float32[4] motors_desire_velocity
-float32[4] motors_actual_velocity
-uint32[4] motors_ccr
-float32[2] battery_current
-float32[2] battery_voltage
-int32[3] e_stop
-int32 robot_status
+bool software_emergency_stop_enabled
+bool hardware_emergency_stop_enabled
+bool bettery_low_emergency_stop_enabled
+sensor_msgs/BatteryState battery1
+sensor_msgs/BatteryState battery2
