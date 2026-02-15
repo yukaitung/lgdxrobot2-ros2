@@ -45,7 +45,6 @@ build-amd64:
   before_script:
     - apk add zip
   script:
-    - git submodule update --init --recursive
     - docker build --build-arg APP_VERSION=$APP_VERSION -f Dockerfile -o . .
     - cd debs
     - zip -r lgdxrobot2-ros2-$ARCH.zip *
@@ -75,7 +74,6 @@ build-arm64:
   before_script:
     - apk add zip
   script:
-    - git submodule update --init --recursive
     - docker build --build-arg APP_VERSION=$APP_VERSION -f Dockerfile -o . .
     - cd debs
     - zip -r lgdxrobot2-ros2-$ARCH.zip *
