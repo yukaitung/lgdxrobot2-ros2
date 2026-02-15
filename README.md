@@ -54,9 +54,13 @@ sudo apt update
 ```bash
 sudo apt install lgdxrobot2-udev \
   ros-${ROS_DISTRO}-sllidar-ros2 \
-  ros-${ROS_DISTRO}-lgdxrobot2* \
-  ros-${ROS_DISTRO}-explore-lite \
-  ros-${ROS_DISTRO}-multirobot-map-merge
+  ros-${ROS_DISTRO}-lgdxrobot2*
+```
+
+4. Optionally, install the simulation package for Webots.
+
+```bash
+sudo apt install ros-${ROS_DISTRO}-lgdxrobot2sim-webots
 ```
 
 ### 2. Docker
