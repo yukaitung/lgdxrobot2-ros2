@@ -139,7 +139,6 @@ This project is licensed under the MIT Licence.
 
 ## Extra Dependencies
 
-* [hwinfo](https://github.com/lfreist/hwinfo)
 * [sllidar_ros2](https://github.com/Slamtec/sllidar_ros2)
 * [m-explore-ros2](https://github.com/robo-friends/m-explore-ros2)
 

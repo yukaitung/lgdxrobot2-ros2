@@ -3,7 +3,7 @@
 <package format="3">
   <name>lgdxrobot2_agent</name>
   <version>3.0.1</version>
-  <description>A ROS agent node for integration with LGDXRobot2 hardware and LGDXRobot Cloud.</description>
+  <description>A ROS agent node for integration with LGDXRobot2 hardware.</description>
   <license>MIT</license>
   <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <author email="info@bristolgram.uk">LGDXRobotics</author>
@@ -14,12 +14,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>geometry_msgs</buildtool_depend>
   <buildtool_depend>boost</buildtool_depend>
-  <buildtool_depend>libgrpc</buildtool_depend>
-  <buildtool_depend>protobuf-dev</buildtool_depend>
   <buildtool_depend>nav_msgs</buildtool_depend>
-  <buildtool_depend>nav2_msgs</buildtool_depend>
-  <buildtool_depend>nav2_util</buildtool_depend>
-  <buildtool_depend>protobuf-compiler-grpc</buildtool_depend>
   <buildtool_depend>rclcpp</buildtool_depend>
   <buildtool_depend>sensor_msgs</buildtool_depend>
   <buildtool_depend>std_msgs</buildtool_depend>
@@ -27,10 +22,7 @@
 
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>boost</exec_depend>
-  <exec_depend>libgrpc</exec_depend>
   <exec_depend>nav_msgs</exec_depend>
-  <exec_depend>nav2_msgs</exec_depend>
-  <exec_depend>nav2_util</exec_depend>
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
