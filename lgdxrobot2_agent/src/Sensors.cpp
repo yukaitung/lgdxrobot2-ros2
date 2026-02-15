@@ -41,8 +41,8 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
     rclcpp::SensorDataQoS().reliable());
   jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("joint_states", 
     rclcpp::SensorDataQoS().reliable());
-  baseLinkName = node->get_parameter("mcu_base_link_name").as_string();
-  if (node->get_parameter("mcu_publish_tf").as_bool())
+  baseLinkName = node->get_parameter("base_link_name").as_string();
+  if (node->get_parameter("publish_tf").as_bool())
   {
     tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(node);
   }
