@@ -3,7 +3,7 @@
 <package format="3">
   <name>lgdxrobot2_msgs</name>
   <version>3.1.0</version>
-  <description>Interface for LGDXRobot2 ROS 2.</description>
+  <description>LGDXRobot2 ROS 2 interfaces.</description>
   <license>MIT</license>
   <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <author email="info@bristolgram.uk">LGDXRobotics</author>
