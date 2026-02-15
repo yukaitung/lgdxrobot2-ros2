@@ -1,4 +1,4 @@
-#VRML_SIM R2023b utf8
+#VRML_SIM R2025a utf8
 
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Roughcast.proto"
@@ -25,7 +25,7 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/bathroom/protos/Bathtube.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/bathroom/protos/Toilet.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/lights/protos/CeilingSpotLight.proto"
-EXTERNPROTO "https://gitlab.com/yukaitung/lgdxrobot2-ros2/-/raw/main/lgdxrobot2_webots/protos/LGDXRobot2.proto"
+EXTERNPROTO "https://gitlab.com/yukaitung/lgdxrobot2-ros2/-/raw/main/lgdxrobot2sim_webots/protos/LGDXRobot2.proto"
 
 WorldInfo {
   basicTimeStep 16
@@ -55,8 +55,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.0049999168812327145 0.9999750430377125 -0.004991405904718499 1.5725249572369602
-  position -6.015081102370934 -6.778597527015528 39.463763158835384
+  orientation 0.000624999777808759 0.9999995142849675 -0.0007621057059462608 1.3737504763161246
+  position -13.711525868830392 -7.18617501710693 39.6861882008772
   exposure 0.5
   ambientOcclusionRadius 1
 }
@@ -72,6 +72,12 @@ LGDXRobot2 {
   rotation 0 0 1 1.01503e-06
   controller "<extern>"
   name "Robot1"
+}
+LGDXRobot2 {
+  translation -8.7435 -2.66728 0.1
+  rotation 0 0 1 1.01503e-06
+  controller "<extern>"
+  name "Robot2"
 }
 DEF ROOF Group {
   children [

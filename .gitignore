@@ -1,8 +1,8 @@
 explore/*
-lgdxrobot2_webots/worlds/.*.jpg
-lgdxrobot2_webots/worlds/*.wbproj
-lgdxrobot2_webots/protos/.*.jpg
-lgdxrobot2_webots/protos/*.wbproj
+lgdxrobot2sim_webots/worlds/.*.jpg
+lgdxrobot2sim_webots/worlds/*.wbproj
+lgdxrobot2sim_webots/protos/.*.jpg
+lgdxrobot2sim_webots/protos/*.wbproj
 third_party/*
 build/*
 install/*

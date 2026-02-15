@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(lgdxrobot2_webots)
+project(lgdxrobot2sim_webots)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -18,7 +18,7 @@ find_package(webots_ros2_driver REQUIRED)
 # Export the plugin configuration file
 pluginlib_export_plugin_description_file(webots_ros2_driver lgdxrobot2_driver.xml)
 
-include_directories(include/lgdxrobot2_webots)
+include_directories(include/lgdxrobot2sim_webots)
 
 add_library(
   ${PROJECT_NAME}

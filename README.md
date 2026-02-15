@@ -34,7 +34,7 @@ The solution consists of the following packages:
 * `lgdxrobot2_description`: A description package for visualising LGDXRobot2 hardware as a 3D model.
 * `lgdxrobot2_msgs`: Interface for LGDXRobot2 ROS 2.
 * `lgdxrobot2_navigation`: LGDXRobot2 Nav2 stack integration.
-* `lgdxrobot2_webots`: Simulation configuration and driver for Webots.
+* `lgdxrobot2sim_webots`: Simulation configuration and driver for Webots.
 
 ## Installation
 
