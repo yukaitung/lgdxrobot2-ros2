@@ -61,13 +61,10 @@ def launch_setup(context):
         executable='lgdxrobot2_agent_node',
         output='screen',
         parameters=[{
-            'mcu_enable': True,
-            'mcu_name': serial_port_name,
-            'mcu_control_mode': 'joy',
-            'mcu_publish_odom': True,
-            'mcu_publish_tf': True,
-            'mcu_reset_transform': True,
-            'mcu_publish_joint_state': True
+            'port_name': serial_port_name,
+            'reset_transform': True,
+            'use_joy': True,
+            'publish_tf': True,
         }]
     )
     joy_node = Node(

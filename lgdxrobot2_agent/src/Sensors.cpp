@@ -39,7 +39,7 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
     rclcpp::SensorDataQoS().reliable());
   odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("agent/odom",
     rclcpp::SensorDataQoS().reliable());
-  jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("joint_states", 
+  jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("/joint_states", 
     rclcpp::SensorDataQoS().reliable());
   baseLinkName = node->get_parameter("base_link_name").as_string();
   if (node->get_parameter("publish_tf").as_bool())
@@ -112,12 +112,10 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
 
 void Sensors::Publish(const McuData& mcuData)
 {
-  rclcpp::Time currentTime = _clock->now();
-
   if (imuPublisher != nullptr)
   {
     sensor_msgs::msg::Imu imu;
-    imu.header.stamp = currentTime;
+    imu.header.stamp = _clock->now();
     imu.orientation_covariance[0] = -1;
     imu.angular_velocity.x = mcuData.imu.gyroscope.x;
     imu.angular_velocity.y = mcuData.imu.gyroscope.y;
@@ -137,7 +135,7 @@ void Sensors::Publish(const McuData& mcuData)
   if (magneticFieldPublisher != nullptr)
   {
     sensor_msgs::msg::MagneticField magneticField;
-    magneticField.header.stamp = currentTime;
+    magneticField.header.stamp = _clock->now();
     magneticField.magnetic_field.x = mcuData.imu.magnetometer.x / 1000000;
     magneticField.magnetic_field.y = mcuData.imu.magnetometer.y / 1000000;
     magneticField.magnetic_field.z = mcuData.imu.magnetometer.z / 1000000;
@@ -166,7 +164,7 @@ void Sensors::Publish(const McuData& mcuData)
   if (tfBroadcaster != nullptr)
   {
     geometry_msgs::msg::TransformStamped odomTf;
-    odomTf.header.stamp = currentTime;
+    odomTf.header.stamp = _clock->now();
     odomTf.header.frame_id = "odom";
     odomTf.child_frame_id = baseLinkName;
     odomTf.transform.translation.x = mcuData.transform.x;
@@ -178,7 +176,7 @@ void Sensors::Publish(const McuData& mcuData)
   if (odomPublisher != nullptr)
   {
     nav_msgs::msg::Odometry odometry;
-    odometry.header.stamp = currentTime;
+    odometry.header.stamp = _clock->now();
     odometry.header.frame_id = "odom";
     odometry.pose.pose.position.x = mcuData.transform.x;
     odometry.pose.pose.position.y = mcuData.transform.y;
@@ -197,9 +195,8 @@ void Sensors::Publish(const McuData& mcuData)
     {
       motorsPosition[i] += mcuData.motors_actual_velocity[i] * (mcuData.response_time / 1000.0);
     }
-    rclcpp::Time currentTime = currentTime;
     sensor_msgs::msg::JointState jointState;
-    jointState.header.stamp = currentTime;
+    jointState.header.stamp = _clock->now();
     jointState.name = {"wheel1_link_joint", "wheel2_link_joint", "wheel3_link_joint", "wheel4_link_joint"};
     jointState.position = {motorsPosition[0], motorsPosition[1], motorsPosition[2], motorsPosition[3]};
     jointState.velocity = {mcuData.motors_actual_velocity[0], mcuData.motors_actual_velocity[1], mcuData.motors_actual_velocity[2], mcuData.motors_actual_velocity[3]};

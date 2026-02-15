@@ -19,14 +19,14 @@ Mcu::Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr
   // Parameters
   auto mcuPortNameParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuPortNameParam.description = "Default serial port name or (Linux only) perform automated search if the this is unspecified.";
-  node->declare_parameter("mcu_port_name", "", mcuPortNameParam);
+  node->declare_parameter("port_name", "", mcuPortNameParam);
   auto mcuResetTransformParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuResetTransformParam.description = "Reset robot transform on start up.";
-  node->declare_parameter("mcu_reset_transform", false, mcuResetTransformParam);
-  resetTransformOnConnected = node->get_parameter("mcu_reset_transform").as_bool();
+  node->declare_parameter("reset_transform", false, mcuResetTransformParam);
+  resetTransformOnConnected = node->get_parameter("reset_transform").as_bool();
 
   // Initalise
-  std::string port = node->get_parameter("mcu_port_name").as_string();
+  std::string port = node->get_parameter("port_name").as_string();
   if(port.empty())
   {
     // Perform auto search if no port specified
