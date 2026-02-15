@@ -12,7 +12,8 @@
 class Mcu
 {
   private:
-    rclcpp::Logger logger_;
+    rclcpp::Node::SharedPtr _node;
+    rclcpp::Logger _logger;
     rclcpp::TimerBase::SharedPtr serialPortReconnectTimer;
 
     boost::asio::io_service serialService;
@@ -25,7 +26,6 @@ class Mcu
     int kWaitSecond = 3;
 
     // Settings
-    std::string portName;
     bool resetTransformOnConnected = false;
 
     // Data
@@ -38,9 +38,7 @@ class Mcu
     void StartSerialIo();
 
     // Connection
-    void AutoSearch();
-    void Connect(const std::string &port);
-    void Reconnect();
+    void Connect();
 
     // Read from MCU
     void Read();

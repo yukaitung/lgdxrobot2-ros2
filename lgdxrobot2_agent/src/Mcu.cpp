@@ -6,37 +6,28 @@
 #include "lgdxrobot2_agent/Mcu.hpp"
 
 Mcu::Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr) :
-  logger_(node->get_logger()),
+  _node(node),
+  _logger(node->get_logger()),
   serialService(), 
   serial(serialService)
 {
   mcuSignals = mcuSignalsPtr;
 
   // ROS
-  serialPortReconnectTimer = node->create_wall_timer(std::chrono::seconds(kWaitSecond), std::bind(&Mcu::AutoSearch, this));
+  serialPortReconnectTimer = node->create_wall_timer(std::chrono::seconds(kWaitSecond), std::bind(&Mcu::Connect, this));
   serialPortReconnectTimer->cancel();
 
   // Parameters
   auto mcuPortNameParam = rcl_interfaces::msg::ParameterDescriptor{};
-  mcuPortNameParam.description = "Default serial port name or (Linux only) perform automated search if the this is unspecified.";
-  node->declare_parameter("port_name", "", mcuPortNameParam);
+  mcuPortNameParam.description = "Serial port name for the LGDXRobot2 or default to /dev/lgdxrobot2.";
+  node->declare_parameter("serial_port_name", "/dev/lgdxrobot2", mcuPortNameParam);
   auto mcuResetTransformParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuResetTransformParam.description = "Reset robot transform on start up.";
   node->declare_parameter("reset_transform", false, mcuResetTransformParam);
   resetTransformOnConnected = node->get_parameter("reset_transform").as_bool();
 
   // Initalise
-  std::string port = node->get_parameter("port_name").as_string();
-  if(port.empty())
-  {
-    // Perform auto search if no port specified
-    AutoSearch();
-  }
-  else
-  {
-    portName = port;
-    Connect(portName);
-  }
+  Connect();
 }
 
 Mcu::~Mcu()
@@ -58,37 +49,21 @@ void Mcu::StartSerialIo()
   ioThread.swap(thread);
 }
 
-void Mcu::AutoSearch()
+void Mcu::Connect()
 {
-  serialPortReconnectTimer->cancel();
-  std::string port;
-  std::filesystem::path path {"/dev"};
-  for(auto const &file : std::filesystem::directory_iterator(path))
-  {
-    // Linux only, find first /dev/ttyACM*
-    if(file.path().string().find("ttyACM") != std::string::npos)
-    {
-      port = file.path().string();
-      RCLCPP_INFO(logger_, "Serial device %s found.", port.c_str());
-      Connect(port);
-      return;
-    }  
-  }
-  RCLCPP_WARN(logger_, "No serial device found, try again in %d seconds.", kWaitSecond);
-  serialPortReconnectTimer->reset();
-}
+  std::string port = _node->get_parameter("serial_port_name").as_string();
+  RCLCPP_INFO(_logger, "Attempting to connect to %s", port.c_str());
 
-void Mcu::Connect(const std::string &port)
-{
   boost::system::error_code error;
   serial.open(port, error);
   if(error) 
   {
-    RCLCPP_ERROR(logger_, "Serial connection throws an error: %s, try again in %d seconds.", error.message().c_str(), kWaitSecond);
+    RCLCPP_ERROR(_logger, "Serial connection throws an error: %s, try again in %d seconds.", error.message().c_str(), kWaitSecond);
     serialPortReconnectTimer->reset();
     return;
   }
-  RCLCPP_INFO(logger_, "Serial port connected to %s", port.c_str());
+  RCLCPP_INFO(_logger, "Serial port connected to %s", port.c_str());
+  serialPortReconnectTimer->cancel();
   Read();
   if(resetTransformOnConnected)
   {
@@ -96,14 +71,6 @@ void Mcu::Connect(const std::string &port)
     ResetTransformInternal();
   }
   StartSerialIo();
-}
-
-void Mcu::Reconnect()
-{
-  if(portName.empty()) // Perform auto search if no portName specified
-    AutoSearch();
-  else
-    Connect(portName);
 }
 
 void Mcu::Read()
@@ -178,10 +145,10 @@ void Mcu::OnReadComplete(boost::system::error_code error, std::size_t size)
   }
   else 
   {
-    RCLCPP_ERROR(logger_, "Serial read throws an error: %s", error.message().c_str());
+    RCLCPP_ERROR(_logger, "Serial read throws an error: %s", error.message().c_str());
     //serialService.stop();
     serial.close();
-    Reconnect();
+    Connect();
   }
 }
 
@@ -217,7 +184,7 @@ void Mcu::ProcessSerialNumber(const McuSerialNumber &mcuSerialNumber)
   }
   hasSerialNumber = true;
   std::string sn = SerialToHexString(mcuSerialNumber.serial_number1, mcuSerialNumber.serial_number2, mcuSerialNumber.serial_number3);
-  RCLCPP_INFO(logger_, "Serial Number received: %s", sn.c_str());
+  RCLCPP_INFO(_logger, "Serial Number received: %s", sn.c_str());
   mcuSignals->UpdateSerialNumber(sn);
 }
 
@@ -242,7 +209,7 @@ void Mcu::OnWriteComplete(boost::system::error_code error)
 { 
   if(error) 
   {
-    RCLCPP_ERROR(logger_, "Serial read throws an error: %s", error.message().c_str());
+    RCLCPP_ERROR(_logger, "Serial write throws an error: %s", error.message().c_str());
   }
 }
 
