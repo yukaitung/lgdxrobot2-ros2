@@ -31,13 +31,15 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
   }
 
   // Publisher
-  odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("/agent/odom",
+  imuPublisher = node->create_publisher<sensor_msgs::msg::Imu>("agent/imu", 
     rclcpp::SensorDataQoS().reliable());
-  jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("/joint_states", 
+  magneticFieldPublisher = node->create_publisher<sensor_msgs::msg::MagneticField>("agent/mag", 
     rclcpp::SensorDataQoS().reliable());
-  imuPublisher = node->create_publisher<sensor_msgs::msg::Imu>("/agent/imu", 
+  systemPublisher = node->create_publisher<lgdxrobot2_msgs::msg::System>("agent/system", 
     rclcpp::SensorDataQoS().reliable());
-  magneticFieldPublisher = node->create_publisher<sensor_msgs::msg::MagneticField>("/agent/mag", 
+  odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("agent/odom",
+    rclcpp::SensorDataQoS().reliable());
+  jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("joint_states", 
     rclcpp::SensorDataQoS().reliable());
   baseLinkName = node->get_parameter("mcu_base_link_name").as_string();
   if (node->get_parameter("mcu_publish_tf").as_bool())
@@ -131,7 +133,7 @@ void Sensors::Publish(const McuData& mcuData)
     imu.linear_acceleration_covariance[8] = mcuData.imu.accelerometer_covariance.z;
     imuPublisher->publish(imu);
   }
-  
+
   if (magneticFieldPublisher != nullptr)
   {
     sensor_msgs::msg::MagneticField magneticField;
@@ -143,6 +145,19 @@ void Sensors::Publish(const McuData& mcuData)
     magneticField.magnetic_field_covariance[4] = mcuData.imu.magnetometer_covariance.y;
     magneticField.magnetic_field_covariance[8] = mcuData.imu.magnetometer_covariance.z;
     magneticFieldPublisher->publish(magneticField);
+  }
+
+  if (systemPublisher != nullptr)
+  {
+    lgdxrobot2_msgs::msg::System system;
+    system.battery1.voltage = mcuData.battery1.voltage;
+    system.battery1.current = mcuData.battery1.current;
+    system.battery2.voltage = mcuData.battery2.voltage;
+    system.battery2.current = mcuData.battery2.current;
+    system.software_emergency_stop_enabled = mcuData.software_emergency_stop_enabled;
+    system.hardware_emergency_stop_enabled = mcuData.hardware_emergency_stop_enabled;
+    system.bettery_low_emergency_stop_enabled = mcuData.bettery_low_emergency_stop_enabled;
+    systemPublisher->publish(system);
   }
   
   tf2::Quaternion quaternion;
