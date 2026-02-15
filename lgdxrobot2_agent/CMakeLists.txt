@@ -17,6 +17,7 @@ find_package(Boost REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
@@ -24,20 +25,37 @@ find_package(lgdxrobot2_msgs REQUIRED)
 
 include_directories(include)
 
-add_executable(${EXECUTABLE_NAME} 
+add_library(lgdxrobot2_agent_component SHARED
   src/Agent.cpp
-  src/main.cpp
   src/Mcu.cpp
   src/Sensors.cpp
 )
-target_link_libraries(${EXECUTABLE_NAME} 
+target_link_libraries(lgdxrobot2_agent_component
   "${cpp_typesupport_target}"
   Boost::headers
 )
-ament_target_dependencies(${EXECUTABLE_NAME}  
-  geometry_msgs nav_msgs rclcpp sensor_msgs std_msgs tf2_geometry_msgs lgdxrobot2_msgs
+ament_target_dependencies(lgdxrobot2_agent_component
+  geometry_msgs 
+  lgdxrobot2_msgs
+  nav_msgs 
+  rclcpp 
+  rclcpp_components 
+  sensor_msgs 
+  std_msgs 
+  tf2_geometry_msgs 
 )
 
-install(TARGETS ${EXECUTABLE_NAME} DESTINATION lib/${PROJECT_NAME})
+rclcpp_components_register_node(lgdxrobot2_agent_component
+  PLUGIN "LgdxRobot2::Agent"
+  EXECUTABLE lgdxrobot2_agent_node
+)
+
+ament_export_targets(export_lgdxrobot2_agent_component)
+install(TARGETS lgdxrobot2_agent_component
+  EXPORT export_lgdxrobot2_agent_component
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 
 ament_package()

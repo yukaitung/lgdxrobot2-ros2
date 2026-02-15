@@ -6,9 +6,14 @@
 #include "Mcu.hpp"
 #include "Sensors.hpp"
 
+namespace LgdxRobot2 
+{
+
 class Agent : public rclcpp::Node
 {
   private:
+    rclcpp::TimerBase::SharedPtr timer;
+
     std::unique_ptr<Mcu> mcu;
     std::unique_ptr<Sensors> sensors;
 
@@ -16,9 +21,11 @@ class Agent : public rclcpp::Node
     std::shared_ptr<SensorSignals> sensorSignals;
 
   public:
-    Agent();
+    Agent(const rclcpp::NodeOptions &options);
     void Initalise();
     void Shutdown();
 };
+
+}
 
 #endif // AGENT_HPP

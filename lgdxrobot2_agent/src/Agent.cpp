@@ -1,10 +1,19 @@
+#include <chrono>
+#include <rclcpp_components/register_node_macro.hpp>
 #include "lgdxrobot2_agent/Agent.hpp"
 
-Agent::Agent() : Node("lgdxrobot2_agent_node")
-{}
+namespace LgdxRobot2 
+{
+  
+Agent::Agent(const rclcpp::NodeOptions &options) : Node("lgdxrobot2_agent_node", options)
+{
+  timer = this->create_wall_timer(std::chrono::microseconds(1), [this]() {this->Initalise();});
+}
 
 void Agent::Initalise()
 {
+  timer->cancel();
+
   mcuSignals = std::make_shared<McuSignals>();
   sensorSignals = std::make_shared<SensorSignals>();
 
@@ -24,3 +33,7 @@ void Agent::Shutdown()
   rclcpp::shutdown();
   exit(0);
 }
+
+}
+
+RCLCPP_COMPONENTS_REGISTER_NODE(LgdxRobot2::Agent)
