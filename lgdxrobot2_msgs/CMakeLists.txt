@@ -13,10 +13,7 @@ find_package(ament_cmake REQUIRED)
 #
 find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/AutoTask.msg"
-  "msg/RobotData.msg"
-  "srv/AutoTaskNext.srv"
-  "srv/AutoTaskAbort.srv"
+  "msg/System.msg"
 )
 ament_export_dependencies(rosidl_default_runtime)
 rosidl_get_typesupport_target(cpp_typesupport_target
