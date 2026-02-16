@@ -58,9 +58,9 @@ void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered
     rclcpp::SensorDataQoS().reliable(),
     std::bind(&LgdxRobot2Driver::cmdVelCallback, this, std::placeholders::_1)
   );
-  odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("/odom", rclcpp::SensorDataQoS().reliable());
+  odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("agent/odom", rclcpp::SensorDataQoS().reliable());
   tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(node);
-  jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("/joint_states", rclcpp::SensorDataQoS().reliable());
+  jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("joint_states", rclcpp::SensorDataQoS().reliable());
 }
 
 void LgdxRobot2Driver::step() 
@@ -85,10 +85,11 @@ void LgdxRobot2Driver::step()
   robotTransform[2] = iuValue[2];
 
   motorForwardKinematic[0] = ((motorPositionChange[0] + motorPositionChange[1] + motorPositionChange[2] + motorPositionChange[3]) * (WHEEL_RADIUS / 4)) / timeElapsed;
-  motorForwardKinematic[1] = ((-motorPositionChange[0] + motorPositionChange[1] + motorPositionChange[2] - motorPositionChange[3]) * (WHEEL_RADIUS / 4)) / timeElapsed; // Variation in formula
-  //motorForwardKinematic[2] = ((-motorPositionChange[0] + motorPositionChange[1] - motorPositionChange[2] + motorPositionChange[3]) * ((WHEEL_RADIUS) * 2 / (M_PI * (CHASSIS_LX + CHASSIS_LY)))) / timeElapsed;
+  motorForwardKinematic[1] = ((-motorPositionChange[0] + motorPositionChange[1] + motorPositionChange[2] - motorPositionChange[3]) * (WHEEL_RADIUS / 4)) / timeElapsed; 
+  motorForwardKinematic[2] = ((-motorPositionChange[0] + motorPositionChange[1] - motorPositionChange[2] + motorPositionChange[3]) * (WHEEL_RADIUS / (4 * (CHASSIS_LX + CHASSIS_LY )))) / timeElapsed;
   robotTransform[0] += (motorForwardKinematic[0] * cos(robotTransform[2]) - motorForwardKinematic[1] * sin(robotTransform[2])) * timeElapsed;
 	robotTransform[1] += (motorForwardKinematic[0] * sin(robotTransform[2]) + motorForwardKinematic[1] * cos(robotTransform[2])) * timeElapsed;
+  robotTransform[2] += (motorForwardKinematic[2] * timeElapsed);
   
   tf2::Quaternion quaternion;
   quaternion.setRPY(0, 0, robotTransform[2]);

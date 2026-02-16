@@ -54,6 +54,13 @@ RectangleArena {
 }
 Robot {
   children [
+    Gyro {
+    }
+    InertialUnit {
+      name "inertial_unit"
+    }
+    Accelerometer {
+    }
     Solid {
       translation 0.06 0 0.13331
       rotation 0 0 1 3.14159
@@ -96,13 +103,6 @@ Robot {
     Solid {
       translation 0.106 0 0.05931
       children [
-        Accelerometer {
-        }
-        Gyro {
-        }
-        InertialUnit {
-          name "inertial_unit"
-        }
         RangeFinder {
           translation 0.025 0.0175 0.0125
           name "camera_depth_frame_sim"
