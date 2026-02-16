@@ -3,8 +3,8 @@
   <webots>
     <plugin type="LgdxRobot2::LgdxRobot2Driver" />
     <plugin type="webots_ros2_driver::Ros2IMU">
-      <topicName>/imu/data</topicName>
-      <updateRate>30</updateRate>
+      <topicName>/agent/imu</topicName>
+      <updateRate>100</updateRate>
       <alwaysOn>True</alwaysOn>
       <inertialUnitName>inertial_unit</inertialUnitName>
       <gyroName>gyro</gyroName>

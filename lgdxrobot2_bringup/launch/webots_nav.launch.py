@@ -172,7 +172,7 @@ def launch_setup(context):
     ],
     remappings=[
       ('/cmd_vel', 'cmd_vel'), 
-      ('/odom', 'odom'), 
+      ('/agent/odom', 'agent/odom'), 
       ('/tf', 'tf'), 
       ('/tf_static', 'tf_static'),
       ('/camera/color/camera_info', 'camera/color/camera_info'),
