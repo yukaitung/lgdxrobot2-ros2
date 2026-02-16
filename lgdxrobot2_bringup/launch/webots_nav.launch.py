@@ -183,7 +183,6 @@ def launch_setup(context):
       ('/scan', 'scan'),
       ('/scan/point_cloud', 'scan/point_cloud'),
       ('/imu/data', 'imu/data'),
-      ('/agent/robot_data', 'agent/robot_data'),
       ('/remove_urdf_robot', 'remove_urdf_robot')
     ],
     respawn=True
@@ -203,28 +202,6 @@ def launch_setup(context):
       'use_rviz': use_rviz,
       'rviz_config': rviz_config,
     }.items(),
-  )
-  lgdxrobot2_agent_node = Node(
-    package='lgdxrobot2_agent',
-    executable='lgdxrobot2_agent_node',
-    namespace=namespace,
-    output='screen',
-    condition=IfCondition(use_cloud),
-    parameters=[{
-      'cloud_enable': True,
-      'cloud_address': cloud_address,
-      'cloud_root_cert': cloud_root_cert,
-      'cloud_client_key': cloud_client_key,
-      'cloud_client_cert': cloud_client_cert,
-      'sim_enable': True,
-      'cloud_slam_enable': slam,
-    }],
-    remappings=[
-      ('/tf', 'tf'), 
-      ('/tf_static', 'tf_static'),
-      ('/agent/auto_task', 'agent/auto_task'),
-      ('/agent/robot_data', 'agent/robot_data'),
-    ],
   )
   
   #
@@ -265,7 +242,7 @@ def launch_setup(context):
 
   waiting_nodes = WaitForControllerConnection(
     target_driver = lgdxrobot2_driver,
-    nodes_to_start = [description_node, robot_localization_node, ros2_nav, lgdxrobot2_agent_node]
+    nodes_to_start = [description_node, robot_localization_node, ros2_nav]
   )
 
   return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]

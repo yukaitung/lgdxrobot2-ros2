@@ -10,11 +10,11 @@
         world_frame: odom
 
         odom0: <ROS_NAMESPACE>/odom
-        odom0_config: [false, false, false,
-                       false, false, false,
+        odom0_config: [true,  true,  false,
+                       false, false, true,
                        true,  true,  false,
                        false, false, true,
-                       false, false, false]
+                       true,  true,  false]
 
         imu0: <ROS_NAMESPACE>/imu/data
         imu0_config:   [false, false,  false,
