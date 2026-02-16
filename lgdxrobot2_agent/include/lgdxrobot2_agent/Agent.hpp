@@ -23,7 +23,6 @@ class Agent : public rclcpp::Node
   public:
     Agent(const rclcpp::NodeOptions &options);
     void Initalise();
-    void Shutdown();
 };
 
 }

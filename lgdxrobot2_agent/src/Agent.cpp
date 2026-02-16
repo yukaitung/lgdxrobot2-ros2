@@ -27,13 +27,6 @@ void Agent::Initalise()
     boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
 }
 
-void Agent::Shutdown()
-{
-  RCLCPP_INFO(this->get_logger(), "Shutting down agent");
-  rclcpp::shutdown();
-  exit(0);
-}
-
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(LgdxRobot2::Agent)

@@ -141,14 +141,10 @@ source ~/ros2_ws/install/setup.bash
 
 This project is licensed under the MIT Licence.
 
-## Extra Dependencies
-
-* [sllidar_ros2](https://github.com/Slamtec/sllidar_ros2)
-* [m-explore-ros2](https://github.com/robo-friends/m-explore-ros2)
-
 ## Credits
 
 * [Docker images for Selkies](https://github.com/linuxserver/docker-baseimage-selkies/)
+* [sllidar_ros2](https://github.com/Slamtec/sllidar_ros2)
 
 ## Acknowledgements
 
