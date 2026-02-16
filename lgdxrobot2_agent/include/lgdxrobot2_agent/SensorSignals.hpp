@@ -6,7 +6,6 @@
 struct SensorSignals
 {
   boost::signals2::signal<void(bool)> SetEstop;
-  boost::signals2::signal<void(float, float, float, float)> SetExternalImu;
   boost::signals2::signal<void(float, float, float)> SetInverseKinematics;
 };
 

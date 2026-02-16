@@ -7,16 +7,12 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-
-#
-# Node Msg
-#
+find_package(sensor_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/AutoTask.msg"
-  "msg/RobotData.msg"
-  "srv/AutoTaskNext.srv"
-  "srv/AutoTaskAbort.srv"
+  "msg/System.msg"
+  DEPENDENCIES sensor_msgs
 )
 ament_export_dependencies(rosidl_default_runtime)
 rosidl_get_typesupport_target(cpp_typesupport_target

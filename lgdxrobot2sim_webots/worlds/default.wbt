@@ -3,7 +3,7 @@
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
-EXTERNPROTO "https://gitlab.com/yukaitung/lgdxrobot2-ros2/-/raw/main/lgdxrobot2_webots/protos/LGDXRobot2.proto"
+EXTERNPROTO "https://gitlab.com/yukaitung/lgdxrobot2-ros2/-/raw/main/lgdxrobot2sim_webots/protos/LGDXRobot2.proto"
 
 WorldInfo {
   contactProperties [
@@ -48,12 +48,6 @@ LGDXRobot2 {
   rotation 0 0 -1 -5.307179586466759e-06
   controller "<extern>"
   name "Robot1"
-}
-LGDXRobot2 {
-  translation -1.03 -3.98 0
-  rotation 0 0 -1 -5.307179586466759e-06
-  controller "<extern>"
-  name "Robot2"
 }
 Solid {
   translation 2.5 3.5 0.5

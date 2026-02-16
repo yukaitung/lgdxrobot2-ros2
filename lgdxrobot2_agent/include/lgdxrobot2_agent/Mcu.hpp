@@ -5,14 +5,15 @@
 #include <boost/asio.hpp>
 
 #include "rclcpp/rclcpp.hpp"
-#include "Structs/McuSignals.hpp"
-#include "Structs/RobotData.hpp"
-#include "lgdxrobot2_agent/lgdxrobot2.h"
+
+#include "lgdxrobot2.h"
+#include "McuSignals.hpp"
 
 class Mcu
 {
   private:
-    rclcpp::Logger logger_;
+    rclcpp::Node::SharedPtr _node;
+    rclcpp::Logger _logger;
     rclcpp::TimerBase::SharedPtr serialPortReconnectTimer;
 
     boost::asio::io_service serialService;
@@ -25,12 +26,11 @@ class Mcu
     int kWaitSecond = 3;
 
     // Settings
-    std::string portName;
     bool resetTransformOnConnected = false;
 
     // Data
     bool hasSerialNumber = false;
-    RobotData robotData;
+    McuData mcuData;
     std::array<uint8_t, 512> readBuffer = {0};
     std::vector<uint8_t> mcuBuffer = {0};
 
@@ -38,14 +38,11 @@ class Mcu
     void StartSerialIo();
 
     // Connection
-    void AutoSearch();
-    void Connect(const std::string &port);
-    void Reconnect();
+    void Connect();
 
     // Read from MCU
     void Read();
     void OnReadComplete(boost::system::error_code error, std::size_t size);
-    void ProcessRobotData(const McuData &mcuData);
     std::string SerialToHexString(uint32_t serial1, uint32_t serial2, uint32_t serial3);
     void ProcessSerialNumber(const McuSerialNumber &mcuSerialNumber);
 

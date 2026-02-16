@@ -2,7 +2,6 @@
 #define LGDXROBOT2DRIVER_HPP
 
 #include "geometry_msgs/msg/twist.hpp"
-#include "lgdxrobot2_msgs/msg/robot_data.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "rclcpp/macros.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -30,7 +29,6 @@ class LgdxRobot2Driver : public webots_ros2_driver::PluginInterface
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
 
     bool isCrticialStatus = false;
-    rclcpp::Subscription<lgdxrobot2_msgs::msg::RobotData>::SharedPtr robotStatusSubscription;
     
     double lastSimTime = 0;
     double motorLastPosition[4] = {0}; // Wheel1 - Wheel4

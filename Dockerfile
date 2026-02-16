@@ -17,7 +17,7 @@ RUN apt-get update \
     dpkg \
     # Install dependencies
     && rosdep install --from-paths lgdxrobot2_agent --ignore-src -y \
-    && rosdep install --from-paths lgdxrobot2_webots --ignore-src -y \
+    && rosdep install --from-paths lgdxrobot2sim_webots --ignore-src -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Complie the packages
@@ -45,7 +45,7 @@ WORKDIR /src/lgdxrobot2_navigation
 RUN bloom-generate rosdebian
 RUN fakeroot debian/rules binary
 
-WORKDIR /src/lgdxrobot2_webots
+WORKDIR /src/lgdxrobot2sim_webots
 RUN bloom-generate rosdebian
 RUN fakeroot debian/rules binary
 

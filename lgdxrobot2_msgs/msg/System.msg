@@ -1,0 +1,5 @@
+bool software_emergency_stop_enabled
+bool hardware_emergency_stop_enabled
+bool bettery_low_emergency_stop_enabled
+sensor_msgs/BatteryState battery1
+sensor_msgs/BatteryState battery2

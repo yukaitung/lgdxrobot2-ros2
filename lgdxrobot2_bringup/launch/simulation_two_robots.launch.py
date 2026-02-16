@@ -27,7 +27,7 @@ launch_args = [
   DeclareLaunchArgument(
     name='world',
     default_value='default_2r.wbt',
-    description='World file in `lgdxrobot2_webots` package.'
+    description='World file in `lgdxrobot2sim_webots` package.'
   ),
   
   # NAV2
@@ -44,7 +44,7 @@ launch_args = [
   DeclareLaunchArgument(
     name='map',
     default_value='default.yaml',
-    description='Map yaml file in `lgdxrobot2_webots` package.'
+    description='Map yaml file in `lgdxrobot2sim_webots` package.'
   ),
   DeclareLaunchArgument(
     name='use_sim_time',
@@ -77,7 +77,7 @@ launch_args = [
 
 def launch_setup(context):
   package_dir = get_package_share_directory('lgdxrobot2_bringup')
-  webots_package_dir = get_package_share_directory('lgdxrobot2_webots')
+  webots_package_dir = get_package_share_directory('lgdxrobot2sim_webots')
   
   # Webots
   world = LaunchConfiguration('world')

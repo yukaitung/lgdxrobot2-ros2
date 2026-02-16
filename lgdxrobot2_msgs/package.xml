@@ -2,8 +2,8 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>lgdxrobot2_msgs</name>
-  <version>3.0.1</version>
-  <description>Interface for LGDXRobot2 ROS 2.</description>
+  <version>3.1.0</version>
+  <description>LGDXRobot2 ROS 2 interfaces.</description>
   <license>MIT</license>
   <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <author email="info@bristolgram.uk">LGDXRobotics</author>
@@ -13,9 +13,11 @@
 
   <buildtool_depend>rosidl_default_generators</buildtool_depend>
   <buildtool_depend>std_msgs</buildtool_depend>
+  <buildtool_depend>sensor_msgs</buildtool_depend>
   
   <exec_depend>rosidl_default_runtime</exec_depend>
   <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
 
   <member_of_group>rosidl_interface_packages</member_of_group>
   <export>

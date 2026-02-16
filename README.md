@@ -34,7 +34,7 @@ The solution consists of the following packages:
 * `lgdxrobot2_description`: A description package for visualising LGDXRobot2 hardware as a 3D model.
 * `lgdxrobot2_msgs`: Interface for LGDXRobot2 ROS 2.
 * `lgdxrobot2_navigation`: LGDXRobot2 Nav2 stack integration.
-* `lgdxrobot2_webots`: Simulation configuration and driver for Webots.
+* `lgdxrobot2sim_webots`: Simulation configuration and driver for Webots.
 
 ## Installation
 
@@ -54,9 +54,13 @@ sudo apt update
 ```bash
 sudo apt install lgdxrobot2-udev \
   ros-${ROS_DISTRO}-sllidar-ros2 \
-  ros-${ROS_DISTRO}-lgdxrobot2* \
-  ros-${ROS_DISTRO}-explore-lite \
-  ros-${ROS_DISTRO}-multirobot-map-merge
+  ros-${ROS_DISTRO}-lgdxrobot2*
+```
+
+4. Optionally, install the simulation package for Webots.
+
+```bash
+sudo apt install ros-${ROS_DISTRO}-lgdxrobot2sim-webots
 ```
 
 ### 2. Docker
@@ -137,15 +141,10 @@ source ~/ros2_ws/install/setup.bash
 
 This project is licensed under the MIT Licence.
 
-## Extra Dependencies
-
-* [hwinfo](https://github.com/lfreist/hwinfo)
-* [sllidar_ros2](https://github.com/Slamtec/sllidar_ros2)
-* [m-explore-ros2](https://github.com/robo-friends/m-explore-ros2)
-
 ## Credits
 
 * [Docker images for Selkies](https://github.com/linuxserver/docker-baseimage-selkies/)
+* [sllidar_ros2](https://github.com/Slamtec/sllidar_ros2)
 
 ## Acknowledgements
 

@@ -6,37 +6,28 @@
 #include "lgdxrobot2_agent/Mcu.hpp"
 
 Mcu::Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr) :
-  logger_(node->get_logger()),
+  _node(node),
+  _logger(node->get_logger()),
   serialService(), 
   serial(serialService)
 {
   mcuSignals = mcuSignalsPtr;
 
   // ROS
-  serialPortReconnectTimer = node->create_wall_timer(std::chrono::seconds(kWaitSecond), std::bind(&Mcu::AutoSearch, this));
+  serialPortReconnectTimer = node->create_wall_timer(std::chrono::seconds(kWaitSecond), std::bind(&Mcu::Connect, this));
   serialPortReconnectTimer->cancel();
 
   // Parameters
   auto mcuPortNameParam = rcl_interfaces::msg::ParameterDescriptor{};
-  mcuPortNameParam.description = "Default serial port name or (Linux only) perform automated search if the this is unspecified.";
-  node->declare_parameter("mcu_port_name", "", mcuPortNameParam);
+  mcuPortNameParam.description = "Serial port name for the LGDXRobot2 or default to /dev/lgdxrobot2.";
+  node->declare_parameter("serial_port_name", "/dev/lgdxrobot2", mcuPortNameParam);
   auto mcuResetTransformParam = rcl_interfaces::msg::ParameterDescriptor{};
   mcuResetTransformParam.description = "Reset robot transform on start up.";
-  node->declare_parameter("mcu_reset_transform", false, mcuResetTransformParam);
-  resetTransformOnConnected = node->get_parameter("mcu_reset_transform").as_bool();
+  node->declare_parameter("reset_transform", false, mcuResetTransformParam);
+  resetTransformOnConnected = node->get_parameter("reset_transform").as_bool();
 
   // Initalise
-  std::string port = node->get_parameter("mcu_port_name").as_string();
-  if(port.empty())
-  {
-    // Perform auto search if no port specified
-    AutoSearch();
-  }
-  else
-  {
-    portName = port;
-    Connect(portName);
-  }
+  Connect();
 }
 
 Mcu::~Mcu()
@@ -58,37 +49,21 @@ void Mcu::StartSerialIo()
   ioThread.swap(thread);
 }
 
-void Mcu::AutoSearch()
+void Mcu::Connect()
 {
-  serialPortReconnectTimer->cancel();
-  std::string port;
-  std::filesystem::path path {"/dev"};
-  for(auto const &file : std::filesystem::directory_iterator(path))
-  {
-    // Linux only, find first /dev/ttyACM*
-    if(file.path().string().find("ttyACM") != std::string::npos)
-    {
-      port = file.path().string();
-      RCLCPP_INFO(logger_, "Serial device %s found.", port.c_str());
-      Connect(port);
-      return;
-    }  
-  }
-  RCLCPP_WARN(logger_, "No serial device found, try again in %d seconds.", kWaitSecond);
-  serialPortReconnectTimer->reset();
-}
+  std::string port = _node->get_parameter("serial_port_name").as_string();
+  RCLCPP_INFO(_logger, "Attempting to connect to %s", port.c_str());
 
-void Mcu::Connect(const std::string &port)
-{
   boost::system::error_code error;
   serial.open(port, error);
   if(error) 
   {
-    RCLCPP_ERROR(logger_, "Serial connection throws an error: %s, try again in %d seconds.", error.message().c_str(), kWaitSecond);
+    RCLCPP_ERROR(_logger, "Serial connection throws an error: %s, try again in %d seconds.", error.message().c_str(), kWaitSecond);
     serialPortReconnectTimer->reset();
     return;
   }
-  RCLCPP_INFO(logger_, "Serial port connected to %s", port.c_str());
+  RCLCPP_INFO(_logger, "Serial port connected to %s", port.c_str());
+  serialPortReconnectTimer->cancel();
   Read();
   if(resetTransformOnConnected)
   {
@@ -96,14 +71,6 @@ void Mcu::Connect(const std::string &port)
     ResetTransformInternal();
   }
   StartSerialIo();
-}
-
-void Mcu::Reconnect()
-{
-  if(portName.empty()) // Perform auto search if no portName specified
-    AutoSearch();
-  else
-    Connect(portName);
 }
 
 void Mcu::Read()
@@ -150,9 +117,8 @@ void Mcu::OnReadComplete(boost::system::error_code error, std::size_t size)
           case MCU_DATA_TYPE:
             if (!mcuDataFound)
             {
-              McuData mcuData;
               memcpy(&mcuData, frame.data(), sizeof(McuData));
-              ProcessRobotData(mcuData);
+              mcuSignals->UpdateMcuData(mcuData);
               mcuDataFound = true;
             }
             break;
@@ -179,52 +145,11 @@ void Mcu::OnReadComplete(boost::system::error_code error, std::size_t size)
   }
   else 
   {
-    RCLCPP_ERROR(logger_, "Serial read throws an error: %s", error.message().c_str());
+    RCLCPP_ERROR(_logger, "Serial read throws an error: %s", error.message().c_str());
     //serialService.stop();
     serial.close();
-    Reconnect();
+    Connect();
   }
-}
-
-void Mcu::ProcessRobotData(const McuData &mcuData)
-{
-  robotData.responseTime = mcuData.response_time;
-  robotData.transform[0] = mcuData.transform.x;
-  robotData.transform[1] = mcuData.transform.y;
-  robotData.transform[2] = mcuData.transform.rotation;
-  robotData.forwardKinematic[0] = mcuData.forward_kinematic.x;
-  robotData.forwardKinematic[1] = mcuData.forward_kinematic.y;
-  robotData.forwardKinematic[2] = mcuData.forward_kinematic.rotation;
-  std::copy(mcuData.motors_target_velocity, mcuData.motors_target_velocity + 4, robotData.motorsTargetVelocity);
-  std::copy(mcuData.motors_desire_velocity, mcuData.motors_desire_velocity + 4, robotData.motorsDesireVelocity);
-  std::copy(mcuData.motors_actual_velocity, mcuData.motors_actual_velocity + 4, robotData.motorsActualVelocity);
-  std::copy(mcuData.motors_ccr, mcuData.motors_ccr + 4, robotData.motorsCcr);
-  robotData.batteryCurrent[0] = mcuData.battery1.current;
-  robotData.batteryCurrent[1] = mcuData.battery2.current;
-  robotData.batteryVoltage[0] = mcuData.battery1.voltage;
-  robotData.batteryVoltage[1] = mcuData.battery2.voltage;
-  robotData.eStop[0] = mcuData.software_emergency_stop_enabled;
-  robotData.eStop[1] = mcuData.hardware_emergency_stop_enabled;
-  robotData.eStop[2] = mcuData.bettery_low_emergency_stop_enabled;
-  robotData.accelerometer[0] = mcuData.imu.accelerometer.x;
-  robotData.accelerometer[1] = mcuData.imu.accelerometer.y;
-  robotData.accelerometer[2] = mcuData.imu.accelerometer.z;
-  robotData.accelerometerCovariance[0] = mcuData.imu.accelerometer_covariance.x;
-  robotData.accelerometerCovariance[1] = mcuData.imu.accelerometer_covariance.y;
-  robotData.accelerometerCovariance[2] = mcuData.imu.accelerometer_covariance.z;
-  robotData.gyroscope[0] = mcuData.imu.gyroscope.x;
-  robotData.gyroscope[1] = mcuData.imu.gyroscope.y;
-  robotData.gyroscope[2] = mcuData.imu.gyroscope.z;
-  robotData.gyroscopeCovariance[0] = mcuData.imu.gyroscope_covariance.x;
-  robotData.gyroscopeCovariance[1] = mcuData.imu.gyroscope_covariance.y;
-  robotData.gyroscopeCovariance[2] = mcuData.imu.gyroscope_covariance.z;
-  robotData.magnetometer[0] = mcuData.imu.magnetometer.x;
-  robotData.magnetometer[1] = mcuData.imu.magnetometer.y;
-  robotData.magnetometer[2] = mcuData.imu.magnetometer.z;
-  robotData.magnetometerCovariance[0] = mcuData.imu.magnetometer_covariance.x;
-  robotData.magnetometerCovariance[1] = mcuData.imu.magnetometer_covariance.y;  
-  robotData.magnetometerCovariance[2] = mcuData.imu.magnetometer_covariance.z;
-  mcuSignals->UpdateRobotData(robotData);
 }
 
 std::string Mcu::SerialToHexString(uint32_t serial1, uint32_t serial2, uint32_t serial3) 
@@ -259,7 +184,7 @@ void Mcu::ProcessSerialNumber(const McuSerialNumber &mcuSerialNumber)
   }
   hasSerialNumber = true;
   std::string sn = SerialToHexString(mcuSerialNumber.serial_number1, mcuSerialNumber.serial_number2, mcuSerialNumber.serial_number3);
-  RCLCPP_INFO(logger_, "Serial Number received: %s", sn.c_str());
+  RCLCPP_INFO(_logger, "Serial Number received: %s", sn.c_str());
   mcuSignals->UpdateSerialNumber(sn);
 }
 
@@ -284,7 +209,7 @@ void Mcu::OnWriteComplete(boost::system::error_code error)
 { 
   if(error) 
   {
-    RCLCPP_ERROR(logger_, "Serial read throws an error: %s", error.message().c_str());
+    RCLCPP_ERROR(_logger, "Serial write throws an error: %s", error.message().c_str());
   }
 }
 

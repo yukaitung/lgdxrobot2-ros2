@@ -10,37 +10,14 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 #
-# gRPC
-#
-find_package(Protobuf REQUIRED)
-find_package(gRPC CONFIG REQUIRED)
-
-add_library(${PROTO_NAME} 
-  proto/RobotClientsService.proto
-)
-target_link_libraries(${PROTO_NAME} 
-  PUBLIC
-  protobuf::libprotobuf
-  gRPC::grpc
-  gRPC::grpc++
-)
-target_include_directories(${PROTO_NAME} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-
-get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
-protobuf_generate(TARGET ${PROTO_NAME} LANGUAGE cpp)
-protobuf_generate(TARGET ${PROTO_NAME} LANGUAGE grpc GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}")
-
-#
 # Node
 #
-add_subdirectory(../third_party/hwinfo hwinfo)
 find_package(ament_cmake REQUIRED)
 find_package(Boost REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
-find_package(nav2_msgs REQUIRED)
-find_package(nav2_util REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
@@ -48,30 +25,37 @@ find_package(lgdxrobot2_msgs REQUIRED)
 
 include_directories(include)
 
-add_executable(${EXECUTABLE_NAME} 
+add_library(lgdxrobot2_agent_component SHARED
   src/Agent.cpp
-  src/Cloud.cpp
-  src/CloudExchangeStream.cpp
-  src/main.cpp
-  src/Map.cpp
   src/Mcu.cpp
-  src/Navigation.cpp
-  src/RobotController.cpp
-  src/RobotStatus.cpp
   src/Sensors.cpp
-  src/SlamExchangeStream.cpp
 )
-target_link_libraries(${EXECUTABLE_NAME} 
-  ${PROTO_NAME}
+target_link_libraries(lgdxrobot2_agent_component
   "${cpp_typesupport_target}"
-  hwinfo
   Boost::headers
 )
-ament_target_dependencies(${EXECUTABLE_NAME}  
-  geometry_msgs nav2_msgs nav2_util nav_msgs rclcpp sensor_msgs std_msgs tf2_geometry_msgs lgdxrobot2_msgs
+ament_target_dependencies(lgdxrobot2_agent_component
+  geometry_msgs 
+  lgdxrobot2_msgs
+  nav_msgs 
+  rclcpp 
+  rclcpp_components 
+  sensor_msgs 
+  std_msgs 
+  tf2_geometry_msgs 
 )
 
-install(TARGETS ${EXECUTABLE_NAME} DESTINATION lib/${PROJECT_NAME})
-install(TARGETS ${PROTO_NAME} LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+rclcpp_components_register_node(lgdxrobot2_agent_component
+  PLUGIN "LgdxRobot2::Agent"
+  EXECUTABLE lgdxrobot2_agent_node
+)
+
+ament_export_targets(export_lgdxrobot2_agent_component)
+install(TARGETS lgdxrobot2_agent_component
+  EXPORT export_lgdxrobot2_agent_component
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 
 ament_package()

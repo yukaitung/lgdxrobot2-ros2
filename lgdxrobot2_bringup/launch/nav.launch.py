@@ -60,11 +60,6 @@ launch_args = [
     default_value='False',
     description='Whether to respawn if a node crashes.'
   ),
-  DeclareLaunchArgument(
-    name='use_explore_lite', 
-    default_value='False',
-    description='Launch explore_lite to explore the map automatically.'
-  ),
 
   # Display
   DeclareLaunchArgument(
@@ -138,7 +133,6 @@ def launch_setup(context):
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
-  use_explore_lite = LaunchConfiguration('use_explore_lite')
 
   # Sensors
   use_lidar = LaunchConfiguration('use_lidar')
@@ -183,25 +177,13 @@ def launch_setup(context):
     executable='lgdxrobot2_agent_node',
     output='screen',
     parameters=[{
-      'mcu_enable': True,
-      'mcu_control_mode': 'both',
-      'mcu_publish_odom': True,
-      'mcu_publish_tf': False,
-      'mcu_base_link_name': 'base_link',
-      'mcu_reset_transform': True,
-      'mcu_publish_joint_state': True,
-      'cloud_enable': use_cloud,
-      'cloud_address': cloud_address,
-      'cloud_root_cert': cloud_root_cert,
-      'cloud_client_key': cloud_client_key,
-      'cloud_client_cert': cloud_client_cert,
-      'cloud_slam_enable': slam,
+      'reset_transform': True,
+      'use_joy': True,
     }],
     remappings=[
       ('/tf', 'tf'), 
       ('/tf_static', 'tf_static'),
-      ('/agent/auto_task', 'agent/auto_task'),
-      ('/agent/robot_data', 'agent/robot_data'),
+      ('/agent/system', 'agent/system'),
       ('/agent/odom', 'agent/odom'),
       ('/agent/imu', 'agent/imu'),
       ('/agent/mag', 'agent/mag'),
@@ -274,18 +256,8 @@ def launch_setup(context):
       'use_respawn': use_respawn,
     }.items(),
   )
-  explore_node = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(package_dir, 'launch', 'explore.launch.py')
-    ),
-    condition=IfCondition(use_explore_lite),
-    launch_arguments={
-      'config': p.get_param_path('explore_node.yaml'),
-      'namespace': namespace,
-    }.items()
-  )
 
-  return [description_node, lgdxrobot2_agent_node, lidar_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav, explore_node]
+  return [description_node, lgdxrobot2_agent_node, lidar_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)

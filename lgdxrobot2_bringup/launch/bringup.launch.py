@@ -11,8 +11,8 @@ import os
 launch_args = [
     DeclareLaunchArgument(
         name='serial_port_name', 
-        default_value='', 
-        description='Absolute path to the serial port device.'
+        default_value='/dev/lgdxrobot2', 
+        description='Serial port name for the LGDXRobot2 or default to /dev/lgdxrobot2.'
     ),
     DeclareLaunchArgument(
         name='use_joy', 
@@ -61,13 +61,10 @@ def launch_setup(context):
         executable='lgdxrobot2_agent_node',
         output='screen',
         parameters=[{
-            'mcu_enable': True,
-            'mcu_name': serial_port_name,
-            'mcu_control_mode': 'joy',
-            'mcu_publish_odom': True,
-            'mcu_publish_tf': True,
-            'mcu_reset_transform': True,
-            'mcu_publish_joint_state': True
+            'serial_port_name': serial_port_name,
+            'reset_transform': True,
+            'use_joy': True,
+            'publish_tf': True,
         }]
     )
     joy_node = Node(

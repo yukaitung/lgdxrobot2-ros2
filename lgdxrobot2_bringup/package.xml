@@ -2,8 +2,8 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>lgdxrobot2_bringup</name>
-  <version>3.0.1</version>
-  <description>Bringup launch files for LGDXRobot2 hardware.</description>
+  <version>3.1.0</version>
+  <description>LGDXRobot2 launch files.</description>
   <license>MIT</license>
   <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <author email="info@bristolgram.uk">LGDXRobotics</author>

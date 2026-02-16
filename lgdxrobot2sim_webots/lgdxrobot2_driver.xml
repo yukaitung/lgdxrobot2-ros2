@@ -1,4 +1,4 @@
-<library path="lgdxrobot2_webots">
+<library path="lgdxrobot2sim_webots">
   <!-- The `type` attribute is a reference to the plugin class. -->
   <!-- The `base_class_type` attribute is always `webots_ros2_driver::PluginInterface`. -->
   <class type="LgdxRobot2::LgdxRobot2Driver" base_class_type="webots_ros2_driver::PluginInterface">
