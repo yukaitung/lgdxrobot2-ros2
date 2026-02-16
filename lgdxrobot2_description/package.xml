@@ -3,7 +3,7 @@
 <package format="3">
   <name>lgdxrobot2_description</name>
   <version>3.1.1</version>
-  <description>LGDXRobot2 visualising package.</description>
+  <description>LGDXRobot2 visualisation package.</description>
   <license>MIT</license>
   <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <author email="info@bristolgram.uk">LGDXRobotics</author>
