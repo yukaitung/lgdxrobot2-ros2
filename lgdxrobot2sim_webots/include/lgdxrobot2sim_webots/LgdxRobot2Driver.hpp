@@ -13,8 +13,8 @@
 #include "tf2_ros/transform_broadcaster.h"
 #include <string>
 
-#define CHASSIS_LX 0.24
-#define CHASSIS_LY 0.24
+#define CHASSIS_LX 0.082
+#define CHASSIS_LY 0.104
 #define WHEEL_RADIUS 0.0375
 
 namespace LgdxRobot2 
