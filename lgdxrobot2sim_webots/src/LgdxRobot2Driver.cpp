@@ -31,6 +31,7 @@ void LgdxRobot2Driver::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
   }
 }
 
+
 void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered_map<std::string, std::string> &) 
 {
   rosNode = node;
@@ -58,6 +59,12 @@ void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered
     rclcpp::SensorDataQoS().reliable(),
     std::bind(&LgdxRobot2Driver::cmdVelCallback, this, std::placeholders::_1)
   );
+  softwareEmergencyStopSubscription = node->create_subscription<std_msgs::msg::Bool>(
+    "cloud/software_emergency_stop", rclcpp::SensorDataQoS().reliable(),
+    [this](const std_msgs::msg::Bool::SharedPtr msg) {
+      isCrticialStatus = msg->data;
+    });
+
   odomPublisher = node->create_publisher<nav_msgs::msg::Odometry>("agent/odom", rclcpp::SensorDataQoS().reliable());
   tfBroadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(node);
   jointStatePublisher = node->create_publisher<sensor_msgs::msg::JointState>("joint_states", rclcpp::SensorDataQoS().reliable());

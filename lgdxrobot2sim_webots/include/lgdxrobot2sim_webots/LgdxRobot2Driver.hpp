@@ -8,6 +8,7 @@
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "webots_ros2_driver/PluginInterface.hpp"
 #include "webots_ros2_driver/WebotsNode.hpp"
+#include "std_msgs/msg/bool.hpp"
 
 // Odom
 #include "tf2_ros/transform_broadcaster.h"
@@ -27,6 +28,7 @@ class LgdxRobot2Driver : public webots_ros2_driver::PluginInterface
     WbDeviceTag wheels[4]; // Wheel1 - Wheel4
     double wheelsVelocity[4] = {0}; // Wheel1 - Wheel4
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr softwareEmergencyStopSubscription;
 
     bool isCrticialStatus = false;
     
