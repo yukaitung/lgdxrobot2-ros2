@@ -21,7 +21,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     # Install LGDXRobotics Source
     && wget -q http://packages.bristolgram.uk/lgdxrobotics-apt-source.deb \
-    && dpkg -i lgdxrobotics-apt-source.deb
+    && dpkg -i lgdxrobotics-apt-source.deb \
+    && rm lgdxrobotics-apt-source.deb
 
 # Install LGDXRobot Cloud msgs
 RUN apt update \
