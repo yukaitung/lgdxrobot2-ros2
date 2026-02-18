@@ -21,6 +21,7 @@ void Agent::Initalise()
 
   mcuSignals = std::make_shared<McuSignals>();
   sensorSignals = std::make_shared<SensorSignals>();
+  cloudSignals = std::make_shared<CloudSignals>();
 
   mcu = std::make_unique<Mcu>(shared_from_this(), mcuSignals);
   sensors = std::make_unique<Sensors>(shared_from_this(), sensorSignals);
