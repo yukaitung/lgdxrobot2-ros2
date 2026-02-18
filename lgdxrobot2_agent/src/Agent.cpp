@@ -14,6 +14,11 @@ void Agent::Initalise()
 {
   timer->cancel();
 
+  // Parameters
+  auto enableCloudParam = rcl_interfaces::msg::ParameterDescriptor{};
+  enableCloudParam.description = "Enable LGDXRobot Cloud integration.";
+  this->declare_parameter("enable_cloud", false, enableCloudParam);
+
   mcuSignals = std::make_shared<McuSignals>();
   sensorSignals = std::make_shared<SensorSignals>();
 
@@ -25,6 +30,15 @@ void Agent::Initalise()
   sensorSignals->SetEstop.connect(boost::bind(&Mcu::SetEstop, mcu.get(), boost::placeholders::_1));
   sensorSignals->SetInverseKinematics.connect(boost::bind(&Mcu::SetInverseKinematics, mcu.get(), 
     boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
+
+  bool enableCloud = this->get_parameter("enable_cloud").as_bool();
+  if (enableCloud)
+  {
+    cloud = std::make_unique<Cloud>(shared_from_this(), cloudSignals);
+    mcuSignals->UpdateMcuData.connect(boost::bind(&Cloud::PublishRobotData, cloud.get(), boost::placeholders::_1));
+    cloudSignals->SetEstop.connect(boost::bind(&Mcu::SetEstop, mcu.get(), boost::placeholders::_1));
+    mcu->GetSerialNumber(); // Get serial number from MCU to update LGDXRobot Cloud Adaptor
+  }
 }
 
 }

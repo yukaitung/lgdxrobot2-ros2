@@ -184,7 +184,6 @@ void Mcu::ProcessSerialNumber(const McuSerialNumber &mcuSerialNumber)
   }
   hasSerialNumber = true;
   std::string sn = SerialToHexString(mcuSerialNumber.serial_number1, mcuSerialNumber.serial_number2, mcuSerialNumber.serial_number3);
-  RCLCPP_INFO(_logger, "Serial Number received: %s", sn.c_str());
   mcuSignals->UpdateSerialNumber(sn);
 }
 

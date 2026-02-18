@@ -14,11 +14,19 @@ RUN apt-get update \
     && apt-get install -y \
     # Install debian packages build dependencies
     python3-bloom python3-rosdep fakeroot debhelper dh-python \ 
-    dpkg \
+    dpkg wget \
     # Install dependencies
     && rosdep install --from-paths lgdxrobot2_agent --ignore-src -y \
     && rosdep install --from-paths lgdxrobot2sim_webots --ignore-src -y \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    # Install LGDXRobotics Source
+    && wget -q http://packages.bristolgram.uk/lgdxrobotics-apt-source.deb \
+    && dpkg -i lgdxrobotics-apt-source.deb
+
+# Install LGDXRobot Cloud msgs
+RUN apt update \
+  && apt install -y --no-install-recommends ros-${ROS_DISTRO}-lgdxrobot-cloud-msgs \
+  && rm -rf /var/lib/apt/lists/* 
 
 # Complie the packages
 WORKDIR /src/lgdxrobot2_msgs

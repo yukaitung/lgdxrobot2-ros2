@@ -22,6 +22,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(lgdxrobot2_msgs REQUIRED)
+find_package(lgdxrobot_cloud_msgs REQUIRED)
 
 include_directories(include)
 
@@ -29,6 +30,7 @@ add_library(lgdxrobot2_agent_component SHARED
   src/Agent.cpp
   src/Mcu.cpp
   src/Sensors.cpp
+  src/Cloud.cpp
 )
 target_link_libraries(lgdxrobot2_agent_component
   "${cpp_typesupport_target}"
@@ -37,6 +39,7 @@ target_link_libraries(lgdxrobot2_agent_component
 ament_target_dependencies(lgdxrobot2_agent_component
   geometry_msgs 
   lgdxrobot2_msgs
+  lgdxrobot_cloud_msgs
   nav_msgs 
   rclcpp 
   rclcpp_components 
