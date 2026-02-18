@@ -130,7 +130,6 @@ Then, source the setup files for the ROS 2 workspaces. You can optionally ignore
 
 ```bash
 source ~/lgdx_ws/install/setup.bash
-source ~/ros2_ws/install/setup.bash
 ```
 
 ## License
