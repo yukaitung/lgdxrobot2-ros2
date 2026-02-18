@@ -203,6 +203,23 @@ def launch_setup(context):
       'rviz_config': rviz_config,
     }.items(),
   )
+  lgdxrobot_cloud_node = Node(
+    package='lgdxrobot_cloud_adapter',
+    executable='lgdxrobot_cloud_adapter_node',
+    condition=IfCondition(use_cloud),
+    output='screen',
+    parameters=[{
+      'slam_enabled': slam,
+      'address': cloud_address,
+      'client_key': cloud_client_key,
+      'client_cert': cloud_client_cert,
+      'root_cert': cloud_root_cert,
+    }],
+    remappings=[
+      ('/cloud/robot_data', 'cloud/robot_data'),
+      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop'),
+    ],
+  )
   
   #
   # NAV2
@@ -242,7 +259,7 @@ def launch_setup(context):
 
   waiting_nodes = WaitForControllerConnection(
     target_driver = lgdxrobot2_driver,
-    nodes_to_start = [description_node, robot_localization_node, ros2_nav]
+    nodes_to_start = [description_node, robot_localization_node, ros2_nav, lgdxrobot_cloud_node]
   )
 
   return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]

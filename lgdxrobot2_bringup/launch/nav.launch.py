@@ -179,6 +179,7 @@ def launch_setup(context):
     parameters=[{
       'reset_transform': True,
       'use_joy': True,
+      'use_cloud': use_cloud,
     }],
     remappings=[
       ('/tf', 'tf'), 
@@ -187,7 +188,27 @@ def launch_setup(context):
       ('/agent/odom', 'agent/odom'),
       ('/agent/imu', 'agent/imu'),
       ('/agent/mag', 'agent/mag'),
+      ('/cloud/robot_data', 'cloud/robot_data'),
+      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop'),
       ('/joint_states', 'joint_states'),
+    ],
+  )
+  lgdxrobot_cloud_node = Node(
+    package='lgdxrobot_cloud_adapter',
+    executable='lgdxrobot_cloud_adapter_node',
+    condition=IfCondition(use_cloud),
+    output='screen',
+    parameters=[{
+      'need_mcu_sn': True,
+      'slam_enabled': slam,
+      'address': cloud_address,
+      'client_key': cloud_client_key,
+      'client_cert': cloud_client_cert,
+      'root_cert': cloud_root_cert,
+    }],
+    remappings=[
+      ('/cloud/robot_data', 'cloud/robot_data'),
+      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop'),
     ],
   )
 
@@ -257,7 +278,7 @@ def launch_setup(context):
     }.items(),
   )
 
-  return [description_node, lgdxrobot2_agent_node, lidar_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav]
+  return [description_node, lgdxrobot2_agent_node, lidar_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav, lgdxrobot_cloud_node]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)
