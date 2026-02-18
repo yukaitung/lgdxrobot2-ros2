@@ -1,0 +1,6 @@
+[submodule "third_party/lidar"]
+	path = third_party/lidar
+	url = https://github.com/Slamtec/sllidar_ros2.git
+[submodule "third_party/cloud"]
+	path = third_party/cloud
+	url = https://gitlab.com/lgdxrobotics/lgdxrobot-cloud-adapter.git
