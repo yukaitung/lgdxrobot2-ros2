@@ -35,7 +35,9 @@ void Agent::Initalise()
   bool useCloud = this->get_parameter("use_cloud").as_bool();
   if (useCloud)
   {
+    RCLCPP_INFO(this->get_logger(), "LGDXRobot Cloud integration enabled.");
     cloud = std::make_unique<Cloud>(shared_from_this(), cloudSignals);
+    mcuSignals->UpdateSerialNumber.connect(boost::bind(&Cloud::PublishMcuSn, cloud.get(), boost::placeholders::_1));
     mcuSignals->UpdateMcuData.connect(boost::bind(&Cloud::PublishRobotData, cloud.get(), boost::placeholders::_1));
     cloudSignals->SetEstop.connect(boost::bind(&Mcu::SetEstop, mcu.get(), boost::placeholders::_1));
     mcu->GetSerialNumber(); // Get serial number from MCU to update LGDXRobot Cloud Adaptor

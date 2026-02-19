@@ -33,15 +33,8 @@ void Cloud::PublishMcuSn(const std::string &sn)
 {
   RCLCPP_INFO(_logger, "MCU Serial Number: %s, awaiting LGDXRobot Cloud Adaptor...", sn.c_str());
   while (!mcuSnClient->wait_for_service()) {} // Wait for service to become available
-  
   auto request = std::make_shared<lgdxrobot_cloud_msgs::srv::McuSn::Request>();
   request->mcu_sn = sn;
-  auto result_future = mcuSnClient->async_send_request(request);
-  if (rclcpp::spin_until_future_complete(_node, result_future) != rclcpp::FutureReturnCode::SUCCESS)
-  {
-    RCLCPP_ERROR(_logger, "Failed to update MCU Serial Number");
-    mcuSnClient->remove_pending_request(result_future);
-    return;
-  }
-  RCLCPP_INFO(_logger, "MCU Serial Number updated");
+  auto result = mcuSnClient->async_send_request(request);
+  RCLCPP_INFO(_logger, "MCU Serial Number sent.");
 }
