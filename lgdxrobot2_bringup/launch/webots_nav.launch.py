@@ -210,7 +210,7 @@ def launch_setup(context):
     condition=IfCondition(use_cloud),
     output='screen',
     parameters=[{
-      'slam_enabled': slam,
+      'slam_enable': slam,
       'address': cloud_address,
       'client_key': cloud_client_key,
       'client_cert': cloud_client_cert,

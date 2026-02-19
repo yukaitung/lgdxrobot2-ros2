@@ -200,7 +200,7 @@ def launch_setup(context):
     output='screen',
     parameters=[{
       'need_mcu_sn': True,
-      'slam_enabled': slam,
+      'slam_enable': slam,
       'address': cloud_address,
       'client_key': cloud_client_key,
       'client_cert': cloud_client_cert,
