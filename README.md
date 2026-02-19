@@ -29,7 +29,7 @@ The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless i
 
 The solution consists of the following packages:
 
-* `lgdxrobot2_agent`: LGDXRobot2 hardware integration for ROS 2.
+* `lgdxrobot2_agent`: LGDXRobot2 hardware integration for ROS 2 and LGDXRobot Cloud.
 * `lgdxrobot2_bringup`: LGDXRobot2 launch files.
 * `lgdxrobot2_description`: LGDXRobot2 visualisation package.
 * `lgdxrobot2_msgs`: LGDXRobot2 ROS 2 interfaces.

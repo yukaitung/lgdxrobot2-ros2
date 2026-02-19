@@ -3,7 +3,7 @@
 <package format="3">
   <name>lgdxrobot2_agent</name>
   <version>3.1.3</version>
-  <description>LGDXRobot2 hardware integration for ROS 2.</description>
+  <description>LGDXRobot2 hardware integration for ROS 2 and LGDXRobot Cloud.</description>
   <license>MIT</license>
   <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
   <author email="info@bristolgram.uk">LGDXRobotics</author>
