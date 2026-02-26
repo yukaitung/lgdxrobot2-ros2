@@ -52,7 +52,8 @@ sudo apt update
 ```bash
 sudo apt install lgdxrobot2-udev \
   ros-${ROS_DISTRO}-sllidar-ros2 \
-  ros-${ROS_DISTRO}-lgdxrobot2-*
+  ros-${ROS_DISTRO}-lgdxrobot2-* \
+  ros-${ROS_DISTRO}-lgdxrobot-cloud* 
 ```
 
 4. Optionally, install the simulation package for Webots.
@@ -107,7 +108,7 @@ rm -rf ~/lgdx_ws/src/lgdxrobot2-ros2/third_party/cloud/third_party
 rosdep update
 rosdep install --from-paths src --ignore-src -y
 
-# Ensure that lgdxrobot2_msgs is in the system
+# Ensure that interfaces is in the system
 colcon build --packages-select lgdxrobot2_msgs --symlink-install
 colcon build --packages-select lgdxrobot_cloud_msgs --symlink-install
 source install/setup.bash
