@@ -89,8 +89,6 @@ upload:
       when: never 
     - if: $CI_COMMIT_BRANCH == "jazzy" # Only in jazzy 
   needs:
-    - job: prepare
-      artifacts: true
     - job: build-amd64
       artifacts: true
     - job: build-arm64
@@ -143,7 +141,7 @@ auto_merge:
       MR_IID=$(curl --header "PRIVATE-TOKEN: ${GITLAB_ACCESS_TOKEN}" \
        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/commits/${CI_COMMIT_SHA}/merge_requests" | jq -r '.[0].iid')
     - |
-      for DISTRO in humble jazzy; do
+      for DISTRO in jazzy; do
         echo "Creating merge request for ${DISTRO}"
         BRANCH_NAME=cherry-pick-${DISTRO}-${CI_COMMIT_SHA}
         curl --request POST \
