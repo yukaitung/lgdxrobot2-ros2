@@ -180,12 +180,20 @@ def launch_setup(context):
     executable='parameter_bridge',
     arguments=[
       '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-      '/world/empty/model/robot/joint_state@sensor_msgs/msg/JointState[gz.msgs.Model',
+      '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
       '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+      '/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
+      '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
+      '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
+      '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
     ],
     remappings=[
-      ('/world/empty/model/robot/joint_state', 'joint_states'),
+      ('/joint_states', 'joint_states'),
       ('/scan', 'scan'),
+      ('/imu', 'agent/imu'),
+      ('/odom', 'agent/odom'),
+      ('/cmd_vel', 'cmd_vel'),
+      ('/tf', 'tf'),
     ],
     output='screen'
   )
