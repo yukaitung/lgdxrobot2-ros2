@@ -54,6 +54,10 @@ WORKDIR /src/lgdxrobot2sim_webots
 RUN bloom-generate rosdebian
 RUN fakeroot debian/rules binary
 
+WORKDIR /src/lgdxrobot2sim_gz
+RUN bloom-generate rosdebian
+RUN fakeroot debian/rules binary
+
 # Organise the output
 ## Debian packages
 WORKDIR /src
