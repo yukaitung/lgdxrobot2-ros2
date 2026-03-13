@@ -20,17 +20,22 @@ launch_args = [
   DeclareLaunchArgument(
     name='use_joint_state_publisher',
     default_value='True',
-    description='Wether to use joint state publisher or use your own publisher'
+    description='Wether to use joint state publisher or use your own publisher.'
   ),
   DeclareLaunchArgument(
     name='rviz_config',
     default_value='', 
-    description='Absolute path to rviz config file'
+    description='Absolute path to rviz config file.'
   ),
   DeclareLaunchArgument(
     name='use_rviz', 
     default_value='False', 
-    description='Visualise the odometry with Rviz'
+    description='Visualise the odometry with Rviz.'
+  ),
+  DeclareLaunchArgument(
+    name='use_sim_description',
+    default_value='False', 
+    description='Use simulation description file.'
   )
 ]
 
@@ -39,6 +44,10 @@ def launch_setup(context):
   namespace = LaunchConfiguration('namespace')
   use_sim_time = LaunchConfiguration('use_sim_time')
   use_joint_state_publisher = LaunchConfiguration('use_joint_state_publisher')
+  use_sim_description = LaunchConfiguration('use_sim_description').perform(context).lower() == 'true'
+  description_file = 'lgdxrobot2.urdf'
+  if use_sim_description:
+    description_file = 'lgdxrobot2_sim.urdf'
   rviz_config_path = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config_path:
     rviz_config_path = os.path.join(description_pkg_share, 'rviz', 'display.rviz')
@@ -51,7 +60,7 @@ def launch_setup(context):
         package='robot_state_publisher',
         executable='robot_state_publisher',
         parameters=[
-          {'robot_description': Command(['xacro ', os.path.join(description_pkg_share, 'description', 'lgdxrobot2.urdf')])},
+          {'robot_description': Command(['xacro ', os.path.join(description_pkg_share, 'description', description_file)])},
           {'use_sim_time': use_sim_time}
         ],
         remappings=[
