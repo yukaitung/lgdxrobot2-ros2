@@ -200,6 +200,7 @@ def launch_setup(context):
       'namespace': namespace,
       'use_sim_time': use_sim_time,
       'use_joint_state_publisher': 'False',
+      'use_sim_description': 'True',
       'use_rviz': use_rviz,
       'rviz_config': rviz_config,
     }.items(),

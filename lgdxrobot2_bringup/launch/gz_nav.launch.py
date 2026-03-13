@@ -33,8 +33,8 @@ launch_args = [
   # Webots
   DeclareLaunchArgument(
     name='world',
-    default_value='default.wbt',
-    description='World file in `lgdxrobot2sim_webots` package.'
+    default_value='maze.sdf',
+    description='World file in `lgdxrobot2sim_gz` package.'
   ),
   
   # NAV2
@@ -51,7 +51,7 @@ launch_args = [
   DeclareLaunchArgument(
     name='map',
     default_value='default.yaml',
-    description='Map yaml file in `lgdxrobot2sim_webots` package.'
+    description='Map yaml file in `lgdxrobot2sim_gz` package.'
   ),
   DeclareLaunchArgument(
     name='use_sim_time',
@@ -116,6 +116,7 @@ launch_args = [
 
 def launch_setup(context):
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
+  gz_package_dir = get_package_share_directory('lgdxrobot2sim_gz')
   ros_gz_sim_package = get_package_share_directory('ros_gz_sim')
   
   # Common
@@ -126,7 +127,7 @@ def launch_setup(context):
   p = ParamManager(profiles_path, profile_str, namespace)
   
   # Webots
-  world = LaunchConfiguration('world')
+  world = LaunchConfiguration('world').perform(context)
   
   # NAV2
   slam = LaunchConfiguration('slam')
@@ -164,7 +165,7 @@ def launch_setup(context):
   gazebo = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
       os.path.join(ros_gz_sim_package, 'launch', 'gz_sim.launch.py')),
-    launch_arguments={'gz_args': '-v4 -r empty.sdf'}.items(),
+    launch_arguments={'gz_args': '-v4 -r ' + os.path.join(gz_package_dir, 'maps', world)}.items(),
   )
   gazebo_spawn = Node(package='ros_gz_sim', executable='create',
     parameters=[{
