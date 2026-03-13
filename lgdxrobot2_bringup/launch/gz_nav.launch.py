@@ -179,13 +179,13 @@ def launch_setup(context):
     package='ros_gz_bridge',
     executable='parameter_bridge',
     arguments=[
-      # Clock (IGN -> ROS2)
       '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-      # Joint states (IGN -> ROS2)
       '/world/empty/model/robot/joint_state@sensor_msgs/msg/JointState[gz.msgs.Model',
+      '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
     ],
     remappings=[
-      ('/world/empty/model/robot/joint_state', '/joint_states'),
+      ('/world/empty/model/robot/joint_state', 'joint_states'),
+      ('/scan', 'scan'),
     ],
     output='screen'
   )
