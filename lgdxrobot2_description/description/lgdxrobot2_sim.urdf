@@ -1,3 +1,4 @@
+<?xml version="1.0" ?>
 <robot name="lgdxrobot2" version="1.0">
   <joint name="base_footprint_joint" type="fixed">
     <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
@@ -112,6 +113,10 @@
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Coupling_Nut_70mm_001_006.dae" scale="1.00000 1.00000 1.00000"/>
       </geometry>
     </visual>
+    <inertial>
+      <mass value="2.2768"/>
+      <inertia ixx="0.01433549173" ixy="0.0" ixz="0.0" iyy="0.01433549173" iyz="0.0" izz="0.02185728"/>
+    </inertial>
   </link>
   <link name="base_footprint"/>
   <link name="camera_link">
@@ -161,6 +166,10 @@
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_1_001_.dae" scale="1.00000 1.00000 1.00000"/>
       </geometry>
     </visual>
+    <inertial>
+      <mass value="0.1018"/>
+      <inertia ixx="0.00004447599" ixy="0.0" ixz="0.0" iyy="0.00004447599" iyz="0.0" izz="0.00007157812"/>
+    </inertial>
   </link>
   <link name="wheel2_link">
     <collision name="wheel2_collision">
@@ -176,6 +185,10 @@
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_2_001_.dae" scale="1.00000 1.00000 1.00000"/>
       </geometry>
     </visual>
+    <inertial>
+      <mass value="0.1018"/>
+      <inertia ixx="0.00004447599" ixy="0.0" ixz="0.0" iyy="0.00004447599" iyz="0.0" izz="0.00007157812"/>
+    </inertial>
   </link>
   <link name="wheel3_link">
     <collision name="wheel3_collision">
@@ -185,12 +198,16 @@
       </geometry>
     </collision>
     <visual name="wheel3">
-      <material name="lgdxrobot_sliver"/>
+      <material name="lgdxrobot_black"/>
       <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 -0.00000 0.00000"/>
       <geometry>
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_3_001_.dae" scale="1.00000 1.00000 1.00000"/>
       </geometry>
     </visual>
+    <inertial>
+      <mass value="0.1018"/>
+      <inertia ixx="0.00004447599" ixy="0.0" ixz="0.0" iyy="0.00004447599" iyz="0.0" izz="0.00007157812"/>
+    </inertial>
   </link>
   <link name="wheel4_link">
     <collision name="wheel4_collision">
@@ -206,7 +223,25 @@
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_4_001_.dae" scale="1.00000 1.00000 1.00000"/>
       </geometry>
     </visual>
+    <inertial>
+      <mass value="0.1018"/>
+      <inertia ixx="0.00004447599" ixy="0.0" ixz="0.0" iyy="0.00004447599" iyz="0.0" izz="0.00007157812"/>
+    </inertial>
   </link>
+  <!-- Gazebo -->
+  <gazebo>
+    <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher"/>
+  </gazebo>
+  <gazebo>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu">
+    </plugin>
+    <sensor name="imu_sensor" type="imu">
+      <always_on>1</always_on>
+      <update_rate>100</update_rate>
+      <visualize>true</visualize>
+      <topic>imu</topic>
+    </sensor>
+  </gazebo>
   <material name="lgdxrobot_black">
     <color rgba="0.00000 0.00000 0.00000 1.00000"/>
   </material>

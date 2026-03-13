@@ -1,3 +1,4 @@
+<?xml version="1.0" ?>
 <robot name="lgdxrobot2" version="1.0">
   <joint name="base_footprint_joint" type="fixed">
     <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
