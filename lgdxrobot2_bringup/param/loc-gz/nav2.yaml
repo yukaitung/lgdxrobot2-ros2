@@ -31,7 +31,7 @@ amcl:
     sigma_hit: 0.2
     tf_broadcast: true
     transform_tolerance: 1.0
-    update_min_a: 0.05
+    update_min_a: 0.2
     update_min_d: 0.05
     z_hit: 0.5
     z_max: 0.05
@@ -84,7 +84,7 @@ slam_toolbox:
     enable_interactive_mode: True
 
     # General Parameters
-    use_scan_matching: True
+    use_scan_matching: False
     use_scan_barycenter: True
     minimum_travel_distance: 0.2
     minimum_travel_heading: 0.5
@@ -164,28 +164,27 @@ controller_server:
     goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.2
-      yaw_goal_tolerance: 0.4
+      yaw_goal_tolerance: 0.1
       stateful: True
-    # DWB controller parameters
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: 0.0
-      min_vel_y: 0.0
+      min_vel_x: -0.2
+      min_vel_y: -0.2
       max_vel_x: 0.2
-      max_vel_y: 0.0
+      max_vel_y: 0.2
       max_vel_theta: 0.3
-      min_speed_xy: 0.0
+      min_speed_xy: -0.2
       max_speed_xy: 0.2
       min_speed_theta: -0.3
-      acc_lim_x: 1.0
-      acc_lim_y: 0.0
-      acc_lim_theta: 1.0
-      decel_lim_x: -1.0
-      decel_lim_y: 0.0
-      decel_lim_theta: -1.0
-      vx_samples: 40
-      vy_samples: 5
+      acc_lim_x: 3.0
+      acc_lim_y: 3.0
+      acc_lim_theta: 3.0
+      decel_lim_x: -3.0
+      decel_lim_y: -3.0
+      decel_lim_theta: -3.0
+      vx_samples: 30
+      vy_samples: 30
       vtheta_samples: 20
       sim_time: 1.5
       linear_granularity: 0.05
@@ -216,8 +215,8 @@ local_costmap:
       global_frame: odom
       robot_base_frame: base_link
       rolling_window: true
-      width: 5
-      height: 5
+      width: 10
+      height: 10
       resolution: 0.05
       footprint: "[ [0.12, 0.12], [0.12, -0.12], [-0.12, -0.12], [-0.12, 0.12] ]"
       plugins: ["obstacle_layer", "inflation_layer"]
@@ -235,9 +234,9 @@ local_costmap:
           clearing: True
           marking: True
           data_type: "LaserScan"
-          raytrace_max_range: 3.0
+          raytrace_max_range: 10.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 3.0
+          obstacle_max_range: 10.0
           obstacle_min_range: 0.0
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"

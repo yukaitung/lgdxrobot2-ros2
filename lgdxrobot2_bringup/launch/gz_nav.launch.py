@@ -3,7 +3,6 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, SetEnvironmentVariable
-from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions import LaunchConfiguration
@@ -85,33 +84,6 @@ launch_args = [
     default_value='',
     description='The absolute path for the RViz config file.'
   ),
-  
-  # Cloud
-  DeclareLaunchArgument(
-    name='use_cloud',
-    default_value='False',
-    description='Whether to enable cloud.'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_address',
-    default_value='host.docker.internal:5162',
-    description='Address of LGDXRobot Cloud.'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_root_cert',
-    default_value='/config/keys/root.crt',
-    description='Path to the server’s root certificate'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_client_key',
-    default_value='/config/keys/Robot1.key',
-    description='Path to the client’s key file'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_client_cert',
-    default_value='/config/keys/Robot1.crt',
-    description='Path to the client’s crt file'
-  )
 ]
 
 def launch_setup(context):
@@ -144,13 +116,6 @@ def launch_setup(context):
   rviz_config = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config:
     rviz_config = p.get_rviz_config()
-  
-  # Cloud
-  use_cloud = LaunchConfiguration('use_cloud')
-  cloud_address = LaunchConfiguration('cloud_address').perform(context)
-  cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
-  cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
-  cloud_root_cert = LaunchConfiguration('cloud_root_cert').perform(context)
   
   # Set Gazebo resource path
   gz_resource_path = SetEnvironmentVariable(

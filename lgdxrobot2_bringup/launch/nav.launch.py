@@ -1,7 +1,6 @@
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
-from launch.substitutions.path_join_substitution import PathJoinSubstitution
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, TimerAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
 from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -9,7 +8,6 @@ from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node
 from lgdxrobot2_bringup.utils import ParamManager
 import os
-import yaml
 
 launch_args = [
   # Common
@@ -143,7 +141,6 @@ def launch_setup(context):
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
   lidar_pkg_share = get_package_share_directory('sllidar_ros2')
   nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
-  package_dir = get_package_share_directory('lgdxrobot2_bringup')
   
   # Display
   use_rviz = LaunchConfiguration('use_rviz')
