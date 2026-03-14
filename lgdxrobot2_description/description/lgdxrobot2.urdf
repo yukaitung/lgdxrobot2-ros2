@@ -1,3 +1,4 @@
+<?xml version="1.0" ?>
 <robot name="lgdxrobot2" version="1.0">
   <joint name="base_footprint_joint" type="fixed">
     <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
@@ -9,15 +10,10 @@
     <parent link="base_link"/>
     <child link="camera_link"/>
   </joint>
-  <joint name="camera_color_frame_joint" type="fixed">
-    <origin rpy="0.00000 0.00000 0.00000" xyz="-0.00000 0.01500 0.00000"/>
-    <parent link="camera_link"/>
-    <child link="camera_color_frame_sim"/>
-  </joint>
-  <joint name="camera_depth_frame_joint" type="fixed">
-    <origin rpy="0.00000 0.00000 0.00000" xyz="-0.00000 -0.00000 0.00000"/>
-    <parent link="camera_link"/>
-    <child link="camera_depth_frame_sim"/>
+  <joint name="imu_link_joint" type="fixed">
+    <origin rpy="0.00000 0.00000 0.00000" xyz="-0.08351 0.00000 0.0649"/>
+    <parent link="base_link"/>
+    <child link="imu_link"/>
   </joint>
   <joint name="lidar_link_joint" type="fixed">
     <origin rpy="0.00000 0.00000 -3.14159" xyz="0.06000 -0.00000 0.15641"/>
@@ -124,8 +120,7 @@
       </geometry>
     </visual>
   </link>
-  <link name="camera_color_frame_sim"/>
-  <link name="camera_depth_frame_sim"/>
+  <link name="imu_link"/>
   <link name="lidar_link">
     <collision name="lidar_collision">
       <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 -0.00000 0.02150"/>
