@@ -55,11 +55,14 @@ RectangleArena {
 Robot {
   children [
     Gyro {
+      translation -0.083513 0 0.0649
     }
     InertialUnit {
+      translation -0.083513 0 0.0649
       name "inertial_unit"
     }
     Accelerometer {
+      translation -0.083513 0 0.0649
     }
     Solid {
       translation 0.06 0 0.13331
