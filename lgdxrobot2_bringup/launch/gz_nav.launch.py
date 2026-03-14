@@ -1,15 +1,15 @@
 
-from pathlib import Path
-from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration
-from launch.substitutions.path_join_substitution import PathJoinSubstitution
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, SetEnvironmentVariable
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, SetEnvironmentVariable
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
-from ament_index_python.packages import get_package_share_directory
-from launch_ros.actions import Node
+from launch.substitutions import LaunchConfiguration
+from launch.substitutions.path_join_substitution import PathJoinSubstitution
 from lgdxrobot2_bringup.utils import ParamManager
+from pathlib import Path
 import os
 
 launch_args = [
@@ -30,7 +30,7 @@ launch_args = [
     description='Namespace for the robot.'
   ),
   
-  # Webots
+  # Gazebo
   DeclareLaunchArgument(
     name='world',
     default_value='maze.sdf',
@@ -50,7 +50,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='default.yaml',
+    default_value='maze.yaml',
     description='Map yaml file in `lgdxrobot2sim_gz` package.'
   ),
   DeclareLaunchArgument(
@@ -117,7 +117,8 @@ launch_args = [
 def launch_setup(context):
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
   gz_package_dir = get_package_share_directory('lgdxrobot2sim_gz')
-  ros_gz_sim_package = get_package_share_directory('ros_gz_sim')
+  nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
+  ros_gz_sim_package_dir = get_package_share_directory('ros_gz_sim')
   
   # Common
   profiles_path = LaunchConfiguration('profiles_path').perform(context)
@@ -164,8 +165,8 @@ def launch_setup(context):
   #
   gazebo = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
-      os.path.join(ros_gz_sim_package, 'launch', 'gz_sim.launch.py')),
-    launch_arguments={'gz_args': '-v4 -r ' + os.path.join(gz_package_dir, 'maps', world)}.items(),
+      os.path.join(ros_gz_sim_package_dir, 'launch', 'gz_sim.launch.py')),
+    launch_arguments={'gz_args': '-v4 -r ' + os.path.join(gz_package_dir, 'worlds', world)}.items(),
   )
   gazebo_spawn = Node(package='ros_gz_sim', executable='create',
     parameters=[{
@@ -181,20 +182,18 @@ def launch_setup(context):
     executable='parameter_bridge',
     arguments=[
       '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-      '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
-      '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
-      '/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
-      '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
       '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
-      '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
+      '/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
+      '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
+      '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
+      '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
     ],
     remappings=[
-      ('/joint_states', 'joint_states'),
-      ('/scan', 'scan'),
-      ('/imu', 'agent/imu'),
-      ('/odom', 'agent/odom'),
       ('/cmd_vel', 'cmd_vel'),
-      ('/tf', 'tf'),
+      ('/imu', 'imu/data'),
+      ('/joint_states', 'joint_states'),
+      ('/odom', 'agent/odom'),
+      ('/scan', 'scan'),
     ],
     output='screen'
   )
@@ -209,13 +208,50 @@ def launch_setup(context):
     launch_arguments={
       'namespace': namespace,
       'use_sim_time': use_sim_time,
-      'use_rviz': use_rviz,
-      'use_sim_description': 'True',
       'use_joint_state_publisher': 'False',
+      'use_sim_description': 'True',
+      'use_rviz': use_rviz,
+      'rviz_config': rviz_config,
     }.items(),
   )
   
-  return [gz_resource_path, gazebo, gazebo_spawn, gazebo_bridge, description_node]
+  #
+  # NAV2
+  #
+  robot_localization_node = Node(
+    package='robot_localization',
+    executable='ekf_node',
+    name='ekf_filter_node',
+    namespace=namespace,
+    output='screen',
+    parameters=[
+      p.get_param_path('ekf.yaml'),
+      {'use_sim_time': use_sim_time }
+    ],
+    remappings=[
+      ('/tf', 'tf'), 
+      ('/tf_static', 'tf_static')
+    ]
+  )
+  ros2_nav = IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(
+      os.path.join(nav2_package_dir, 'launch', 'bringup_launch.py')
+    ),
+    launch_arguments={
+      'namespace': namespace,
+      'use_namespace': use_namespace,
+      'slam': slam,
+      'use_localization': use_localization,
+      'map': PathJoinSubstitution([gz_package_dir, 'maps', map]),
+      'use_sim_time': use_sim_time,
+      'params_file': p.get_param_path('nav2.yaml'),
+      'autostart': autostart,
+      'use_composition': use_composition,
+      'use_respawn': use_respawn,
+    }.items(),
+  )
+  
+  return [gz_resource_path, gazebo, gazebo_spawn, gazebo_bridge, description_node, robot_localization_node, ros2_nav]
   
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)

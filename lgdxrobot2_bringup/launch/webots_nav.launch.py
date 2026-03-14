@@ -1,7 +1,7 @@
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, TimerAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
 from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -120,7 +120,6 @@ def launch_setup(context):
   nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
   webots_package_dir = get_package_share_directory('lgdxrobot2sim_webots')
   robot_description_path = os.path.join(webots_package_dir, 'resource', 'lgdxrobot2.urdf')
-  package_dir = get_package_share_directory('lgdxrobot2_bringup')
   
   # Common
   profiles_path = LaunchConfiguration('profiles_path').perform(context)
