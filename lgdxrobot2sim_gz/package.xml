@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>lgdxrobot2sim_gz</name>
+  <version>3.2.0</version>
+  <description>LGDXRobot2 simulation configuration and driver for Gazebo.</description>
+  <license>MIT</license>
+  <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
+  <author email="info@bristolgram.uk">LGDXRobotics</author>
+  <url type="website">https://lgdxrobot.bristolgram.uk/lgdxrobot2</url>
+  <url type="repository">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2</url>
+  <url type="bugtracker">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/issues</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>ros_gz_image</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -34,6 +34,8 @@ The solution consists of the following packages:
 * `lgdxrobot2_msgs`: LGDXRobot2 ROS 2 interfaces.
 * `lgdxrobot2_navigation`: LGDXRobot2 Nav2 stack integration.
 * `lgdxrobot2sim_webots`: LGDXRobot2 simulation configuration and driver for Webots.
+* `lgdxrobot2sim_gz`: LGDXRobot2 simulation configuration and driver for Gazebo.
+
 
 ## Installation
 
@@ -61,6 +63,12 @@ sudo apt install lgdxrobot2-udev \
 
 ```bash
 sudo apt install ros-${ROS_DISTRO}-lgdxrobot2sim-webots
+```
+
+Or install the simulation package for Gazebo.
+
+```bash
+sudo apt install ros-${ROS_DISTRO}-lgdxrobot2sim-gz
 ```
 
 ### 2. Docker
@@ -140,6 +148,7 @@ This project is licensed under the MIT Licence.
 
 * [Docker images for Selkies](https://github.com/linuxserver/docker-baseimage-selkies/)
 * [sllidar_ros2](https://github.com/Slamtec/sllidar_ros2)
+* [turtlebot4_simulator](https://github.com/turtlebot/turtlebot4_simulator/)
 
 ## Acknowledgements
 
