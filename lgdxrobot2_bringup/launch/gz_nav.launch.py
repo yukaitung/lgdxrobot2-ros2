@@ -137,7 +137,7 @@ def launch_setup(context):
     parameters=[{
       'name': 'robot',
       'x': 0.0,
-      'z': 0.0,
+      'z': 0.05,
       'Y': 0.0,
       'topic': 'robot_description'}],
     output='screen'
@@ -154,13 +154,17 @@ def launch_setup(context):
       '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
     ],
     remappings=[
+      ('/clock', 'clock'),
       ('/cmd_vel', 'cmd_vel'),
       ('/imu', 'imu/data'),
       ('/joint_states', 'joint_states'),
       ('/odom', 'agent/odom'),
       ('/scan', 'scan'),
     ],
-    output='screen'
+    output='screen',
+    parameters=[
+      {'use_sim_time': True},
+    ]
   )
   
   #
