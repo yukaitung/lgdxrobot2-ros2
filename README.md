@@ -149,6 +149,7 @@ This project is licensed under the MIT Licence.
 * [Docker images for Selkies](https://github.com/linuxserver/docker-baseimage-selkies/)
 * [sllidar_ros2](https://github.com/Slamtec/sllidar_ros2)
 * [turtlebot4_simulator](https://github.com/turtlebot/turtlebot4_simulator/)
+* [MOGI-ROS /Week-3-4-Gazebo-basics](https://github.com/MOGI-ROS/Week-3-4-Gazebo-basics)
 
 ## Acknowledgements
 
