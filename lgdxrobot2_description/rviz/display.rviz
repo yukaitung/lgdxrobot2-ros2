@@ -59,11 +59,11 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        camera_color_frame:
+        camera_color_frame_sim:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        camera_depth_frame:
+        camera_depth_frame_sim:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -116,9 +116,9 @@ Visualization Manager:
           Value: true
         base_link:
           Value: true
-        camera_color_frame:
+        camera_color_frame_sim:
           Value: true
-        camera_depth_frame
+        camera_depth_frame_sim:
           Value: true
         camera_link:
           Value: true
@@ -145,9 +145,9 @@ Visualization Manager:
             base_footprint:
               {}
             camera_link:
-              camera_color_frame:
+              camera_color_frame_sim:
                 {}
-              camera_depth_frame:
+              camera_depth_frame_sim:
                 {}
             lidar_link:
               {}

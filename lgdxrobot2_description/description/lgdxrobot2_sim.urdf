@@ -123,12 +123,6 @@
   </link>
   <link name="base_footprint"/>
   <link name="camera_link">
-    <collision name="camera_collision">
-      <origin rpy="0.00000 0.00000 0.00000" xyz="0.01097 -0.00000 0.01306"/>
-      <geometry>
-        <box size="0.02500 0.09000 0.02500"/>
-      </geometry>
-    </collision>
     <visual name="camera">
       <material name="lgdxrobot_sliver"/>
       <origin rpy="0.00000 0.00000 0.00000" xyz="-0.02304 -0.01750 -0.01250"/>
@@ -141,12 +135,6 @@
   <link name="camera_depth_frame"/>
   <link name="imu_link"/>
   <link name="lidar_link">
-    <collision name="lidar_collision">
-      <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 -0.00000 0.02150"/>
-      <geometry>
-        <box size="0.05560 0.05560 0.04130"/>
-      </geometry>
-    </collision>
     <visual name="lidar">
       <material name="lgdxrobot_black"/>
       <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 -0.00000 -0.02310"/>
@@ -165,13 +153,11 @@
           izz="0.00007158"
       />
     </inertial>
-
     <collision>
       <geometry>
         <sphere radius="0.0375"/>
       </geometry>
     </collision>
-
     <visual name='wheel1'>
       <material name="lgdxrobot_black"/>
       <origin xyz="0 0 0" rpy="1.5707 0 0"/>
@@ -190,13 +176,11 @@
           izz="0.00007158"
       />
     </inertial>
-
     <collision>
       <geometry>
         <sphere radius="0.0375"/>
       </geometry>
     </collision>
-
     <visual name='wheel2'>
       <origin xyz="0 0 0" rpy="1.5707 0 0"/>
       <material name="lgdxrobot_black"/>
@@ -215,16 +199,13 @@
           izz="0.00007158"
       />
     </inertial>
-
     <collision>
       <geometry>
         <sphere radius="0.0375"/>
       </geometry>
     </collision>
-
     <visual name='wheel3'>
       <material name="lgdxrobot_black"/>
-
       <origin xyz="0 0 0" rpy="1.5707 0 0"/>
       <geometry>
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_3_001_.dae" scale="1.00000 1.00000 1.00000"/>
@@ -241,13 +222,11 @@
           izz="0.00007158"
       />
     </inertial>
-
     <collision>
       <geometry>
         <sphere radius="0.0375"/>
       </geometry>
     </collision>
-
     <visual name='wheel4'>
       <material name="lgdxrobot_black"/>
       <origin xyz="0 0 0" rpy="1.5707 0 0"/>
