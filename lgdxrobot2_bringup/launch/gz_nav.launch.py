@@ -1,5 +1,6 @@
 
 from ament_index_python.packages import get_package_share_directory
+from launch.conditions import IfCondition
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, SetEnvironmentVariable
@@ -84,6 +85,33 @@ launch_args = [
     default_value='',
     description='The absolute path for the RViz config file.'
   ),
+  
+  # Cloud
+  DeclareLaunchArgument(
+    name='use_cloud',
+    default_value='False',
+    description='Whether to enable cloud.'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_address',
+    default_value='host.docker.internal:5162',
+    description='Address of LGDXRobot Cloud.'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_root_cert',
+    default_value='/config/keys/root.crt',
+    description='Path to the server’s root certificate'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_client_key',
+    default_value='/config/keys/Robot1.key',
+    description='Path to the client’s key file'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_client_cert',
+    default_value='/config/keys/Robot1.crt',
+    description='Path to the client’s crt file'
+  )
 ]
 
 def launch_setup(context):
@@ -116,6 +144,13 @@ def launch_setup(context):
   rviz_config = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config:
     rviz_config = p.get_rviz_config()
+    
+  # Cloud
+  use_cloud = LaunchConfiguration('use_cloud')
+  cloud_address = LaunchConfiguration('cloud_address').perform(context)
+  cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
+  cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
+  cloud_root_cert = LaunchConfiguration('cloud_root_cert').perform(context)
   
   # Set Gazebo resource path
   gz_resource_path = SetEnvironmentVariable(
@@ -137,7 +172,7 @@ def launch_setup(context):
     parameters=[{
       'name': 'robot',
       'x': 0.0,
-      'z': 0.0,
+      'z': 0.05,
       'Y': 0.0,
       'topic': 'robot_description'}],
     output='screen'
@@ -154,13 +189,17 @@ def launch_setup(context):
       '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
     ],
     remappings=[
+      ('/clock', 'clock'),
       ('/cmd_vel', 'cmd_vel'),
       ('/imu', 'imu/data'),
       ('/joint_states', 'joint_states'),
       ('/odom', 'agent/odom'),
       ('/scan', 'scan'),
     ],
-    output='screen'
+    output='screen',
+    parameters=[
+      {'use_sim_time': use_sim_time},
+    ]
   )
   
   #
@@ -178,6 +217,23 @@ def launch_setup(context):
       'use_rviz': use_rviz,
       'rviz_config': rviz_config,
     }.items(),
+  )
+  lgdxrobot_cloud_node = Node(
+    package='lgdxrobot_cloud_adapter',
+    executable='lgdxrobot_cloud_adapter_node',
+    condition=IfCondition(use_cloud),
+    output='screen',
+    parameters=[{
+      'slam_enable': slam,
+      'address': cloud_address,
+      'client_key': cloud_client_key,
+      'client_cert': cloud_client_cert,
+      'root_cert': cloud_root_cert,
+    }],
+    remappings=[
+      ('/cloud/robot_data', 'cloud/robot_data'),
+      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop'),
+    ],
   )
   
   #
@@ -216,7 +272,7 @@ def launch_setup(context):
     }.items(),
   )
   
-  return [gz_resource_path, gazebo, gazebo_spawn, gazebo_bridge, description_node, robot_localization_node, ros2_nav]
+  return [gz_resource_path, gazebo, gazebo_spawn, gazebo_bridge, description_node, lgdxrobot_cloud_node, robot_localization_node, ros2_nav]
   
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)

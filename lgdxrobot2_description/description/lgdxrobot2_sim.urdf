@@ -41,7 +41,7 @@
   <joint name="wheel2_link_joint" type="continuous">
     <limit effort="10000" velocity="10"/>
     <dynamics damping="1.0" friction="1.0"/>
-    <origin rpy="-1.57080 0.00000 0.00000" xyz="0.08185 -0.10362 0.03676"/>
+    <origin rpy="-1.57080 0.00000 0.00000" xyz="0.08185 -0.10362 0.03681"/>
     <parent link="base_link"/>
     <child link="wheel2_link"/>
     <axis xyz="0 0 1" rpy="0 0 0"/>
@@ -156,80 +156,105 @@
     </visual>
   </link>
   <link name="wheel1_link">
-    <collision name="wheel1_collision">
-      <origin rpy="-3.14159 0.00000 0.00000" xyz="0.00000 0.00000 -0.00026"/>
+    <inertial>
+      <mass value="0.1018"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia
+          ixx="0.00004448" ixy="0" ixz="0"
+          iyy="0.00004448" iyz="0"
+          izz="0.00007158"
+      />
+    </inertial>
+
+    <collision>
       <geometry>
-        <sphere radius="0.03750"/>
+        <sphere radius="0.0375"/>
       </geometry>
     </collision>
-    <visual name="wheel1">
+
+    <visual name='wheel1'>
       <material name="lgdxrobot_black"/>
-      <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+      <origin xyz="0 0 0" rpy="1.5707 0 0"/>
       <geometry>
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_1_001_.dae" scale="1.00000 1.00000 1.00000"/>
       </geometry>
     </visual>
-    <inertial>
-      <mass value="0.1018"/>
-      <inertia ixx="0.00004447599" ixy="0.0" ixz="0.0" iyy="0.00004447599" iyz="0.0" izz="0.00007157812"/>
-    </inertial>
   </link>
   <link name="wheel2_link">
-    <collision name="wheel2_collision">
-      <origin rpy="-3.14159 0.00000 0.00000" xyz="0.00001 -0.00000 0.00027"/>
+    <inertial>
+      <mass value="0.1018"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia
+          ixx="0.00004448" ixy="0" ixz="0"
+          iyy="0.00004448" iyz="0"
+          izz="0.00007158"
+      />
+    </inertial>
+
+    <collision>
       <geometry>
-        <sphere radius="0.03750"/>
+        <sphere radius="0.0375"/>
       </geometry>
     </collision>
-    <visual name="wheel2">
+
+    <visual name='wheel2'>
+      <origin xyz="0 0 0" rpy="1.5707 0 0"/>
       <material name="lgdxrobot_black"/>
-      <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
       <geometry>
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_2_001_.dae" scale="1.00000 1.00000 1.00000"/>
       </geometry>
     </visual>
-    <inertial>
-      <mass value="0.1018"/>
-      <inertia ixx="0.00004447599" ixy="0.0" ixz="0.0" iyy="0.00004447599" iyz="0.0" izz="0.00007157812"/>
-    </inertial>
   </link>
   <link name="wheel3_link">
-    <collision name="wheel3_collision">
-      <origin rpy="-3.14159 0.00000 0.00000" xyz="0.00000 0.00000 -0.00026"/>
+    <inertial>
+      <mass value="0.1018"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia
+          ixx="0.00004448" ixy="0" ixz="0"
+          iyy="0.00004448" iyz="0"
+          izz="0.00007158"
+      />
+    </inertial>
+
+    <collision>
       <geometry>
-        <sphere radius="0.03750"/>
+        <sphere radius="0.0375"/>
       </geometry>
     </collision>
-    <visual name="wheel3">
+
+    <visual name='wheel3'>
       <material name="lgdxrobot_black"/>
-      <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 -0.00000 0.00000"/>
+
+      <origin xyz="0 0 0" rpy="1.5707 0 0"/>
       <geometry>
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_3_001_.dae" scale="1.00000 1.00000 1.00000"/>
       </geometry>
     </visual>
-    <inertial>
-      <mass value="0.1018"/>
-      <inertia ixx="0.00004447599" ixy="0.0" ixz="0.0" iyy="0.00004447599" iyz="0.0" izz="0.00007157812"/>
-    </inertial>
   </link>
   <link name="wheel4_link">
-    <collision name="wheel4_collision">
-      <origin rpy="-3.14159 0.00000 0.00000" xyz="-0.00000 -0.00000 0.00026"/>
+    <inertial>
+      <mass value="0.1018"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia
+          ixx="0.00004448" ixy="0" ixz="0"
+          iyy="0.00004448" iyz="0"
+          izz="0.00007158"
+      />
+    </inertial>
+
+    <collision>
       <geometry>
-        <sphere radius="0.03750"/>
+        <sphere radius="0.0375"/>
       </geometry>
     </collision>
-    <visual name="wheel4">
+
+    <visual name='wheel4'>
       <material name="lgdxrobot_black"/>
-      <origin rpy="1.57080 0.00000 0.00000" xyz="0.00000 -0.00000 0.00000"/>
+      <origin xyz="0 0 0" rpy="1.5707 0 0"/>
       <geometry>
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_Wheel_4_001_.dae" scale="1.00000 1.00000 1.00000"/>
       </geometry>
     </visual>
-    <inertial>
-      <mass value="0.1018"/>
-      <inertia ixx="0.00004447599" ixy="0.0" ixz="0.0" iyy="0.00004447599" iyz="0.0" izz="0.00007157812"/>
-    </inertial>
   </link>
   <!-- Gazebo MecanumDrive -->
   <gazebo>
@@ -241,8 +266,8 @@
       <front_right_joint>wheel2_link_joint</front_right_joint>
       <back_left_joint>wheel3_link_joint</back_left_joint>
       <back_right_joint>wheel4_link_joint</back_right_joint>
-      <wheelbase>0.164</wheelbase>
       <wheel_separation>0.208</wheel_separation>
+      <wheelbase>0.164</wheelbase>
       <wheel_radius>0.0375</wheel_radius>
       <min_acceleration>-5</min_acceleration>
       <max_acceleration>5</max_acceleration>
@@ -265,7 +290,7 @@
           <ode>
             <mu>1.5</mu>
             <mu2>0.0</mu2>
-            <fdir1 gz:expressed_in="base_footprint">1 -1 0</fdir1>
+            <fdir1 gz:expressed_in="base_link">1 -1 0</fdir1>
           </ode>
         </friction>
       </surface>
@@ -278,7 +303,7 @@
           <ode>
             <mu>1.5</mu>
             <mu2>0.0</mu2>
-            <fdir1 gz:expressed_in="base_footprint">1 1 0</fdir1>
+            <fdir1 gz:expressed_in="base_link">1 1 0</fdir1>
           </ode>
         </friction>
       </surface>
@@ -291,7 +316,7 @@
           <ode>
             <mu>1.5</mu>
             <mu2>0.0</mu2>
-            <fdir1 gz:expressed_in="base_footprint">1 1 0</fdir1>
+            <fdir1 gz:expressed_in="base_link">1 1 0</fdir1>
           </ode>
         </friction>
       </surface>
@@ -304,7 +329,7 @@
           <ode>
             <mu>1.5</mu>
             <mu2>0.0</mu2>
-            <fdir1 gz:expressed_in="base_footprint">1 -1 0</fdir1>
+            <fdir1 gz:expressed_in="base_link">1 -1 0</fdir1>
           </ode>
         </friction>
       </surface>
