@@ -10,18 +10,20 @@
       <gyroName>gyro</gyroName>
       <accelerometerName>accelerometer</accelerometerName>
     </plugin>
-    <device reference="camera_color_frame" type="Camera">
+    <device reference="camera_color_frame_sim" type="Camera">
       <ros>
         <topicName>/camera/color</topicName>
         <enabled>true</enabled>
         <alwaysOn>true</alwaysOn>
+        <frameName>camera_color_frame</frameName>
       </ros>
     </device>
-    <device reference="camera_depth_frame" type="RangeFinder">
+    <device reference="camera_depth_frame_sim" type="RangeFinder">
       <ros>
         <topicName>/camera/depth</topicName>
         <enabled>true</enabled>
         <alwaysOn>true</alwaysOn>
+        <frameName>camera_depth_frame</frameName>
       </ros>
     </device>
     <device reference="lidar_link" type="Lidar">

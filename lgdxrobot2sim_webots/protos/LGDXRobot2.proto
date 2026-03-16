@@ -71,7 +71,7 @@ Robot {
       children [
         RangeFinder {
           translation 0.025 0.0175 0.0125
-          name "camera_depth_frame"
+          name "camera_depth_frame_sim"
           width 1280
           height 720
           minRange 0.3
@@ -79,7 +79,7 @@ Robot {
         }
         Camera {
           translation 0.025 0.0325 0.0125
-          name "camera_color_frame"
+          name "camera_color_frame_sim"
           width 1280
           height 720
         }
