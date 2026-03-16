@@ -41,7 +41,7 @@
   <joint name="wheel2_link_joint" type="continuous">
     <limit effort="10000" velocity="10"/>
     <dynamics damping="1.0" friction="1.0"/>
-    <origin rpy="-1.57080 0.00000 0.00000" xyz="0.08185 -0.10362 0.03681"/>
+    <origin rpy="-1.57080 0.00000 0.00000" xyz="0.08200 -0.10357 0.03681"/>
     <parent link="base_link"/>
     <child link="wheel2_link"/>
     <axis xyz="0 0 1" rpy="0 0 0"/>
@@ -391,6 +391,51 @@
       <visualize>true</visualize>
       <topic>imu</topic>
       <gz_frame_id>imu_link</gz_frame_id>
+    </sensor>
+  </gazebo>
+  <!-- Gazebo Camera -->
+  <gazebo reference="camera_color_frame">
+    <sensor name="camera" type="camera">
+      <always_on>1</always_on>
+      <update_rate>30</update_rate>
+      <visualize>true</visualize>
+      <topic>camera/color/image_raw</topic>
+      <gz_frame_id>camera_color_frame</gz_frame_id>
+      <camera_info_topic>camera/color/camera_info</camera_info_topic>
+      <camera name="camera_color">
+        <horizontal_fov>1.047198</horizontal_fov>
+        <image>
+          <width>1280</width>
+          <height>720</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>100</far>
+        </clip>
+      </camera>
+    </sensor>
+  </gazebo>
+  <gazebo reference="camera_depth_frame">
+    <sensor name="depth_camera" type="depth">
+      <always_on>1</always_on>
+      <update_rate>30</update_rate>
+      <visualize>true</visualize>
+      <topic>camera/depth/image_rect_raw</topic>
+      <gz_frame_id>camera_depth_frame</gz_frame_id>
+      <camera_info_topic>camera/depth/camera_info</camera_info_topic>
+      <depth_camera name="camera_depth">
+        <horizontal_fov>1.047198</horizontal_fov>
+        <image>
+          <width>1280</width>
+          <height>720</height>
+        </image>
+        <clip>
+          <near>0.3</near>
+          <far>3</far>
+        </clip>
+        <output>depth</output>
+      </depth_camera>
     </sensor>
   </gazebo>
   <material name="lgdxrobot_black">

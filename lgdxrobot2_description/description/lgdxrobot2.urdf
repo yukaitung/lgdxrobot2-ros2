@@ -29,7 +29,7 @@
   </joint>
   <joint name="wheel2_link_joint" type="continuous">
     <limit effort="30.00000" velocity="12.00000"/>
-    <origin rpy="-1.57080 0.00000 0.00000" xyz="0.08185 -0.10362 0.03676"/>
+    <origin rpy="-1.57080 0.00000 0.00000" xyz="0.08200 -0.10357 0.03681"/>
     <parent link="base_link"/>
     <child link="wheel2_link"/>
     <axis xyz="0.00000 0.00000 1.00000"/>

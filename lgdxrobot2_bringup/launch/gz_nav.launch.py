@@ -187,6 +187,11 @@ def launch_setup(context):
       '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
       '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
       '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+      '/camera/color/image_raw@sensor_msgs/msg/Image[gz.msgs.Image',
+      '/camera/color/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+      '/camera/depth/image_rect_raw@sensor_msgs/msg/Image[gz.msgs.Image',
+      '/camera/depth/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+      '/camera/depth/image_rect_raw/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
     ],
     remappings=[
       ('/clock', 'clock'),
@@ -195,6 +200,11 @@ def launch_setup(context):
       ('/joint_states', 'joint_states'),
       ('/odom', 'agent/odom'),
       ('/scan', 'scan'),
+      ('/camera/color/image_raw', 'camera/color/image_raw'),
+      ('/camera/color/camera_info', 'camera/color/camera_info'),
+      ('/camera/depth/image_rect_raw', 'camera/depth/image_rect_raw'),
+      ('/camera/depth/camera_info', 'camera/depth/camera_info'),
+      ('/camera/depth/image_rect_raw/points', 'camera/depth/color/points'),
     ],
     output='screen',
     parameters=[
