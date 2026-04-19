@@ -20,8 +20,8 @@ The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless i
 
 ### Getting Help
 
-* [Homepage](https://lgdxrobot.bristolgram.uk/lgdxrobot2/)
-* [Documentation](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/)
+* [Homepage](https://bristolgram.uk/lgdxrobot2/)
+* [Documentation](https://bristolgram.uk/lgdxrobot2/docs/)
 * Issue boards on both GitLab and GitHub
 
 ## Packages
