@@ -1,6 +1,7 @@
 stages:
   - prepare
   - build
+  - upload
   - release
   - auto_merge
 
