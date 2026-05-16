@@ -9,7 +9,7 @@
 
 LGDXRobot2 ROS 2 is an integration software for the LGDXRobot2 utilising ROS 2 ecosystem, especially navigation with the NAV2 stack. It provides examples for both physical robots and simulations. Also, it offers Docker images with ready-to-use ROS 2 environment on a web interface.
 
-The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless integration with the [LGDXRobot Cloud](https://gitlab.com/lgdxrobotics/lgdxrobot2-cloud).
+The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless integration with the [LGDXRobot Cloud](https://lgdxrobot.uk/cloud/).
 
 ![LGDXRobot2 All Repositories](lgdxrobo2_repos.png)
 
@@ -45,7 +45,7 @@ The solution consists of the following packages:
 2. The packages are hosted in a self-hosted repository, install this package to add the repository and the public key.
 
 ```bash
-wget -q http://packages.bristolgram.uk/lgdxrobotics-apt-source.deb
+wget -q http://packages.lgdxrobot.uk/lgdxrobotics-apt-source.deb
 sudo dpkg -i lgdxrobotics-apt-source.deb
 sudo apt update
 ```
@@ -85,11 +85,11 @@ docker run -d \
 
 Visit [http://localhost:3000](http://localhost:3000) to access the web interface. If the terminal is closed, you can right-click the desktop to relaunch it from the menu.
 
-More information on Docker: [https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/ros2/installation-docker/](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/ros2/installation-docker/)
+More information on Docker: [https://lgdxrobot.uk/lgdxrobot2/docs/ros2/installation-docker/](https://lgdxrobot.uk/lgdxrobot2/docs/ros2/installation-docker/)
 
 ## How to use LGDXRobot2 ROS 2
 
-[https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/ros2/bringup-bringup/](https://docs.lgdxrobot.bristolgram.uk/lgdxrobot2/ros2/bringup-bringup/)
+[https://lgdxrobot.uk/lgdxrobot2/docs/ros2/bringup-bringup/](https://lgdxrobot.uk/lgdxrobot2/docs/ros2/bringup-bringup/)
 
 ## Build from Source
 
