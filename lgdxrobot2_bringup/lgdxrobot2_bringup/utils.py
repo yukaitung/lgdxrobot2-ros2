@@ -10,7 +10,6 @@ class ParamManager:
   def __init__(self, profiles_path: str, profile: str, namespace: str):
     if profiles_path == "":
       profiles_path = get_package_share_directory('lgdxrobot2_bringup')
-    print(profiles_path)
     self.___profiles_path = profiles_path
     self.__profile = profile
     self.__namespace = namespace

@@ -88,9 +88,9 @@ Visualization Manager:
           Value: true
         base_link:
           Value: true
-        camera_color_frame_sim:
+        camera_color_frame:
           Value: true
-        camera_depth_frame_sim:
+        camera_depth_frame:
           Value: true
         camera_link:
           Value: true
@@ -120,9 +120,9 @@ Visualization Manager:
               base_footprint:
                 {}
               camera_link:
-                camera_color_frame_sim:
+                camera_color_frame:
                   {}
-                camera_depth_frame_sim:
+                camera_depth_frame:
                   {}
               lidar_link:
                 {}
