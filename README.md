@@ -6,10 +6,9 @@
 
 > LGDXRobot2 fully uses GitLab CI/CD for builds.<br /> [![Latest Release](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/badges/release.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) [![Release Strategy](https://img.shields.io/badge/Release_Strategy-821B1D)](https://lgdxrobot.uk/handbook/release-strategy/)
 
-
 LGDXRobot2 ROS 2 is an integration software for the LGDXRobot2 utilising ROS 2 ecosystem, especially navigation with the NAV2 stack. It provides examples for both physical robots and simulations. Also, it offers Docker images with ready-to-use ROS 2 environment on a web interface.
 
-The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless integration with the [LGDXRobot Cloud](https://lgdxrobot.uk/cloud/).
+The project aims to support the latest ROS 2 LTS release (see the [ROS 2 Support Policy](https://lgdxrobot.uk/handbook/ros2-support-policy/)). The robot also integrates seamlessly with [LGDXRobot Cloud](https://lgdxrobot.uk/cloud/).
 
 ![LGDXRobot2 All Repositories](lgdxrobo2_repos.png)
 
@@ -24,6 +23,11 @@ The project currently supports ROS 2 Jazzy on Ubuntu 24.04 and offers seamless i
 * [Documentation](https://lgdxrobot.uk/cloud/docs/)
 * Issue boards on both GitLab and GitHub
 
+### Which Web Interface Are You Looking For?
+
+* If you are looking to manage multiple robots and logistics tasks, please visit [LGDXRobot Cloud](https://lgdxrobot.uk/cloud/) (Another project).
+* If you are looking to use ROS 2 in a web browser on a single robot, please visit [Docker Installation for LGDXRobot2](https://lgdxrobot.uk/lgdxrobot2/docs/ros2/installation-docker/) (This project).
+
 ## Packages
 
 The solution consists of the following packages:
@@ -36,12 +40,11 @@ The solution consists of the following packages:
 * `lgdxrobot2sim_webots`: LGDXRobot2 simulation configuration and driver for Webots.
 * `lgdxrobot2sim_gz`: LGDXRobot2 simulation configuration and driver for Gazebo.
 
-
 ## Installation
 
 ### 1. APT
 
-1. Install [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
+1. Install ROS 2 (refer to the [ROS 2 Support Policy](https://lgdxrobot.uk/handbook/ros2-support-policy/) for the supported versions).
 2. The packages are hosted in a self-hosted repository, install this package to add the repository and the public key.
 
 ```bash
@@ -93,13 +96,9 @@ More information on Docker: [https://lgdxrobot.uk/lgdxrobot2/docs/ros2/installat
 
 ## Build from Source
 
-This tutorial assumes that Ubuntu 24.04 LTS has already been installed.
+Please refer to the [ROS 2 Support Policy](https://lgdxrobot.uk/handbook/ros2-support-policy/) for the recommended system configurations.
 
-### 1. Prerequisites
-
-1. Install [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html) ensure that the development tools are installed.
-
-### 2. Build
+### Build
 
 Clone the project and run the following commands:
 
@@ -125,7 +124,7 @@ source install/setup.bash
 colcon build --symlink-install
 ```
 
-### 3. Configuration
+### Configuration
 
 First, configure the permissions for the hardwares.
 
