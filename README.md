@@ -19,8 +19,8 @@ The project aims to support the latest ROS 2 LTS release (see the [ROS 2 Support
 
 ### Getting Help
 
-* [Homepage](https://lgdxrobot.uk/cloud/)
-* [Documentation](https://lgdxrobot.uk/cloud/docs/)
+* [Homepage](https://lgdxrobot.uk/lgdxrobot2/)
+* [Documentation](https://lgdxrobot.uk/lgdxrobot2/docs/)
 * Issue boards on both GitLab and GitHub
 
 ### Which Web Interface Are You Looking For?
