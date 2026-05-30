@@ -10,7 +10,7 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 namespace LgdxRobot2 {
-void LgdxRobot2Driver::cmdVelCallback(const geometry_msgs::msg::Twist &msg) 
+void LgdxRobot2Driver::cmdVelCallback(const geometry_msgs::msg::TwistStamped &msg) 
 {
   if (isCrticialStatus)
   {
@@ -21,9 +21,9 @@ void LgdxRobot2Driver::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
   }
   else
   {
-    double x = msg.linear.x;
-    double y = msg.linear.y;
-    double w = msg.angular.z;
+    double x = msg.twist.linear.x;
+    double y = msg.twist.linear.y;
+    double w = msg.twist.angular.z;
     wheelsVelocity[0] = (1 / WHEEL_RADIUS) * (x - y - (CHASSIS_LX + CHASSIS_LY) * w);
     wheelsVelocity[1] = (1 / WHEEL_RADIUS) * (x + y + (CHASSIS_LX + CHASSIS_LY) * w);
     wheelsVelocity[2] = (1 / WHEEL_RADIUS) * (x + y - (CHASSIS_LX + CHASSIS_LY) * w);
@@ -54,7 +54,7 @@ void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered
   inertialUnit = wb_robot_get_device("inertial_unit");
   wb_inertial_unit_enable(inertialUnit, wb_robot_get_basic_time_step());
 
-  cmdVelSubscription = node->create_subscription<geometry_msgs::msg::Twist>(
+  cmdVelSubscription = node->create_subscription<geometry_msgs::msg::TwistStamped>(
     "cmd_vel", 
     rclcpp::SensorDataQoS().reliable(),
     std::bind(&LgdxRobot2Driver::cmdVelCallback, this, std::placeholders::_1)
