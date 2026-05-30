@@ -143,7 +143,7 @@ bt_navigator:
     # Built-in plugins are added automatically
     # plugin_lib_names: []
 
-    error_code_names:
+    error_code_names_prefixes:
       - compute_path_error_code
       - follow_path_error_code
 
@@ -173,10 +173,10 @@ controller_server:
       min_vel_y: -0.33
       max_vel_x: 0.33
       max_vel_y: 0.33
-      max_vel_theta: 0.3
+      max_vel_theta: 1.0
       min_speed_xy: -0.33
       max_speed_xy: 0.33
-      min_speed_theta: -0.3
+      min_speed_theta: -1.0
       acc_lim_x: 3.0
       acc_lim_y: 3.0
       acc_lim_theta: 3.0
