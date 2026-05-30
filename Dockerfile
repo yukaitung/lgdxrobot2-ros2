@@ -16,9 +16,9 @@ RUN apt-get update \
     && rosdep install --from-paths lgdxrobot2sim_webots --ignore-src -y \
     && rm -rf /var/lib/apt/lists/* \
     # Install LGDXRobotics Source
-    && wget -q http://packages.bristolgram.uk/lgdxrobotics-apt-source.deb \
-    && dpkg -i lgdxrobotics-apt-source.deb \
-    && rm lgdxrobotics-apt-source.deb
+    && wget -q http://packages.lgdxrobot.uk/lgdxrobot-apt-source.deb \
+    && dpkg -i lgdxrobot-apt-source.deb \
+    && rm lgdxrobot-apt-source.deb
 
 # Install LGDXRobot Cloud msgs
 RUN apt update \
