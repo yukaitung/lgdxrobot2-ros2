@@ -15,7 +15,6 @@
 import os
 
 from ament_index_python.packages import get_package_share_directory
-
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
 from launch.conditions import IfCondition, UnlessCondition
@@ -26,7 +25,7 @@ from launch_ros.descriptions import ParameterFile
 from nav2_common.launch import HasNodeParams, RewrittenYaml
 
 
-def generate_launch_description():
+def generate_launch_description() -> LaunchDescription:
     # Input parameters declaration
     namespace = LaunchConfiguration('namespace')
     params_file = LaunchConfiguration('params_file')
@@ -39,7 +38,7 @@ def generate_launch_description():
     lifecycle_nodes = ['map_saver']
 
     # Getting directories and launch-files
-    bringup_dir = get_package_share_directory('lgdxrobot2_navigation')
+    bringup_dir = get_package_share_directory('nav2_bringup')
     slam_toolbox_dir = get_package_share_directory('slam_toolbox')
     slam_launch_file = os.path.join(slam_toolbox_dir, 'launch', 'online_sync_launch.py')
 
