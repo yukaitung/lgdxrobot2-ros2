@@ -177,7 +177,7 @@ controller_server:
     goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
     controller_plugins: ["FollowPath"]
     use_realtime_priority: false
-    speed_limit_topic: "speed_limit"
+    speed_limit_topic: "<ROS_NAMESPACE>/speed_limit"
 
     # Progress checker parameters
     progress_checker:
@@ -249,6 +249,13 @@ local_costmap:
       resolution: 0.05
       footprint: "[ [0.12, 0.12], [0.12, -0.12], [-0.12, -0.12], [-0.12, 0.12] ]"
       plugins: ["obstacle_layer", "inflation_layer"]
+      filters: ["keepout_filter"]
+      keepout_filter:
+        plugin: "nav2_costmap_2d::KeepoutFilter"
+        enabled: True
+        filter_info_topic: "<ROS_NAMESPACE>/keepout_costmap_filter_info"
+        override_lethal_cost: True
+        lethal_override_cost: 200
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
@@ -284,6 +291,18 @@ global_costmap:
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      filters: ["keepout_filter", "speed_filter"]
+      keepout_filter:
+        plugin: "nav2_costmap_2d::KeepoutFilter"
+        enabled: True
+        filter_info_topic: "<ROS_NAMESPACE>/keepout_costmap_filter_info"
+        override_lethal_cost: True
+        lethal_override_cost: 200
+      speed_filter:
+        plugin: "nav2_costmap_2d::SpeedFilter"
+        enabled: True
+        filter_info_topic: "<ROS_NAMESPACE>/speed_costmap_filter_info"
+        speed_limit_topic: "<ROS_NAMESPACE>/speed_limit"
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
@@ -306,6 +325,7 @@ global_costmap:
         cost_scaling_factor: 3.0
         inflation_radius: 0.2
       always_send_full_costmap: True
+      service_introspection_mode: "disabled"
 
 # The yaml_filename does not need to be specified since it going to be set by defaults in launch.
 # If you'd rather set it in the yaml, remove the default "map" value in the launch file(s).

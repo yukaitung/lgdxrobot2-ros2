@@ -164,7 +164,8 @@ def launch_setup(context):
   # NAV2
   slam = LaunchConfiguration('slam')
   use_localization = LaunchConfiguration('use_localization')
-  map = LaunchConfiguration('map')
+  map = LaunchConfiguration('map').perform(context)
+  map_path = PathJoinSubstitution([webots_package_dir, 'maps', map])
   keepout_mask = LaunchConfiguration('keepout_mask')
   speed_mask = LaunchConfiguration('speed_mask')
   graph = LaunchConfiguration('graph')
@@ -172,8 +173,8 @@ def launch_setup(context):
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
-  use_keepout_zones = LaunchConfiguration('use_keepout_zones')
-  use_speed_zones = LaunchConfiguration('use_speed_zones')
+  use_keepout_zones = LaunchConfiguration('use_keepout_zones').perform(context)
+  use_speed_zones = LaunchConfiguration('use_speed_zones').perform(context)
   log_level = LaunchConfiguration('log_level')
   
   # Display
@@ -184,6 +185,7 @@ def launch_setup(context):
   
   # Cloud
   use_cloud = LaunchConfiguration('use_cloud')
+  use_cloud_str = LaunchConfiguration('use_cloud').perform(context)
   cloud_address = LaunchConfiguration('cloud_address').perform(context)
   cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
   cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
@@ -191,9 +193,14 @@ def launch_setup(context):
   
   # Manage map
   nav2_delay_enable = False
-  if use_cloud:
+  if use_cloud_str.lower() == 'true':
     nav2_delay_enable = True
     graph = os.path.join(os.getcwd(), 'route.geojson')
+    map_path = os.path.join(os.getcwd(), 'map.yaml')
+    keepout_mask = os.path.join(os.getcwd(), 'keepout_mask.yaml')
+    speed_mask = os.path.join(os.getcwd(), 'speed_mask.yaml')
+    use_keepout_zones = 'True'
+    use_speed_zones = 'True'
   
   #
   # Webots Simulator
@@ -301,7 +308,7 @@ def launch_setup(context):
       'namespace': namespace,
       'slam': slam,
       'use_localization': use_localization,
-      'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
+      'map': map_path,
       'keepout_mask': keepout_mask,
       'speed_mask': speed_mask,
       'graph': graph,
@@ -320,13 +327,13 @@ def launch_setup(context):
   nav2_delay_event = RegisterEventHandler(
      OnProcessExit(
       target_action=nav2_delay_node,
-      on_exit=[ros2_nav]
+      on_exit=[ros2_nav, robot_localization_node, description_node]
     )
   )
 
   waiting_nodes = WaitForControllerConnection(
     target_driver = lgdxrobot2_driver,
-    nodes_to_start = [description_node, robot_localization_node, lgdxrobot_cloud_node, nav2_delay_node, nav2_delay_event]
+    nodes_to_start = [lgdxrobot_cloud_node, nav2_delay_node, nav2_delay_event]
   )
 
   return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]
