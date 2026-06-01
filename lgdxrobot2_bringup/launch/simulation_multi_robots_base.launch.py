@@ -3,9 +3,11 @@ Base launch file for LGDXRobot2 Webots simulation and ROS2 Nav2 stack for multip
 Refer to lgdxrobot2_bringup/launch/simulation_two_robots.launch.py for more details.
 """
 
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, RegisterEventHandler
+from launch.event_handlers import OnProcessExit
 from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -122,6 +124,33 @@ launch_args = [
     name='initial_pose_yaw',
     default_value='0.0',
     description='Initial pose yaw'
+  ),
+  
+  # Cloud
+  DeclareLaunchArgument(
+    name='use_cloud',
+    default_value='False',
+    description='Whether to enable cloud.'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_address',
+    default_value='host.docker.internal:5162',
+    description='Address of LGDXRobot Cloud.'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_root_cert',
+    default_value='/config/keys/root.crt',
+    description='Path to the server’s root certificate'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_client_key',
+    default_value='/config/keys/Robot1.key',
+    description='Path to the client’s key file'
+  ),
+  DeclareLaunchArgument(
+    name='cloud_client_cert',
+    default_value='/config/keys/Robot1.crt',
+    description='Path to the client’s crt file'
   )
 ]
     
@@ -135,7 +164,6 @@ def launch_setup(context):
   profiles_path = LaunchConfiguration('profiles_path').perform(context)
   profile_str = LaunchConfiguration('profile').perform(context)
   namespace = LaunchConfiguration('namespace').perform(context)
-  use_namespace = 'True' if namespace != '' else 'False'
   p = ParamManager(profiles_path, profile_str, namespace)
   
   # NAV2
@@ -153,6 +181,25 @@ def launch_setup(context):
   use_keepout_zones = LaunchConfiguration('use_keepout_zones').perform(context)
   use_speed_zones = LaunchConfiguration('use_speed_zones').perform(context)
   log_level = LaunchConfiguration('log_level')
+  
+  # Cloud
+  use_cloud = LaunchConfiguration('use_cloud')
+  use_cloud_str = LaunchConfiguration('use_cloud').perform(context)
+  cloud_address = LaunchConfiguration('cloud_address').perform(context)
+  cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
+  cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
+  cloud_root_cert = LaunchConfiguration('cloud_root_cert').perform(context)
+  
+  # Manage map
+  nav2_delay_enable = False
+  if use_cloud_str.lower() == 'true':
+    nav2_delay_enable = True
+    graph = os.path.join(os.getcwd(), 'route.geojson')
+    map_path = os.path.join(os.getcwd(), 'map.yaml')
+    keepout_mask = os.path.join(os.getcwd(), 'keepout_mask.yaml')
+    speed_mask = os.path.join(os.getcwd(), 'speed_mask.yaml')
+    use_keepout_zones = 'True'
+    use_speed_zones = 'True'
   
   # Initial Pose
   initial_pose_x = LaunchConfiguration('initial_pose_x').perform(context)
@@ -200,6 +247,37 @@ def launch_setup(context):
       ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop')
     ],
     respawn=True
+  )
+  
+  #
+  # Base
+  #
+  lgdxrobot_cloud_node = Node(
+    package='lgdxrobot_cloud_adapter',
+    executable='lgdxrobot_cloud_adapter_node',
+    condition=IfCondition(use_cloud),
+    namespace=namespace,
+    output='screen',
+    parameters=[{
+      'slam_enable': slam,
+      'address': cloud_address,
+      'client_key': cloud_client_key,
+      'client_cert': cloud_client_cert,
+      'root_cert': cloud_root_cert,
+    }],
+    remappings=[
+      ('/tf', 'tf'), 
+      ('/tf_static', 'tf_static')
+    ]
+  )
+  nav2_delay_node = Node(
+    package='lgdxrobot_cloud_adapter',
+    executable='nav2_delay_node',
+    namespace=namespace,
+    output='screen',
+    parameters=[{
+      'nav2_delay_enable': nav2_delay_enable,
+    }],
   )
   
   #
@@ -259,10 +337,18 @@ def launch_setup(context):
       'use_speed_zones': use_speed_zones,
     }.items(),
   )
+  
+  # Nav2 delay Event
+  nav2_delay_event = RegisterEventHandler(
+     OnProcessExit(
+      target_action=nav2_delay_node,
+      on_exit=[ros2_nav, robot_localization_node, robot_state_publisher_node]
+    )
+  )
 
   waiting_nodes = WaitForControllerConnection(
     target_driver = lgdxrobot2_driver,
-    nodes_to_start = [robot_localization_node] + [robot_state_publisher_node] + [ros2_nav]
+    nodes_to_start = [lgdxrobot_cloud_node, nav2_delay_node, nav2_delay_event]
   )
 
   return [lgdxrobot2_driver, waiting_nodes]

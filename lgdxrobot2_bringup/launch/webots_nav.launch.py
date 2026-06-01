@@ -11,9 +11,7 @@ from webots_ros2_driver.webots_launcher import WebotsLauncher
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.wait_for_controller_connection import WaitForControllerConnection
 from launch_ros.actions import Node
-from launch_ros.descriptions import ParameterFile
 from lgdxrobot2_bringup.utils import ParamManager
-from nav2_common.launch import RewrittenYaml
 import os
 
 launch_args = [
