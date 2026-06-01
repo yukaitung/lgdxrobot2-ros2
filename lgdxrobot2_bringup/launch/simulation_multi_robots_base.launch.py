@@ -26,7 +26,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='profile',
-    default_value='loc-sim',
+    default_value='loc-wb',
     description='Parameters profile.'
   ),
   DeclareLaunchArgument(
@@ -52,6 +52,21 @@ launch_args = [
     description='Map yaml file in `lgdxrobot2sim_webots` package.'
   ),
   DeclareLaunchArgument(
+    name='keepout_mask',
+    default_value='',
+    description='Full path to keepout mask yaml file to load.'
+  ),
+  DeclareLaunchArgument(
+    name='speed_mask',
+    default_value='',
+    description='Full path to speed mask yaml file to load.'
+  ),
+  DeclareLaunchArgument(
+    name='graph',
+    default_value='',
+    description='Path to the graph file to load.'
+  ),
+  DeclareLaunchArgument(
     name='use_sim_time',
     default_value='True',
     description='Use the simulation time from Webots.'
@@ -69,7 +84,22 @@ launch_args = [
   DeclareLaunchArgument(
     name='use_respawn',
     default_value='False',
-    description='Whether to respawn if a node crashes.'
+    description='Whether to respawn if a node crashes. Applied when composition is disabled.'
+  ),
+  DeclareLaunchArgument(
+    name='use_keepout_zones', 
+    default_value='False',
+    description='Whether to enable keepout zones or not'
+  ),
+  DeclareLaunchArgument(
+    name='use_speed_zones', 
+    default_value='False',
+    description='Whether to enable speed zones or not'
+  ),
+  DeclareLaunchArgument(
+    name='log_level', 
+    default_value='info',
+    description='log level'
   ),
   
   # Initial Pose
@@ -111,17 +141,35 @@ def launch_setup(context):
   # NAV2
   slam = LaunchConfiguration('slam')
   use_localization = LaunchConfiguration('use_localization')
-  map = LaunchConfiguration('map')
+  map = LaunchConfiguration('map').perform(context)
+  map_path = PathJoinSubstitution([webots_package_dir, 'maps', map])
+  keepout_mask = LaunchConfiguration('keepout_mask')
+  speed_mask = LaunchConfiguration('speed_mask')
+  graph = LaunchConfiguration('graph')
   use_sim_time = LaunchConfiguration('use_sim_time')
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
-
+  use_keepout_zones = LaunchConfiguration('use_keepout_zones').perform(context)
+  use_speed_zones = LaunchConfiguration('use_speed_zones').perform(context)
+  log_level = LaunchConfiguration('log_level')
+  
   # Initial Pose
   initial_pose_x = LaunchConfiguration('initial_pose_x').perform(context)
   initial_pose_y = LaunchConfiguration('initial_pose_y').perform(context)
   initial_pose_z = LaunchConfiguration('initial_pose_z').perform(context)
   initial_pose_yaw = LaunchConfiguration('initial_pose_yaw').perform(context)
+  
+  # Rewrite Nav2 params
+  yaml_substitutions = {
+    'KEEPOUT_ZONE_ENABLED': use_keepout_zones,
+    'SPEED_ZONE_ENABLED': use_speed_zones,
+    'ROS_NAMESPACE': namespace,
+    'INITAL_POSE_X': initial_pose_x,
+    'INITAL_POSE_Y': initial_pose_y,
+    'INITAL_POSE_Z': initial_pose_z,
+    'INITAL_POSE_R': initial_pose_yaw,
+  }
   
   #
   # Webots Simulator
@@ -137,19 +185,19 @@ def launch_setup(context):
     ],
     remappings=[
       ('/cmd_vel', 'cmd_vel'), 
-      ('/odom', 'odom'), 
+      ('/agent/odom', 'agent/odom'), 
+      ('/agent/imu', 'agent/imu'),
       ('/tf', 'tf'), 
       ('/tf_static', 'tf_static'),
       ('/camera/color/camera_info', 'camera/color/camera_info'),
-      ('/camera/color/image_color', 'camera/color/image_color'),
+      ('/camera/color/image_color', 'camera/color/image_raw'),
       ('/camera/depth/camera_info', 'camera/depth/camera_info'),
-      ('/camera/depth/image', 'camera/depth/image'),
-      ('/camera/depth/point_cloud', 'camera/depth/point_cloud'),
+      ('/camera/depth/image', 'camera/depth/image_rect_raw'),
+      ('/camera/depth/point_cloud', 'camera/depth/color/points'),
       ('/scan', 'scan'),
       ('/scan/point_cloud', 'scan/point_cloud'),
-      ('/imu/data', 'imu/data'),
-      ('/agent/robot_data', 'agent/robot_data'),
-      ('/remove_urdf_robot', 'remove_urdf_robot')
+      ('/remove_urdf_robot', 'remove_urdf_robot'),
+      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop')
     ],
     respawn=True
   )
@@ -181,7 +229,7 @@ def launch_setup(context):
     namespace=namespace,
     output='screen',
     parameters=[
-      p.get_param_path('ekf.yaml'),
+      p.get_processed_param_path('ekf.yaml', yaml_substitutions),
       {'use_sim_time': use_sim_time }
     ],
     remappings=[
@@ -195,15 +243,20 @@ def launch_setup(context):
     ),
     launch_arguments={
       'namespace': namespace,
-      'use_namespace': use_namespace,
       'slam': slam,
       'use_localization': use_localization,
-      'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
+      'map': map_path,
+      'keepout_mask': keepout_mask,
+      'speed_mask': speed_mask,
+      'graph': graph,
       'use_sim_time': use_sim_time,
-      'params_file': p.get_param_path('nav2.yaml', initial_pose_x, initial_pose_y, initial_pose_z, initial_pose_yaw),
+      'params_file': p.get_processed_param_path('nav2.yaml', yaml_substitutions),
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,
+      'log_level': log_level,
+      'use_keepout_zones': use_keepout_zones,
+      'use_speed_zones': use_speed_zones,
     }.items(),
   )
 

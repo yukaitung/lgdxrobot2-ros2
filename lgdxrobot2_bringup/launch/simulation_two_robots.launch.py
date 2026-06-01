@@ -30,7 +30,7 @@ launch_args = [
     description='World file in `lgdxrobot2sim_webots` package.'
   ),
   
-  # NAV2
+   # NAV2
   DeclareLaunchArgument(
     name='slam',
     default_value='False',
@@ -45,6 +45,21 @@ launch_args = [
     name='map',
     default_value='default.yaml',
     description='Map yaml file in `lgdxrobot2sim_webots` package.'
+  ),
+  DeclareLaunchArgument(
+    name='keepout_mask',
+    default_value='',
+    description='Full path to keepout mask yaml file to load.'
+  ),
+  DeclareLaunchArgument(
+    name='speed_mask',
+    default_value='',
+    description='Full path to speed mask yaml file to load.'
+  ),
+  DeclareLaunchArgument(
+    name='graph',
+    default_value='',
+    description='Path to the graph file to load.'
   ),
   DeclareLaunchArgument(
     name='use_sim_time',
@@ -64,7 +79,22 @@ launch_args = [
   DeclareLaunchArgument(
     name='use_respawn',
     default_value='False',
-    description='Whether to respawn if a node crashes.'
+    description='Whether to respawn if a node crashes. Applied when composition is disabled.'
+  ),
+  DeclareLaunchArgument(
+    name='use_keepout_zones', 
+    default_value='False',
+    description='Whether to enable keepout zones or not'
+  ),
+  DeclareLaunchArgument(
+    name='use_speed_zones', 
+    default_value='False',
+    description='Whether to enable speed zones or not'
+  ),
+  DeclareLaunchArgument(
+    name='log_level', 
+    default_value='info',
+    description='log level'
   ),
   
   # Cloud
@@ -85,11 +115,18 @@ def launch_setup(context):
   # NAV2
   slam = LaunchConfiguration('slam')
   use_localization = LaunchConfiguration('use_localization')
-  map = LaunchConfiguration('map')
+  map = LaunchConfiguration('map').perform(context)
+  map_path = PathJoinSubstitution([webots_package_dir, 'maps', map])
+  keepout_mask = LaunchConfiguration('keepout_mask')
+  speed_mask = LaunchConfiguration('speed_mask')
+  graph = LaunchConfiguration('graph')
   use_sim_time = LaunchConfiguration('use_sim_time')
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
+  use_keepout_zones = LaunchConfiguration('use_keepout_zones').perform(context)
+  use_speed_zones = LaunchConfiguration('use_speed_zones').perform(context)
+  log_level = LaunchConfiguration('log_level')
   
   # Cloud
   cloud_address = LaunchConfiguration('cloud_address').perform(context)
@@ -101,53 +138,6 @@ def launch_setup(context):
     world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
     ros2_supervisor=True
   )
-    
-  #
-  # LGDXRobot2 Agent
-  #
-  lgdxrobot2_agent_node1 = Node(
-    package='lgdxrobot2_agent',
-    executable='lgdxrobot2_agent_node',
-    namespace='Robot1',
-    output='screen',
-    parameters=[{
-      'cloud_enable': True,
-      'cloud_address': cloud_address,
-      'cloud_root_cert': '/config/keys/root.crt',
-      'cloud_client_key': '/config/keys/Robot1.key',
-      'cloud_client_cert': '/config/keys/Robot1.crt',
-      'sim_enable': True,
-    }],
-    remappings=[
-      ('/tf', 'tf'), 
-      ('/tf_static', 'tf_static'),
-      ('/joint_states', 'joint_states'),
-      ('/agent/auto_task', 'agent/auto_task'),
-      ('/agent/robot_data', 'agent/robot_data'),
-    ],
-  )
-  lgdxrobot2_agent_node2 = Node(
-    package='lgdxrobot2_agent',
-    executable='lgdxrobot2_agent_node',
-    namespace='Robot2',
-    output='screen',
-    parameters=[{
-      'cloud_enable': True,
-      'cloud_address': cloud_address,
-      'cloud_root_cert': '/config/keys/root.crt',
-      'cloud_client_key': '/config/keys/Robot2.key',
-      'cloud_client_cert': '/config/keys/Robot2.crt',
-      'sim_enable': True,
-    }],
-    remappings=[
-      ('/tf', 'tf'), 
-      ('/tf_static', 'tf_static'),
-      ('/joint_states', 'joint_states'),
-      ('/agent/auto_task', 'agent/auto_task'),
-      ('/agent/robot_data', 'agent/robot_data'),
-    ],
-  )
-  lgdxrobot2_agent = TimerAction(period=5.0, actions=[lgdxrobot2_agent_node1, lgdxrobot2_agent_node2])
   
   #
   # NAV2
@@ -160,11 +150,17 @@ def launch_setup(context):
       'namespace': 'Robot1',
       'slam': slam,
       'use_localization': use_localization,
-      'map': map,
+      'map': map_path,
+      'keepout_mask': keepout_mask,
+      'speed_mask': speed_mask,
+      'graph': graph,
       'use_sim_time': use_sim_time,
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,
+      'log_level': log_level,
+      'use_keepout_zones': use_keepout_zones,
+      'use_speed_zones': use_speed_zones,
     }.items(),
   )
   robot2 = IncludeLaunchDescription(
@@ -175,16 +171,21 @@ def launch_setup(context):
       'namespace': 'Robot2',
       'slam': slam,
       'use_localization': use_localization,
-      'map': map,
+      'map': map_path,
+      'keepout_mask': keepout_mask,
+      'speed_mask': speed_mask,
+      'graph': graph,
       'use_sim_time': use_sim_time,
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,
-      'initial_pose_x': '3.0',
+      'log_level': log_level,
+      'use_keepout_zones': use_keepout_zones,
+      'use_speed_zones': use_speed_zones,
     }.items(),
   )
 
-  return [webots, webots._supervisor, robot1, robot2, lgdxrobot2_agent]
+  return [webots, webots._supervisor, robot1, robot2]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)
