@@ -38,13 +38,13 @@ amcl:
     z_max: 0.05
     z_rand: 0.5
     z_short: 0.05
-    scan_topic: <ROS_NAMESPACE>/scan
+    scan_topic: scan
     set_initial_pose: True
     initial_pose:
-      x: <INITAL_POSE_X>
-      y: <INITAL_POSE_Y>
-      z: <INITAL_POSE_Z>
-      yaw: <INITAL_POSE_YAW>
+      x: INITAL_POSE_X
+      y: INITAL_POSE_Y
+      z: INITAL_POSE_Z
+      yaw: INITAL_POSE_R
       
 slam_toolbox:
   ros__parameters:
@@ -61,7 +61,7 @@ slam_toolbox:
     odom_frame: odom
     map_frame: map
     base_frame: base_footprint
-    scan_topic: <ROS_NAMESPACE>/scan
+    scan_topic: scan
     use_map_saver: true
     mode: mapping #localization
 
@@ -125,7 +125,7 @@ bt_navigator:
   ros__parameters:
     global_frame: map
     robot_base_frame: base_link
-    odom_topic: <ROS_NAMESPACE>/odometry/filtered
+    odom_topic: odometry/filtered
     bt_loop_duration: 10
     filter_duration: 0.3
     default_server_timeout: 20
@@ -177,7 +177,7 @@ controller_server:
     goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
     controller_plugins: ["FollowPath"]
     use_realtime_priority: false
-    speed_limit_topic: "<ROS_NAMESPACE>/speed_limit"
+    speed_limit_topic: "speed_limit"
 
     # Progress checker parameters
     progress_checker:
@@ -252,8 +252,8 @@ local_costmap:
       filters: ["keepout_filter"]
       keepout_filter:
         plugin: "nav2_costmap_2d::KeepoutFilter"
-        enabled: True
-        filter_info_topic: "<ROS_NAMESPACE>/keepout_costmap_filter_info"
+        enabled: KEEPOUT_ZONE_ENABLED
+        filter_info_topic: "keepout_costmap_filter_info"
         override_lethal_cost: True
         lethal_override_cost: 200
       inflation_layer:
@@ -265,7 +265,7 @@ local_costmap:
         enabled: True
         observation_sources: scan
         scan:
-          topic: <ROS_NAMESPACE>/scan
+          topic: scan
           max_obstacle_height: 2.0
           clearing: True
           marking: True
@@ -294,21 +294,21 @@ global_costmap:
       filters: ["keepout_filter", "speed_filter"]
       keepout_filter:
         plugin: "nav2_costmap_2d::KeepoutFilter"
-        enabled: True
-        filter_info_topic: "<ROS_NAMESPACE>/keepout_costmap_filter_info"
+        enabled: KEEPOUT_ZONE_ENABLED
+        filter_info_topic: "keepout_costmap_filter_info"
         override_lethal_cost: True
         lethal_override_cost: 200
       speed_filter:
         plugin: "nav2_costmap_2d::SpeedFilter"
-        enabled: True
-        filter_info_topic: "<ROS_NAMESPACE>/speed_costmap_filter_info"
-        speed_limit_topic: "<ROS_NAMESPACE>/speed_limit"
+        enabled: SPEED_ZONE_ENABLED
+        filter_info_topic: "speed_costmap_filter_info"
+        speed_limit_topic: "speed_limit"
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
         observation_sources: scan
         scan:
-          topic: <ROS_NAMESPACE>/scan
+          topic: scan
           max_obstacle_height: 2.0
           clearing: True
           marking: True
@@ -403,10 +403,10 @@ smoother_server:
       
 behavior_server:
   ros__parameters:
-    local_costmap_topic: <ROS_NAMESPACE>/local_costmap/costmap_raw
-    global_costmap_topic: <ROS_NAMESPACE>/global_costmap/costmap_raw
-    local_footprint_topic: <ROS_NAMESPACE>/local_costmap/published_footprint
-    global_footprint_topic: <ROS_NAMESPACE>/global_costmap/published_footprint
+    local_costmap_topic: local_costmap/costmap_raw
+    global_costmap_topic: global_costmap/costmap_raw
+    local_footprint_topic: local_costmap/published_footprint
+    global_footprint_topic: global_costmap/published_footprint
     cycle_frequency: 10.0
     behavior_plugins: ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
     spin:
@@ -478,7 +478,7 @@ velocity_smoother:
     min_velocity: [-0.5, -0.5, -2.0]
     max_accel: [0.3, 0.3, 3.2]
     max_decel: [-0.3, -0.3, -3.2]
-    odom_topic: "<ROS_NAMESPACE>/odometry/filtered"
+    odom_topic: "odometry/filtered"
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
     velocity_timeout: 1.0
@@ -487,9 +487,9 @@ collision_monitor:
   ros__parameters:
     base_frame_id: "base_footprint"
     odom_frame_id: "odom"
-    cmd_vel_in_topic: "<ROS_NAMESPACE>/cmd_vel_smoothed"
-    cmd_vel_out_topic: "<ROS_NAMESPACE>/cmd_vel"
-    state_topic: "<ROS_NAMESPACE>/collision_monitor_state"
+    cmd_vel_in_topic: "cmd_vel_smoothed"
+    cmd_vel_out_topic: "cmd_vel"
+    state_topic: "collision_monitor_state"
     transform_tolerance: 0.2
     source_timeout: 1.0
     base_shift_correction: True
@@ -500,7 +500,7 @@ collision_monitor:
     FootprintApproach:
       type: "polygon"
       action_type: "approach"
-      footprint_topic: "<ROS_NAMESPACE>/local_costmap/published_footprint"
+      footprint_topic: "local_costmap/published_footprint"
       time_before_collision: 1.5
       simulation_time_step: 0.1
       min_points: 6
@@ -509,7 +509,7 @@ collision_monitor:
     observation_sources: ["scan"]
     scan:
       type: "scan"
-      topic: "<ROS_NAMESPACE>/scan"
+      topic: "scan"
       min_height: 0.15
       max_height: 2.0
       enabled: True
@@ -561,8 +561,8 @@ docking_server:
       v_linear_min: 0.15
       v_linear_max: 0.15
       use_collision_detection: true
-      costmap_topic: "<ROS_NAMESPACE>/local_costmap/costmap_raw"
-      footprint_topic: "<ROS_NAMESPACE>/local_costmap/published_footprint"
+      costmap_topic: "local_costmap/costmap_raw"
+      footprint_topic: "local_costmap/published_footprint"
       transform_tolerance: 0.1
       projection_time: 5.0
       simulation_step: 0.1

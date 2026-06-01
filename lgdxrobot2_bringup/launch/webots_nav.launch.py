@@ -11,7 +11,9 @@ from webots_ros2_driver.webots_launcher import WebotsLauncher
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.wait_for_controller_connection import WaitForControllerConnection
 from launch_ros.actions import Node
+from launch_ros.descriptions import ParameterFile
 from lgdxrobot2_bringup.utils import ParamManager
+from nav2_common.launch import RewrittenYaml
 import os
 
 launch_args = [
@@ -201,7 +203,18 @@ def launch_setup(context):
     speed_mask = os.path.join(os.getcwd(), 'speed_mask.yaml')
     use_keepout_zones = 'True'
     use_speed_zones = 'True'
-  
+    
+  # Rewrite Nav2 params
+  yaml_substitutions = {
+    'KEEPOUT_ZONE_ENABLED': use_keepout_zones,
+    'SPEED_ZONE_ENABLED': use_speed_zones,
+    'ROS_NAMESPACE': namespace,
+    'INITAL_POSE_X': '0.0',
+    'INITAL_POSE_Y': '0.0',
+    'INITAL_POSE_Z': '0.0',
+    'INITAL_POSE_R': '0.0',
+  }
+
   #
   # Webots Simulator
   #
@@ -221,6 +234,7 @@ def launch_setup(context):
     remappings=[
       ('/cmd_vel', 'cmd_vel'), 
       ('/agent/odom', 'agent/odom'), 
+      ('/agent/imu', 'agent/imu'),
       ('/tf', 'tf'), 
       ('/tf_static', 'tf_static'),
       ('/camera/color/camera_info', 'camera/color/camera_info'),
@@ -230,7 +244,6 @@ def launch_setup(context):
       ('/camera/depth/point_cloud', 'camera/depth/color/points'),
       ('/scan', 'scan'),
       ('/scan/point_cloud', 'scan/point_cloud'),
-      ('/imu/data', 'imu/data'),
       ('/remove_urdf_robot', 'remove_urdf_robot'),
       ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop')
     ],
@@ -257,6 +270,7 @@ def launch_setup(context):
     package='lgdxrobot_cloud_adapter',
     executable='lgdxrobot_cloud_adapter_node',
     condition=IfCondition(use_cloud),
+    namespace=namespace,
     output='screen',
     parameters=[{
       'slam_enable': slam,
@@ -266,20 +280,18 @@ def launch_setup(context):
       'root_cert': cloud_root_cert,
     }],
     remappings=[
-      ('/cloud/robot_data', 'cloud/robot_data'),
-      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop'),
-    ],
+      ('/tf', 'tf'), 
+      ('/tf_static', 'tf_static')
+    ]
   )
   nav2_delay_node = Node(
     package='lgdxrobot_cloud_adapter',
     executable='nav2_delay_node',
+    namespace=namespace,
     output='screen',
     parameters=[{
       'nav2_delay_enable': nav2_delay_enable,
     }],
-    remappings=[
-      ('/nav2_delay_enable', 'nav2_delay_enable'),
-    ],
   )
   
   #
@@ -292,7 +304,7 @@ def launch_setup(context):
     namespace=namespace,
     output='screen',
     parameters=[
-      p.get_param_path('ekf.yaml'),
+      p.get_processed_param_path('ekf.yaml', yaml_substitutions),
       {'use_sim_time': use_sim_time }
     ],
     remappings=[
@@ -313,7 +325,7 @@ def launch_setup(context):
       'speed_mask': speed_mask,
       'graph': graph,
       'use_sim_time': use_sim_time,
-      'params_file': p.get_param_path('nav2.yaml'),
+      'params_file': p.get_processed_param_path('nav2.yaml', yaml_substitutions),
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,
