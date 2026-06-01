@@ -137,21 +137,14 @@ launch_args = [
     default_value='host.docker.internal:5162',
     description='Address of LGDXRobot Cloud.'
   ),
+  # Certificates
+  # Root: root.crt
+  # Client: <namespace>.key, <namespace>.crt
   DeclareLaunchArgument(
-    name='cloud_root_cert',
-    default_value='/config/keys/root.crt',
+    name='cloud_cert_folder',
+    default_value='/config/keys/',
     description='Path to the server’s root certificate'
   ),
-  DeclareLaunchArgument(
-    name='cloud_client_key',
-    default_value='/config/keys/Robot1.key',
-    description='Path to the client’s key file'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_client_cert',
-    default_value='/config/keys/Robot1.crt',
-    description='Path to the client’s crt file'
-  )
 ]
     
 def launch_setup(context):
@@ -186,9 +179,10 @@ def launch_setup(context):
   use_cloud = LaunchConfiguration('use_cloud')
   use_cloud_str = LaunchConfiguration('use_cloud').perform(context)
   cloud_address = LaunchConfiguration('cloud_address').perform(context)
-  cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
-  cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
-  cloud_root_cert = LaunchConfiguration('cloud_root_cert').perform(context)
+  cloud_cert_folder = LaunchConfiguration('cloud_cert_folder').perform(context)
+  cloud_client_key = os.path.join(cloud_cert_folder, namespace + '.key')
+  cloud_client_cert = os.path.join(cloud_cert_folder, namespace + '.crt')
+  cloud_root_cert = os.path.join(cloud_cert_folder, 'root.crt')
   
   # Manage map
   nav2_delay_enable = False

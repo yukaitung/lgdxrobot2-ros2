@@ -99,10 +99,23 @@ launch_args = [
   
   # Cloud
   DeclareLaunchArgument(
+    name='use_cloud',
+    default_value='False',
+    description='Whether to enable cloud.'
+  ),
+  DeclareLaunchArgument(
     name='cloud_address',
     default_value='host.docker.internal:5162',
     description='Address of LGDXRobot Cloud.'
-  )
+  ),
+  # Certificates
+  # Root: root.crt
+  # Client: <namespace>.key, <namespace>.crt
+  DeclareLaunchArgument(
+    name='cloud_cert_folder',
+    default_value='/config/keys/',
+    description='Path to the server’s root certificate'
+  ),
 ]
 
 def launch_setup(context):
@@ -129,6 +142,7 @@ def launch_setup(context):
   log_level = LaunchConfiguration('log_level')
   
   # Cloud
+  use_cloud = LaunchConfiguration('use_cloud')
   cloud_address = LaunchConfiguration('cloud_address').perform(context)
   
   #
@@ -161,6 +175,8 @@ def launch_setup(context):
       'log_level': log_level,
       'use_keepout_zones': use_keepout_zones,
       'use_speed_zones': use_speed_zones,
+      'use_cloud': use_cloud,
+      'cloud_address': cloud_address,
     }.items(),
   )
   robot2 = IncludeLaunchDescription(
@@ -182,6 +198,9 @@ def launch_setup(context):
       'log_level': log_level,
       'use_keepout_zones': use_keepout_zones,
       'use_speed_zones': use_speed_zones,
+      'use_cloud': use_cloud,
+      'cloud_address': cloud_address,
+      'initial_pose_x': '3.0',
     }.items(),
   )
 
