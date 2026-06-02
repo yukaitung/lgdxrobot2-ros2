@@ -50,8 +50,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.013026325286053315 -0.6598603742094219 -0.7512753166434682 5.863491396179586
-  position 10.453622403594357 -9.10685467738854 5.521789793973238
+  orientation -0.5062808762721269 -0.4809306464474587 0.7158109999355673 4.412465206869608
+  position -4.433062536912141 27.388420273027233 69.06987393476592
 }
 DEF DOUBLE_DOOR Solid {
   translation 11.01 5 0
@@ -3081,26 +3081,6 @@ Shelf {
   name "shelf(25)"
 }
 Shelf {
-  translation 6.92 -12.79 -6.56985e-06
-  rotation 2.3464099999870814e-06 -2.3464099999870814e-06 0.9999999999944944 -1.5707953071795862
-  name "shelf(28)"
-}
-Shelf {
-  translation 24.2 -12.79 -8.7658e-05
-  rotation 2.3464099999870814e-06 2.3464099999870814e-06 0.9999999999944944 1.5708
-  name "shelf(30)"
-}
-Shelf {
-  translation 24.2 -8.85 -8.7658e-05
-  rotation 2.3464099999870814e-06 2.3464099999870814e-06 0.9999999999944944 1.5708
-  name "shelf(31)"
-}
-Shelf {
-  translation 6.92 -8.87 -6.56985e-06
-  rotation 2.3464099999870814e-06 -2.3464099999870814e-06 0.9999999999944944 -1.5707953071795862
-  name "shelf(29)"
-}
-Shelf {
   translation 3.51 -4.3 9.43251e-06
   rotation 0 1 0 4.692820414042842e-06
   name "shelf(26)"
@@ -3180,6 +3160,96 @@ Floor {
   appearance BakelitePlastic {
     color "braun"
   }
+}
+Solid {
+  translation 23.84 -13.78 0
+  rotation 0 0 1 3.14159
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 1 0 0
+          emissiveColor 1 0 0
+        }
+      }
+      geometry Sphere {
+        radius 0.1
+      }
+    }
+  ]
+  name "START1"
+}
+Solid {
+  translation 23.84 -11.8 0
+  rotation 0 0 1 3.14159
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 1 0 0
+          emissiveColor 1 0 0
+        }
+      }
+      geometry Sphere {
+        radius 0.1
+      }
+    }
+  ]
+  name "START2"
+}
+Solid {
+  translation 23.84 -9.8 0
+  rotation 0 0 1 3.14159
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 1 0 0
+          emissiveColor 1 0 0
+        }
+      }
+      geometry Sphere {
+        radius 0.1
+      }
+    }
+  ]
+  name "START3"
+}
+Solid {
+  translation 23.84 -7.8 0
+  rotation 0 0 1 3.14159
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 1 0 0
+          emissiveColor 1 0 0
+        }
+      }
+      geometry Sphere {
+        radius 0.1
+      }
+    }
+  ]
+  name "START4"
+}
+Solid {
+  translation 23.84 -5.8 0
+  rotation 0 0 1 3.14159
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 1 0 0
+          emissiveColor 1 0 0
+        }
+      }
+      geometry Sphere {
+        radius 0.1
+      }
+    }
+  ]
+  name "START5"
 }
 CardboardBox {
   translation 6.84369 0.633899 0.3
@@ -4416,29 +4486,35 @@ Table {
   rotation 0 0 1 -3.1415853071795863
   name "table(17)"
 }
-AdvertisingBoard {
-  translation 24.81 -3.48 1.52
-  rotation 1 0 0 4.6928012867022945e-06
-  displayWidth 2
-  displayHeight 0.5
-  frameThickness 0.1
-}
 Table {
-  translation 20.7892 -14.1831 -3.16562e-13
+  translation 7.3092 -14.2031 -3.16562e-13
   rotation 0 0 -1 1.57079
   name "table(53)"
 }
 Table {
-  translation 20.7892 -10.1731 -3.16562e-13
+  translation 7.3092 -10.1731 -3.16562e-13
   rotation 0 0 -1 1.57079
   name "table(54)"
 }
+AdvertisingBoard {
+  translation 24.81 -3.53 1.52
+  rotation 1 0 0 4.6928012867022945e-06
+  frontTexture [
+    "https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/raw/routedemo/lgdxrobot2sim_webots/worlds/xglgdx.png?ref_type=heads"
+  ]
+  backTexture [
+    "https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/raw/routedemo/lgdxrobot2sim_webots/worlds/xglgdx.png?ref_type=heads"
+  ]
+  displayWidth 2
+  displayHeight 0.5
+  frameThickness 0.1
+}
 ConveyorBelt {
-  translation 14.84 -14.21 0
+  translation 13.26 -14.21 0
   size 10 1 0.6
 }
 ConveyorBelt {
-  translation 14.81 -10.19 0.1
+  translation 13.27 -10.19 0.1
   rotation 0 0 1 3.14159
   name "conveyor belt(1)"
   size 10 1 0.6
