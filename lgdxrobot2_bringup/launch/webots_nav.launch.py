@@ -163,6 +163,7 @@ def launch_setup(context):
   
   # NAV2
   slam = LaunchConfiguration('slam')
+  slam_str = LaunchConfiguration('slam').perform(context)
   use_localization = LaunchConfiguration('use_localization')
   map = LaunchConfiguration('map').perform(context)
   map_path = PathJoinSubstitution([webots_package_dir, 'maps', map])
@@ -193,7 +194,7 @@ def launch_setup(context):
   
   # Manage map
   nav2_delay_enable = False
-  if use_cloud_str.lower() == 'true':
+  if use_cloud_str.lower() == 'true' and slam_str.lower() == 'false':
     nav2_delay_enable = True
     graph = os.path.join(os.getcwd(), 'route.geojson')
     map_path = os.path.join(os.getcwd(), 'map.yaml')
