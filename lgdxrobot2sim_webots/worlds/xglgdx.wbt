@@ -56,8 +56,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.4074401670427851 -0.38757719905789256 -0.8269077488151783 4.565122363066492
-  position 12.774973552933034 -37.71928575473511 49.12037658828495
+  orientation -0.48569983872425454 -0.5036951119702281 0.7144136762692412 4.345579855033174
+  position 1.4748194174562617 27.8464057966288 73.3230948903962
 }
 DEF DOUBLE_DOOR Solid {
   translation 11.01 5 0
@@ -3522,22 +3522,22 @@ CardboardBox {
   name "cardboard box(47)"
 }
 CardboardBox {
-  translation -23.006 2.48713 0.3
+  translation -23.5193 2.31654 0.3
   rotation 0 1 0 4.6928012867022945e-06
   name "cardboard box(41)"
 }
 CardboardBox {
-  translation -21.5403 2.58881 0.3
+  translation -21.937 2.33553 0.3
   rotation -2.346399998282242e-06 3.8192399972040015e-05 0.9999999992679176 0.122718
   name "cardboard box(74)"
 }
 CardboardBox {
-  translation -21.8323 2.5261 0.9
+  translation -22.3085 2.39217 0.9
   rotation -2.346399995232252e-06 6.370539987055434e-05 0.9999999979680583 0.0736306
   name "cardboard box(76)"
 }
 CardboardBox {
-  translation -22.2777 2.52202 0.3
+  translation -22.7353 2.31286 0.3
   rotation 2.3463999925516633e-06 7.964439974717938e-05 -0.9999999968256321 0.0589049
   name "cardboard box(75)"
 }
@@ -3801,52 +3801,37 @@ TrafficCone {
   name "traffic cone(3)"
 }
 TrafficCone {
-  translation -5.39427 -13.6989 1.26646e-12
+  translation -4.97946 -13.2544 1.33529e-12
   rotation 0 0 1 0.559595
   name "traffic cone(5)"
 }
 TrafficCone {
-  translation -5.04128 -10.9495 1.45417e-12
-  rotation 0 0 -1 0.402518
-  name "traffic cone(9)"
-}
-TrafficCone {
-  translation -2.38692 -13.8925 1.27644e-12
+  translation -2.72191 -12.8522 1.24022e-12
   rotation 0 0 -1 0.427061
   name "traffic cone(10)"
 }
 TrafficCone {
-  translation 0.0779624 -13.6061 1.16613e-12
+  translation -0.582442 -13.0264 1.17107e-12
   rotation 0 0 1 0.15217
   name "traffic cone(13)"
 }
 TrafficCone {
-  translation 1.49097 -11.8955 1.38593e-12
+  translation 0.931234 -11.4264 1.32549e-12
   rotation 0 0 -1 0.0589058
   name "traffic cone(14)"
 }
 TrafficCone {
-  translation -2.8307 -11.7067 1.30228e-12
-  rotation 0 0 -1 0.0539972
-  name "traffic cone(11)"
-}
-TrafficCone {
-  translation -0.654609 -10.747 1.7608e-12
-  rotation 0 0 -1 0.579232
-  name "traffic cone(12)"
-}
-TrafficCone {
-  translation -7.2029 -12.3373 1.03214e-12
+  translation -7.72963 -12.8614 1.08623e-12
   rotation 0 0 1 0.397607
   name "traffic cone(8)"
 }
 TrafficCone {
-  translation -9.06216 -13.7154 7.47147e-13
+  translation -9.8284 -13.6271 7.83583e-13
   rotation 0 0 1 0.0687213
   name "traffic cone(7)"
 }
 TrafficCone {
-  translation -9.67722 -11.4602 5.261e-13
+  translation -10.3545 -11.3443 5.27702e-13
   rotation 0 0 1 0.176714
   name "traffic cone(6)"
 }

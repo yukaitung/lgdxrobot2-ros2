@@ -35,7 +35,7 @@ launch_args = [
   # Webots
   DeclareLaunchArgument(
     name='world',
-    default_value='xglgdx.wbt',
+    default_value='warehouse.wbt',
     description='World file in `lgdxrobot2sim_webots` package.'
   ),
   
@@ -52,7 +52,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='xglgdx.yaml',
+    default_value='warehouse.yaml',
     description='Map yaml file in `lgdxrobot2sim_webots` package.'
   ),
   DeclareLaunchArgument(
