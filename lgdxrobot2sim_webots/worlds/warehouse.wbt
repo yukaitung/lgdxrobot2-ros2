@@ -4,7 +4,6 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/omichel/Shelf/refs/heads/main/protos/Shelf.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/pallet/protos/WoodenPalletStack.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/tools/protos/PlatformCart.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/cabinet/protos/Cabinet.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/containers/protos/CardboardBox.proto"
@@ -13,7 +12,6 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BrushedAluminium.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Plaster.proto"
 EXTERNPROTO "https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/raw/routedemo/lgdxrobot2sim_webots/protos/StartingPoint.proto"
-EXTERNPROTO "https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/raw/routedemo/lgdxrobot2sim_webots/protos/LGDXRobot2.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/Floor.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BakelitePlastic.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/pallet/protos/WoodenPallet.proto"
@@ -47,16 +45,16 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.5132311708774364 -0.5312934450870073 0.6740334119666138 4.322696487853915
-  position -0.002525364463918711 19.847752975894096 57.890147535395045
+  orientation -0.4386150379842561 -0.4716976768145021 0.7649301603034562 4.446613070839061
+  position -1.3721123456475404 33.0969079776896 52.316318588939005
 }
 DEF DOUBLE_DOOR Solid {
   translation -14 5 0
   rotation 0 0 -1 3.14159
   children [
     Solid {
-      translation -0.0009999999999999731 0.88 0
-      rotation 0 0 1 -5.307179586466759e-06
+      translation -0.0010000000000012221 0.8800000000000008 -0.0002815469999998266
+      rotation 2.2002132361550196e-31 1.2991078443442879e-31 -1 5.307179586711688e-06
       children [
         DEF BOX Pose {
           translation -0.175 -0.43 1
@@ -197,6 +195,8 @@ DEF DOUBLE_DOOR Solid {
       physics Physics {
         density 200
       }
+      linearVelocity 0 0 -1.0647742850024527e-15
+      angularVelocity 9.128621627435229e-36 5.389343780560628e-36 2.744597624966186e-22
     }
     Solid {
       translation 0 0 2.2
@@ -448,8 +448,8 @@ DEF DOUBLE_DOOR Solid {
       }
     }
     Solid {
-      translation -0.00128388 0.00384 -1.93246e-09
-      rotation -0.002421160591221735 0.009035912206473916 -0.9999562441787083 2.0503e-06
+      translation -0.0012838799999990158 0.0038399999999985113 -0.00028154893246001844
+      rotation -0.002421160591075194 0.009035912205927015 -0.9999562441787135 2.050300000124095e-06
       children [
         DEF BOX Pose {
           translation -0.175 -0.43 1
@@ -543,6 +543,8 @@ DEF DOUBLE_DOOR Solid {
       physics Physics {
         density 200
       }
+      linearVelocity 0 0 -1.0647742850024527e-15
+      angularVelocity -8.915536230734066e-25 2.636279978924437e-24 2.6641843281780104e-22
     }
   ]
   name "door(2)"
@@ -1231,13 +1233,23 @@ CardboardBox {
   name "cardboard box(12)"
 }
 FireExtinguisher {
-  translation 0.45 -4.65 0
-  rotation 0 0 1 1.08974
+  translation 0.44999907987077614 -4.649999337536284 -0.0047084697501100226
+  rotation 0.0070409584338986956 0.0029916433406878087 0.9999707370590672 1.0897659536120305
   name "fire extinguisher(3)"
 }
 PlatformCart {
-  translation 0.774285 -4.35729 1.96014e-14
-  rotation 0 0 1 2.7358
+  hidden position_0_0 -5.763611173102052e-06
+  hidden position2_0_0 0.004380610806388322
+  hidden position_0_1 -5.7569618683800496e-06
+  hidden position2_0_1 0.004380268688060613
+  hidden position_0_2 0.00436866823573098
+  hidden position_0_3 0.004368324269927269
+  hidden rotation_2 0.9999952025907977 0.002187408547041925 -0.0021931801653432958 1.5708048100447987
+  hidden rotation_3 0.9999952033401225 0.002187240814799902 -0.0021930057832167346 1.5708048092799216
+  hidden rotation_4 0.9999952287209584 0.0021843191463700824 -0.0021843271698370544 1.5708047712904243
+  hidden rotation_5 0.9999952294722562 0.0021841471657409665 -0.002184155188576217 1.5708047705391228
+  translation 0.7741242107640063 -4.357220899637223 -0.003007308485502208
+  rotation 0.0006604474302331312 -0.00013477254625210566 0.9999997728227505 2.7358001225114235
   name "platform cart(3)"
 }
 CardboardBox {
@@ -1255,6 +1267,12 @@ CardboardBox {
   name "cardboard box(2)"
 }
 Cabinet {
+  hidden position_6_0 6.406136651861793e-06
+  hidden translation_7 -1.2748211937117774e-06 -4.083317017844479e-12 0
+  hidden rotation_7 0 0 1 6.406113008859535e-06
+  hidden position_10_0 -5.446180061318929e-06
+  hidden translation_11 -9.212213573675428e-07 2.5085489241405412e-12 0
+  hidden rotation_11 0 0 -1 5.446165469934237e-06
   translation -3.38427 -4.85384 -4.85613e-17
   rotation 0 0 1 1.5708
   layout [
@@ -1263,12 +1281,32 @@ Cabinet {
   ]
 }
 PlatformCart {
-  translation 9.84191 -4.23954 -2.09706e-13
-  rotation 0 0 -1 1.40881
+  hidden position_0_0 -5.7636111642986964e-06
+  hidden position2_0_0 0.004380610806214458
+  hidden position_0_1 -5.756961938692497e-06
+  hidden position2_0_1 0.004380268688238095
+  hidden position_0_2 0.004368668235732354
+  hidden position_0_3 0.004368324270649835
+  hidden rotation_2 0.9999952025907981 0.002187408546959397 -0.002193180165251964 1.570804810044798
+  hidden rotation_3 0.999995203340122 0.0021872408148534855 -0.0021930057833406302 1.570804809279922
+  hidden rotation_4 0.9999952287209584 0.0021843191463707693 -0.002184327169837741 1.5708047712904243
+  hidden rotation_5 0.9999952294722546 0.002184147166102245 -0.0021841551889374964 1.5708047705391244
+  translation 9.841938207816249 -4.239712720460987 -0.0030073084855023746
+  rotation -0.0006589891096358408 -0.0007779364644239734 -0.9999994802739702 1.4088104800885914
 }
 PlatformCart {
-  translation -2.57939 -4.29366 3.83651e-09
-  rotation -9.59099e-09 -9.54399e-09 -1 1.57569
+  hidden position_0_0 -5.7614619826776265e-06
+  hidden position2_0_0 0.004380547834365578
+  hidden position_0_1 -5.75464634079975e-06
+  hidden position2_0_1 0.004380205763235132
+  hidden position_0_2 0.004368604725986396
+  hidden position_0_3 0.004368260766435257
+  hidden rotation_2 0.9999952027287292 0.002187378136043515 -0.0021931476050538875 1.5708048099019778
+  hidden rotation_3 0.9999952034779404 0.002187210510568341 -0.0021929731633582084 1.5708048091368507
+  hidden rotation_4 0.9999952288596823 0.0021842873919174486 -0.0021842954152677795 1.5708047711516993
+  hidden rotation_5 0.9999952296109557 0.0021841154144145295 -0.002184123437133151 1.5708047704004227
+  translation -2.5793908740314375 -4.293835003958502 -0.003007308485502347
+  rotation -0.0006591806756274483 -0.0006580620207120556 -0.9999995662175127 1.5756904009441173
   name "platform cart(5)"
 }
 Wall {
@@ -1284,10 +1322,16 @@ Wall {
   size 0.2 9.1 2.4
 }
 Wall {
-  translation -14 -0.5 0
+  translation -16.06 -0.5 0
   rotation 0 0 -1 3.1415853071795863
   name "wall(8)"
   size 0.2 9.2 2.4
+}
+Wall {
+  translation -15.0035 4.00983 2.50152e-13
+  rotation 0 0 -1 1.57079
+  name "wall(3)"
+  size 0.2 2.2 2.4
 }
 Wall {
   translation -0.10008 15 0
@@ -1296,60 +1340,52 @@ Wall {
   size 0.2 28 2.4
 }
 Wall {
-  translation -0.0999511 -5.02 0
+  translation -1.10995 -5.02 0
   rotation 0 0 -1 1.57079
   name "wall(1)"
-  size 0.2 28 2.4
-}
-WoodenPalletStack {
-  translation -13.0254 -4.11719 9.04272e-07
-  rotation 4.4814699998770714e-07 7.393269999797199e-06 -0.9999999999725695 0.644676
-}
-WoodenPalletStack {
-  translation -11.5453 -4.1933 -6.1128e-06
-  rotation 2.275319999597277e-06 1.867659999669431e-05 -0.9999999998230038 0.250342
-  name "wooden pallet stack(1)"
+  size 0.2 30 2.4
 }
 StartingPoint {
   name "Robot1"
-  translation 12.7 -3.8 0
-  rotation 0 0 1 3.14159
+  translation -15 -4 0
   controller "<extern>"
 }
 StartingPoint {
   name "Robot2"
-  translation 12.7 -1.8 0
+  translation -15 -2.5 0
   rotation 0 0 1 3.14159
   controller "<extern>"
 }
 StartingPoint {
   name "Robot3"
-  translation 12.7 0.2 0
+  translation -15 -1 0
   rotation 0 0 1 3.14159
   controller "<extern>"
 }
 StartingPoint {
   name "Robot4"
-  translation 12.7 2.2 0
+  translation -15 0.5 0
   rotation 0 0 1 3.14159
   controller "<extern>"
 }
 StartingPoint {
   name "Robot5"
-  translation 12.7 4.2 0
+  translation -15 2 0
   rotation 0 0 1 3.14159
   controller "<extern>"
 }
 Floor {
-  translation -0.1 5 0
-  size 28 20
+  translation -1.1 5 0
+  size 30 20
   appearance BakelitePlastic {
     color "braun"
   }
 }
 OfficeChair {
-  translation -1.24103 -3.60636 5.01781e-14
-  rotation 0 0 -1 1.48735
+  hidden position_0_0 -0.0012432138724038921
+  hidden rotation_1 0 0 -1 0.001243213872493568
+  translation -1.2410299874474229 -3.6063601807959302 -0.0014153342865029506
+  rotation -0.0007091646302711637 -0.0007580030817626011 -0.9999994612582824 1.487350529888037
 }
 Table {
   translation -1.28098 -4.38776 1.22949e-13
