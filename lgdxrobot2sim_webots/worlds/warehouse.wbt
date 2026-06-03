@@ -15,7 +15,6 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Plaster.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/Floor.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BakelitePlastic.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/pallet/protos/WoodenPallet.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/tables/protos/Table.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/chairs/protos/OfficeChair.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/pallet/protos/WoodenPalletStack.proto"
@@ -49,8 +48,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.46237434996486926 0.4737590825975521 -0.7495080334131786 1.842138334775849
-  position -0.19695369626780623 33.266967305133036 56.306538570676686
+  orientation 0.5848537522043306 0.5735617179225414 -0.5735617179225427 2.0737987978770014
+  position -4.642534540524506 5.582194962030951 63.078506368731894
 }
 DEF DOUBLE_DOOR Solid {
   translation -14 5 0
