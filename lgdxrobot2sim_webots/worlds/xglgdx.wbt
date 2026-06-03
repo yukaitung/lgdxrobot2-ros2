@@ -22,7 +22,12 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/living_room_furniture/protos/Sofa.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/conveyors/protos/ConveyorBelt.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/advertising_board/protos/AdvertisingBoard.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/GlossyPaint.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BrushedAluminium.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Plaster.proto"
 EXTERNPROTO "https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/raw/routedemo/lgdxrobot2sim_webots/protos/StartingPoint.proto"
+EXTERNPROTO "https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/raw/routedemo/lgdxrobot2sim_webots/protos/LGDXRobot2.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/computers/protos/DesktopComputer.proto"
 
 WorldInfo {
   contactProperties [
@@ -51,8 +56,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.5475157245488075 -0.5193533219521743 0.6561239656871524 4.325499780088624
-  position -4.206448970180075 16.371493843088942 73.01598998579678
+  orientation 0.4074401670427851 -0.38757719905789256 -0.8269077488151783 4.565122363066492
+  position 12.774973552933034 -37.71928575473511 49.12037658828495
 }
 DEF DOUBLE_DOOR Solid {
   translation 11.01 5 0
@@ -3082,6 +3087,11 @@ Shelf {
   name "shelf(25)"
 }
 Shelf {
+  translation 6.90163 -8.92701 -9.10407e-06
+  rotation 2.3464099999870814e-06 -2.3464099999870814e-06 0.9999999999944944 -1.5707953071795862
+  name "shelf(28)"
+}
+Shelf {
   translation 3.51 -4.3 9.43251e-06
   rotation 0 1 0 4.692820414042842e-06
   name "shelf(26)"
@@ -3162,30 +3172,256 @@ Floor {
     color "braun"
   }
 }
-StartingPoint {
-  name "Robot1"
-  translation 23.84 -13.78 0
-  rotation 0 0 1 3.14159
+DesktopComputer {
+  translation 15.3 -1.88 0
 }
-StartingPoint {
-  name "Robot2"
-  translation 23.84 -11.8 0
-  rotation 0 0 1 3.14159
+DesktopComputer {
+  translation 15.3 -0.04 0
+  name "desktop computer(1)"
 }
-StartingPoint {
-  name "Robot3"
-  translation 23.84 -9.8 0
-  rotation 0 0 1 3.14159
+DesktopComputer {
+  translation 15.3 1.81 0
+  name "desktop computer(2)"
 }
-StartingPoint {
-  name "Robot4"
-  translation 23.84 -7.8 0
-  rotation 0 0 1 3.14159
+DesktopComputer {
+  translation 20.6082 6.26498 -2.04435e-14
+  rotation 0 0 1 -1.5707953071795862
+  name "desktop computer(6)"
 }
-StartingPoint {
-  name "Robot5"
-  translation 23.84 -5.8 0
+DesktopComputer {
+  translation 22.3982 6.26498 -2.04435e-14
+  rotation 0 0 1 -1.5707953071795862
+  name "desktop computer(7)"
+}
+DesktopComputer {
+  translation 21.1682 7.55498 -2.04435e-14
+  rotation 0 0 1 1.5708
+  name "desktop computer(8)"
+}
+DesktopComputer {
+  translation 19.3682 7.55498 -2.04435e-14
+  rotation 0 0 1 1.5708
+  name "desktop computer(9)"
+}
+DesktopComputer {
+  translation 15.2182 11.225 -2.04435e-14
+  rotation 0 0 1 -1.5707953071795862
+  name "desktop computer(10)"
+}
+DesktopComputer {
+  translation 16.9582 11.225 -2.04435e-14
+  rotation 0 0 1 -1.5707953071795862
+  name "desktop computer(11)"
+}
+DesktopComputer {
+  translation 20.5782 11.225 -2.04435e-14
+  rotation 0 0 1 -1.5707953071795862
+  name "desktop computer(12)"
+}
+DesktopComputer {
+  translation 22.3682 11.225 -2.04435e-14
+  rotation 0 0 1 -1.5707953071795862
+  name "desktop computer(13)"
+}
+DesktopComputer {
+  translation 21.1482 12.605 -2.04435e-14
+  rotation 0 0 1 1.5708
+  name "desktop computer(14)"
+}
+DesktopComputer {
+  translation 19.4082 12.605 -2.04435e-14
+  rotation 0 0 1 1.5708
+  name "desktop computer(15)"
+}
+DesktopComputer {
+  translation 15.8382 12.605 -2.04435e-14
+  rotation 0 0 1 1.5708
+  name "desktop computer(16)"
+}
+DesktopComputer {
+  translation -0.96332 -4.1997 4.52778e-13
+  rotation 0 0 1 1.5708
+  name "desktop computer(17)"
+}
+DesktopComputer {
+  translation 3.53413 -13.3195 1.65815e-12
+  rotation 0 0 -1 -5.307179586466759e-06
+  name "desktop computer(19)"
+}
+DesktopComputer {
+  translation 3.51085 -11.4374 1.9024e-12
+  rotation 0 0 -1 -5.307179586466759e-06
+  name "desktop computer(20)"
+}
+DesktopComputer {
+  translation -3.16163 -8.78817 1.38865e-12
+  rotation 0 0 1 1.5708
+  name "desktop computer(21)"
+}
+DesktopComputer {
+  translation -5.04163 -8.78817 1.38865e-12
+  rotation 0 0 1 1.5708
+  name "desktop computer(23)"
+}
+DesktopComputer {
+  translation -6.81163 -8.78817 1.38865e-12
+  rotation 0 0 1 1.5708
+  name "desktop computer(24)"
+}
+DesktopComputer {
+  translation -12.8916 -10.8582 1.38865e-12
+  rotation 0 0 1 -3.1415853071795863
+  name "desktop computer(25)"
+}
+DesktopComputer {
+  translation -12.8916 -12.6282 1.38865e-12
+  rotation 0 0 1 -3.1415853071795863
+  name "desktop computer(26)"
+}
+DesktopComputer {
+  translation -12.8916 -14.4282 1.38865e-12
+  rotation 0 0 1 -3.1415853071795863
+  name "desktop computer(27)"
+}
+DesktopComputer {
+  translation -23.2416 -12.8282 1.38865e-12
+  rotation 0 0 -1 1.57079
+  name "desktop computer(28)"
+}
+DesktopComputer {
+  translation -24.6016 -9.6582 1.38865e-12
+  rotation 0 0 1 1.5708
+  name "desktop computer(29)"
+}
+DesktopComputer {
+  translation -22.6916 -9.6582 1.38865e-12
+  rotation 0 0 1 1.5708
+  name "desktop computer(30)"
+}
+DesktopComputer {
+  translation -19.4516 -9.6582 1.38865e-12
+  rotation 0 0 1 1.5708
+  name "desktop computer(31)"
+}
+DesktopComputer {
+  translation -17.5116 -9.6582 1.38865e-12
+  rotation 0 0 1 1.5708
+  name "desktop computer(32)"
+}
+DesktopComputer {
+  translation -17.5116 -6.4882 1.51491e-12
+  rotation 9.58976e-09 9.58979e-09 -1 -1.5707953071795862
+  name "desktop computer(33)"
+}
+DesktopComputer {
+  translation -19.4716 -6.4882 -3.7591e-08
+  rotation 9.58976e-09 9.58979e-09 -1 -1.5707953071795862
+  name "desktop computer(34)"
+}
+DesktopComputer {
+  translation -22.7216 -6.4882 -9.9925e-08
+  rotation 9.58976e-09 9.58979e-09 -1 -1.5707953071795862
+  name "desktop computer(35)"
+}
+DesktopComputer {
+  translation -24.5416 -6.4882 -1.34833e-07
+  rotation 9.58976e-09 9.58979e-09 -1 -1.5707953071795862
+  name "desktop computer(36)"
+}
+DesktopComputer {
+  translation -24.5416 -3.4082 -1.34833e-07
+  rotation 9.58976e-09 9.58979e-09 -1 -1.5707953071795862
+  name "desktop computer(37)"
+}
+DesktopComputer {
+  translation -22.6916 -3.4082 -9.93488e-08
+  rotation 9.58976e-09 9.58979e-09 -1 -1.5707953071795862
+  name "desktop computer(38)"
+}
+DesktopComputer {
+  translation -19.3416 -3.4082 -3.50968e-08
+  rotation 9.58976e-09 9.58979e-09 -1 -1.5707953071795862
+  name "desktop computer(39)"
+}
+DesktopComputer {
+  translation -17.5216 -3.4082 -1.89716e-10
+  rotation 9.58976e-09 9.58979e-09 -1 -1.5707953071795862
+  name "desktop computer(40)"
+}
+DesktopComputer {
+  translation -17.5216 -0.3882 -1.89601e-10
+  rotation 9.58976e-09 9.58979e-09 -1 -1.5707953071795862
+  name "desktop computer(41)"
+}
+DesktopComputer {
+  translation -19.4416 -0.3882 -3.70146e-08
+  rotation 9.58976e-09 9.58979e-09 -1 -1.5707953071795862
+  name "desktop computer(42)"
+}
+DesktopComputer {
+  translation -22.7216 -0.3882 -9.99239e-08
+  rotation 9.58976e-09 9.58979e-09 -1 -1.5707953071795862
+  name "desktop computer(43)"
+}
+DesktopComputer {
+  translation -20.8279 14.0131 -1.0242e-07
+  rotation -9.58978e-09 9.58975e-09 1 -1.5707953071795862
+  name "desktop computer(45)"
+}
+DesktopComputer {
+  translation -19.0205 14.1022 -1.0242e-07
+  rotation -9.58978e-09 9.58975e-09 1 -1.5707953071795862
+  name "desktop computer(46)"
+}
+DesktopComputer {
+  translation -24.5716 -0.3882 -1.35408e-07
+  rotation 9.58976e-09 9.58979e-09 -1 -1.5707953071795862
+  name "desktop computer(44)"
+}
+DesktopComputer {
+  translation 3.45808 -9.70238 1.90281e-12
+  rotation 0 0 -1 -5.307179586466759e-06
+  name "desktop computer(22)"
+}
+DesktopComputer {
+  translation 14.0282 12.605 -2.04435e-14
+  rotation 0 0 1 1.5708
+  name "desktop computer(18)"
+}
+DesktopComputer {
+  translation 13.86 0.48 0
   rotation 0 0 1 3.14159
+  name "desktop computer(3)"
+}
+DesktopComputer {
+  translation 13.86 -1.34 0
+  rotation 0 0 1 3.14159
+  name "desktop computer(4)"
+}
+DesktopComputer {
+  translation 13.86 -3.14 0
+  rotation 0 0 1 3.14159
+  name "desktop computer(5)"
+}
+CardboardBox {
+  translation 6.9 -10.35 0.3
+  name "cardboard box(50)"
+}
+CardboardBox {
+  translation 4.64474 -7.70185 0.3
+  name "cardboard box(71)"
+}
+CardboardBox {
+  translation 6.9 -9.5 0.3
+  name "cardboard box(51)"
+}
+CardboardBox {
+  translation 6.9 -8.45 0.3
+  name "cardboard box(52)"
+}
+CardboardBox {
+  translation 6.9 -7.61 0.3
+  name "cardboard box(53)"
 }
 CardboardBox {
   translation 6.84369 0.633899 0.3
@@ -3286,9 +3522,39 @@ CardboardBox {
   name "cardboard box(47)"
 }
 CardboardBox {
-  translation -10.1246 6.35183 0.3
+  translation -23.006 2.48713 0.3
   rotation 0 1 0 4.6928012867022945e-06
   name "cardboard box(41)"
+}
+CardboardBox {
+  translation -21.5403 2.58881 0.3
+  rotation -2.346399998282242e-06 3.8192399972040015e-05 0.9999999992679176 0.122718
+  name "cardboard box(74)"
+}
+CardboardBox {
+  translation -21.8323 2.5261 0.9
+  rotation -2.346399995232252e-06 6.370539987055434e-05 0.9999999979680583 0.0736306
+  name "cardboard box(76)"
+}
+CardboardBox {
+  translation -22.2777 2.52202 0.3
+  rotation 2.3463999925516633e-06 7.964439974717938e-05 -0.9999999968256321 0.0589049
+  name "cardboard box(75)"
+}
+CardboardBox {
+  translation -16.9198 5.79845 0.3
+  rotation -2.3463999975664317e-06 4.5483999952826276e-05 0.9999999989628501 0.103083
+  name "cardboard box(77)"
+}
+CardboardBox {
+  translation -16.7549 2.36711 0.3
+  rotation 0 1 0 4.6928012867022945e-06
+  name "cardboard box(73)"
+}
+CardboardBox {
+  translation -10.1246 6.35183 0.3
+  rotation 0 1 0 4.6928012867022945e-06
+  name "cardboard box(72)"
 }
 CardboardBox {
   translation -9.27734 5.42295 0.3
@@ -3869,9 +4135,94 @@ CardboardBox {
   name "cardboard box(3)"
 }
 CardboardBox {
+  translation 20.9444 1.72736 0.3
+  rotation 0 0 1 1.66897
+  name "cardboard box(4)"
+}
+CardboardBox {
+  translation 20.7033 2.47019 0.3
+  rotation 0 0 1 1.63952
+  name "cardboard box(56)"
+}
+CardboardBox {
+  translation 20.626 2.00118 0.9
+  rotation 0 0 1 1.70824
+  name "cardboard box(64)"
+}
+CardboardBox {
+  translation 19.8154 2.18314 0.9
+  rotation 0 0 1 1.22718
+  name "cardboard box(65)"
+}
+CardboardBox {
+  translation 19.8079 1.20506 0.9
+  rotation 0 0 1 1.22228
+  name "cardboard box(66)"
+}
+CardboardBox {
+  translation 20.144 1.7433 0.3
+  rotation 0 0 1 1.50699
+  name "cardboard box(58)"
+}
+CardboardBox {
+  translation 19.4106 1.83417 0.3
+  rotation 0 0 1 1.71315
+  name "cardboard box(60)"
+}
+CardboardBox {
+  translation 19.7354 -3.69766 0.3
+  rotation 0 0 1 1.66897
+  name "cardboard box(67)"
+}
+CardboardBox {
+  translation 11.6506 -9.21795 0.3
+  rotation 0 0 1 1.62479
+  name "cardboard box(69)"
+}
+CardboardBox {
+  translation 9.10091 -12.3013 0.3
+  rotation 0 0 1 1.62479
+  name "cardboard box(70)"
+}
+CardboardBox {
+  translation 19.708 0.935022 0.3
+  rotation 0 0 1 1.85715
+  name "cardboard box(61)"
+}
+CardboardBox {
+  translation 20.6446 0.886674 0.3
+  rotation 0 0 1 1.72788
+  name "cardboard box(63)"
+}
+CardboardBox {
+  translation 11.7938 7.9597 0.3
+  rotation 0 0 1 1.55117
+  name "cardboard box(62)"
+}
+CardboardBox {
+  translation 19.1545 2.50544 0.3
+  rotation 0 0 1 1.58062
+  name "cardboard box(68)"
+}
+CardboardBox {
+  translation 19.9518 2.52244 0.3
+  rotation 0 0 1 1.4579
+  name "cardboard box(59)"
+}
+CardboardBox {
+  translation 21.4316 2.40155 0.3
+  rotation 0 0 1 1.47262
+  name "cardboard box(57)"
+}
+CardboardBox {
   translation 24.4459 1.39774 0.3
   rotation 0 0 1 1.56589
-  name "cardboard box(4)"
+  name "cardboard box(55)"
+}
+CardboardBox {
+  translation 24.4168 -3.29469 0.3
+  rotation 0 0 1 1.50208
+  name "cardboard box(54)"
 }
 CardboardBox {
   translation 24.4323 1.84694 0.9
@@ -4032,6 +4383,60 @@ Cabinet {
   ]
 }
 Cabinet {
+  translation 24.83 14.48 0
+  rotation 0 0 1 -3.1415853071795863
+  name "cabinet(4)"
+  layout [
+    "RightSidedDoor (1, 1, 1, 5, 1.5)"
+    "LeftSidedDoor (2, 1, 2, 5, 1.5)"
+  ]
+}
+Cabinet {
+  translation 24.83 13.65 0
+  rotation 0 0 1 -3.1415853071795863
+  name "cabinet(5)"
+  layout [
+    "RightSidedDoor (1, 1, 1, 5, 1.5)"
+    "LeftSidedDoor (2, 1, 2, 5, 1.5)"
+  ]
+}
+Cabinet {
+  translation 24.83 12.82 0
+  rotation 0 0 1 -3.1415853071795863
+  name "cabinet(15)"
+  layout [
+    "RightSidedDoor (1, 1, 1, 5, 1.5)"
+    "LeftSidedDoor (2, 1, 2, 5, 1.5)"
+  ]
+}
+Cabinet {
+  translation 11.16 9.35 0
+  rotation 0 0 1 7.33682e-06
+  name "cabinet(16)"
+  layout [
+    "RightSidedDoor (1, 1, 1, 5, 1.5)"
+    "LeftSidedDoor (2, 1, 2, 5, 1.5)"
+  ]
+}
+Cabinet {
+  translation 11.16 10.17 0
+  rotation 0 0 1 7.33682e-06
+  name "cabinet(17)"
+  layout [
+    "RightSidedDoor (1, 1, 1, 5, 1.5)"
+    "LeftSidedDoor (2, 1, 2, 5, 1.5)"
+  ]
+}
+Cabinet {
+  translation 11.16 10.99 0
+  rotation 0 0 1 7.33682e-06
+  name "cabinet(18)"
+  layout [
+    "RightSidedDoor (1, 1, 1, 5, 1.5)"
+    "LeftSidedDoor (2, 1, 2, 5, 1.5)"
+  ]
+}
+Cabinet {
   translation 24.83 4.38 0
   rotation 0 0 1 -3.1415853071795863
   name "cabinet(2)"
@@ -4161,6 +4566,11 @@ PlatformCart {
   translation 24.2337 6.5862 3.83657e-09
   rotation -9.59094e-09 -8.19143e-09 -1 1.72787
   name "platform cart(1)"
+}
+PlatformCart {
+  translation 20.1678 0.136435 3.83657e-09
+  rotation -9.59134e-09 -1.30026e-07 -1 0.147256
+  name "platform cart(6)"
 }
 PlatformCart {
   translation 10.4511 -3.99563 3.83651e-09
@@ -4423,14 +4833,24 @@ Table {
   name "table(17)"
 }
 Table {
-  translation 7.3092 -14.2031 -3.16562e-13
-  rotation 0 0 -1 1.57079
+  translation 19.7592 -4.04306 -3.16562e-13
+  rotation 0 0 1 -3.1415853071795863
   name "table(53)"
 }
 Table {
-  translation 7.3092 -10.1731 -3.16562e-13
+  translation 20.8192 -12.0931 -3.16562e-13
+  rotation 0 0 -1 3.14159
+  name "table(55)"
+}
+Table {
+  translation 11.4104 -9.46118 -1.26866e-13
   rotation 0 0 -1 1.57079
   name "table(54)"
+}
+Table {
+  translation 9.32027 -12.4487 -1.0379e-13
+  rotation 0 0 -1 1.57079
+  name "table(56)"
 }
 AdvertisingBoard {
   translation 24.81 -3.53 1.52
@@ -4446,14 +4866,21 @@ AdvertisingBoard {
   frameThickness 0.1
 }
 ConveyorBelt {
-  translation 13.26 -14.21 0
-  size 10 1 0.6
+  translation 20.85 -7.15 -1.35383e-07
+  rotation 9.58979e-09 9.5898e-09 1 -1.5707953071795862
+  size 8 1 0.6
 }
 ConveyorBelt {
-  translation 13.27 -10.19 0.1
+  translation 15.27 -12.45 0.1
   rotation 0 0 1 3.14159
   name "conveyor belt(1)"
   size 10 1 0.6
+}
+ConveyorBelt {
+  translation 15.37 -9.4 0.2
+  rotation 0 0 1 3.14159
+  name "conveyor belt(2)"
+  size 6 1 0.6
 }
 Table {
   translation 11.61 8.02 0
@@ -4592,4 +5019,34 @@ Wall {
 CitroenCZeroSimple {
   translation -23.38 9.79 0.25
   rotation 0 0 1 1.01459e-06
+}
+StartingPoint {
+  name "Robot1"
+  translation 23.84 -13.78 0
+  rotation 0 0 1 3.14159
+  controller "<extern>"
+}
+StartingPoint {
+  name "Robot2"
+  translation 23.84 -11.8 0
+  rotation 0 0 1 3.14159
+  controller "<extern>"
+}
+StartingPoint {
+  name "Robot3"
+  translation 23.84 -9.8 0
+  rotation 0 0 1 3.14159
+  controller "<extern>"
+}
+StartingPoint {
+  name "Robot4"
+  translation 23.84 -7.8 0
+  rotation 0 0 1 3.14159
+  controller "<extern>"
+}
+StartingPoint {
+  name "Robot5"
+  translation 23.84 -5.8 0
+  rotation 0 0 1 3.14159
+  controller "<extern>"
 }

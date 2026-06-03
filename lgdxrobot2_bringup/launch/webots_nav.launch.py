@@ -35,7 +35,7 @@ launch_args = [
   # Webots
   DeclareLaunchArgument(
     name='world',
-    default_value='default.wbt',
+    default_value='xglgdx.wbt',
     description='World file in `lgdxrobot2sim_webots` package.'
   ),
   
@@ -52,7 +52,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='default.yaml',
+    default_value='xglgdx.yaml',
     description='Map yaml file in `lgdxrobot2sim_webots` package.'
   ),
   DeclareLaunchArgument(
@@ -159,7 +159,7 @@ def launch_setup(context):
   p = ParamManager(profiles_path, profile_str, namespace)
   
   # Webots
-  world = LaunchConfiguration('world')
+  world = LaunchConfiguration('world').perform(context)
   
   # NAV2
   slam = LaunchConfiguration('slam')
@@ -218,7 +218,7 @@ def launch_setup(context):
   # Webots Simulator
   #
   webots = WebotsLauncher(
-    world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
+    world=p.get_processed_webots_world_path(world, 1),
     ros2_supervisor=True
   )
   lgdxrobot2_driver = WebotsController(

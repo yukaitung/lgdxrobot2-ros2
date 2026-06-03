@@ -51,3 +51,15 @@ class ParamManager:
     param_path = self.get_param_path(file_name)
     return self.__process_yaml(param_path, replace)
         
+  def get_processed_webots_world_path(self, world: str, robot_count: int) -> str:
+    webots_package_dir = get_package_share_directory('lgdxrobot2sim_webots')
+    world_path = os.path.join(webots_package_dir, 'worlds', world)
+    with open(world_path, 'r', encoding='utf-8') as file:
+      content = file.read()
+    content = content.replace('StartingPoint {', 'LGDXRobot2 {', robot_count)
+    temp_file = tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.wbt', encoding='utf-8')
+    temp_file.write(content)
+    temp_file_path = temp_file.name
+    temp_file.close()
+    return temp_file_path
+    
