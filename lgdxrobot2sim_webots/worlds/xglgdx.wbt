@@ -22,6 +22,7 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/living_room_furniture/protos/Sofa.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/conveyors/protos/ConveyorBelt.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/advertising_board/protos/AdvertisingBoard.proto"
+EXTERNPROTO "https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/raw/routedemo/lgdxrobot2sim_webots/protos/StartingPoint.proto"
 
 WorldInfo {
   contactProperties [
@@ -50,8 +51,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.5062808762721269 -0.4809306464474587 0.7158109999355673 4.412465206869608
-  position -4.433062536912141 27.388420273027233 69.06987393476592
+  orientation -0.5475157245488075 -0.5193533219521743 0.6561239656871524 4.325499780088624
+  position -4.206448970180075 16.371493843088942 73.01598998579678
 }
 DEF DOUBLE_DOOR Solid {
   translation 11.01 5 0
@@ -3161,95 +3162,30 @@ Floor {
     color "braun"
   }
 }
-Solid {
+StartingPoint {
+  name "Robot1"
   translation 23.84 -13.78 0
   rotation 0 0 1 3.14159
-  children [
-    Shape {
-      appearance Appearance {
-        material Material {
-          diffuseColor 1 0 0
-          emissiveColor 1 0 0
-        }
-      }
-      geometry Sphere {
-        radius 0.1
-      }
-    }
-  ]
-  name "START1"
 }
-Solid {
+StartingPoint {
+  name "Robot2"
   translation 23.84 -11.8 0
   rotation 0 0 1 3.14159
-  children [
-    Shape {
-      appearance Appearance {
-        material Material {
-          diffuseColor 1 0 0
-          emissiveColor 1 0 0
-        }
-      }
-      geometry Sphere {
-        radius 0.1
-      }
-    }
-  ]
-  name "START2"
 }
-Solid {
+StartingPoint {
+  name "Robot3"
   translation 23.84 -9.8 0
   rotation 0 0 1 3.14159
-  children [
-    Shape {
-      appearance Appearance {
-        material Material {
-          diffuseColor 1 0 0
-          emissiveColor 1 0 0
-        }
-      }
-      geometry Sphere {
-        radius 0.1
-      }
-    }
-  ]
-  name "START3"
 }
-Solid {
+StartingPoint {
+  name "Robot4"
   translation 23.84 -7.8 0
   rotation 0 0 1 3.14159
-  children [
-    Shape {
-      appearance Appearance {
-        material Material {
-          diffuseColor 1 0 0
-          emissiveColor 1 0 0
-        }
-      }
-      geometry Sphere {
-        radius 0.1
-      }
-    }
-  ]
-  name "START4"
 }
-Solid {
+StartingPoint {
+  name "Robot5"
   translation 23.84 -5.8 0
   rotation 0 0 1 3.14159
-  children [
-    Shape {
-      appearance Appearance {
-        material Material {
-          diffuseColor 1 0 0
-          emissiveColor 1 0 0
-        }
-      }
-      geometry Sphere {
-        radius 0.1
-      }
-    }
-  ]
-  name "START5"
 }
 CardboardBox {
   translation 6.84369 0.633899 0.3
@@ -4500,10 +4436,10 @@ AdvertisingBoard {
   translation 24.81 -3.53 1.52
   rotation 1 0 0 4.6928012867022945e-06
   frontTexture [
-    "https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/raw/routedemo/lgdxrobot2sim_webots/worlds/xglgdx.png?ref_type=heads"
+    "https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/raw/routedemo/lgdxrobot2sim_webots/protos/xglgdx.png"
   ]
   backTexture [
-    "https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/raw/routedemo/lgdxrobot2sim_webots/worlds/xglgdx.png?ref_type=heads"
+    "https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/raw/routedemo/lgdxrobot2sim_webots/protos/xglgdx.png"
   ]
   displayWidth 2
   displayHeight 0.5
