@@ -18,6 +18,7 @@ from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
+from lgdxrobot2_bringup.utils import ParamManager
 from webots_ros2_driver.webots_launcher import WebotsLauncher
 from launch_ros.actions import Node
 import os
@@ -26,7 +27,7 @@ launch_args = [
   # Webots
   DeclareLaunchArgument(
     name='world',
-    default_value='default_2r.wbt',
+    default_value='warehouse.wbt',
     description='World file in `lgdxrobot2sim_webots` package.'
   ),
   
@@ -43,7 +44,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='default.yaml',
+    default_value='warehouse.yaml',
     description='Map yaml file in `lgdxrobot2sim_webots` package.'
   ),
   DeclareLaunchArgument(
@@ -116,14 +117,22 @@ launch_args = [
     default_value='/config/keys/',
     description='Path to the server’s root certificate'
   ),
+  
+  # Simulation Settings
+  DeclareLaunchArgument(
+    name='robot_count',
+    default_value='2',
+    description='Number of robots to be spawned, maximum is 5.'
+  ),
 ]
 
 def launch_setup(context):
   package_dir = get_package_share_directory('lgdxrobot2_bringup')
   webots_package_dir = get_package_share_directory('lgdxrobot2sim_webots')
+  p = ParamManager("", "", "")
   
   # Webots
-  world = LaunchConfiguration('world')
+  world = LaunchConfiguration('world').perform(context)
   
   # NAV2
   slam = LaunchConfiguration('slam')
@@ -145,66 +154,49 @@ def launch_setup(context):
   use_cloud = LaunchConfiguration('use_cloud')
   cloud_address = LaunchConfiguration('cloud_address').perform(context)
   
+  # Simulation Settings
+  robot_count = int(LaunchConfiguration('robot_count').perform(context))
+  
   #
   # Webots Simulator
   #
   webots = WebotsLauncher(
-    world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
+    world=p.get_processed_webots_world_path(world, robot_count),
     ros2_supervisor=True
   )
   
   #
   # NAV2
   #
-  robot1 = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(package_dir, 'launch', 'simulation_multi_robots_base.launch.py')
-    ),
-    launch_arguments={
-      'namespace': 'Robot1',
-      'slam': slam,
-      'use_localization': use_localization,
-      'map': map_path,
-      'keepout_mask': keepout_mask,
-      'speed_mask': speed_mask,
-      'graph': graph,
-      'use_sim_time': use_sim_time,
-      'autostart': autostart,
-      'use_composition': use_composition,
-      'use_respawn': use_respawn,
-      'log_level': log_level,
-      'use_keepout_zones': use_keepout_zones,
-      'use_speed_zones': use_speed_zones,
-      'use_cloud': use_cloud,
-      'cloud_address': cloud_address,
-    }.items(),
-  )
-  robot2 = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(package_dir, 'launch', 'simulation_multi_robots_base.launch.py')
-    ),
-    launch_arguments={
-      'namespace': 'Robot2',
-      'slam': slam,
-      'use_localization': use_localization,
-      'map': map_path,
-      'keepout_mask': keepout_mask,
-      'speed_mask': speed_mask,
-      'graph': graph,
-      'use_sim_time': use_sim_time,
-      'autostart': autostart,
-      'use_composition': use_composition,
-      'use_respawn': use_respawn,
-      'log_level': log_level,
-      'use_keepout_zones': use_keepout_zones,
-      'use_speed_zones': use_speed_zones,
-      'use_cloud': use_cloud,
-      'cloud_address': cloud_address,
-      'initial_pose_x': '3.0',
-    }.items(),
-  )
+  robots = []
+  for i in range(robot_count):
+    r = IncludeLaunchDescription(
+      PythonLaunchDescriptionSource(
+        os.path.join(package_dir, 'launch', 'simulation_multi_robots_base.launch.py')
+      ),
+      launch_arguments={
+        'namespace': 'Robot' + str(i + 1),
+        'slam': slam,
+        'use_localization': use_localization,
+        'map': map_path,
+        'keepout_mask': keepout_mask,
+        'speed_mask': speed_mask,
+        'graph': graph,
+        'use_sim_time': use_sim_time,
+        'autostart': autostart,
+        'use_composition': use_composition,
+        'use_respawn': use_respawn,
+        'log_level': log_level,
+        'use_keepout_zones': use_keepout_zones,
+        'use_speed_zones': use_speed_zones,
+        'use_cloud': use_cloud,
+        'cloud_address': cloud_address,
+        'initial_pose_y': str(i * 1.5),
+      }.items(),
+    )
+    robots.append(r)
 
-  return [webots, webots._supervisor, robot1, robot2]
+  return [webots, webots._supervisor] + robots
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)
