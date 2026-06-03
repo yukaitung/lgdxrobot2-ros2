@@ -10,6 +10,7 @@ Solid {
   translation IS translation
   rotation IS rotation
   name IS name
+  description IS controller
   children [
     Shape {
       appearance Appearance {
