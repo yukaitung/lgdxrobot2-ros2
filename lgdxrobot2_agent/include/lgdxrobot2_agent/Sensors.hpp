@@ -33,6 +33,10 @@ class Sensors
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPublisher;
     rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr jointStatePublisher;
 
+    // Batteries
+    float kBatteryLowVoltageThreshold = 12.0;
+    float kBatteryHighVoltageThreshold = 16.8;
+
     // Joy
     float maximumVelocity = 0.1; // m/s
     int lastVelocityChangeButton[2] = {0}; // 0: LB, 1: RB
@@ -41,6 +45,7 @@ class Sensors
     double motorsPosition[4] = {0};
     std::shared_ptr<SensorSignals> sensorSignals;
 
+    float GetBatteryPercentage(float voltage);
     void CmdVelCallback(const geometry_msgs::msg::Twist &msg);
     void JoyCallback(const sensor_msgs::msg::Joy &msg);
 

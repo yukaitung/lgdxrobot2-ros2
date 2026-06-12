@@ -53,6 +53,20 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
   }
 }
 
+float Sensors::GetBatteryPercentage(float voltage)
+{
+  if (voltage < kBatteryLowVoltageThreshold) 
+  {
+    return 0.0;
+  }
+  if (voltage > kBatteryHighVoltageThreshold) 
+  {
+    return 100.0;
+  }
+  return (voltage - kBatteryLowVoltageThreshold) / (kBatteryHighVoltageThreshold - kBatteryLowVoltageThreshold);
+}
+
+
 void Sensors::CmdVelCallback(const geometry_msgs::msg::Twist &msg)
 {
   float x = msg.linear.x;
@@ -155,8 +169,10 @@ void Sensors::Publish(const McuData& mcuData)
     lgdxrobot2_msgs::msg::System system;
     system.battery1.voltage = mcuData.battery1.voltage;
     system.battery1.current = mcuData.battery1.current;
+    system.battery1.percentage = GetBatteryPercentage(mcuData.battery1.voltage);
     system.battery2.voltage = mcuData.battery2.voltage;
     system.battery2.current = mcuData.battery2.current;
+    system.battery2.percentage = GetBatteryPercentage(mcuData.battery2.voltage);
     system.software_emergency_stop_enabled = mcuData.software_emergency_stop_enabled;
     system.hardware_emergency_stop_enabled = mcuData.hardware_emergency_stop_enabled;
     system.bettery_low_emergency_stop_enabled = mcuData.bettery_low_emergency_stop_enabled;
