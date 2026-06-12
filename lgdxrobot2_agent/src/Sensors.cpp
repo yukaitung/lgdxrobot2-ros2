@@ -29,6 +29,11 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
       rclcpp::SensorDataQoS().reliable(),
       std::bind(&Sensors::JoyCallback, this, std::placeholders::_1));
   }
+  softwareEmergencyStopSubscription = node->create_subscription<std_msgs::msg::Bool>("agent/software_emergency_stop", 
+    rclcpp::SensorDataQoS().reliable(),
+    [this](const std_msgs::msg::Bool::SharedPtr msg) {
+      sensorSignals->SetEstop(msg->data);
+    });
 
   // Publisher
   imuPublisher = node->create_publisher<sensor_msgs::msg::Imu>("agent/imu", 

@@ -12,6 +12,7 @@
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "sensor_msgs/msg/joy.hpp"
 #include "sensor_msgs/msg/magnetic_field.hpp"
+#include "std_msgs/msg/bool.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 
 class Sensors
@@ -22,6 +23,7 @@ class Sensors
 
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
     rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joySubscription;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr softwareEmergencyStopSubscription;
 
     std::string baseLinkName;
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imuPublisher;
