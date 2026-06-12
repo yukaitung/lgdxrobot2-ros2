@@ -19,6 +19,10 @@ class Cloud
     rclcpp::Client<lgdxrobot_cloud_msgs::srv::McuSn>::SharedPtr mcuSnClient;
 
     std::shared_ptr<CloudSignals> cloudSignals;
+
+    float kBatteryLowVoltageThreshold = 12.0;
+    float kBatteryHighVoltageThreshold = 16.8;
+    float GetBatteryPercentage(float voltage);
     
   public:
     Cloud(rclcpp::Node::SharedPtr node, std::shared_ptr<CloudSignals> cloudSignalsPtr);

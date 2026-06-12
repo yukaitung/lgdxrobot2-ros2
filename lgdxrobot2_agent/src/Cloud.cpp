@@ -21,11 +21,22 @@ Cloud::Cloud(rclcpp::Node::SharedPtr node, std::shared_ptr<CloudSignals> cloudSi
   mcuSnClient = node->create_client<lgdxrobot_cloud_msgs::srv::McuSn>("mcu_sn");
 }
 
+float Cloud::GetBatteryPercentage(float voltage)
+{
+  if (voltage < kBatteryLowVoltageThreshold) {
+    return 0.0;
+  }
+  if (voltage > kBatteryHighVoltageThreshold) {
+    return 100.0;
+  }
+  return (voltage - kBatteryLowVoltageThreshold) / (kBatteryHighVoltageThreshold - kBatteryLowVoltageThreshold) * 100.0;
+}
+
 void Cloud::PublishRobotData(const McuData &mcuData)
 {
   lgdxrobot_cloud_msgs::msg::RobotData robotData;
   robotData.hardware_emergency_stop_enabled = mcuData.hardware_emergency_stop_enabled | mcuData.bettery_low_emergency_stop_enabled;
-  robotData.batteries_voltage = {mcuData.battery1.voltage, mcuData.battery2.voltage};
+  robotData.batteries_percentage = {GetBatteryPercentage(mcuData.battery1.voltage), GetBatteryPercentage(mcuData.battery2.voltage)};
   robotDataPublisher->publish(robotData);
 }
 
