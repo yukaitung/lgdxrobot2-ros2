@@ -159,7 +159,7 @@ def launch_setup(context):
   for i in range(robot_count):
     r = IncludeLaunchDescription(
       PythonLaunchDescriptionSource(
-        os.path.join(package_dir, 'launch', 'simulation_multi_robots_base.launch.py')
+        os.path.join(package_dir, 'launch', 'simulation_fleet_base_launch.py')
       ),
       launch_arguments={
         'namespace': 'Robot' + str(i + 1),
