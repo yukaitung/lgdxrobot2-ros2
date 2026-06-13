@@ -233,7 +233,7 @@ def launch_setup(context):
       ('/scan', 'scan'),
       ('/scan/point_cloud', 'scan/point_cloud'),
       ('/remove_urdf_robot', 'remove_urdf_robot'),
-      ('/cloud/software_emergency_stop', 'agent/software_emergency_stop')
+      ('/agent/software_emergency_stop', 'cloud/software_emergency_stop'),
     ],
     respawn=True
   )
