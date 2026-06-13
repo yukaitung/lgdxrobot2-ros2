@@ -60,7 +60,7 @@ void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered
     std::bind(&LgdxRobot2Driver::cmdVelCallback, this, std::placeholders::_1)
   );
   softwareEmergencyStopSubscription = node->create_subscription<std_msgs::msg::Bool>(
-    "cloud/software_emergency_stop", rclcpp::SensorDataQoS().reliable(),
+    "agent/software_emergency_stop", rclcpp::SensorDataQoS().reliable(),
     [this](const std_msgs::msg::Bool::SharedPtr msg) {
       isCrticialStatus = msg->data;
     });

@@ -1,8 +1,3 @@
-"""\
-Base launch file for LGDXRobot2 Webots simulation and ROS2 Nav2 stack for multiple robots.
-Refer to lgdxrobot2_bringup/launch/simulation_two_robots.launch.py for more details.
-"""
-
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
@@ -238,7 +233,7 @@ def launch_setup(context):
       ('/scan', 'scan'),
       ('/scan/point_cloud', 'scan/point_cloud'),
       ('/remove_urdf_robot', 'remove_urdf_robot'),
-      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop')
+      ('/cloud/software_emergency_stop', 'agent/software_emergency_stop')
     ],
     respawn=True
   )

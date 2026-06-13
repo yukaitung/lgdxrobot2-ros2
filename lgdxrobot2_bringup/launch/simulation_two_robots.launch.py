@@ -1,16 +1,3 @@
-"""\
-For LGDXRobot2 Development
-Make sure all certificates are stored in correct place
-  
-Usage: 
-cd lgdx_ws 
-. install/setup.bash
-ros2 launch lgdxrobot2_bringup simulation_two_robots.launch.py
-
-# With different address
-ros2 launch lgdxrobot2_bringup simulation_two_robots.launch.py cloud_address:='192.168.1.10:5162'
-"""
-
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, TimerAction
