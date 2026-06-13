@@ -101,7 +101,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='cloud_root_cert',
-    default_value='/config/keys/root.crt',
+    default_value='/config/keys/rootCA.crt',
     description='Path to the server’s root certificate'
   ),
   DeclareLaunchArgument(

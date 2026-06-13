@@ -177,7 +177,7 @@ def launch_setup(context):
   cloud_cert_folder = LaunchConfiguration('cloud_cert_folder').perform(context)
   cloud_client_key = os.path.join(cloud_cert_folder, namespace + '.key')
   cloud_client_cert = os.path.join(cloud_cert_folder, namespace + '.crt')
-  cloud_root_cert = os.path.join(cloud_cert_folder, 'root.crt')
+  cloud_root_cert = os.path.join(cloud_cert_folder, 'rootCA.crt')
   
   # Manage map
   nav2_delay_enable = False
