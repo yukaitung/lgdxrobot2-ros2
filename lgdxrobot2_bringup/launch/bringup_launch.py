@@ -48,7 +48,7 @@ def launch_setup(context):
     
     description_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(description_pkg_share, 'launch', 'display.launch.py')
+            os.path.join(description_pkg_share, 'launch', 'display_launch.py')
         ),
         launch_arguments={
             'use_sim_time': 'False',
