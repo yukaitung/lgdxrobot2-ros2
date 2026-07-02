@@ -112,17 +112,12 @@ cd ~/lgdx_ws/src
 git clone --recurse-submodules https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2.git
 cd ..
 
-# Remove Cloud Adapter
-rm -rf ~/lgdx_ws/src/lgdxrobot2-ros2/third_party/cloud/lgdxrobot_cloud_adapter
-rm -rf ~/lgdx_ws/src/lgdxrobot2-ros2/third_party/cloud/third_party
-
 # Install build dependencies
 rosdep update
 rosdep install --from-paths src --ignore-src -y
 
 # Ensure that interfaces is in the system
 colcon build --packages-select lgdxrobot2_msgs --symlink-install
-colcon build --packages-select lgdxrobot_cloud_msgs --symlink-install
 source install/setup.bash
 
 colcon build --symlink-install
