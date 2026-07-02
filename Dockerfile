@@ -37,9 +37,9 @@ WORKDIR /src/lgdxrobot2_description
 RUN bloom-generate rosdebian
 RUN fakeroot debian/rules binary
 
-WORKDIR /src/lgdxrobot2_navigation
-RUN bloom-generate rosdebian
-RUN fakeroot debian/rules binary
+#WORKDIR /src/lgdxrobot2_navigation
+#RUN bloom-generate rosdebian
+#RUN fakeroot debian/rules binary
 
 #WORKDIR /src/lgdxrobot2sim_webots
 #RUN bloom-generate rosdebian
