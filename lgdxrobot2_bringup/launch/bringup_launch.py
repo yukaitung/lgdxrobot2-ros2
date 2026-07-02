@@ -17,7 +17,12 @@ launch_args = [
     DeclareLaunchArgument(
         name='use_joy', 
         default_value='True', 
-        description='Whether to enable the joy.'
+        description='Control robot using joy_node.'
+    ),
+    DeclareLaunchArgument(
+        name='use_keyboard', 
+        default_value='True', 
+        description='Control the robot using `teleop_twist_keyboard`. Start the node in another terminal to control the robot.'
     ),
     DeclareLaunchArgument(
         name='use_lidar', 
@@ -63,7 +68,8 @@ def launch_setup(context):
         parameters=[{
             'serial_port_name': serial_port_name,
             'reset_transform': True,
-            'use_joy': True,
+            'use_joy': use_joy,
+            'use_keyboard': use_keyboard,
             'publish_tf': True,
         }]
     )
