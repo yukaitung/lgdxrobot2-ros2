@@ -43,6 +43,7 @@ launch_args = [
 
 def launch_setup(context):
     use_joy = LaunchConfiguration('use_joy')
+    use_keyboard = LaunchConfiguration('use_keyboard')
     use_lidar = LaunchConfiguration('use_lidar')
     lidar_model = LaunchConfiguration('lidar_model').perform(context)
     use_rviz = LaunchConfiguration('use_rviz')
