@@ -116,10 +116,6 @@ void Mcu::OnReadComplete(boost::system::error_code error, std::size_t size)
               mcuDataFound = true;
             }
             break;
-          case MCU_SERIAL_NUMBER_TYPE:
-            McuSerialNumber mcuSerialNumber;
-            memcpy(&mcuSerialNumber, frame.data(), sizeof(McuSerialNumber));
-            ProcessSerialNumber(mcuSerialNumber);
           default:
             break;
         }
@@ -144,41 +140,6 @@ void Mcu::OnReadComplete(boost::system::error_code error, std::size_t size)
     serial.close();
     Connect();
   }
-}
-
-std::string Mcu::SerialToHexString(uint32_t serial1, uint32_t serial2, uint32_t serial3) 
-{
-  std::ostringstream oss;
-
-  // Convert each uint32_t to 8-character hex with leading zeros
-  oss << std::hex << std::uppercase << std::setfill('0')
-      << std::setw(8) << serial1
-      << std::setw(8) << serial2
-      << std::setw(8) << serial3;
-
-  return oss.str();
-}
-
-void Mcu::GetSerialNumber()
-{
-  McuGetSerialNumberCommand command;
-  command.header1 = MCU_HEADER1;
-  command.header2 = MCU_HEADER2;
-  command.command = MCU_GET_SERIAL_NUMBER_COMMAND_TYPE;
-  std::vector<char> buffer(sizeof(McuGetSerialNumberCommand));
-  std::memcpy(buffer.data(), &command, sizeof(McuGetSerialNumberCommand));
-  Write(buffer);
-}
-
-void Mcu::ProcessSerialNumber(const McuSerialNumber &mcuSerialNumber)
-{
-  if (hasSerialNumber)
-  {
-    return;
-  }
-  hasSerialNumber = true;
-  std::string sn = SerialToHexString(mcuSerialNumber.serial_number1, mcuSerialNumber.serial_number2, mcuSerialNumber.serial_number3);
-  mcuSignals->UpdateSerialNumber(sn);
 }
 
 void Mcu::ResetTransformInternal()

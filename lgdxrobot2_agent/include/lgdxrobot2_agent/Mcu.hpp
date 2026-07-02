@@ -29,7 +29,6 @@ class Mcu
     bool resetTransformOnConnected = false;
 
     // Data
-    bool hasSerialNumber = false;
     McuData mcuData;
     std::array<uint8_t, 512> readBuffer = {0};
     std::vector<uint8_t> mcuBuffer = {0};
@@ -43,8 +42,6 @@ class Mcu
     // Read from MCU
     void Read();
     void OnReadComplete(boost::system::error_code error, std::size_t size);
-    std::string SerialToHexString(uint32_t serial1, uint32_t serial2, uint32_t serial3);
-    void ProcessSerialNumber(const McuSerialNumber &mcuSerialNumber);
 
     // Write to MCU
     void ResetTransformInternal();
@@ -58,7 +55,6 @@ class Mcu
     void SetInverseKinematics(float x, float y, float w);
     void SetEstop(int enable);
     void ResetTransform();
-    void GetSerialNumber();
 };
 
 #endif // MCU_HPP
