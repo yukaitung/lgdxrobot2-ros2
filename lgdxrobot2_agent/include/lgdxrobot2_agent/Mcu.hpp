@@ -47,7 +47,7 @@ class Mcu
 
     // Write to MCU
     void ResetTransformInternal();
-    awaitable<void> Write(const std::vector<char> &data);
+    awaitable<void> Write(const std::vector<char> data);
 
   public:
     Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr);

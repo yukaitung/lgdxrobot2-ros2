@@ -31,10 +31,10 @@ void Agent::Initalise()
   baseLinkParam.description = "Custom `base_link` name when publishing tf information.";
   this->declare_parameter("base_link_name", "base_link", baseLinkParam);
   auto useJoyParam = rcl_interfaces::msg::ParameterDescriptor{};
-  useJoyParam.description = "Control robot using joy_node.";
+  useJoyParam.description = "Control robot using `joy_node`.";
   this->declare_parameter("use_joy", false, useJoyParam);
   auto useKeyboard = rcl_interfaces::msg::ParameterDescriptor{};
-  useKeyboard.description = "Control the robot using `teleop_twist_keyboard`. This will stop the subscription to `cmd_vel` from Nav2.";
+  useKeyboard.description = "Control the robot using `teleop_twist_keyboard`.";
   this->declare_parameter("use_keyboard", false, useJoyParam);
 
 

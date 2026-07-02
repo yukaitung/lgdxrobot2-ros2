@@ -17,7 +17,7 @@ launch_args = [
     DeclareLaunchArgument(
         name='use_joy', 
         default_value='True', 
-        description='Control robot using joy_node.'
+        description='Control robot using `joy_node`.'
     ),
     DeclareLaunchArgument(
         name='use_keyboard', 

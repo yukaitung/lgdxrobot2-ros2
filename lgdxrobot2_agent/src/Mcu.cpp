@@ -142,7 +142,7 @@ void Mcu::ResetTransformInternal()
   boost::asio::co_spawn(ioContext, Mcu::Write(buffer), boost::asio::detached);
 }
 
-awaitable<void> Mcu::Write(const std::vector<char> &data)
+awaitable<void> Mcu::Write(const std::vector<char> data)
 {
   if(serial.is_open())
   {
