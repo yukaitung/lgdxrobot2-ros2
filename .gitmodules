@@ -1,3 +1,3 @@
 [submodule "third_party/lidar"]
 	path = third_party/lidar
-	url = https://github.com/yukaitung/sllidar_ros2.git
+	url = https://gitlab.com/lgdxrobotics/sllidar_ros2.git
