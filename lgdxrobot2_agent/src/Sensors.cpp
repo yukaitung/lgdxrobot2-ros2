@@ -8,6 +8,8 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
 {
   sensorSignals = sensorSignalsPtr;
 
+
+    RCLCPP_INFO(_logger, "call sensor");
   // Subscriber
   if (node->get_parameter("use_keyboard").as_bool())
   {

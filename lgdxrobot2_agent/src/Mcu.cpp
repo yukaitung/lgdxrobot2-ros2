@@ -2,14 +2,15 @@
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
+#include <boost/asio/co_spawn.hpp>
 
 #include "lgdxrobot2_agent/Mcu.hpp"
 
 Mcu::Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr) :
   _node(node),
   _logger(node->get_logger()),
-  serialService(), 
-  serial(serialService)
+  ioContext(), 
+  serial(ioContext)
 {
   mcuSignals = mcuSignalsPtr;
 
@@ -24,9 +25,9 @@ Mcu::Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr
   Connect();
 }
 
-Mcu::~Mcu()
+void Mcu::Shutdown()
 {
-  serialService.stop();
+  ioContext.stop();
   if(ioThread.joinable())
     ioThread.join();
   serial.close();
@@ -36,10 +37,10 @@ void Mcu::StartSerialIo()
 {
   if(ioThread.joinable()) 
   {
-    serialService.restart();
+    ioContext.restart();
     ioThread.join();
   }
-  std::thread thread{[this](){ serialService.run(); }};
+  std::thread thread{[this](){ ioContext.run(); }};
   ioThread.swap(thread);
 }
 
@@ -58,88 +59,76 @@ void Mcu::Connect()
   }
   RCLCPP_INFO(_logger, "Serial port connected to %s", port.c_str());
   serialPortReconnectTimer->cancel();
-  Read();
+  
+  boost::asio::co_spawn(ioContext, Mcu::Read(), boost::asio::detached);
+
   if(resetTransformOnConnected)
   {
     resetTransformOnConnected = false;
     ResetTransformInternal();
   }
+
   StartSerialIo();
 }
 
-void Mcu::Read()
+awaitable<void> Mcu::Read()
 {
-  serial.async_read_some(boost::asio::buffer(readBuffer), std::bind(&Mcu::OnReadComplete, this, std::placeholders::_1, std::placeholders::_2));    
+  try
+  {
+    while (rclcpp::ok())
+    {
+      if (!serial.is_open())
+        break;
+
+      std::size_t size = co_await serial.async_read_some(boost::asio::buffer(readBuffer), boost::asio::use_awaitable); 
+      OnReadComplete(size);
+    }
+  }
+  catch(const std::exception& e)
+  {
+    RCLCPP_ERROR(_logger, "Serial read throws an error: %s", e.what());
+    serial.close();
+    serialPortReconnectTimer->reset();
+  } 
 }
 
-void Mcu::OnReadComplete(boost::system::error_code error, std::size_t size)
+void Mcu::OnReadComplete(size_t size)
 {
   const uint8_t startSeq[] = {0xAA, 0x55};
   const uint8_t endSeq[] = {0xA5, 0x5A};
 
-  if(!serial.is_open())
-    return; // Discard further error is the serial is closed
+  mcuBuffer.insert(mcuBuffer.end(), readBuffer.begin(), readBuffer.begin() + size);
 
-  if(!error) // OK
+  auto startIt = std::search(mcuBuffer.begin(), mcuBuffer.end(), std::begin(startSeq), std::end(startSeq));
+  if (startIt == mcuBuffer.end()) 
   {
-    mcuBuffer.insert(mcuBuffer.end(), readBuffer.begin(), readBuffer.begin() + size);
-
-    auto startIt = std::search(mcuBuffer.begin(), mcuBuffer.end(), std::begin(startSeq), std::end(startSeq));
-    if (startIt == mcuBuffer.end()) 
-    {
-      // No frame start found, discard junk
-      mcuBuffer.clear();
-      return;
-    }
-
-    auto nextIt = std::search(startIt + 2, mcuBuffer.end(), std::begin(endSeq), std::end(endSeq));
-    if (nextIt == mcuBuffer.end()) {
-      // No frame end found yet
-      return;
-    }
-
-    auto lastStartIt = startIt;
-    bool mcuDataFound = false;
-    // Handle frames unitl no complete frame is found
-    while (startIt != mcuBuffer.end() && nextIt != mcuBuffer.end())
-    {
-      std::vector<uint8_t> frame(startIt, nextIt + sizeof(endSeq));
-      if (frame.size() > 3)
-      {
-        switch (frame.at(2))
-        {
-          case MCU_DATA_TYPE:
-            if (!mcuDataFound)
-            {
-              memcpy(&mcuData, frame.data(), sizeof(McuData));
-              mcuSignals->UpdateMcuData(mcuData);
-              mcuDataFound = true;
-            }
-            break;
-          default:
-            break;
-        }
-      }
-
-      lastStartIt = startIt;
-      // Find next frame start
-      startIt = std::search(nextIt + 2, mcuBuffer.end(), std::begin(startSeq), std::end(startSeq));
-      nextIt = std::search(startIt + 2, mcuBuffer.end(), std::begin(endSeq), std::end(endSeq));
-    }
-
-    // Remove processed data from buffer
-	  mcuBuffer.erase(mcuBuffer.begin(), lastStartIt);
-
-    // Read more data
-    Read();
+    // No frame start found, discard junk
+    mcuBuffer.clear();
+    return;
   }
-  else 
+
+  auto nextIt = std::search(startIt + 2, mcuBuffer.end(), std::begin(endSeq), std::end(endSeq));
+  if (nextIt == mcuBuffer.end()) {
+    // No frame end found yet
+    return;
+  }
+
+  std::vector<uint8_t> frame(startIt, nextIt + sizeof(endSeq));
+  if (frame.size() > 3)
   {
-    RCLCPP_ERROR(_logger, "Serial read throws an error: %s", error.message().c_str());
-    //serialService.stop();
-    serial.close();
-    Connect();
+    switch (frame.at(2))
+    {
+      case MCU_DATA_TYPE:
+        memcpy(&mcuData, frame.data(), sizeof(McuData));
+        mcuSignals->UpdateMcuData(mcuData);
+        break;
+      default:
+        break;
+    }
   }
+
+  // Remove processed data from buffer
+  mcuBuffer.erase(startIt, nextIt + sizeof(endSeq));
 }
 
 void Mcu::ResetTransformInternal()
@@ -150,20 +139,21 @@ void Mcu::ResetTransformInternal()
   command.command = MCU_RESET_TRANSFORM_COMMAND_TYPE;
   std::vector<char> buffer(sizeof(McuResetTransformCommand));
   std::memcpy(buffer.data(), &command, sizeof(McuResetTransformCommand));
-  Write(buffer);
+  boost::asio::co_spawn(ioContext, Mcu::Write(buffer), boost::asio::detached);
 }
 
-void Mcu::Write(const std::vector<char> &data)
+awaitable<void> Mcu::Write(const std::vector<char> &data)
 {
   if(serial.is_open())
-    serial.async_write_some(boost::asio::buffer(data), std::bind(&Mcu::OnWriteComplete, this, std::placeholders::_1));
-}
-
-void Mcu::OnWriteComplete(boost::system::error_code error)
-{ 
-  if(error) 
   {
-    RCLCPP_ERROR(_logger, "Serial write throws an error: %s", error.message().c_str());
+    try
+    {
+      co_await serial.async_write_some(boost::asio::buffer(data), boost::asio::use_awaitable);
+    }
+    catch(const std::exception& e)
+    {
+      RCLCPP_ERROR(_logger, "Serial write throws an error: %s", e.what());
+    }
   }
 }
 
@@ -178,7 +168,7 @@ void Mcu::SetInverseKinematics(float x, float y, float w)
   command.velocity.rotation = w;
   std::vector<char> buffer(sizeof(McuInverseKinematicsCommand));
   std::memcpy(buffer.data(), &command, sizeof(McuInverseKinematicsCommand));
-  Write(buffer);
+  boost::asio::co_spawn(ioContext, Mcu::Write(buffer), boost::asio::detached);
 }
 
 void Mcu::SetEstop(int enable)
@@ -190,7 +180,7 @@ void Mcu::SetEstop(int enable)
   command.enable = enable;
   std::vector<char> buffer(sizeof(McuSoftwareEmergencyStopCommand));
   std::memcpy(buffer.data(), &command, sizeof(McuSoftwareEmergencyStopCommand));
-  Write(buffer);
+  boost::asio::co_spawn(ioContext, Mcu::Write(buffer), boost::asio::detached);
 }
 
 void Mcu::ResetTransform()

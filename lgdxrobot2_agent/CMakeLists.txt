@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(lgdxrobot2_agent)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(EXECUTABLE_NAME lgdxrobot2_agent_component)
 set(EXPORT_EXECUTABLE_NAME export_lgdxrobot2_agent_proto)
 

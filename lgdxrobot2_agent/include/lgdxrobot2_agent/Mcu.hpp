@@ -9,6 +9,8 @@
 #include "lgdxrobot2.h"
 #include "McuSignals.hpp"
 
+using boost::asio::awaitable;
+
 class Mcu
 {
   private:
@@ -16,7 +18,7 @@ class Mcu
     rclcpp::Logger _logger;
     rclcpp::TimerBase::SharedPtr serialPortReconnectTimer;
 
-    boost::asio::io_context serialService;
+    boost::asio::io_context ioContext;
     boost::asio::serial_port serial;
     std::thread ioThread;
 
@@ -40,17 +42,16 @@ class Mcu
     void Connect();
 
     // Read from MCU
-    void Read();
-    void OnReadComplete(boost::system::error_code error, std::size_t size);
+    awaitable<void> Read();
+    void OnReadComplete(size_t size);
 
     // Write to MCU
     void ResetTransformInternal();
-    void Write(const std::vector<char> &data);
-    void OnWriteComplete(boost::system::error_code error);
+    awaitable<void> Write(const std::vector<char> &data);
 
   public:
     Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr);
-    ~Mcu();
+    void Shutdown();
 
     void SetInverseKinematics(float x, float y, float w);
     void SetEstop(int enable);
