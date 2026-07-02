@@ -12,6 +12,9 @@ endif()
 #
 # Node
 #
+if (POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)
+endif()
 find_package(ament_cmake REQUIRED)
 find_package(Boost REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -34,15 +37,15 @@ target_link_libraries(lgdxrobot2_agent_component
   "${cpp_typesupport_target}"
   Boost::headers
 )
-ament_target_dependencies(lgdxrobot2_agent_component
-  geometry_msgs 
-  lgdxrobot2_msgs
-  nav_msgs 
-  rclcpp 
-  rclcpp_components 
-  sensor_msgs 
-  std_msgs 
-  tf2_geometry_msgs 
+target_link_libraries(lgdxrobot2_agent_component
+  geometry_msgs::geometry_msgs
+  lgdxrobot2_msgs::lgdxrobot2_msgs
+  nav_msgs::nav_msgs
+  rclcpp::rclcpp
+  rclcpp_components::component
+  sensor_msgs::sensor_msgs
+  std_msgs::std_msgs
+  tf2_geometry_msgs::tf2_geometry_msgs
 )
 
 rclcpp_components_register_node(lgdxrobot2_agent_component

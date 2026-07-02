@@ -16,7 +16,7 @@ class Mcu
     rclcpp::Logger _logger;
     rclcpp::TimerBase::SharedPtr serialPortReconnectTimer;
 
-    boost::asio::io_service serialService;
+    boost::asio::io_context serialService;
     boost::asio::serial_port serial;
     std::thread ioThread;
 
@@ -34,7 +34,7 @@ class Mcu
     std::array<uint8_t, 512> readBuffer = {0};
     std::vector<uint8_t> mcuBuffer = {0};
 
-    // io_service thread
+    // io_context thread
     void StartSerialIo();
 
     // Connection

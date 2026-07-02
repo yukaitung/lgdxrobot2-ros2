@@ -25,16 +25,16 @@ add_library(
   SHARED
   src/LgdxRobot2Driver.cpp
 )
-ament_target_dependencies(
+target_link_libraries(
   ${PROJECT_NAME}
-  geometry_msgs
-  nav_msgs
-  pluginlib
-  rclcpp
-  sensor_msgs
-  std_msgs
-  tf2_geometry_msgs
-  webots_ros2_driver
+  geometry_msgs::geometry_msgs
+  nav_msgs::nav_msgs
+  pluginlib::pluginlib
+  rclcpp::rclcpp
+  sensor_msgs::sensor_msgs
+  std_msgs::std_msgs
+  tf2_geometry_msgs::tf2_geometry_msgs
+  webots_ros2_driver::webots_ros2_driver
 )
 
 install(TARGETS 
