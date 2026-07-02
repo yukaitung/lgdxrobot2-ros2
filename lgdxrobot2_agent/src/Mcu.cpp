@@ -18,12 +18,6 @@ Mcu::Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr
   serialPortReconnectTimer->cancel();
 
   // Parameters
-  auto mcuPortNameParam = rcl_interfaces::msg::ParameterDescriptor{};
-  mcuPortNameParam.description = "Serial port name for the LGDXRobot2 or default to /dev/lgdxrobot2.";
-  node->declare_parameter("serial_port_name", "/dev/lgdxrobot2", mcuPortNameParam);
-  auto mcuResetTransformParam = rcl_interfaces::msg::ParameterDescriptor{};
-  mcuResetTransformParam.description = "Reset robot transform on start up.";
-  node->declare_parameter("reset_transform", false, mcuResetTransformParam);
   resetTransformOnConnected = node->get_parameter("reset_transform").as_bool();
 
   // Initalise

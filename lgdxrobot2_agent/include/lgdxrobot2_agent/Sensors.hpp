@@ -5,6 +5,7 @@
 #include "SensorSignals.hpp"
 
 #include "geometry_msgs/msg/twist.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "lgdxrobot2_msgs/msg/system.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -21,7 +22,8 @@ class Sensors
     rclcpp::Clock::SharedPtr _clock;
     rclcpp::Logger _logger;
 
-    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr keyboardSubscription;
+    rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr nav2Subscription;
     rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joySubscription;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr softwareEmergencyStopSubscription;
 
@@ -46,7 +48,8 @@ class Sensors
     std::shared_ptr<SensorSignals> sensorSignals;
 
     float GetBatteryPercentage(float voltage);
-    void CmdVelCallback(const geometry_msgs::msg::Twist &msg);
+    void KeyboardCallback(const geometry_msgs::msg::Twist &msg);
+    void Nav2Callback(const geometry_msgs::msg::TwistStamped &msg);
     void JoyCallback(const sensor_msgs::msg::Joy &msg);
 
   public:

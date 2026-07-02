@@ -14,6 +14,30 @@ void Agent::Initalise()
 {
   timer->cancel();
 
+  // Parameters
+  // MCU
+  auto mcuPortNameParam = rcl_interfaces::msg::ParameterDescriptor{};
+  mcuPortNameParam.description = "Serial port name for the LGDXRobot2 or default to /dev/lgdxrobot2.";
+  this->declare_parameter("serial_port_name", "/dev/lgdxrobot2", mcuPortNameParam);
+  auto mcuResetTransformParam = rcl_interfaces::msg::ParameterDescriptor{};
+  mcuResetTransformParam.description = "Reset robot transform on start up.";
+  this->declare_parameter("reset_transform", false, mcuResetTransformParam);
+
+  // Sensors
+  auto tfParam = rcl_interfaces::msg::ParameterDescriptor{};
+  tfParam.description = "Publishing tf information from the robot.";
+  this->declare_parameter("publish_tf", false, tfParam);
+  auto baseLinkParam = rcl_interfaces::msg::ParameterDescriptor{};
+  baseLinkParam.description = "Custom `base_link` name when publishing tf information.";
+  this->declare_parameter("base_link_name", "base_link", baseLinkParam);
+  auto useJoyParam = rcl_interfaces::msg::ParameterDescriptor{};
+  useJoyParam.description = "Control robot using joy_node.";
+  this->declare_parameter("use_joy", false, useJoyParam);
+  auto useKeyboard = rcl_interfaces::msg::ParameterDescriptor{};
+  useKeyboard.description = "Control the robot using `teleop_twist_keyboard`. This will stop the subscription to `cmd_vel` from Nav2.";
+  this->declare_parameter("use_keyboard", false, useJoyParam);
+
+
   mcuSignals = std::make_shared<McuSignals>();
   sensorSignals = std::make_shared<SensorSignals>();
 

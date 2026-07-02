@@ -8,21 +8,20 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
 {
   sensorSignals = sensorSignalsPtr;
 
-  // Parameters
-  auto mcuTfParam = rcl_interfaces::msg::ParameterDescriptor{};
-  mcuTfParam.description = "Publishing tf information from the robot.";
-  node->declare_parameter("publish_tf", false, mcuTfParam);
-  auto mcuBaseLinkParam = rcl_interfaces::msg::ParameterDescriptor{};
-  mcuBaseLinkParam.description = "Custom `base_link` name.";
-  node->declare_parameter("base_link_name", "base_link", mcuBaseLinkParam);
-  auto mcuUseJoyParam = rcl_interfaces::msg::ParameterDescriptor{};
-  mcuUseJoyParam.description = "Control robot using `joy` node.";
-  node->declare_parameter("use_joy", false, mcuUseJoyParam);
-
   // Subscriber
-  cmdVelSubscription = node->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 
-    rclcpp::SensorDataQoS().reliable(),
-    std::bind(&Sensors::CmdVelCallback, this, std::placeholders::_1));
+  if (node->get_parameter("use_keyboard").as_bool())
+  {
+    keyboardSubscription = node->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 
+      rclcpp::SensorDataQoS().reliable(),
+      std::bind(&Sensors::KeyboardCallback, this, std::placeholders::_1));
+  }
+  else
+  {
+    nav2Subscription = node->create_subscription<geometry_msgs::msg::TwistStamped>("cmd_vel", 
+      rclcpp::SensorDataQoS().reliable(),
+      std::bind(&Sensors::Nav2Callback, this, std::placeholders::_1));
+  }
+  
   if (node->get_parameter("use_joy").as_bool())
   {
     joySubscription = node->create_subscription<sensor_msgs::msg::Joy>("joy",
@@ -66,12 +65,20 @@ float Sensors::GetBatteryPercentage(float voltage)
   return (voltage - kBatteryLowVoltageThreshold) / (kBatteryHighVoltageThreshold - kBatteryLowVoltageThreshold);
 }
 
-
-void Sensors::CmdVelCallback(const geometry_msgs::msg::Twist &msg)
+void Sensors::KeyboardCallback(const geometry_msgs::msg::Twist &msg)
 {
-  float x = msg.linear.x;
-  float y = msg.linear.y;
-  float w = msg.angular.z;
+  float x = msg.linear.x * 0.1;
+  float y = msg.linear.y * 0.1;
+  float w = msg.angular.z * 0.1;
+  // RCLCPP_INFO(node->get_logger(), "/cmd_vel %f %f %f", x, y, w);
+  sensorSignals->SetInverseKinematics(x, y, w);
+}
+
+void Sensors::Nav2Callback(const geometry_msgs::msg::TwistStamped &msg)
+{
+  float x = msg.twist.linear.x;
+  float y = msg.twist.linear.y;
+  float w = msg.twist.angular.z;
   // RCLCPP_INFO(node->get_logger(), "/cmd_vel %f %f %f", x, y, w);
   sensorSignals->SetInverseKinematics(x, y, w);
 }
