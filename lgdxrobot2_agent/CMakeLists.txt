@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 project(lgdxrobot2_agent)
 
 set(CMAKE_CXX_STANDARD 17)
-set(EXECUTABLE_NAME lgdxrobot2_agent_node)
-set(PROTO_NAME lgdxrobot2_agent_proto)
+set(EXECUTABLE_NAME lgdxrobot2_agent_component)
+set(EXPORT_EXECUTABLE_NAME export_lgdxrobot2_agent_proto)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -28,16 +28,16 @@ find_package(lgdxrobot2_msgs REQUIRED)
 
 include_directories(include)
 
-add_library(lgdxrobot2_agent_component SHARED
+add_library(${EXECUTABLE_NAME} SHARED
   src/Agent.cpp
   src/Mcu.cpp
   src/Sensors.cpp
 )
-target_link_libraries(lgdxrobot2_agent_component
+target_link_libraries(${EXECUTABLE_NAME}
   "${cpp_typesupport_target}"
   Boost::headers
 )
-target_link_libraries(lgdxrobot2_agent_component
+target_link_libraries(${EXECUTABLE_NAME}
   geometry_msgs::geometry_msgs
   lgdxrobot2_msgs::lgdxrobot2_msgs
   nav_msgs::nav_msgs
@@ -48,14 +48,14 @@ target_link_libraries(lgdxrobot2_agent_component
   tf2_geometry_msgs::tf2_geometry_msgs
 )
 
-rclcpp_components_register_node(lgdxrobot2_agent_component
+rclcpp_components_register_node(${EXECUTABLE_NAME}
   PLUGIN "LgdxRobot2::Agent"
   EXECUTABLE lgdxrobot2_agent_node
 )
 
-ament_export_targets(export_lgdxrobot2_agent_component)
-install(TARGETS lgdxrobot2_agent_component
-  EXPORT export_lgdxrobot2_agent_component
+ament_export_targets(${EXPORT_EXECUTABLE_NAME})
+install(TARGETS ${EXECUTABLE_NAME}
+  EXPORT ${EXPORT_EXECUTABLE_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
