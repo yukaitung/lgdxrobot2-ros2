@@ -34,6 +34,7 @@ Mcu::~Mcu()
     serial.cancel();
     serial.close();
   }
+  ioContext.stop();
   if(ioThread.joinable())
   {
     ioThread.join();
@@ -56,7 +57,7 @@ void Mcu::Connect()
   RCLCPP_INFO(_logger, "Attempting to connect to %s", serialPortName.c_str());
 
   boost::system::error_code error;
-  serial.open(serialPortName);
+  serial.open(serialPortName, error);
   if(error) 
   {
     RCLCPP_ERROR(_logger, "Serial connection throws an error: %s, try again in %d seconds.", error.message().c_str(), kWaitSecond);
@@ -97,6 +98,7 @@ awaitable<void> Mcu::Read()
     if (rclcpp::ok())
     {
       RCLCPP_ERROR(_logger, "Serial read error encountered, reconnection required: %s", e.what());
+      serial.cancel();
       serial.close();
       serialPortReconnectTimer->reset();
     }
@@ -132,7 +134,7 @@ void Mcu::OnReadComplete(size_t size)
     {
       case MCU_DATA_TYPE:
         mcuData = std::bit_cast<McuData>(frame);
-        //mcuSignals->UpdateMcuData(mcuData);
+        mcuSignals->UpdateMcuData(mcuData);
         break;
       default:
         break;
