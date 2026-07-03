@@ -153,7 +153,7 @@ void Mcu::ResetTransformInternal()
   command.command = MCU_RESET_TRANSFORM_COMMAND_TYPE;
   std::vector<char> buffer(sizeof(McuResetTransformCommand));
   std::memcpy(buffer.data(), &command, sizeof(McuResetTransformCommand));
-  boost::asio::co_spawn(ioContext, Mcu::Write(buffer), boost::asio::detached);
+  boost::asio::co_spawn(ioContext, Mcu::Write(std::move(buffer)), boost::asio::detached);
 }
 
 awaitable<void> Mcu::Write(const std::vector<char> data)
@@ -182,7 +182,7 @@ void Mcu::SetInverseKinematics(float x, float y, float w)
   command.velocity.rotation = w;
   std::vector<char> buffer(sizeof(McuInverseKinematicsCommand));
   std::memcpy(buffer.data(), &command, sizeof(McuInverseKinematicsCommand));
-  boost::asio::co_spawn(ioContext, Mcu::Write(buffer), boost::asio::detached);
+  boost::asio::co_spawn(ioContext, Mcu::Write(std::move(buffer)), boost::asio::detached);
 }
 
 void Mcu::SetEstop(int enable)
@@ -194,7 +194,7 @@ void Mcu::SetEstop(int enable)
   command.enable = enable;
   std::vector<char> buffer(sizeof(McuSoftwareEmergencyStopCommand));
   std::memcpy(buffer.data(), &command, sizeof(McuSoftwareEmergencyStopCommand));
-  boost::asio::co_spawn(ioContext, Mcu::Write(buffer), boost::asio::detached);
+  boost::asio::co_spawn(ioContext, Mcu::Write(std::move(buffer)), boost::asio::detached);
 }
 
 void Mcu::ResetTransform()
