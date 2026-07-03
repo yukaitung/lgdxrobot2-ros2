@@ -37,7 +37,6 @@ void Agent::Initalise()
   useKeyboard.description = "Control the robot using `teleop_twist_keyboard`.";
   this->declare_parameter("use_keyboard", false, useJoyParam);
 
-
   mcuSignals = std::make_shared<McuSignals>();
   sensorSignals = std::make_shared<SensorSignals>();
 
@@ -50,13 +49,15 @@ void Agent::Initalise()
   sensorSignals->SetInverseKinematics.connect(boost::bind(&Mcu::SetInverseKinematics, mcu.get(), 
     boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
 
-  rclcpp::on_shutdown([this]()
-  {
-    if (this->mcu)
+  this->get_node_base_interface()->get_context()->add_pre_shutdown_callback(
+    [this]() 
     {
-      this->mcu->Shutdown();
+      if (this->mcu) 
+      {
+        this->mcu->Shutdown();
+      }
     }
-  });
+  );
 }
 
 }

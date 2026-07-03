@@ -29,6 +29,7 @@ class Mcu
 
     // Settings
     bool resetTransformOnConnected = false;
+    bool isShuttingDown = false;
 
     // Data
     McuData mcuData;
@@ -51,6 +52,7 @@ class Mcu
 
   public:
     Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr);
+    ~Mcu();
     void Shutdown();
 
     void SetInverseKinematics(float x, float y, float w);

@@ -1,7 +1,8 @@
-#include <filesystem>
 #include <algorithm>
-#include <sstream>
+#include <bit>
+#include <filesystem>
 #include <iomanip>
+#include <sstream>
 #include <boost/asio/co_spawn.hpp>
 
 #include "lgdxrobot2_agent/Mcu.hpp"
@@ -25,12 +26,20 @@ Mcu::Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr
   Connect();
 }
 
+Mcu::~Mcu()
+{
+  Shutdown();
+}
+
 void Mcu::Shutdown()
 {
+  isShuttingDown = true;
+  serial.close();
   ioContext.stop();
   if(ioThread.joinable())
+  {
     ioThread.join();
-  serial.close();
+  }
 }
 
 void Mcu::StartSerialIo()
@@ -60,7 +69,7 @@ void Mcu::Connect()
   RCLCPP_INFO(_logger, "Serial port connected to %s", port.c_str());
   serialPortReconnectTimer->cancel();
   
-  boost::asio::co_spawn(ioContext, Mcu::Read(), boost::asio::detached);
+  //boost::asio::co_spawn(ioContext, Mcu::Read(), boost::asio::detached);
 
   if(resetTransformOnConnected)
   {
@@ -75,21 +84,29 @@ awaitable<void> Mcu::Read()
 {
   try
   {
-    while (rclcpp::ok())
+    while (isShuttingDown == false)
     {
       if (!serial.is_open())
+      {
         break;
-
+      }
+        
+      RCLCPP_INFO(_logger, "Mcu::Read()");
       std::size_t size = co_await serial.async_read_some(boost::asio::buffer(readBuffer), boost::asio::use_awaitable); 
       OnReadComplete(size);
     }
   }
   catch(const std::exception& e)
   {
-    RCLCPP_ERROR(_logger, "Serial read throws an error: %s", e.what());
-    serial.close();
-    serialPortReconnectTimer->reset();
+    if (isShuttingDown == false)
+    {
+      RCLCPP_ERROR(_logger, "Serial read error encountered; reconnection required: %s", e.what());
+      serial.close();
+      serialPortReconnectTimer->reset();
+    }
+    // Don't care when shutting down
   } 
+  RCLCPP_INFO(_logger, "Mcu::Read() END");
 }
 
 void Mcu::OnReadComplete(size_t size)
@@ -113,14 +130,15 @@ void Mcu::OnReadComplete(size_t size)
     return;
   }
 
-  std::vector<uint8_t> frame(startIt, nextIt + sizeof(endSeq));
+  std::array<uint8_t, sizeof(McuData)> frame;
+  std::copy(startIt, nextIt + sizeof(endSeq), frame.begin());
   if (frame.size() > 3)
   {
     switch (frame.at(2))
     {
       case MCU_DATA_TYPE:
-        memcpy(&mcuData, frame.data(), sizeof(McuData));
-        mcuSignals->UpdateMcuData(mcuData);
+        mcuData = std::bit_cast<McuData>(frame);
+        //mcuSignals->UpdateMcuData(mcuData);
         break;
       default:
         break;

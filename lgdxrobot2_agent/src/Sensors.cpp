@@ -8,8 +8,6 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
 {
   sensorSignals = sensorSignalsPtr;
 
-
-    RCLCPP_INFO(_logger, "call sensor");
   // Subscriber
   nav2Subscription = node->create_subscription<geometry_msgs::msg::TwistStamped>("cmd_vel", 
       rclcpp::SensorDataQoS().reliable(),
