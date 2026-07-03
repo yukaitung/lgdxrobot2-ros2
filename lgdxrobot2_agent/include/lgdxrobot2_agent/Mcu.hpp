@@ -14,7 +14,6 @@ using boost::asio::awaitable;
 class Mcu
 {
   private:
-    rclcpp::Node::SharedPtr _node;
     rclcpp::Logger _logger;
     rclcpp::TimerBase::SharedPtr serialPortReconnectTimer;
 
@@ -28,6 +27,7 @@ class Mcu
     int kWaitSecond = 3;
 
     // Settings
+    std::string serialPortName;
     bool resetTransformOnConnected = false;
     bool isShuttingDown = false;
 
@@ -53,7 +53,6 @@ class Mcu
   public:
     Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr);
     ~Mcu();
-    void Shutdown();
 
     void SetInverseKinematics(float x, float y, float w);
     void SetEstop(int enable);

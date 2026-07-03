@@ -8,12 +8,12 @@
 #include "lgdxrobot2_agent/Mcu.hpp"
 
 Mcu::Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr) :
-  _node(node),
   _logger(node->get_logger()),
   ioContext(), 
   serial(ioContext)
 {
   mcuSignals = mcuSignalsPtr;
+  serialPortName =  node->get_parameter("serial_port_name").as_string();
 
   // ROS
   serialPortReconnectTimer = node->create_wall_timer(std::chrono::seconds(kWaitSecond), std::bind(&Mcu::Connect, this));
@@ -28,14 +28,12 @@ Mcu::Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr
 
 Mcu::~Mcu()
 {
-  Shutdown();
-}
-
-void Mcu::Shutdown()
-{
   isShuttingDown = true;
-  serial.close();
-  ioContext.stop();
+  if (serial.is_open())
+  {
+    serial.cancel();
+    serial.close();
+  }
   if(ioThread.joinable())
   {
     ioThread.join();
@@ -55,21 +53,20 @@ void Mcu::StartSerialIo()
 
 void Mcu::Connect()
 {
-  std::string port = _node->get_parameter("serial_port_name").as_string();
-  RCLCPP_INFO(_logger, "Attempting to connect to %s", port.c_str());
+  RCLCPP_INFO(_logger, "Attempting to connect to %s", serialPortName.c_str());
 
   boost::system::error_code error;
-  serial.open(port, error);
+  serial.open(serialPortName);
   if(error) 
   {
     RCLCPP_ERROR(_logger, "Serial connection throws an error: %s, try again in %d seconds.", error.message().c_str(), kWaitSecond);
     serialPortReconnectTimer->reset();
     return;
   }
-  RCLCPP_INFO(_logger, "Serial port connected to %s", port.c_str());
+  RCLCPP_INFO(_logger, "Serial port connected to %s", serialPortName.c_str());
   serialPortReconnectTimer->cancel();
   
-  //boost::asio::co_spawn(ioContext, Mcu::Read(), boost::asio::detached);
+  boost::asio::co_spawn(ioContext, Mcu::Read(), boost::asio::detached);
 
   if(resetTransformOnConnected)
   {
@@ -84,29 +81,26 @@ awaitable<void> Mcu::Read()
 {
   try
   {
-    while (isShuttingDown == false)
+    while (rclcpp::ok())
     {
       if (!serial.is_open())
       {
         break;
       }
         
-      RCLCPP_INFO(_logger, "Mcu::Read()");
       std::size_t size = co_await serial.async_read_some(boost::asio::buffer(readBuffer), boost::asio::use_awaitable); 
       OnReadComplete(size);
     }
   }
   catch(const std::exception& e)
   {
-    if (isShuttingDown == false)
+    if (rclcpp::ok())
     {
-      RCLCPP_ERROR(_logger, "Serial read error encountered; reconnection required: %s", e.what());
+      RCLCPP_ERROR(_logger, "Serial read error encountered, reconnection required: %s", e.what());
       serial.close();
       serialPortReconnectTimer->reset();
     }
-    // Don't care when shutting down
   } 
-  RCLCPP_INFO(_logger, "Mcu::Read() END");
 }
 
 void Mcu::OnReadComplete(size_t size)
