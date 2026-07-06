@@ -29,7 +29,7 @@ find_package(lgdxrobot2_msgs REQUIRED)
 include_directories(include)
 
 add_library(${EXECUTABLE_NAME} SHARED
-  src/Agent.cpp
+  src/agent.cpp
   src/Mcu.cpp
   src/sensors.cpp
 )

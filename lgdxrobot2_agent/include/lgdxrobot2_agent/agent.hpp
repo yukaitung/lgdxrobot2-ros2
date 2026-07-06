@@ -11,18 +11,18 @@ namespace LgdxRobot2
 
 class Agent : public rclcpp::Node
 {
-  private:
-    rclcpp::TimerBase::SharedPtr timer;
-
-    std::unique_ptr<Mcu> mcu;
-    std::unique_ptr<Sensors> sensors;
-
-    std::shared_ptr<McuSignals> mcuSignals;
-    std::shared_ptr<SensorSignals> sensorSignals;
-
   public:
     Agent(const rclcpp::NodeOptions &options);
     void Initalise();
+
+  private:
+    rclcpp::TimerBase::SharedPtr timer_;
+
+    std::unique_ptr<Mcu> mcu_;
+    std::unique_ptr<Sensors> sensors_;
+
+    std::shared_ptr<McuSignals> mcu_signals_;
+    std::shared_ptr<SensorSignals> sensor_signals_;
 };
 
 }
