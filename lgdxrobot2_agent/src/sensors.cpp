@@ -156,15 +156,15 @@ void Sensors::Publish(const McuData& mcu_data)
 
   if (magnetic_field_publisher_ != nullptr)
   {
-    sensor_msgs::msg::MagneticField magneticField;
-    magneticField.header.stamp = clock_->now();
-    magneticField.magnetic_field.x = mcu_data.imu.magnetometer.x / 1000000;
-    magneticField.magnetic_field.y = mcu_data.imu.magnetometer.y / 1000000;
-    magneticField.magnetic_field.z = mcu_data.imu.magnetometer.z / 1000000;
-    magneticField.magnetic_field_covariance[0] = mcu_data.imu.magnetometer_covariance.x;
-    magneticField.magnetic_field_covariance[4] = mcu_data.imu.magnetometer_covariance.y;
-    magneticField.magnetic_field_covariance[8] = mcu_data.imu.magnetometer_covariance.z;
-    magnetic_field_publisher_->publish(magneticField);
+    sensor_msgs::msg::MagneticField magnetic_field;
+    magnetic_field.header.stamp = clock_->now();
+    magnetic_field.magnetic_field.x = mcu_data.imu.magnetometer.x / 1000000;
+    magnetic_field.magnetic_field.y = mcu_data.imu.magnetometer.y / 1000000;
+    magnetic_field.magnetic_field.z = mcu_data.imu.magnetometer.z / 1000000;
+    magnetic_field.magnetic_field_covariance[0] = mcu_data.imu.magnetometer_covariance.x;
+    magnetic_field.magnetic_field_covariance[4] = mcu_data.imu.magnetometer_covariance.y;
+    magnetic_field.magnetic_field_covariance[8] = mcu_data.imu.magnetometer_covariance.z;
+    magnetic_field_publisher_->publish(magnetic_field);
   }
 
   if (system_publisher_ != nullptr)
@@ -184,18 +184,18 @@ void Sensors::Publish(const McuData& mcu_data)
   
   tf2::Quaternion quaternion;
   quaternion.setRPY(0, 0, mcu_data.transform.rotation);
-  geometry_msgs::msg::Quaternion odomQuaternion = tf2::toMsg(quaternion);
+  geometry_msgs::msg::Quaternion odom_quaternion = tf2::toMsg(quaternion);
   if (tf_broadcaster_ != nullptr)
   {
-    geometry_msgs::msg::TransformStamped odomTf;
-    odomTf.header.stamp = clock_->now();
-    odomTf.header.frame_id = "odom";
-    odomTf.child_frame_id = base_link_name_;
-    odomTf.transform.translation.x = mcu_data.transform.x;
-    odomTf.transform.translation.y = mcu_data.transform.y;
-    odomTf.transform.translation.z = 0.0;
-    odomTf.transform.rotation = odomQuaternion;
-    tf_broadcaster_->sendTransform(odomTf);
+    geometry_msgs::msg::TransformStamped odom_tf;
+    odom_tf.header.stamp = clock_->now();
+    odom_tf.header.frame_id = "odom";
+    odom_tf.child_frame_id = base_link_name_;
+    odom_tf.transform.translation.x = mcu_data.transform.x;
+    odom_tf.transform.translation.y = mcu_data.transform.y;
+    odom_tf.transform.translation.z = 0.0;
+    odom_tf.transform.rotation = odom_quaternion;
+    tf_broadcaster_->sendTransform(odom_tf);
   }
   if (odom_publisher_ != nullptr)
   {
@@ -205,7 +205,7 @@ void Sensors::Publish(const McuData& mcu_data)
     odometry.pose.pose.position.x = mcu_data.transform.x;
     odometry.pose.pose.position.y = mcu_data.transform.y;
     odometry.pose.pose.position.z = 0.0;
-    odometry.pose.pose.orientation = odomQuaternion;
+    odometry.pose.pose.orientation = odom_quaternion;
     odometry.child_frame_id = base_link_name_;
     odometry.twist.twist.linear.x = mcu_data.forward_kinematic.x;
     odometry.twist.twist.linear.y = mcu_data.forward_kinematic.y;
