@@ -3,7 +3,7 @@ project(lgdxrobot2_agent)
 
 set(CMAKE_CXX_STANDARD 20)
 set(EXECUTABLE_NAME lgdxrobot2_agent_component)
-set(EXPORT_EXECUTABLE_NAME export_lgdxrobot2_agent_proto)
+set(EXPORT_EXECUTABLE_NAME export_lgdxrobot2_agent_component)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
