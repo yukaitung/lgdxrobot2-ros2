@@ -2,7 +2,7 @@
 #define SENSORS_HPP
 
 #include "lgdxrobot2.h"
-#include "SensorSignals.hpp"
+#include "sensor_signals.hpp"
 
 #include "geometry_msgs/msg/twist.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"

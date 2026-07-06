@@ -45,8 +45,8 @@ void Agent::Initalise()
 
   mcuSignals->update_mcu_data.connect(boost::bind(&Sensors::Publish, sensors.get(), boost::placeholders::_1));
 
-  sensorSignals->SetEstop.connect(boost::bind(&Mcu::SetEstop, mcu.get(), boost::placeholders::_1));
-  sensorSignals->SetInverseKinematics.connect(boost::bind(&Mcu::SetInverseKinematics, mcu.get(), 
+  sensorSignals->set_estop.connect(boost::bind(&Mcu::SetEstop, mcu.get(), boost::placeholders::_1));
+  sensorSignals->set_inverse_kinematics.connect(boost::bind(&Mcu::SetInverseKinematics, mcu.get(), 
     boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
 }
 

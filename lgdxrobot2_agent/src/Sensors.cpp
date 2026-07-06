@@ -27,7 +27,7 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
   softwareEmergencyStopSubscription = node->create_subscription<std_msgs::msg::Bool>("agent/software_emergency_stop", 
     rclcpp::SensorDataQoS().reliable(),
     [this](const std_msgs::msg::Bool::SharedPtr msg) {
-      sensorSignals->SetEstop(msg->data);
+      sensorSignals->set_estop(msg->data);
     });
 
   // Publisher
@@ -67,7 +67,7 @@ void Sensors::KeyboardCallback(const geometry_msgs::msg::Twist &msg)
   float y = msg.linear.y;
   float w = msg.angular.z;
   //RCLCPP_INFO(_logger, "/cmd_vel %f %f %f", x, y, w);
-  sensorSignals->SetInverseKinematics(x, y, w);
+  sensorSignals->set_inverse_kinematics(x, y, w);
 }
 
 void Sensors::Nav2Callback(const geometry_msgs::msg::TwistStamped &msg)
@@ -76,7 +76,7 @@ void Sensors::Nav2Callback(const geometry_msgs::msg::TwistStamped &msg)
   float y = msg.twist.linear.y;
   float w = msg.twist.angular.z;
   // RCLCPP_INFO(node->get_logger(), "/cmd_vel %f %f %f", x, y, w);
-  sensorSignals->SetInverseKinematics(x, y, w);
+  sensorSignals->set_inverse_kinematics(x, y, w);
 }
 
 void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
@@ -85,14 +85,14 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
   if (lastEstopButton[0] == 0 && msg.buttons[0] == 1)
   {
     // A = disable software E-Stop
-    sensorSignals->SetEstop(false);
+    sensorSignals->set_estop(false);
     RCLCPP_INFO(_logger, "Software E-Stop Disabled");
   }
   lastEstopButton[0] = msg.buttons[0];
   if (lastEstopButton[1] == 0 && msg.buttons[1] == 1)
   {
     // B = enable software E-Stop
-    sensorSignals->SetEstop(true);
+    sensorSignals->set_estop(true);
     RCLCPP_INFO(_logger, "Software E-Stop Enabled");
   }
   lastEstopButton[1] = msg.buttons[1];
@@ -129,7 +129,7 @@ void Sensors::JoyCallback(const sensor_msgs::msg::Joy &msg)
   }
   // LT = w left, RT = w right
   float w = ((msg.axes[4] - 1) - (msg.axes[5] - 1)) * maximumVelocity * 2;
-  sensorSignals->SetInverseKinematics(x, y, w);
+  sensorSignals->set_inverse_kinematics(x, y, w);
 }
 
 void Sensors::Publish(const McuData& mcuData)
