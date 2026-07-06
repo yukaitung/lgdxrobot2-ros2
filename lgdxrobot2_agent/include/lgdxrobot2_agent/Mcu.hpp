@@ -3,6 +3,7 @@
 
 #include <array>
 #include <boost/asio.hpp>
+#include <boost/circular_buffer.hpp>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -34,7 +35,7 @@ class Mcu
     // Data
     McuData mcuData;
     std::array<uint8_t, 512> readBuffer = {0};
-    std::vector<uint8_t> mcuBuffer = {0};
+    boost::circular_buffer<uint8_t> mcuBuffer;
 
     // io_context thread
     void StartSerialIo();

@@ -10,7 +10,8 @@
 Mcu::Mcu(rclcpp::Node::SharedPtr node, std::shared_ptr<McuSignals> mcuSignalsPtr) :
   _logger(node->get_logger()),
   ioContext(), 
-  serial(ioContext)
+  serial(ioContext),
+  mcuBuffer(512)
 {
   mcuSignals = mcuSignalsPtr;
   serialPortName =  node->get_parameter("serial_port_name").as_string();
