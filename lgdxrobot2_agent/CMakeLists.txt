@@ -31,7 +31,7 @@ include_directories(include)
 add_library(${EXECUTABLE_NAME} SHARED
   src/Agent.cpp
   src/Mcu.cpp
-  src/Sensors.cpp
+  src/sensors.cpp
 )
 target_link_libraries(${EXECUTABLE_NAME}
   "${cpp_typesupport_target}"
