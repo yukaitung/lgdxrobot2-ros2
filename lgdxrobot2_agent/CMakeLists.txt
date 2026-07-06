@@ -3,7 +3,7 @@ project(lgdxrobot2_agent)
 
 set(CMAKE_CXX_STANDARD 20)
 set(EXECUTABLE_NAME lgdxrobot2_agent_component)
-set(EXPORT_EXECUTABLE_NAME export_lgdxrobot2_agent_proto)
+set(EXPORT_EXECUTABLE_NAME export_lgdxrobot2_agent_component)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -29,9 +29,9 @@ find_package(lgdxrobot2_msgs REQUIRED)
 include_directories(include)
 
 add_library(${EXECUTABLE_NAME} SHARED
-  src/Agent.cpp
-  src/Mcu.cpp
-  src/Sensors.cpp
+  src/agent.cpp
+  src/mcu.cpp
+  src/sensors.cpp
 )
 target_link_libraries(${EXECUTABLE_NAME}
   "${cpp_typesupport_target}"
