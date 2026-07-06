@@ -49,7 +49,7 @@ def launch_setup(context):
     use_rviz = LaunchConfiguration('use_rviz')
     
     description_pkg_share = get_package_share_directory('lgdxrobot2_description')
-    lidar_pkg_share = get_package_share_directory('sllidar_ros2')
+    lidar_pkg_share = get_package_share_directory('lgdx_rplidar_c1')
     serial_port_name = LaunchConfiguration('serial_port_name')
     
     description_node = IncludeLaunchDescription(
@@ -80,14 +80,13 @@ def launch_setup(context):
         output='screen',
         condition=IfCondition(use_joy),
     )
-    lidar_node = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(lidar_pkg_share, 'launch', 'sllidar_' + lidar_model + '_launch.py')
-        ),
-        condition=IfCondition(use_lidar),
-        launch_arguments={
+    lidar_node = Node(
+        package='lgdx_rplidar_c1',
+        executable='rplidar_c1_node',
+        output='screen',
+        parameters=[{
             'frame_id': 'lidar_link'
-        }.items(),
+        }]
     )
     return [description_node, lgdxrobot2_agent_node, joy_node, lidar_node]
     
