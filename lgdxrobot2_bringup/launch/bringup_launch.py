@@ -30,11 +30,6 @@ launch_args = [
         description='Whether to enable the LiDAR.'
     ),
     DeclareLaunchArgument(
-        name='lidar_model', 
-        default_value='c1', 
-        description='RPLIDAR model name.'
-    ),
-    DeclareLaunchArgument(
         name='use_rviz', 
         default_value='False', 
         description='Visualize in RViz.'
@@ -45,7 +40,6 @@ def launch_setup(context):
     use_joy = LaunchConfiguration('use_joy')
     use_keyboard = LaunchConfiguration('use_keyboard')
     use_lidar = LaunchConfiguration('use_lidar')
-    lidar_model = LaunchConfiguration('lidar_model').perform(context)
     use_rviz = LaunchConfiguration('use_rviz')
     
     description_pkg_share = get_package_share_directory('lgdxrobot2_description')
