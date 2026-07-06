@@ -135,7 +135,7 @@ void Mcu::OnReadComplete(size_t size)
     {
       case MCU_DATA_TYPE:
         mcuData = std::bit_cast<McuData>(frame);
-        mcuSignals->UpdateMcuData(mcuData);
+        mcuSignals->update_mcu_data(mcuData);
         break;
       default:
         break;
