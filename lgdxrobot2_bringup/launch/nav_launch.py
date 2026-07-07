@@ -78,41 +78,14 @@ launch_args = [
     description='Whether to enable the LiDAR.'
   ),
   DeclareLaunchArgument(
-    name='lidar_model', 
-    default_value='c1', 
-    description='RPLIDAR model name.'
-  ),
-  DeclareLaunchArgument(
     name='use_joy', 
     default_value='False', 
     description='Whether to enable the joy.'
   ),
-  
-  # Cloud
   DeclareLaunchArgument(
-    name='use_cloud',
-    default_value='False',
-    description='Whether to enable cloud.'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_address',
-    default_value='host.docker.internal:5162',
-    description='Address of LGDXRobot Cloud.'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_root_cert',
-    default_value='/config/keys/rootCA.crt',
-    description='Path to the server’s root certificate'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_client_key',
-    default_value='/config/keys/Robot1.key',
-    description='Path to the client’s key file'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_client_cert',
-    default_value='/config/keys/Robot1.crt',
-    description='Path to the client’s crt file'
+      name='use_keyboard', 
+      default_value='True', 
+      description='Control the robot using `teleop_twist_keyboard`. Start the node in another terminal to control the robot.'
   ),
 ]
       
@@ -136,6 +109,7 @@ def launch_setup(context):
   use_lidar = LaunchConfiguration('use_lidar')
   lidar_model = LaunchConfiguration('lidar_model').perform(context)
   use_joy = LaunchConfiguration('use_joy')
+  use_keyboard = LaunchConfiguration('use_keyboard')
   
   # Pcakges
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
@@ -147,20 +121,13 @@ def launch_setup(context):
   rviz_config = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config:
     rviz_config = p.get_rviz_config()
-    
-  # Cloud
-  use_cloud = LaunchConfiguration('use_cloud')
-  cloud_address = LaunchConfiguration('cloud_address').perform(context)
-  cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
-  cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
-  cloud_root_cert = LaunchConfiguration('cloud_root_cert').perform(context)
-  
+
   #
   # Base
   #
   description_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
-      os.path.join(description_package_dir, 'launch', 'display_launch.py')
+      os.path.join(description_package_dir, 'launch', 'display.launch.py')
     ),
     launch_arguments={
       'namespace': namespace,
@@ -175,8 +142,8 @@ def launch_setup(context):
     output='screen',
     parameters=[{
       'reset_transform': True,
-      'use_joy': True,
-      'use_cloud': use_cloud,
+      'use_joy': use_joy,
+      'use_keyboard': use_keyboard,
     }],
     remappings=[
       ('/tf', 'tf'), 
@@ -185,27 +152,8 @@ def launch_setup(context):
       ('/agent/odom', 'agent/odom'),
       ('/agent/imu', 'agent/imu'),
       ('/agent/mag', 'agent/mag'),
-      ('/cloud/robot_data', 'cloud/robot_data'),
-      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop'),
+      ('/agent/mag', 'agent/software_emergency_stop'),
       ('/joint_states', 'joint_states'),
-    ],
-  )
-  lgdxrobot_cloud_node = Node(
-    package='lgdxrobot_cloud_adapter',
-    executable='lgdxrobot_cloud_adapter_node',
-    condition=IfCondition(use_cloud),
-    output='screen',
-    parameters=[{
-      'need_mcu_sn': True,
-      'slam_enable': slam,
-      'address': cloud_address,
-      'client_key': cloud_client_key,
-      'client_cert': cloud_client_cert,
-      'root_cert': cloud_root_cert,
-    }],
-    remappings=[
-      ('/cloud/robot_data', 'cloud/robot_data'),
-      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop'),
     ],
   )
 
@@ -275,7 +223,7 @@ def launch_setup(context):
     }.items(),
   )
 
-  return [description_node, lgdxrobot2_agent_node, lidar_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav, lgdxrobot_cloud_node]
+  return [description_node, lgdxrobot2_agent_node, lidar_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)

@@ -1,8 +1,7 @@
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions.path_join_substitution import PathJoinSubstitution
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, RegisterEventHandler
-from launch.event_handlers import OnProcessExit
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
 from launch import LaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -23,7 +22,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='profile',
-    default_value='loc-wb',
+    default_value='loc-sim',
     description='Parameters profile.'
   ),
   DeclareLaunchArgument(
@@ -35,7 +34,7 @@ launch_args = [
   # Webots
   DeclareLaunchArgument(
     name='world',
-    default_value='warehouse.wbt',
+    default_value='default.wbt',
     description='World file in `lgdxrobot2sim_webots` package.'
   ),
   
@@ -52,23 +51,8 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='warehouse.yaml',
+    default_value='default.yaml',
     description='Map yaml file in `lgdxrobot2sim_webots` package.'
-  ),
-  DeclareLaunchArgument(
-    name='keepout_mask',
-    default_value='',
-    description='Full path to keepout mask yaml file to load.'
-  ),
-  DeclareLaunchArgument(
-    name='speed_mask',
-    default_value='',
-    description='Full path to speed mask yaml file to load.'
-  ),
-  DeclareLaunchArgument(
-    name='graph',
-    default_value='',
-    description='Path to the graph file to load.'
   ),
   DeclareLaunchArgument(
     name='use_sim_time',
@@ -88,22 +72,7 @@ launch_args = [
   DeclareLaunchArgument(
     name='use_respawn',
     default_value='False',
-    description='Whether to respawn if a node crashes. Applied when composition is disabled.'
-  ),
-  DeclareLaunchArgument(
-    name='use_keepout_zones', 
-    default_value='False',
-    description='Whether to enable keepout zones or not'
-  ),
-  DeclareLaunchArgument(
-    name='use_speed_zones', 
-    default_value='False',
-    description='Whether to enable speed zones or not'
-  ),
-  DeclareLaunchArgument(
-    name='log_level', 
-    default_value='info',
-    description='log level'
+    description='Whether to respawn if a node crashes.'
   ),
   
   # Display
@@ -117,33 +86,6 @@ launch_args = [
     default_value='',
     description='The absolute path for the RViz config file.'
   ),
-  
-  # Cloud
-  DeclareLaunchArgument(
-    name='use_cloud',
-    default_value='False',
-    description='Whether to enable cloud.'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_address',
-    default_value='host.docker.internal:5162',
-    description='Address of LGDXRobot Cloud.'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_root_cert',
-    default_value='/config/keys/rootCA.crt',
-    description='Path to the server’s root certificate'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_client_key',
-    default_value='/config/keys/Robot1.key',
-    description='Path to the client’s key file'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_client_cert',
-    default_value='/config/keys/Robot1.crt',
-    description='Path to the client’s crt file'
-  )
 ]
       
 def launch_setup(context):
@@ -156,69 +98,32 @@ def launch_setup(context):
   profiles_path = LaunchConfiguration('profiles_path').perform(context)
   profile_str = LaunchConfiguration('profile').perform(context)
   namespace = LaunchConfiguration('namespace').perform(context)
+  use_namespace = 'True' if namespace != '' else 'False'
   p = ParamManager(profiles_path, profile_str, namespace)
   
   # Webots
-  world = LaunchConfiguration('world').perform(context)
+  world = LaunchConfiguration('world')
   
   # NAV2
   slam = LaunchConfiguration('slam')
-  slam_str = LaunchConfiguration('slam').perform(context)
   use_localization = LaunchConfiguration('use_localization')
-  map = LaunchConfiguration('map').perform(context)
-  map_path = PathJoinSubstitution([webots_package_dir, 'maps', map])
-  keepout_mask = LaunchConfiguration('keepout_mask')
-  speed_mask = LaunchConfiguration('speed_mask')
-  graph = LaunchConfiguration('graph')
+  map = LaunchConfiguration('map')
   use_sim_time = LaunchConfiguration('use_sim_time')
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
-  use_keepout_zones = LaunchConfiguration('use_keepout_zones').perform(context)
-  use_speed_zones = LaunchConfiguration('use_speed_zones').perform(context)
-  log_level = LaunchConfiguration('log_level')
   
   # Display
   use_rviz = LaunchConfiguration('use_rviz')
   rviz_config = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config:
     rviz_config = p.get_rviz_config()
-  
-  # Cloud
-  use_cloud = LaunchConfiguration('use_cloud')
-  use_cloud_str = LaunchConfiguration('use_cloud').perform(context)
-  cloud_address = LaunchConfiguration('cloud_address').perform(context)
-  cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
-  cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
-  cloud_root_cert = LaunchConfiguration('cloud_root_cert').perform(context)
-  
-  # Manage map
-  nav2_delay_enable = False
-  if use_cloud_str.lower() == 'true' and slam_str.lower() == 'false':
-    nav2_delay_enable = True
-    graph = os.path.join(os.getcwd(), 'route.geojson')
-    map_path = os.path.join(os.getcwd(), 'map.yaml')
-    keepout_mask = os.path.join(os.getcwd(), 'keepout_mask.yaml')
-    speed_mask = os.path.join(os.getcwd(), 'speed_mask.yaml')
-    use_keepout_zones = 'True'
-    use_speed_zones = 'True'
-    
-  # Rewrite Nav2 params
-  yaml_substitutions = {
-    'KEEPOUT_ZONE_ENABLED': use_keepout_zones,
-    'SPEED_ZONE_ENABLED': use_speed_zones,
-    'ROS_NAMESPACE': namespace,
-    'INITAL_POSE_X': '0.0',
-    'INITAL_POSE_Y': '0.0',
-    'INITAL_POSE_Z': '0.0',
-    'INITAL_POSE_R': '0.0',
-  }
 
   #
   # Webots Simulator
   #
   webots = WebotsLauncher(
-    world=p.get_processed_webots_world_path(world, 1),
+    world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
     ros2_supervisor=True
   )
   lgdxrobot2_driver = WebotsController(
@@ -233,7 +138,6 @@ def launch_setup(context):
     remappings=[
       ('/cmd_vel', 'cmd_vel'), 
       ('/agent/odom', 'agent/odom'), 
-      ('/agent/imu', 'agent/imu'),
       ('/tf', 'tf'), 
       ('/tf_static', 'tf_static'),
       ('/camera/color/camera_info', 'camera/color/camera_info'),
@@ -243,8 +147,9 @@ def launch_setup(context):
       ('/camera/depth/point_cloud', 'camera/depth/color/points'),
       ('/scan', 'scan'),
       ('/scan/point_cloud', 'scan/point_cloud'),
+      ('/imu/data', 'imu/data'),
       ('/remove_urdf_robot', 'remove_urdf_robot'),
-      ('/agent/software_emergency_stop', 'cloud/software_emergency_stop'),
+      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop')
     ],
     respawn=True
   )
@@ -254,7 +159,7 @@ def launch_setup(context):
   #
   description_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
-      os.path.join(description_package_dir, 'launch', 'display_launch.py')
+      os.path.join(description_package_dir, 'launch', 'display.launch.py')
     ),
     launch_arguments={
       'namespace': namespace,
@@ -265,34 +170,7 @@ def launch_setup(context):
       'rviz_config': rviz_config,
     }.items(),
   )
-  lgdxrobot_cloud_node = Node(
-    package='lgdxrobot_cloud_adapter',
-    executable='lgdxrobot_cloud_adapter_node',
-    condition=IfCondition(use_cloud),
-    namespace=namespace,
-    output='screen',
-    parameters=[{
-      'slam_enable': slam,
-      'address': cloud_address,
-      'client_key': cloud_client_key,
-      'client_cert': cloud_client_cert,
-      'root_cert': cloud_root_cert,
-    }],
-    remappings=[
-      ('/tf', 'tf'), 
-      ('/tf_static', 'tf_static')
-    ]
-  )
-  nav2_delay_node = Node(
-    package='lgdxrobot_cloud_adapter',
-    executable='nav2_delay_node',
-    namespace=namespace,
-    output='screen',
-    parameters=[{
-      'nav2_delay_enable': nav2_delay_enable,
-    }],
-  )
-  
+
   #
   # NAV2
   #
@@ -303,7 +181,7 @@ def launch_setup(context):
     namespace=namespace,
     output='screen',
     parameters=[
-      p.get_processed_param_path('ekf.yaml', yaml_substitutions),
+      p.get_param_path('ekf.yaml'),
       {'use_sim_time': use_sim_time }
     ],
     remappings=[
@@ -317,34 +195,21 @@ def launch_setup(context):
     ),
     launch_arguments={
       'namespace': namespace,
+      'use_namespace': use_namespace,
       'slam': slam,
       'use_localization': use_localization,
-      'map': map_path,
-      'keepout_mask': keepout_mask,
-      'speed_mask': speed_mask,
-      'graph': graph,
+      'map': PathJoinSubstitution([webots_package_dir, 'maps', map]),
       'use_sim_time': use_sim_time,
-      'params_file': p.get_processed_param_path('nav2.yaml', yaml_substitutions),
+      'params_file': p.get_param_path('nav2.yaml'),
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,
-      'log_level': log_level,
-      'use_keepout_zones': use_keepout_zones,
-      'use_speed_zones': use_speed_zones,
     }.items(),
-  )
-  
-  # Nav2 delay Event
-  nav2_delay_event = RegisterEventHandler(
-     OnProcessExit(
-      target_action=nav2_delay_node,
-      on_exit=[ros2_nav, robot_localization_node, description_node]
-    )
   )
 
   waiting_nodes = WaitForControllerConnection(
     target_driver = lgdxrobot2_driver,
-    nodes_to_start = [lgdxrobot_cloud_node, nav2_delay_node, nav2_delay_event]
+    nodes_to_start = [description_node, robot_localization_node, ros2_nav]
   )
 
   return [webots, webots._supervisor, lgdxrobot2_driver, waiting_nodes]
