@@ -72,9 +72,9 @@ void Sensors::KeyboardCallback(const geometry_msgs::msg::Twist &msg)
 
 void Sensors::Nav2Callback(const geometry_msgs::msg::Twist &msg)
 {
-  float x = msg.twist.linear.x;
-  float y = msg.twist.linear.y;
-  float w = msg.twist.angular.z;
+  float x = msg.linear.x;
+  float y = msg.linear.y;
+  float w = msg.angular.z;
   //RCLCPP_INFO(logger_, "/cmd_vel %f %f %f", x, y, w);
   sensor_signals_->set_inverse_kinematics(x, y, w);
 }

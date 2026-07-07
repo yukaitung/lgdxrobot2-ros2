@@ -5,7 +5,6 @@
 #include "sensor_signals.hpp"
 
 #include "geometry_msgs/msg/twist.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "lgdxrobot2_msgs/msg/system.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "rclcpp/rclcpp.hpp"

@@ -183,7 +183,7 @@ def launch_setup(context):
   #
   description_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
-      os.path.join(description_package_dir, 'launch', 'display.launch.py')
+      os.path.join(description_package_dir, 'launch', 'display_launch.py')
     ),
     launch_arguments={
       'namespace': namespace,

@@ -1,7 +1,7 @@
 #ifndef LGDXROBOT2DRIVER_HPP
 #define LGDXROBOT2DRIVER_HPP
 
-#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "rclcpp/macros.hpp"
 #include "rclcpp/rclcpp.hpp"

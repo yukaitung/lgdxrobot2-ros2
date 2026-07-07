@@ -18,7 +18,9 @@ find_package(webots_ros2_driver REQUIRED)
 # Export the plugin configuration file
 pluginlib_export_plugin_description_file(webots_ros2_driver lgdxrobot2_driver.xml)
 
-include_directories(include/lgdxrobot2sim_webots)
+include_directories(
+  include/lgdxrobot2sim_webots
+)
 
 add_library(
   ${PROJECT_NAME}
@@ -34,7 +36,9 @@ target_link_libraries(
   sensor_msgs::sensor_msgs
   std_msgs::std_msgs
   tf2_geometry_msgs::tf2_geometry_msgs
-  webots_ros2_driver::webots_ros2_driver
+)
+ament_target_dependencies(${PROJECT_NAME}
+  webots_ros2_driver
 )
 
 install(TARGETS 

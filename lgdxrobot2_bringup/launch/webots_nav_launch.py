@@ -34,7 +34,7 @@ launch_args = [
   # Webots
   DeclareLaunchArgument(
     name='world',
-    default_value='default.wbt',
+    default_value='warehouse.wbt',
     description='World file in `lgdxrobot2sim_webots` package.'
   ),
   
@@ -51,7 +51,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='default.yaml',
+    default_value='warehouse.yaml',
     description='Map yaml file in `lgdxrobot2sim_webots` package.'
   ),
   DeclareLaunchArgument(
@@ -102,7 +102,7 @@ def launch_setup(context):
   p = ParamManager(profiles_path, profile_str, namespace)
   
   # Webots
-  world = LaunchConfiguration('world')
+  world = LaunchConfiguration('world').perform(context)
   
   # NAV2
   slam = LaunchConfiguration('slam')
@@ -123,7 +123,7 @@ def launch_setup(context):
   # Webots Simulator
   #
   webots = WebotsLauncher(
-    world=PathJoinSubstitution([webots_package_dir, 'worlds', world]),
+    world=p.get_processed_webots_world_path(world, 1),
     ros2_supervisor=True
   )
   lgdxrobot2_driver = WebotsController(
@@ -149,7 +149,6 @@ def launch_setup(context):
       ('/scan/point_cloud', 'scan/point_cloud'),
       ('/imu/data', 'imu/data'),
       ('/remove_urdf_robot', 'remove_urdf_robot'),
-      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop')
     ],
     respawn=True
   )
@@ -159,7 +158,7 @@ def launch_setup(context):
   #
   description_node = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
-      os.path.join(description_package_dir, 'launch', 'display.launch.py')
+      os.path.join(description_package_dir, 'launch', 'display_launch.py')
     ),
     launch_arguments={
       'namespace': namespace,

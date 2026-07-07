@@ -21,9 +21,9 @@ void LgdxRobot2Driver::cmdVelCallback(const geometry_msgs::msg::Twist &msg)
   }
   else
   {
-    double x = msg.twist.linear.x;
-    double y = msg.twist.linear.y;
-    double w = msg.twist.angular.z;
+    double x = msg.linear.x;
+    double y = msg.linear.y;
+    double w = msg.angular.z;
     wheelsVelocity[0] = (1 / WHEEL_RADIUS) * (x - y - (CHASSIS_LX + CHASSIS_LY) * w);
     wheelsVelocity[1] = (1 / WHEEL_RADIUS) * (x + y + (CHASSIS_LX + CHASSIS_LY) * w);
     wheelsVelocity[2] = (1 / WHEEL_RADIUS) * (x + y - (CHASSIS_LX + CHASSIS_LY) * w);
