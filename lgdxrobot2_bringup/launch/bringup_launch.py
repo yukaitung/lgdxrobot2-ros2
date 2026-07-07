@@ -17,17 +17,17 @@ launch_args = [
     DeclareLaunchArgument(
         name='use_joy', 
         default_value='True', 
-        description='Whether to enable the joy.'
+        description='Control robot using `joy_node`.'
+    ),
+    DeclareLaunchArgument(
+        name='use_keyboard', 
+        default_value='True', 
+        description='Control the robot using `teleop_twist_keyboard`. Start the node in another terminal to control the robot.'
     ),
     DeclareLaunchArgument(
         name='use_lidar', 
         default_value='True', 
         description='Whether to enable the LiDAR.'
-    ),
-    DeclareLaunchArgument(
-        name='lidar_model', 
-        default_value='c1', 
-        description='RPLIDAR model name.'
     ),
     DeclareLaunchArgument(
         name='use_rviz', 
@@ -38,17 +38,16 @@ launch_args = [
 
 def launch_setup(context):
     use_joy = LaunchConfiguration('use_joy')
+    use_keyboard = LaunchConfiguration('use_keyboard')
     use_lidar = LaunchConfiguration('use_lidar')
-    lidar_model = LaunchConfiguration('lidar_model').perform(context)
     use_rviz = LaunchConfiguration('use_rviz')
     
     description_pkg_share = get_package_share_directory('lgdxrobot2_description')
-    lidar_pkg_share = get_package_share_directory('sllidar_ros2')
     serial_port_name = LaunchConfiguration('serial_port_name')
     
     description_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(description_pkg_share, 'launch', 'display.launch.py')
+            os.path.join(description_pkg_share, 'launch', 'display_launch.py')
         ),
         launch_arguments={
             'use_sim_time': 'False',
@@ -63,7 +62,8 @@ def launch_setup(context):
         parameters=[{
             'serial_port_name': serial_port_name,
             'reset_transform': True,
-            'use_joy': True,
+            'use_joy': use_joy,
+            'use_keyboard': use_keyboard,
             'publish_tf': True,
         }]
     )
@@ -73,14 +73,14 @@ def launch_setup(context):
         output='screen',
         condition=IfCondition(use_joy),
     )
-    lidar_node = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(lidar_pkg_share, 'launch', 'sllidar_' + lidar_model + '_launch.py')
-        ),
-        condition=IfCondition(use_lidar),
-        launch_arguments={
+    lidar_node = Node(
+        package='lgdx_rplidar_c1',
+        executable='rplidar_c1_node',
+        output='screen',
+        parameters=[{
             'frame_id': 'lidar_link'
-        }.items(),
+        }],
+        condition=IfCondition(use_lidar),
     )
     return [description_node, lgdxrobot2_agent_node, joy_node, lidar_node]
     

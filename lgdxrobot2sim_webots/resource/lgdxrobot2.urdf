@@ -22,7 +22,7 @@
       <ros>
         <topicName>/camera/depth</topicName>
         <enabled>true</enabled>
-        <alwaysOn>true</alwaysOn>
+        <alwaysOn>false</alwaysOn>
         <frameName>camera_depth_frame</frameName>
       </ros>
     </device>

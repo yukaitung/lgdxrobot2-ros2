@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.20)
 project(lgdxrobot2sim_webots)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -18,22 +18,26 @@ find_package(webots_ros2_driver REQUIRED)
 # Export the plugin configuration file
 pluginlib_export_plugin_description_file(webots_ros2_driver lgdxrobot2_driver.xml)
 
-include_directories(include/lgdxrobot2sim_webots)
+include_directories(
+  include/lgdxrobot2sim_webots
+)
 
 add_library(
   ${PROJECT_NAME}
   SHARED
   src/LgdxRobot2Driver.cpp
 )
-ament_target_dependencies(
+target_link_libraries(
   ${PROJECT_NAME}
-  geometry_msgs
-  nav_msgs
-  pluginlib
-  rclcpp
-  sensor_msgs
-  std_msgs
-  tf2_geometry_msgs
+  geometry_msgs::geometry_msgs
+  nav_msgs::nav_msgs
+  pluginlib::pluginlib
+  rclcpp::rclcpp
+  sensor_msgs::sensor_msgs
+  std_msgs::std_msgs
+  tf2_geometry_msgs::tf2_geometry_msgs
+)
+ament_target_dependencies(${PROJECT_NAME}
   webots_ros2_driver
 )
 
