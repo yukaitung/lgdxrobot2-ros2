@@ -1,4 +1,4 @@
-FROM ros:lyrical AS builder
+FROM ros:jazzy AS builder
 
 WORKDIR /src
 COPY . .
