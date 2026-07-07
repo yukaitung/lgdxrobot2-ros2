@@ -27,7 +27,7 @@ class LgdxRobot2Driver : public webots_ros2_driver::PluginInterface
 
     WbDeviceTag wheels[4]; // Wheel1 - Wheel4
     double wheelsVelocity[4] = {0}; // Wheel1 - Wheel4
-    rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr cmdVelSubscription;
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSubscription;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr softwareEmergencyStopSubscription;
 
     bool isCrticialStatus = false;
@@ -42,7 +42,7 @@ class LgdxRobot2Driver : public webots_ros2_driver::PluginInterface
 
     WbDeviceTag inertialUnit;
 
-    void cmdVelCallback(const geometry_msgs::msg::TwistStamped &msg);
+    void cmdVelCallback(const geometry_msgs::msg::Twist &msg);
 
   public:
     void init(webots_ros2_driver::WebotsNode *node, std::unordered_map<std::string, std::string> &parameters) override;

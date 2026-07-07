@@ -10,7 +10,7 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 namespace LgdxRobot2 {
-void LgdxRobot2Driver::cmdVelCallback(const geometry_msgs::msg::TwistStamped &msg) 
+void LgdxRobot2Driver::cmdVelCallback(const geometry_msgs::msg::Twist &msg) 
 {
   if (isCrticialStatus)
   {
@@ -54,7 +54,7 @@ void LgdxRobot2Driver::init(webots_ros2_driver::WebotsNode *node, std::unordered
   inertialUnit = wb_robot_get_device("inertial_unit");
   wb_inertial_unit_enable(inertialUnit, wb_robot_get_basic_time_step());
 
-  cmdVelSubscription = node->create_subscription<geometry_msgs::msg::TwistStamped>(
+  cmdVelSubscription = node->create_subscription<geometry_msgs::msg::Twist>(
     "cmd_vel", 
     rclcpp::SensorDataQoS().reliable(),
     std::bind(&LgdxRobot2Driver::cmdVelCallback, this, std::placeholders::_1)

@@ -27,7 +27,7 @@ class Sensors
     rclcpp::Logger logger_;
 
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr keyboard_subscription_;
-    rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr nav2_subscription_;
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr nav2_subscription_;
     rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_subscription;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr software_emergency_stopSubscription_;
 
@@ -53,7 +53,7 @@ class Sensors
 
     float GetBatteryPercentage(float voltage);
     void KeyboardCallback(const geometry_msgs::msg::Twist &msg);
-    void Nav2Callback(const geometry_msgs::msg::TwistStamped &msg);
+    void Nav2Callback(const geometry_msgs::msg::Twist &msg);
     void JoyCallback(const sensor_msgs::msg::Joy &msg);
 };
 
