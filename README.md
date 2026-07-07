@@ -109,7 +109,7 @@ Clone the project and run the following commands:
 ```bash
 mkdir -p ~/lgdx_ws/src
 cd ~/lgdx_ws/src
-git clone --recurse-submodules https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2.git
+git clone --recurse-submodules https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2.git -b $ROS_DISTRO
 cd ..
 
 # Install build dependencies
