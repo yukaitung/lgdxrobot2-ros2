@@ -2,12 +2,12 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>lgdxrobot2_navigation</name>
-  <version>3.2.2</version>
+  <version>4.0.0</version>
   <description>LGDXRobot2 Nav2 stack integration.</description>
   <license>MIT</license>
-  <maintainer email="info@bristolgram.uk">LGDXRobotics</maintainer>
-  <author email="info@bristolgram.uk">LGDXRobotics</author>
-  <url type="website">https://lgdxrobot.bristolgram.uk/lgdxrobot2</url>
+  <maintainer email="info@bristolgram.uk">LGDXRobot</maintainer>
+  <author email="info@bristolgram.uk">LGDXRobot</author>
+  <url type="website">https://lgdxrobot.uk/lgdxrobot2</url>
   <url type="repository">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2</url>
   <url type="bugtracker">https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/issues</url>
 

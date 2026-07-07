@@ -1,0 +1,28 @@
+#VRML_SIM R2023b utf8
+PROTO StartingPoint [
+  field SFString   name         ""
+  field SFVec3f    translation  0 0 0
+  field SFRotation rotation     0 0 1 0
+  field SFString   controller   ""
+]
+{
+Solid {
+  translation IS translation
+  rotation IS rotation
+  name IS name
+  description IS controller
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 1 0 0
+          emissiveColor 1 0 0
+        }
+      }
+      geometry Sphere {
+        radius 0.1
+      }
+    }
+  ]
+}
+}

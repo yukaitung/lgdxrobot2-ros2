@@ -4,15 +4,13 @@
 
 ![Demo](demo.gif) 
 
-[Demo video 1](https://drive.google.com/file/d/1N78Otbd9CTPoVD7t38Ldx2SMRNoU9jq_/view)
+[Demo video 1](https://drive.google.com/file/d/1N78Otbd9CTPoVD7t38Ldx2SMRNoU9jq_/view) / [Demo video 2](https://drive.google.com/file/d/1IEFCGP1ugLAV2kteAfeUmihch5T3W2Nh/view)
 
-[Demo video 2](https://drive.google.com/file/d/1IEFCGP1ugLAV2kteAfeUmihch5T3W2Nh/view)
-
-> LGDXRobot2 fully uses GitLab CI/CD for builds.<br /> [![Latest Release](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/badges/release.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) [![Release Strategy](https://img.shields.io/badge/Release_Strategy-821B1D)](https://lgdxrobot.uk/handbook/release-strategy/)
+> [Release Strategy](https://lgdxrobot.uk/handbook/release-strategy/) - Built to Stay Current.<br /> [![Latest Release](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/badges/release.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) [![Release Strategy](https://img.shields.io/badge/Release_Strategy-821B1D)](https://lgdxrobot.uk/handbook/release-strategy/)
 
 LGDXRobot2 ROS 2 is an integration software for the LGDXRobot2 utilising ROS 2 ecosystem, especially navigation with the NAV2 stack. It provides examples for both physical robots and simulations. Also, it offers Docker images with ready-to-use ROS 2 environment on a web interface.
 
-The project aims to support the latest ROS 2 LTS release (see the [ROS 2 Support Policy](https://lgdxrobot.uk/handbook/ros2-support-policy/)). The robot also integrates seamlessly with [LGDXRobot Cloud](https://lgdxrobot.uk/cloud/).
+The project aims to support the latest ROS 2 LTS release (see the [ROS 2 Support Policy](https://lgdxrobot.uk/handbook/ros2-support-policy/)). 
 
 ![LGDXRobot2 All Repositories](lgdxrobo2_repos.png)
 
@@ -52,18 +50,18 @@ The solution consists of the following packages:
 2. The packages are hosted in a self-hosted repository, install this package to add the repository and the public key.
 
 ```bash
-wget -q http://packages.lgdxrobot.uk/lgdxrobot-apt-source.deb
-sudo dpkg -i lgdxrobot-apt-source.deb
+curl -L -s -o /tmp/lgdxrobot-apt-source.deb https://packages.lgdxrobot.uk/lgdxrobot-apt-source.deb
+sudo dpkg -i /tmp/lgdxrobot-apt-source.deb
 sudo apt update
+rm -f /tmp/lgdxrobot-apt-source.deb
 ```
 
 3. Install the packages. This will also install the required dependencies, including the Nav2 stack.
 
 ```bash
 sudo apt install lgdxrobot2-udev \
-  ros-${ROS_DISTRO}-sllidar-ros2 \
-  ros-${ROS_DISTRO}-lgdxrobot2-* \
-  ros-${ROS_DISTRO}-lgdxrobot-cloud* 
+  ros-${ROS_DISTRO}-lgdx-rplidar-c1 \
+  ros-${ROS_DISTRO}-lgdxrobot2-*
 ```
 
 4. Optionally, install the simulation package for Webots.
@@ -109,12 +107,9 @@ Clone the project and run the following commands:
 ```bash
 mkdir -p ~/lgdx_ws/src
 cd ~/lgdx_ws/src
-git clone --recurse-submodules https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2.git
+git clone https://gitlab.com/lgdxrobotics/lgdxrobot2-rplidar-c1.git -b $ROS_DISTRO
+git clone https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2.git -b $ROS_DISTRO
 cd ..
-
-# Remove Cloud Adapter
-rm -rf ~/lgdx_ws/src/lgdxrobot2-ros2/third_party/cloud/lgdxrobot_cloud_adapter
-rm -rf ~/lgdx_ws/src/lgdxrobot2-ros2/third_party/cloud/third_party
 
 # Install build dependencies
 rosdep update
@@ -122,7 +117,6 @@ rosdep install --from-paths src --ignore-src -y
 
 # Ensure that interfaces is in the system
 colcon build --packages-select lgdxrobot2_msgs --symlink-install
-colcon build --packages-select lgdxrobot_cloud_msgs --symlink-install
 source install/setup.bash
 
 colcon build --symlink-install
@@ -133,7 +127,10 @@ colcon build --symlink-install
 First, configure the permissions for the hardwares.
 
 ```bash
-source ~/lgdx_ws/src/lgdxrobot2-ros2/third_party/lidar/scripts/create_udev_rules.sh
+curl -L -o rplidar.rules https://gitlab.com/lgdxrobotics/lgdxrobot2-rplidar-c1/-/raw/main/udev/rplidar.rules
+sudo cp rplidar.rules /etc/udev/rules.d
+sudo service udev reload
+sudo service udev restart
 sudo usermod -a -G dialout $USER
 ```
 
@@ -150,7 +147,6 @@ This project is licensed under the MIT Licence.
 ## Credits
 
 * [Docker images for Selkies](https://github.com/linuxserver/docker-baseimage-selkies/)
-* [sllidar_ros2](https://github.com/Slamtec/sllidar_ros2)
 * [turtlebot4_simulator](https://github.com/turtlebot/turtlebot4_simulator/)
 * [MOGI-ROS /Week-3-4-Gazebo-basics](https://github.com/MOGI-ROS/Week-3-4-Gazebo-basics)
 
