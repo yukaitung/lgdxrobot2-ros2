@@ -146,7 +146,7 @@ release-gitlab:
       when: never 
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   needs:
-    - job: prepare
+    - job: release-prepare
       artifacts: true
   script:
     - apk add glab
