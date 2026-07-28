@@ -40,8 +40,28 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='default.yaml',
-    description='Absolute path to the map yaml file.'
+    default_value='warehouse.yaml',
+    description='Map yaml file in `lgdxrobot2sim_webots` package.'
+  ),
+  DeclareLaunchArgument(
+    name='keepout_mask',
+    default_value='',
+    description='Full path to keepout mask yaml file to load.'
+  ),
+  DeclareLaunchArgument(
+    name='speed_mask',
+    default_value='',
+    description='Full path to speed mask yaml file to load.'
+  ),
+  DeclareLaunchArgument(
+    name='graph',
+    default_value='',
+    description='Path to the graph file to load.'
+  ),
+  DeclareLaunchArgument(
+    name='use_sim_time',
+    default_value='True',
+    description='Use the simulation time from Webots.'
   ),
   DeclareLaunchArgument(
     name='autostart',
@@ -56,9 +76,24 @@ launch_args = [
   DeclareLaunchArgument(
     name='use_respawn',
     default_value='False',
-    description='Whether to respawn if a node crashes.'
+    description='Whether to respawn if a node crashes. Applied when composition is disabled.'
   ),
-
+  DeclareLaunchArgument(
+    name='use_keepout_zones', 
+    default_value='False',
+    description='Whether to enable keepout zones or not'
+  ),
+  DeclareLaunchArgument(
+    name='use_speed_zones', 
+    default_value='False',
+    description='Whether to enable speed zones or not'
+  ),
+  DeclareLaunchArgument(
+    name='log_level', 
+    default_value='info',
+    description='log level'
+  ),
+  
   # Display
   DeclareLaunchArgument(
     name='use_rviz',
@@ -87,33 +122,6 @@ launch_args = [
     default_value='False', 
     description='Whether to enable the joy.'
   ),
-  
-  # Cloud
-  DeclareLaunchArgument(
-    name='use_cloud',
-    default_value='False',
-    description='Whether to enable cloud.'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_address',
-    default_value='host.docker.internal:5162',
-    description='Address of LGDXRobot Cloud.'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_root_cert',
-    default_value='/config/keys/rootCA.crt',
-    description='Path to the server’s root certificate'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_client_key',
-    default_value='/config/keys/Robot1.key',
-    description='Path to the client’s key file'
-  ),
-  DeclareLaunchArgument(
-    name='cloud_client_cert',
-    default_value='/config/keys/Robot1.crt',
-    description='Path to the client’s crt file'
-  ),
 ]
       
 def launch_setup(context):
@@ -126,20 +134,26 @@ def launch_setup(context):
 
   # NAV2
   slam = LaunchConfiguration('slam')
+  slam_str = LaunchConfiguration('slam').perform(context)
   use_localization = LaunchConfiguration('use_localization')
-  map = LaunchConfiguration('map')
+  map = LaunchConfiguration('map').perform(context)
+  keepout_mask = LaunchConfiguration('keepout_mask')
+  speed_mask = LaunchConfiguration('speed_mask')
+  graph = LaunchConfiguration('graph')
+  use_sim_time = LaunchConfiguration('use_sim_time')
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_respawn = LaunchConfiguration('use_respawn')
+  use_keepout_zones = LaunchConfiguration('use_keepout_zones').perform(context)
+  use_speed_zones = LaunchConfiguration('use_speed_zones').perform(context)
+  log_level = LaunchConfiguration('log_level')
 
   # Sensors
-  use_lidar = LaunchConfiguration('use_lidar')
   lidar_model = LaunchConfiguration('lidar_model').perform(context)
   use_joy = LaunchConfiguration('use_joy')
   
   # Pcakges
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
-  lidar_pkg_share = get_package_share_directory('sllidar_ros2')
   nav2_package_dir = get_package_share_directory('lgdxrobot2_navigation')
   
   # Display
@@ -148,13 +162,17 @@ def launch_setup(context):
   if not rviz_config:
     rviz_config = p.get_rviz_config()
     
-  # Cloud
-  use_cloud = LaunchConfiguration('use_cloud')
-  cloud_address = LaunchConfiguration('cloud_address').perform(context)
-  cloud_client_key = LaunchConfiguration('cloud_client_key').perform(context)
-  cloud_client_cert = LaunchConfiguration('cloud_client_cert').perform(context)
-  cloud_root_cert = LaunchConfiguration('cloud_root_cert').perform(context)
-  
+  # Rewrite Nav2 params
+  yaml_substitutions = {
+    'KEEPOUT_ZONE_ENABLED': use_keepout_zones,
+    'SPEED_ZONE_ENABLED': use_speed_zones,
+    'ROS_NAMESPACE': namespace,
+    'INITAL_POSE_X': '0.0',
+    'INITAL_POSE_Y': '0.0',
+    'INITAL_POSE_Z': '0.0',
+    'INITAL_POSE_R': '0.0',
+  }
+
   #
   # Base
   #
@@ -175,8 +193,7 @@ def launch_setup(context):
     output='screen',
     parameters=[{
       'reset_transform': True,
-      'use_joy': True,
-      'use_cloud': use_cloud,
+      'use_joy': use_joy,
     }],
     remappings=[
       ('/tf', 'tf'), 
@@ -185,41 +202,21 @@ def launch_setup(context):
       ('/agent/odom', 'agent/odom'),
       ('/agent/imu', 'agent/imu'),
       ('/agent/mag', 'agent/mag'),
-      ('/cloud/robot_data', 'cloud/robot_data'),
-      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop'),
+      ('/agent/software_emergency_stop', 'agent/software_emergency_stop'),
       ('/joint_states', 'joint_states'),
-    ],
-  )
-  lgdxrobot_cloud_node = Node(
-    package='lgdxrobot_cloud_adapter',
-    executable='lgdxrobot_cloud_adapter_node',
-    condition=IfCondition(use_cloud),
-    output='screen',
-    parameters=[{
-      'need_mcu_sn': True,
-      'slam_enable': slam,
-      'address': cloud_address,
-      'client_key': cloud_client_key,
-      'client_cert': cloud_client_cert,
-      'root_cert': cloud_root_cert,
-    }],
-    remappings=[
-      ('/cloud/robot_data', 'cloud/robot_data'),
-      ('/cloud/software_emergency_stop', 'cloud/software_emergency_stop'),
     ],
   )
 
   #
   # Sensors
   #
-  lidar_node = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(lidar_pkg_share, 'launch', 'sllidar_' + lidar_model + '_launch.py')
-    ),
-    condition=IfCondition(use_lidar),
-    launch_arguments={
-      'frame_id': 'lidar_link'
-    }.items()
+  lidar_node = Node(
+    package='lgdx_rplidar_c1',
+    executable='rplidar_c1_node',
+    output='screen',
+    parameters=[{
+        'frame_id': 'lidar_link'
+    }]
   )
   imu_filter_madgwick_node = Node(
     package='imu_filter_madgwick',
@@ -229,7 +226,7 @@ def launch_setup(context):
       (namespace + '/imu/data_raw', namespace + '/agent/imu'),
       (namespace + '/imu/mag', namespace + '/agent/mag'),
     ],
-    parameters=[p.get_param_path("imu_filter_madgwick.yaml")]
+    parameters=[p.get_processed_param_path("imu_filter_madgwick.yaml", yaml_substitutions)]
   )
   joy_node = Node(
     package='joy',
@@ -251,7 +248,7 @@ def launch_setup(context):
     namespace=namespace,
     output='screen',
     parameters=[
-      p.get_param_path('ekf.yaml')
+      p.get_processed_param_path('ekf.yaml', yaml_substitutions)
     ],
     remappings=[
       ('/tf', 'tf'), 
@@ -264,18 +261,25 @@ def launch_setup(context):
     ),
     launch_arguments={
       'namespace': namespace,
-      'use_namespace': use_namespace,
       'slam': slam,
       'use_localization': use_localization,
       'map': map,
-      'params_file': p.get_param_path('nav2.yaml'),
+      'keepout_mask': keepout_mask,
+      'speed_mask': speed_mask,
+      'graph': graph,
+      'use_sim_time': use_sim_time,
+      'params_file': p.get_processed_param_path('nav2.yaml', yaml_substitutions),
       'autostart': autostart,
       'use_composition': use_composition,
       'use_respawn': use_respawn,
+      'log_level': log_level,
+      'use_keepout_zones': use_keepout_zones,
+      'use_speed_zones': use_speed_zones,
     }.items(),
   )
 
-  return [description_node, lgdxrobot2_agent_node, lidar_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav, lgdxrobot_cloud_node]
+
+  return [description_node, lgdxrobot2_agent_node, lidar_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav]
 
 def generate_launch_description():
   opfunc = OpaqueFunction(function = launch_setup)
