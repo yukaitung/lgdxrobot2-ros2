@@ -19,9 +19,9 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, SetEnvironmentVariable
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PythonExpression
-from launch_ros.actions import LoadComposableNodes, Node, SetParameter
+from launch_ros.actions import LoadComposableNodes, Node, PushROSNamespace, SetParameter
 from launch_ros.descriptions import ComposableNode, ParameterFile
-from nav2_common.launch import RewrittenYaml
+from nav2_common.launch import LaunchConfigAsBool, RewrittenYaml
 
 
 def generate_launch_description() -> LaunchDescription:
@@ -30,14 +30,15 @@ def generate_launch_description() -> LaunchDescription:
 
     namespace = LaunchConfiguration('namespace')
     speed_mask_yaml_file = LaunchConfiguration('speed_mask')
-    use_sim_time = LaunchConfiguration('use_sim_time')
-    autostart = LaunchConfiguration('autostart')
+    use_sim_time = LaunchConfigAsBool('use_sim_time')
+    autostart = LaunchConfigAsBool('autostart')
     params_file = LaunchConfiguration('params_file')
-    use_composition = LaunchConfiguration('use_composition')
+    use_composition = LaunchConfigAsBool('use_composition')
+    use_intra_process_comms = LaunchConfigAsBool('use_intra_process_comms')
     container_name = LaunchConfiguration('container_name')
     container_name_full = (namespace, '/', container_name)
-    use_respawn = LaunchConfiguration('use_respawn')
-    use_speed_zones = LaunchConfiguration('use_speed_zones')
+    use_respawn = LaunchConfigAsBool('use_respawn')
+    use_speed_zones = LaunchConfigAsBool('use_speed_zones')
     log_level = LaunchConfiguration('log_level')
 
     lifecycle_nodes = ['speed_filter_mask_server', 'speed_costmap_filter_info_server']
@@ -92,6 +93,12 @@ def generate_launch_description() -> LaunchDescription:
         description='Use composed bringup if True',
     )
 
+    declare_use_intra_process_comms_cmd = DeclareLaunchArgument(
+        'use_intra_process_comms',
+        default_value='True',
+        description='Whether to use intra process communication',
+    )
+
     declare_container_name_cmd = DeclareLaunchArgument(
         'container_name',
         default_value='nav2_container',
@@ -116,6 +123,7 @@ def generate_launch_description() -> LaunchDescription:
     load_nodes = GroupAction(
         condition=IfCondition(PythonExpression(['not ', use_composition])),
         actions=[
+            PushROSNamespace(namespace),
             SetParameter('use_sim_time', use_sim_time),
             Node(
                 condition=IfCondition(use_speed_zones),
@@ -147,7 +155,10 @@ def generate_launch_description() -> LaunchDescription:
                 name='lifecycle_manager_speed_zone',
                 output='screen',
                 arguments=['--ros-args', '--log-level', log_level],
-                parameters=[{'autostart': autostart}, {'node_names': lifecycle_nodes}],
+                parameters=[
+                    configured_params,
+                    {'autostart': autostart}, {'node_names': lifecycle_nodes}
+                ],
             ),
         ],
     )
@@ -159,6 +170,7 @@ def generate_launch_description() -> LaunchDescription:
     load_composable_nodes = GroupAction(
         condition=IfCondition(use_composition),
         actions=[
+            PushROSNamespace(namespace),
             SetParameter('use_sim_time', use_sim_time),
             LoadComposableNodes(
                 target_container=container_name_full,
@@ -173,6 +185,7 @@ def generate_launch_description() -> LaunchDescription:
                             {'yaml_filename': speed_mask_yaml_file}
                         ],
                         remappings=remappings,
+                        extra_arguments=[{'use_intra_process_comms': use_intra_process_comms}],
                     ),
                     ComposableNode(
                         package='nav2_map_server',
@@ -180,6 +193,7 @@ def generate_launch_description() -> LaunchDescription:
                         name='speed_costmap_filter_info_server',
                         parameters=[configured_params],
                         remappings=remappings,
+                        extra_arguments=[{'use_intra_process_comms': use_intra_process_comms}],
                     ),
                 ],
             ),
@@ -192,8 +206,10 @@ def generate_launch_description() -> LaunchDescription:
                         plugin='nav2_lifecycle_manager::LifecycleManager',
                         name='lifecycle_manager_speed_zone',
                         parameters=[
+                            configured_params,
                             {'autostart': autostart, 'node_names': lifecycle_nodes}
                         ],
+                        extra_arguments=[{'use_intra_process_comms': use_intra_process_comms}],
                     ),
                 ],
             ),
@@ -212,6 +228,7 @@ def generate_launch_description() -> LaunchDescription:
     ld.add_action(declare_use_sim_time_cmd)
     ld.add_action(declare_params_file_cmd)
     ld.add_action(declare_use_composition_cmd)
+    ld.add_action(declare_use_intra_process_comms_cmd)
     ld.add_action(declare_container_name_cmd)
     ld.add_action(declare_use_respawn_cmd)
     ld.add_action(declare_use_speed_zones_cmd)

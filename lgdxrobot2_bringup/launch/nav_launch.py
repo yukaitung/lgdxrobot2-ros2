@@ -74,6 +74,16 @@ launch_args = [
     description='Whether to use composed bringup',
   ),
   DeclareLaunchArgument(
+    name='use_intra_process_comms',
+    default_value='False',
+    description='Whether to use intra process communications',
+  ),
+  DeclareLaunchArgument(
+    name='container_name',
+    default_value='nav2_container',
+    description='the name of container that nodes will load in if use composition',
+  ),
+  DeclareLaunchArgument(
     name='use_respawn',
     default_value='False',
     description='Whether to respawn if a node crashes. Applied when composition is disabled.'
@@ -143,6 +153,8 @@ def launch_setup(context):
   use_sim_time = LaunchConfiguration('use_sim_time')
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
+  use_intra_process_comms = LaunchConfiguration('use_intra_process_comms')
+  container_name = LaunchConfiguration('container_name')
   use_respawn = LaunchConfiguration('use_respawn')
   use_keepout_zones = LaunchConfiguration('use_keepout_zones').perform(context)
   use_speed_zones = LaunchConfiguration('use_speed_zones').perform(context)
@@ -271,6 +283,8 @@ def launch_setup(context):
       'params_file': p.get_processed_param_path('nav2.yaml', yaml_substitutions),
       'autostart': autostart,
       'use_composition': use_composition,
+      'use_intra_process_comms': use_intra_process_comms,
+      'container_name': container_name,
       'use_respawn': use_respawn,
       'log_level': log_level,
       'use_keepout_zones': use_keepout_zones,
