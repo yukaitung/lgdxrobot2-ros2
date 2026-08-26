@@ -18,10 +18,48 @@
   <exec_depend>imu_transformer</exec_depend>
   <exec_depend>imu_filter_madgwick</exec_depend>
   <exec_depend>robot_localization</exec_depend>
-  <!--<exec_depend>slam_toolbox</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
 
-  <exec_depend>navigation2</exec_depend>
+  <!--<exec_depend>navigation2</exec_depend>
   <exec_depend>nav2_route</exec_depend>-->
+
+  <exec_depend>nav2_common</exec_depend>
+	<exec_depend>ament_cmake</exec_depend>
+	<exec_depend>nav2_amcl</exec_depend>
+	<exec_depend>nav2_behavior_tree</exec_depend>
+	<exec_depend>nav2_bt_navigator</exec_depend>
+	<exec_depend>nav2_collision_monitor</exec_depend>
+	<exec_depend>nav2_constrained_smoother</exec_depend>
+	<exec_depend>nav2_controller</exec_depend>
+	<exec_depend>nav2_core</exec_depend>
+	<exec_depend>nav2_costmap_2d</exec_depend>
+	<exec_depend>nav2_dwb_controller</exec_depend>
+	<exec_depend>nav2_graceful_controller</exec_depend>
+	<exec_depend>nav2_lifecycle_manager</exec_depend>
+	<exec_depend>nav2_loopback_sim</exec_depend>
+	<exec_depend>nav2_map_server</exec_depend>
+	<exec_depend>nav2_msgs</exec_depend>
+	<exec_depend>nav2_mppi_controller</exec_depend>
+	<exec_depend>nav2_navfn_planner</exec_depend>
+	<exec_depend>nav2_planner</exec_depend>
+	<exec_depend>nav2_behaviors</exec_depend>
+	<exec_depend>nav2_smoother</exec_depend>
+	<exec_depend>nav2_regulated_pure_pursuit_controller</exec_depend>
+	<exec_depend>nav2_ros_common</exec_depend>
+	<exec_depend>nav2_route</exec_depend>
+	<exec_depend>nav2_rotation_shim_controller</exec_depend>
+	<exec_depend>nav2_rviz_plugins</exec_depend>
+	<exec_depend>nav2_simple_commander</exec_depend>
+	<exec_depend>nav2_smac_planner</exec_depend>
+	<exec_depend>nav2_theta_star_planner</exec_depend>
+	<exec_depend>nav2_util</exec_depend>
+	<exec_depend>nav2_velocity_smoother</exec_depend>
+	<exec_depend>nav2_voxel_grid</exec_depend>
+	<exec_depend>nav2_waypoint_follower</exec_depend>
+	<exec_depend>opennav_docking</exec_depend>
+	<exec_depend>opennav_docking_bt</exec_depend>
+	<exec_depend>opennav_docking_core</exec_depend>
+	<exec_depend>opennav_following</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
