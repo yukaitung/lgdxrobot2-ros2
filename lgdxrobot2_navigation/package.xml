@@ -50,7 +50,6 @@
 	<exec_depend>nav2_rotation_shim_controller</exec_depend>
 	<exec_depend>nav2_rviz_plugins</exec_depend>
 	<exec_depend>nav2_simple_commander</exec_depend>
-	<exec_depend>nav2_smac_planner</exec_depend>
 	<exec_depend>nav2_theta_star_planner</exec_depend>
 	<exec_depend>nav2_util</exec_depend>
 	<exec_depend>nav2_velocity_smoother</exec_depend>
