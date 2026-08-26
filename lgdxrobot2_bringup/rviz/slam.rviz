@@ -7,9 +7,10 @@ Panels:
         - /Global Options1
         - /TF1/Frames1
         - /TF1/Tree1
+        - /MarkerArray2/Status1
         - /MarkerArray2/Topic1
       Splitter Ratio: 0.5833333134651184
-    Tree Height: 160
+    Tree Height: 287
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -151,9 +152,9 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 54
+      Max Intensity: 0
       Min Color: 0; 0; 0
-      Min Intensity: 5
+      Min Intensity: 0
       Name: LaserScan
       Position Transformer: XYZ
       Selectable: true
