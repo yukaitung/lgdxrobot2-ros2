@@ -25,11 +25,6 @@ launch_args = [
         description='Control the robot using `teleop_twist_keyboard`. Start the node in another terminal to control the robot.'
     ),
     DeclareLaunchArgument(
-        name='use_lidar', 
-        default_value='True', 
-        description='Whether to enable the LiDAR.'
-    ),
-    DeclareLaunchArgument(
         name='use_rviz', 
         default_value='False', 
         description='Visualize in RViz.'
@@ -80,7 +75,6 @@ def launch_setup(context):
         parameters=[{
             'frame_id': 'lidar_link'
         }],
-        condition=IfCondition(use_lidar),
     )
     return [description_node, lgdxrobot2_agent_node, joy_node, lidar_node]
     
