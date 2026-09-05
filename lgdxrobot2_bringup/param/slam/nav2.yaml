@@ -184,6 +184,7 @@ controller_server:
     path_handler_plugins: ["PathHandler"]
     use_realtime_priority: false
     speed_limit_topic: "speed_limit"
+    odom_topic: "odometry/filtered"
 
     # Progress checker parameters
     progress_checker:
@@ -546,6 +547,7 @@ docking_server:
     fixed_frame: "odom"
     dock_prestaging_tolerance: 0.5
     introspection_mode: "disabled"
+    odom_topic: "odometry/filtered"
 
     # Types of docks
     dock_plugins: ["simple_charging_dock"]
@@ -600,3 +602,7 @@ loopback_simulator:
     scan_angle_max: 3.1415
     scan_angle_increment: 0.02617
     scan_use_inf: true
+
+following_server:
+  ros__parameters:
+    odom_topic: "odometry/filtered"
