@@ -221,7 +221,8 @@ def launch_setup(context):
     executable='rplidar_c1_node',
     output='screen',
     parameters=[{
-        'frame_id': 'lidar_link'
+      'frame_id': 'lidar_link',
+      'angle_compensate': True
     }]
   )
   imu_filter_madgwick_node = Node(
