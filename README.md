@@ -12,7 +12,7 @@
 
 LGDXRobot2 ROS 2 is an integration software for the LGDXRobot2 utilising ROS 2 ecosystem, especially navigation with the NAV2 stack. It provides examples for both physical robots and simulations. Also, it offers Docker images with ready-to-use ROS 2 environment on a web interface.
 
-The project aims to support the latest ROS 2 LTS release (see the [ROS 2 Support Policy](https://lgdxrobot.uk/handbook/ros2-support-policy/)). The robot also integrates seamlessly with [LGDXRobot Cloud](https://lgdxrobot.uk/cloud/).
+The project aims to support the latest ROS 2 LTS release (see the [ROS 2 Support Policy](https://lgdxrobot.uk/handbook/ros2-support-policy/)).
 
 ![LGDXRobot2 All Repositories](lgdxrobo2_repos.png)
 
@@ -41,8 +41,6 @@ The solution consists of the following packages:
 * `lgdxrobot2_description`: LGDXRobot2 visualisation package.
 * `lgdxrobot2_msgs`: LGDXRobot2 ROS 2 interfaces.
 * `lgdxrobot2_navigation`: LGDXRobot2 Nav2 stack integration.
-* `lgdxrobot2sim_webots`: LGDXRobot2 simulation configuration and driver for Webots.
-* `lgdxrobot2sim_gz`: LGDXRobot2 simulation configuration and driver for Gazebo.
 
 ## Installation
 
@@ -52,30 +50,18 @@ The solution consists of the following packages:
 2. The packages are hosted in a self-hosted repository, install this package to add the repository and the public key.
 
 ```bash
-wget -q http://packages.lgdxrobot.uk/lgdxrobot-apt-source.deb
-sudo dpkg -i lgdxrobot-apt-source.deb
+curl -L -s -o /tmp/lgdxrobot-apt-source.deb https://packages.lgdxrobot.uk/lgdxrobot-apt-source.deb
+sudo dpkg -i /tmp/lgdxrobot-apt-source.deb
 sudo apt update
+rm -f /tmp/lgdxrobot-apt-source.deb
 ```
 
 3. Install the packages. This will also install the required dependencies, including the Nav2 stack.
 
 ```bash
 sudo apt install lgdxrobot2-udev \
-  ros-${ROS_DISTRO}-sllidar-ros2 \
-  ros-${ROS_DISTRO}-lgdxrobot2-* \
-  ros-${ROS_DISTRO}-lgdxrobot-cloud* 
-```
-
-4. Optionally, install the simulation package for Webots.
-
-```bash
-sudo apt install ros-${ROS_DISTRO}-lgdxrobot2sim-webots
-```
-
-Or install the simulation package for Gazebo.
-
-```bash
-sudo apt install ros-${ROS_DISTRO}-lgdxrobot2sim-gz
+  ros-${ROS_DISTRO}-lgdx-rplidar-c1 \
+  ros-${ROS_DISTRO}-lgdxrobot2-*
 ```
 
 ### 2. Docker
@@ -109,7 +95,8 @@ Clone the project and run the following commands:
 ```bash
 mkdir -p ~/lgdx_ws/src
 cd ~/lgdx_ws/src
-git clone --recurse-submodules https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2.git -b $ROS_DISTRO
+git clone https://gitlab.com/lgdxrobotics/lgdxrobot2-rplidar-c1.git -b $ROS_DISTRO
+git clone https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2.git -b $ROS_DISTRO
 cd ..
 
 # Install build dependencies
@@ -128,8 +115,12 @@ colcon build --symlink-install
 First, configure the permissions for the hardwares.
 
 ```bash
-source ~/lgdx_ws/src/lgdxrobot2-ros2/third_party/lidar/scripts/create_udev_rules.sh
-sudo usermod -a -G dialout $USER
+curl -L -s -o rplidar.rules https://gitlab.com/lgdxrobotics/release-strategy-front/-/raw/main/lgdxrobot2-udev/usr/lib/udev/rules.d/99-rplidar.rules
+curl -L -s -o lgdxrobot2.rules https://gitlab.com/lgdxrobotics/release-strategy-front/-/raw/main/lgdxrobot2-udev/usr/lib/udev/rules.d/99-lgdxrobot2.rules
+sudo mv rplidar.rules /etc/udev/rules.d
+sudo mv lgdxrobot2.rules /etc/udev/rules.d
+sudo service udev reload
+sudo service udev restart
 ```
 
 Then, source the setup files for the ROS 2 workspaces.
@@ -145,9 +136,6 @@ This project is licensed under the MIT Licence.
 ## Credits
 
 * [Docker images for Selkies](https://github.com/linuxserver/docker-baseimage-selkies/)
-* [sllidar_ros2](https://github.com/Slamtec/sllidar_ros2)
-* [turtlebot4_simulator](https://github.com/turtlebot/turtlebot4_simulator/)
-* [MOGI-ROS /Week-3-4-Gazebo-basics](https://github.com/MOGI-ROS/Week-3-4-Gazebo-basics)
 
 ## Acknowledgements
 

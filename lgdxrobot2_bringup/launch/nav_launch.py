@@ -41,7 +41,7 @@ launch_args = [
   DeclareLaunchArgument(
     name='map',
     default_value='warehouse.yaml',
-    description='Map yaml file in `lgdxrobot2sim_webots` package.'
+    description='Absolute path to the map YAML file.'
   ),
   DeclareLaunchArgument(
     name='keepout_mask',
@@ -61,7 +61,7 @@ launch_args = [
   DeclareLaunchArgument(
     name='use_sim_time',
     default_value='False',
-    description='Use the simulation time from Webots.'
+    description='Use the simulation time from simulation.'
   ),
   DeclareLaunchArgument(
     name='autostart',
@@ -101,7 +101,7 @@ launch_args = [
   DeclareLaunchArgument(
     name='log_level', 
     default_value='info',
-    description='log level'
+    description='Log level.'
   ),
   
   # Display

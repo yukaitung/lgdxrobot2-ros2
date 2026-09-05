@@ -39,11 +39,9 @@ launch_args = [
 def launch_setup(context):
     use_joy = LaunchConfiguration('use_joy')
     use_keyboard = LaunchConfiguration('use_keyboard')
-    use_lidar = LaunchConfiguration('use_lidar')
     use_rviz = LaunchConfiguration('use_rviz')
     
     description_pkg_share = get_package_share_directory('lgdxrobot2_description')
-    lidar_pkg_share = get_package_share_directory('lgdx_rplidar_c1')
     serial_port_name = LaunchConfiguration('serial_port_name')
     
     description_node = IncludeLaunchDescription(
