@@ -60,7 +60,7 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='use_sim_time',
-    default_value='True',
+    default_value='False',
     description='Use the simulation time from Webots.'
   ),
   DeclareLaunchArgument(
@@ -118,19 +118,14 @@ launch_args = [
   
   # Sensor
   DeclareLaunchArgument(
-    name='use_lidar', 
-    default_value='True', 
-    description='Whether to enable the LiDAR.'
-  ),
-  DeclareLaunchArgument(
-    name='lidar_model', 
-    default_value='c1', 
-    description='RPLIDAR model name.'
-  ),
-  DeclareLaunchArgument(
     name='use_joy', 
     default_value='False', 
-    description='Whether to enable the joy.'
+    description='Whether to enable joy pacakge.'
+  ),
+  DeclareLaunchArgument(
+    name='use_keyboard', 
+    default_value='False', 
+    description='Whether to enable teleop_twist_keyboard package.'
   ),
 ]
       
@@ -139,12 +134,10 @@ def launch_setup(context):
   profiles_path = LaunchConfiguration('profiles_path').perform(context)
   profile_str = LaunchConfiguration('profile').perform(context)
   namespace = LaunchConfiguration('namespace').perform(context)
-  use_namespace = 'True' if namespace != '' else 'False'
   p = ParamManager(profiles_path, profile_str, namespace)
 
   # NAV2
   slam = LaunchConfiguration('slam')
-  slam_str = LaunchConfiguration('slam').perform(context)
   use_localization = LaunchConfiguration('use_localization')
   map = LaunchConfiguration('map').perform(context)
   keepout_mask = LaunchConfiguration('keepout_mask')
@@ -161,8 +154,8 @@ def launch_setup(context):
   log_level = LaunchConfiguration('log_level')
 
   # Sensors
-  lidar_model = LaunchConfiguration('lidar_model').perform(context)
   use_joy = LaunchConfiguration('use_joy')
+  use_keyboard = LaunchConfiguration('use_keyboard')
   
   # Pcakges
   description_package_dir = get_package_share_directory('lgdxrobot2_description')
@@ -206,6 +199,7 @@ def launch_setup(context):
     parameters=[{
       'reset_transform': True,
       'use_joy': use_joy,
+      'use_keyboard': use_keyboard,
     }],
     remappings=[
       ('/tf', 'tf'), 
