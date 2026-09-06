@@ -59,11 +59,6 @@ launch_args = [
     description='Path to the graph file to load.'
   ),
   DeclareLaunchArgument(
-    name='use_sim_time',
-    default_value='False',
-    description='Use the simulation time from simulation.'
-  ),
-  DeclareLaunchArgument(
     name='autostart',
     default_value='True',
     description='Automatically startup the nav2 stack',
@@ -143,7 +138,6 @@ def launch_setup(context):
   keepout_mask = LaunchConfiguration('keepout_mask')
   speed_mask = LaunchConfiguration('speed_mask')
   graph = LaunchConfiguration('graph')
-  use_sim_time = LaunchConfiguration('use_sim_time')
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
   use_intra_process_comms = LaunchConfiguration('use_intra_process_comms')
@@ -274,7 +268,7 @@ def launch_setup(context):
       'keepout_mask': keepout_mask,
       'speed_mask': speed_mask,
       'graph': graph,
-      'use_sim_time': use_sim_time,
+      'use_sim_time': False,
       'params_file': p.get_processed_param_path('nav2.yaml', yaml_substitutions),
       'autostart': autostart,
       'use_composition': use_composition,
