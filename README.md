@@ -82,7 +82,8 @@ More information on Docker: [https://lgdxrobot.uk/lgdxrobot2/docs/ros2/installat
 
 ## How to use LGDXRobot2 ROS 2
 
-[https://lgdxrobot.uk/lgdxrobot2/docs/ros2/bringup-bringup/](https://lgdxrobot.uk/lgdxrobot2/docs/ros2/bringup-bringup/)
+* [Bring up all components](https://lgdxrobot.uk/lgdxrobot2/docs/ros2/bringup-bringup/)
+* [Run NAV2](https://lgdxrobot.uk/lgdxrobot2/docs/ros2/bringup-nav2/)
 
 ## Build from Source
 
