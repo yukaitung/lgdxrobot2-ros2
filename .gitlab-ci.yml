@@ -6,7 +6,7 @@ stages:
   - release-gitlab
 
 variables:
-  ACTIVE_ROS_DISTRO: "lyrical jazzy"
+  ACTIVE_ROS_DISTRO: "lyrical"
 
 #
 # Build LGDXRobot2 ROS 2
