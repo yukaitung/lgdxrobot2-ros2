@@ -292,7 +292,7 @@ map_saver:
 planner_server:
   ros__parameters:
     allow_partial_planning: false
-    expected_planner_frequency: 20.0
+    expected_planner_frequency: 10.0
     planner_plugins: ["GridBased"]
     costmap_update_timeout: 1.0
     introspection_mode: "disabled"
@@ -393,7 +393,7 @@ route_server:
       
 velocity_smoother:
   ros__parameters:
-    smoothing_frequency: 20.0
+    smoothing_frequency: 10.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
     max_velocity: [0.5, 0.5, 2.0]
@@ -439,7 +439,7 @@ collision_monitor:
 
 docking_server:
   ros__parameters:
-    controller_frequency: 50.0
+    controller_frequency: 10.0
     initial_perception_timeout: 5.0
     wait_charge_timeout: 5.0
     dock_approach_timeout: 30.0
