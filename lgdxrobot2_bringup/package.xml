@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>lgdxrobot2_bringup</name>
-  <version>4.0.0</version>
+  <version>4.1.0</version>
   <description>LGDXRobot2 launch files.</description>
   <license>MIT</license>
   <maintainer email="info@bristolgram.uk">LGDXRobot</maintainer>
@@ -16,6 +16,7 @@
   <!-- Hardware -->
   <exec_depend>joy</exec_depend>
   <exec_depend>teleop_twist_keyboard</exec_depend>
+  <exec_depend>lgdx_rplidar_c1</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

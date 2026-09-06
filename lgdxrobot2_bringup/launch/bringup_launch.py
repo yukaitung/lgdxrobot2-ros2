@@ -39,7 +39,6 @@ launch_args = [
 def launch_setup(context):
     use_joy = LaunchConfiguration('use_joy')
     use_keyboard = LaunchConfiguration('use_keyboard')
-    use_lidar = LaunchConfiguration('use_lidar')
     use_rviz = LaunchConfiguration('use_rviz')
     
     description_pkg_share = get_package_share_directory('lgdxrobot2_description')
@@ -79,8 +78,7 @@ def launch_setup(context):
         output='screen',
         parameters=[{
             'frame_id': 'lidar_link'
-        }],
-        condition=IfCondition(use_lidar),
+        }]
     )
     return [description_node, lgdxrobot2_agent_node, joy_node, lidar_node]
     

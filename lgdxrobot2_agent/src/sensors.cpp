@@ -9,7 +9,7 @@ Sensors::Sensors(rclcpp::Node::SharedPtr node, std::shared_ptr<SensorSignals> se
   sensor_signals_ = sensor_signals_ptr;
 
   // Subscriber
-  nav2_subscription_ = node->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 
+  nav2_subscription_ = node->create_subscription<geometry_msgs::msg::TwistStamped>("cmd_vel", 
       rclcpp::SensorDataQoS().reliable(),
       std::bind(&Sensors::Nav2Callback, this, std::placeholders::_1));
   if (node->get_parameter("use_keyboard").as_bool())
@@ -70,11 +70,11 @@ void Sensors::KeyboardCallback(const geometry_msgs::msg::Twist &msg)
   sensor_signals_->set_inverse_kinematics(x, y, w);
 }
 
-void Sensors::Nav2Callback(const geometry_msgs::msg::Twist &msg)
+void Sensors::Nav2Callback(const geometry_msgs::msg::TwistStamped &msg)
 {
-  float x = msg.linear.x;
-  float y = msg.linear.y;
-  float w = msg.angular.z;
+  float x = msg.twist.linear.x;
+  float y = msg.twist.linear.y;
+  float w = msg.twist.angular.z;
   //RCLCPP_INFO(logger_, "/cmd_vel %f %f %f", x, y, w);
   sensor_signals_->set_inverse_kinematics(x, y, w);
 }

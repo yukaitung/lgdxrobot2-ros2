@@ -40,8 +40,28 @@ launch_args = [
   ),
   DeclareLaunchArgument(
     name='map',
-    default_value='default.yaml',
-    description='Absolute path to the map yaml file.'
+    default_value='warehouse.yaml',
+    description='Absolute path to the map YAML file.'
+  ),
+  DeclareLaunchArgument(
+    name='keepout_mask',
+    default_value='',
+    description='Full path to keepout mask yaml file to load.'
+  ),
+  DeclareLaunchArgument(
+    name='speed_mask',
+    default_value='',
+    description='Full path to speed mask yaml file to load.'
+  ),
+  DeclareLaunchArgument(
+    name='graph',
+    default_value='',
+    description='Path to the graph file to load.'
+  ),
+  DeclareLaunchArgument(
+    name='use_sim_time',
+    default_value='False',
+    description='Use the simulation time from simulation.'
   ),
   DeclareLaunchArgument(
     name='autostart',
@@ -54,11 +74,36 @@ launch_args = [
     description='Whether to use composed bringup',
   ),
   DeclareLaunchArgument(
+    name='use_intra_process_comms',
+    default_value='False',
+    description='Whether to use intra process communications',
+  ),
+  DeclareLaunchArgument(
+    name='container_name',
+    default_value='nav2_container',
+    description='the name of container that nodes will load in if use composition',
+  ),
+  DeclareLaunchArgument(
     name='use_respawn',
     default_value='False',
-    description='Whether to respawn if a node crashes.'
+    description='Whether to respawn if a node crashes. Applied when composition is disabled.'
   ),
-
+  DeclareLaunchArgument(
+    name='use_keepout_zones', 
+    default_value='False',
+    description='Whether to enable keepout zones or not'
+  ),
+  DeclareLaunchArgument(
+    name='use_speed_zones', 
+    default_value='False',
+    description='Whether to enable speed zones or not'
+  ),
+  DeclareLaunchArgument(
+    name='log_level', 
+    default_value='info',
+    description='Log level.'
+  ),
+  
   # Display
   DeclareLaunchArgument(
     name='use_rviz',
@@ -73,19 +118,14 @@ launch_args = [
   
   # Sensor
   DeclareLaunchArgument(
-    name='use_lidar', 
-    default_value='True', 
-    description='Whether to enable the LiDAR.'
-  ),
-  DeclareLaunchArgument(
     name='use_joy', 
     default_value='False', 
-    description='Whether to enable the joy.'
+    description='Whether to enable joy pacakge.'
   ),
   DeclareLaunchArgument(
-      name='use_keyboard', 
-      default_value='True', 
-      description='Control the robot using `teleop_twist_keyboard`. Start the node in another terminal to control the robot.'
+    name='use_keyboard', 
+    default_value='False', 
+    description='Whether to enable teleop_twist_keyboard package.'
   ),
 ]
       
@@ -94,19 +134,26 @@ def launch_setup(context):
   profiles_path = LaunchConfiguration('profiles_path').perform(context)
   profile_str = LaunchConfiguration('profile').perform(context)
   namespace = LaunchConfiguration('namespace').perform(context)
-  use_namespace = 'True' if namespace != '' else 'False'
   p = ParamManager(profiles_path, profile_str, namespace)
 
   # NAV2
   slam = LaunchConfiguration('slam')
   use_localization = LaunchConfiguration('use_localization')
-  map = LaunchConfiguration('map')
+  map = LaunchConfiguration('map').perform(context)
+  keepout_mask = LaunchConfiguration('keepout_mask')
+  speed_mask = LaunchConfiguration('speed_mask')
+  graph = LaunchConfiguration('graph')
+  use_sim_time = LaunchConfiguration('use_sim_time')
   autostart = LaunchConfiguration('autostart')
   use_composition = LaunchConfiguration('use_composition')
+  use_intra_process_comms = LaunchConfiguration('use_intra_process_comms')
+  container_name = LaunchConfiguration('container_name')
   use_respawn = LaunchConfiguration('use_respawn')
+  use_keepout_zones = LaunchConfiguration('use_keepout_zones').perform(context)
+  use_speed_zones = LaunchConfiguration('use_speed_zones').perform(context)
+  log_level = LaunchConfiguration('log_level')
 
   # Sensors
-  use_lidar = LaunchConfiguration('use_lidar')
   use_joy = LaunchConfiguration('use_joy')
   use_keyboard = LaunchConfiguration('use_keyboard')
   
@@ -119,6 +166,17 @@ def launch_setup(context):
   rviz_config = LaunchConfiguration('rviz_config').perform(context)
   if not rviz_config:
     rviz_config = p.get_rviz_config()
+    
+  # Rewrite Nav2 params
+  yaml_substitutions = {
+    'KEEPOUT_ZONE_ENABLED': use_keepout_zones,
+    'SPEED_ZONE_ENABLED': use_speed_zones,
+    'ROS_NAMESPACE': namespace,
+    'INITAL_POSE_X': '0.0',
+    'INITAL_POSE_Y': '0.0',
+    'INITAL_POSE_Z': '0.0',
+    'INITAL_POSE_R': '0.0',
+  }
 
   #
   # Base
@@ -150,7 +208,7 @@ def launch_setup(context):
       ('/agent/odom', 'agent/odom'),
       ('/agent/imu', 'agent/imu'),
       ('/agent/mag', 'agent/mag'),
-      ('/agent/mag', 'agent/software_emergency_stop'),
+      ('/agent/software_emergency_stop', 'agent/software_emergency_stop'),
       ('/joint_states', 'joint_states'),
     ],
   )
@@ -159,13 +217,13 @@ def launch_setup(context):
   # Sensors
   #
   lidar_node = Node(
-      package='lgdx_rplidar_c1',
-      executable='rplidar_c1_node',
-      output='screen',
-      parameters=[{
-          'frame_id': 'lidar_link'
-      }],
-      condition=IfCondition(use_lidar),
+    package='lgdx_rplidar_c1',
+    executable='rplidar_c1_node',
+    output='screen',
+    parameters=[{
+      'frame_id': 'lidar_link',
+      'angle_compensate': True
+    }]
   )
   imu_filter_madgwick_node = Node(
     package='imu_filter_madgwick',
@@ -175,7 +233,7 @@ def launch_setup(context):
       (namespace + '/imu/data_raw', namespace + '/agent/imu'),
       (namespace + '/imu/mag', namespace + '/agent/mag'),
     ],
-    parameters=[p.get_param_path("imu_filter_madgwick.yaml")]
+    parameters=[p.get_processed_param_path("imu_filter_madgwick.yaml", yaml_substitutions)]
   )
   joy_node = Node(
     package='joy',
@@ -197,7 +255,7 @@ def launch_setup(context):
     namespace=namespace,
     output='screen',
     parameters=[
-      p.get_param_path('ekf.yaml')
+      p.get_processed_param_path('ekf.yaml', yaml_substitutions)
     ],
     remappings=[
       ('/tf', 'tf'), 
@@ -210,16 +268,25 @@ def launch_setup(context):
     ),
     launch_arguments={
       'namespace': namespace,
-      'use_namespace': use_namespace,
       'slam': slam,
       'use_localization': use_localization,
       'map': map,
-      'params_file': p.get_param_path('nav2.yaml'),
+      'keepout_mask': keepout_mask,
+      'speed_mask': speed_mask,
+      'graph': graph,
+      'use_sim_time': use_sim_time,
+      'params_file': p.get_processed_param_path('nav2.yaml', yaml_substitutions),
       'autostart': autostart,
       'use_composition': use_composition,
+      'use_intra_process_comms': use_intra_process_comms,
+      'container_name': container_name,
       'use_respawn': use_respawn,
+      'log_level': log_level,
+      'use_keepout_zones': use_keepout_zones,
+      'use_speed_zones': use_speed_zones,
     }.items(),
   )
+
 
   return [description_node, lgdxrobot2_agent_node, lidar_node, imu_filter_madgwick_node, joy_node, robot_localization_node, ros2_nav]
 

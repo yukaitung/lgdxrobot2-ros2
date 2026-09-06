@@ -50,7 +50,7 @@
   </joint>
   <link name="base_link">
     <visual name="board">
-      <material name="lgdxrobot_green"/>
+      <material name="lgdxrobot_red"/>
       <origin rpy="0.00000 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
       <geometry>
         <mesh filename="package://lgdxrobot2_description/meshes/dae/b_LGDXRobot2_Board_001_.dae" scale="1.00000 1.00000 1.00000"/>

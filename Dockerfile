@@ -1,4 +1,4 @@
-FROM ros:jazzy AS builder
+FROM ros:lyrical AS builder
 
 WORKDIR /src
 COPY . .
@@ -10,9 +10,10 @@ RUN apt-get update \
     && apt-get install -y \
     # Install debian packages build dependencies
     python3-bloom python3-rosdep fakeroot debhelper dh-python \ 
+    dpkg wget \
     # Install dependencies
     && rosdep install --from-paths lgdxrobot2_agent --ignore-src -y \
-    && rosdep install --from-paths lgdxrobot2sim_webots --ignore-src -y \
+    #&& rosdep install --from-paths lgdxrobot2sim_webots --ignore-src -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Complie the packages
@@ -40,13 +41,13 @@ WORKDIR /src/lgdxrobot2_navigation
 RUN bloom-generate rosdebian
 RUN fakeroot debian/rules binary
 
-WORKDIR /src/lgdxrobot2sim_webots
-RUN bloom-generate rosdebian
-RUN fakeroot debian/rules binary
-
-WORKDIR /src/lgdxrobot2sim_gz
-RUN bloom-generate rosdebian
-RUN fakeroot debian/rules binary
+#WORKDIR /src/lgdxrobot2sim_webots
+#RUN bloom-generate rosdebian
+#RUN fakeroot debian/rules binary
+#
+#WORKDIR /src/lgdxrobot2sim_gz
+#RUN bloom-generate rosdebian
+#RUN fakeroot debian/rules binary
 
 # Organise the output
 ## Debian packages
