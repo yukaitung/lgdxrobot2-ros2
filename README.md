@@ -127,11 +127,12 @@ colcon build --symlink-install
 First, configure the permissions for the hardwares.
 
 ```bash
-curl -L -o rplidar.rules https://gitlab.com/lgdxrobotics/lgdxrobot2-rplidar-c1/-/raw/main/udev/rplidar.rules
-sudo cp rplidar.rules /etc/udev/rules.d
+curl -L -s -o rplidar.rules https://gitlab.com/lgdxrobotics/release-strategy-front/-/raw/main/lgdxrobot2-udev/usr/lib/udev/rules.d/99-rplidar.rules
+curl -L -s -o lgdxrobot2.rules https://gitlab.com/lgdxrobotics/release-strategy-front/-/raw/main/lgdxrobot2-udev/usr/lib/udev/rules.d/99-lgdxrobot2.rules
+sudo mv rplidar.rules /etc/udev/rules.d
+sudo mv lgdxrobot2.rules /etc/udev/rules.d
 sudo service udev reload
 sudo service udev restart
-sudo usermod -a -G dialout $USER
 ```
 
 Then, source the setup files for the ROS 2 workspaces.

@@ -73,19 +73,14 @@ launch_args = [
   
   # Sensor
   DeclareLaunchArgument(
-    name='use_lidar', 
-    default_value='True', 
-    description='Whether to enable the LiDAR.'
-  ),
-  DeclareLaunchArgument(
     name='use_joy', 
     default_value='False', 
     description='Whether to enable the joy.'
   ),
   DeclareLaunchArgument(
-      name='use_keyboard', 
-      default_value='True', 
-      description='Control the robot using `teleop_twist_keyboard`. Start the node in another terminal to control the robot.'
+    name='use_keyboard', 
+    default_value='True', 
+    description='Control the robot using `teleop_twist_keyboard`. Start the node in another terminal to control the robot.'
   ),
 ]
       
@@ -106,7 +101,6 @@ def launch_setup(context):
   use_respawn = LaunchConfiguration('use_respawn')
 
   # Sensors
-  use_lidar = LaunchConfiguration('use_lidar')
   use_joy = LaunchConfiguration('use_joy')
   use_keyboard = LaunchConfiguration('use_keyboard')
   
@@ -159,13 +153,13 @@ def launch_setup(context):
   # Sensors
   #
   lidar_node = Node(
-      package='lgdx_rplidar_c1',
-      executable='rplidar_c1_node',
-      output='screen',
-      parameters=[{
-          'frame_id': 'lidar_link'
-      }],
-      condition=IfCondition(use_lidar),
+    package='lgdx_rplidar_c1',
+    executable='rplidar_c1_node',
+    output='screen',
+    parameters=[{
+        'frame_id': 'lidar_link',
+        'angle_compensate': True
+    }],
   )
   imu_filter_madgwick_node = Node(
     package='imu_filter_madgwick',
