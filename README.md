@@ -10,7 +10,7 @@
 
 > LGDXRobot2 fully uses GitLab CI/CD for builds.<br /> [![Latest Release](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/badges/release.svg)](https://gitlab.com/lgdxrobotics/lgdxrobot2-ros2/-/releases) [![Release Strategy](https://img.shields.io/badge/Release_Strategy-821B1D)](https://lgdxrobot.uk/handbook/release-strategy/)
 
-LGDXRobot2 ROS 2 is an integration software for the LGDXRobot2 utilising ROS 2 ecosystem, especially navigation with the NAV2 stack. It provides examples for both physical robots and simulations. Also, it offers Docker images with ready-to-use ROS 2 environment on a web interface.
+LGDXRobot2 ROS 2 is an integration software for the LGDXRobot2 utilising ROS 2 ecosystem, especially navigation with the NAV2 stack. Also, it offers Docker images with ready-to-use ROS 2 environment on a web interface.
 
 The project aims to support the latest ROS 2 LTS release (see the [ROS 2 Support Policy](https://lgdxrobot.uk/handbook/ros2-support-policy/)).
 
@@ -81,7 +81,8 @@ More information on Docker: [https://lgdxrobot.uk/lgdxrobot2/docs/ros2/installat
 
 ## How to use LGDXRobot2 ROS 2
 
-[https://lgdxrobot.uk/lgdxrobot2/docs/ros2/bringup-bringup/](https://lgdxrobot.uk/lgdxrobot2/docs/ros2/bringup-bringup/)
+* [Bring up all components](https://lgdxrobot.uk/lgdxrobot2/docs/ros2/bringup-bringup/)
+* [Run NAV2](https://lgdxrobot.uk/lgdxrobot2/docs/ros2/bringup-nav2/)
 
 ## Build from Source
 
