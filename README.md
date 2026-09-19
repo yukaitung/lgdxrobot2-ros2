@@ -60,7 +60,6 @@ rm -f /tmp/lgdxrobot-apt-source.deb
 
 ```bash
 sudo apt install lgdxrobot2-udev \
-  ros-${ROS_DISTRO}-lgdx-rplidar-c1 \
   ros-${ROS_DISTRO}-lgdxrobot2-*
 ```
 
